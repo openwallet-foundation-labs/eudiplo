@@ -7,7 +7,7 @@
       "description": "Enable or disable automatic key rotation."
     },
     "intervalDays": {
-      "description": "Rotation interval in days.",
+      "description": "Rotation interval in days. Required when `enabled` is true.",
       "type": "number",
       "minimum": 1,
       "maximum": 3650

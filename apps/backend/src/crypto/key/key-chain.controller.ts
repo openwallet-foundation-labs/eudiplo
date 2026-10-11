@@ -278,6 +278,11 @@ export class KeyChainController {
     @Put(":id")
     @ApiOperation({ summary: "Update key chain metadata and rotation policy" })
     @ApiResponse({ status: 204, description: "Key chain updated successfully" })
+    @ApiResponse({
+        status: 400,
+        description:
+            "Invalid request, for example rotation enabled while neither the request nor the key chain has intervalDays",
+    })
     @ApiResponse({ status: 404, description: "Key chain not found" })
     @HttpCode(204)
     async update(

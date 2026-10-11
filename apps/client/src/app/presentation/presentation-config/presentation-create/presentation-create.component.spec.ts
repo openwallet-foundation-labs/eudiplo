@@ -63,10 +63,7 @@ describe('Presentation configuration flow', () => {
         { provide: ThemeService, useValue: { isDarkMode: false, themeChanges: new Subject() } },
         {
           provide: ConfigOwnershipService,
-          useValue: {
-            get: vi.fn().mockResolvedValue(undefined),
-            isManaged: vi.fn().mockResolvedValue(false),
-          },
+          useValue: { get: vi.fn().mockResolvedValue(undefined) },
         },
       ],
     })

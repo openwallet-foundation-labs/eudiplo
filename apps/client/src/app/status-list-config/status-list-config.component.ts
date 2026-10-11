@@ -20,6 +20,20 @@ import { LoadErrorComponent } from '../common/load-error.component';
 import { getApiErrorMessage } from '../utils/error-message';
 import { openErrorSnackBar } from '../utils/error-snackbar';
 
+const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
+
+/** The instance variable that applies to a setting the tenant does not store. */
+const globalDefaults: Record<keyof StatusListConfig, string> = {
+  capacity: 'STATUS_CAPACITY',
+  bits: 'STATUS_BITS',
+  ttl: 'STATUS_TTL',
+  immediateUpdate: 'STATUS_IMMEDIATE_UPDATE',
+  enableAggregation: 'STATUS_ENABLE_AGGREGATION',
+};
+
+/** Fixed when a list is created; the other settings apply to every list when it is signed. */
+const newListsOnly: (keyof StatusListConfig)[] = ['capacity', 'bits'];
+
 @Component({
   selector: 'app-status-list-config',
   imports: [
@@ -48,7 +62,7 @@ export class StatusListConfigComponent implements OnInit {
   configForm: FormGroup;
   isLoading = true;
   isSaving = false;
-  /** Set when the stored settings could not be loaded; the form stays hidden until a retry. */
+  /** Set when the stored settings could not be loaded; the form stays hidden. */
   loadError = '';
   currentConfig: StatusListConfig | null = null;
 
@@ -70,7 +84,7 @@ export class StatusListConfigComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadConfig();
+    void this.loadConfig();
   }
 
   async loadConfig(): Promise<void> {
@@ -78,24 +92,19 @@ export class StatusListConfigComponent implements OnInit {
     this.loadError = '';
     try {
       this.currentConfig = await this.statusListConfigService.getConfig();
-      this.configForm.patchValue({
-        capacity: this.currentConfig?.capacity ?? null,
-        bits: this.currentConfig?.bits ?? 1,
-        ttl: this.currentConfig?.ttl ?? null,
-        immediateUpdate: this.currentConfig?.immediateUpdate ?? false,
-        enableAggregation: this.currentConfig?.enableAggregation ?? true,
-      });
     } catch (error) {
       console.error('Load error:', error);
       this.loadError = getApiErrorMessage(error, 'Failed to load status list configuration');
+      return;
     } finally {
       this.isLoading = false;
     }
+    this.patchForm(this.currentConfig);
   }
 
-  /** Whether the tenant stores any setting, so Reset has something to remove. */
+  /** Whether the tenant overrides any global default, so Reset has something to do. */
   get hasStoredOverride(): boolean {
-    return Object.values(this.currentConfig ?? {}).some((value) => value != null);
+    return this.storedSettings().length > 0;
   }
 
   async onSave(): Promise<void> {
@@ -132,45 +141,72 @@ export class StatusListConfigComponent implements OnInit {
     this.isSaving = true;
     try {
       await this.statusListConfigService.resetConfig();
-      this.currentConfig = null;
-      this.configForm.patchValue({
-        capacity: null,
-        bits: 1,
-        ttl: null,
-        immediateUpdate: false,
-        enableAggregation: true,
-      });
-      this.snackBar.open('Status list configuration reset to defaults', 'Close', {
-        duration: 3000,
-      });
     } catch (error) {
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to reset configuration'));
+      return;
     } finally {
       this.isSaving = false;
     }
+    this.currentConfig = null;
+    this.patchForm(this.currentConfig);
+    this.snackBar.open('Status list configuration reset to defaults', 'Close', {
+      duration: 3000,
+    });
   }
 
   private resetConfirmation(): string {
-    const labels: Record<keyof StatusListConfig, string> = {
-      capacity: 'the capacity',
-      bits: 'the bits per entry',
-      ttl: 'the TTL',
-      immediateUpdate: 'the update mode',
-      enableAggregation: 'the aggregation setting',
-    };
-    const removed = (Object.keys(labels) as (keyof StatusListConfig)[])
-      .filter((key) => this.currentConfig?.[key] != null)
-      .map((key) => labels[key]);
-    const list =
-      removed.length > 1
-        ? `${removed.slice(0, -1).join(', ')} and ${removed[removed.length - 1]}`
-        : removed[0];
+    const stored = this.storedSettings();
+    const removed = stored.map((setting) => this.describeStored(setting));
+    const variables = (settings: (keyof StatusListConfig)[]) =>
+      listFormat.format(settings.map((setting) => globalDefaults[setting]));
+    const forNewLists = stored.filter((setting) => newListsOnly.includes(setting));
+    const forAllLists = stored.filter((setting) => !newListsOnly.includes(setting));
+    const effects = [
+      forNewLists.length ? `new status lists use ${variables(forNewLists)}` : '',
+      forAllLists.length
+        ? `all status lists, including existing ones, use ${variables(forAllLists)}`
+        : '',
+    ].filter(Boolean);
     return (
       `Reset the status list settings to the global defaults of this instance? ` +
-      `This removes ${list} stored for this tenant. All status lists then follow STATUS_TTL, ` +
-      `STATUS_IMMEDIATE_UPDATE and STATUS_ENABLE_AGGREGATION; status lists created afterwards ` +
-      `use STATUS_CAPACITY and STATUS_BITS.`
+      `This removes ${listFormat.format(removed)}. Afterwards, ${effects.join('; ')} of this ` +
+      `instance. This cannot be undone.`
     );
+  }
+
+  /** The settings the tenant stores, which Reset to Defaults removes. */
+  private storedSettings(): (keyof StatusListConfig)[] {
+    const config = this.currentConfig;
+    if (!config) return [];
+    return (Object.keys(globalDefaults) as (keyof StatusListConfig)[]).filter(
+      (setting) => config[setting] != null
+    );
+  }
+
+  private describeStored(setting: keyof StatusListConfig): string {
+    const config = this.currentConfig ?? {};
+    switch (setting) {
+      case 'capacity':
+        return `the capacity of ${this.formatCapacity(config.capacity)}`;
+      case 'bits':
+        return `${config.bits} ${config.bits === 1 ? 'bit' : 'bits'} per status`;
+      case 'ttl':
+        return `the TTL of ${this.formatTtl(config.ttl)}`;
+      case 'immediateUpdate':
+        return `${config.immediateUpdate ? 'immediate' : 'lazy'} JWT regeneration`;
+      case 'enableAggregation':
+        return `${config.enableAggregation ? 'enabled' : 'disabled'} aggregation`;
+    }
+  }
+
+  private patchForm(config: StatusListConfig | null): void {
+    this.configForm.patchValue({
+      capacity: config?.capacity ?? null,
+      bits: config?.bits ?? 1,
+      ttl: config?.ttl ?? null,
+      immediateUpdate: config?.immediateUpdate ?? false,
+      enableAggregation: config?.enableAggregation ?? true,
+    });
   }
 
   formatCapacity(capacity?: number | null): string {

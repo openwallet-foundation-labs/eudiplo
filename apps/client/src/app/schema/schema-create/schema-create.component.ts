@@ -36,6 +36,7 @@ import {
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
+import { certificateBase64, certificateValidator } from '../../utils/certificate-validator';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { SourceLoadState, loadSource, reportSourceFailures } from '../../common/load-source';
 import { SEMVER_REGEX } from '../schema-version';
@@ -189,6 +190,17 @@ export class SchemaCreateComponent implements OnInit {
     return this.composeForm.get('trustedAuthorities') as FormArray<FormGroup>;
   }
 
+  /**
+   * The root certificates in `trustedAuthorities`, with their index in that
+   * FormArray. Selected trust lists come first in the same array, so the
+   * FormArray index does not count root certificates.
+   */
+  get rootCertificates(): { group: FormGroup; index: number }[] {
+    return this.trustedAuthorities.controls
+      .map((group, index) => ({ group, index }))
+      .filter(({ group }) => group.get('frameworkType')?.value === 'x509');
+  }
+
   /** Display label for a credential config (used in select dropdown). */
   configLabel(c: CredentialConfig): string {
     return c.description ? `${c.description} (${c.id})` : c.id;
@@ -228,26 +240,14 @@ export class SchemaCreateComponent implements OnInit {
     return group;
   }
 
-  private createTrustedAuthorityGroup(
-    frameworkType = '',
-    value = '',
-    isLoTE = false,
-    verificationMethod = '',
-    imported = false
-  ): FormGroup {
-    const group = this.fb.group({
-      frameworkType: [frameworkType, Validators.required],
-      value: [value, Validators.required],
-      isLoTE: [isLoTE],
-      verificationMethod: [verificationMethod],
-      imported: [imported],
+  /** A root certificate the user enters, in base64 DER or PEM. */
+  private createRootCertificateGroup(): FormGroup {
+    return this.fb.group({
+      frameworkType: ['x509', Validators.required],
+      value: ['', [Validators.required, certificateValidator]],
     });
-    if (imported) {
-      group.get('frameworkType')!.disable();
-      group.get('value')!.disable();
-    }
-    return group;
   }
+
   private createTrustListGroup(trustListId: string, label: string, isLoTE = true): FormGroup {
     return this.fb.group({
       trustListId: [trustListId],
@@ -258,7 +258,7 @@ export class SchemaCreateComponent implements OnInit {
   }
 
   addX509TrustAnchor(): void {
-    this.trustedAuthorities.push(this.createTrustedAuthorityGroup('x509', '', false, '', false));
+    this.trustedAuthorities.push(this.createRootCertificateGroup());
   }
 
   removeTrustedAuthority(index: number): void {
@@ -291,9 +291,11 @@ export class SchemaCreateComponent implements OnInit {
       }
     }
 
-    const directAuthorities = this.trustedAuthorities.controls
-      .filter((group) => !group.get('trustListId')?.value)
-      .map((group) => group.getRawValue());
+    // Root certificates keep their FormGroup, so their values and the errors
+    // a Submit revealed stay.
+    const rootCertificates = this.trustedAuthorities.controls.filter(
+      (group) => !group.get('trustListId')?.value
+    );
 
     this.trustedAuthorities.clear();
     for (const id of selectedIds) {
@@ -305,16 +307,8 @@ export class SchemaCreateComponent implements OnInit {
       this.trustedAuthorities.push(this.createTrustListGroup(id, label, isLoTE));
     }
 
-    for (const authority of directAuthorities) {
-      this.trustedAuthorities.push(
-        this.createTrustedAuthorityGroup(
-          authority['frameworkType'] ?? 'x509',
-          authority['value'] ?? '',
-          authority['isLoTE'] ?? false,
-          authority['verificationMethod'] ?? '',
-          false
-        )
-      );
+    for (const group of rootCertificates) {
+      this.trustedAuthorities.push(group);
     }
   }
 
@@ -376,8 +370,9 @@ export class SchemaCreateComponent implements OnInit {
       trustedAuthorities: (raw.trustedAuthorities as Record<string, unknown>[]).map((e) => ({
         ...(e['trustListId'] ? { trustListId: e['trustListId'] } : {}),
         ...(e['frameworkType'] ? { frameworkType: e['frameworkType'] } : {}),
-        ...(e['value'] ? { value: String(e['value']).replace(/\s/g, '') } : {}),
-        ...(e['verificationMethod'] ? { verificationMethod: e['verificationMethod'] } : {}),
+        ...(typeof e['value'] === 'string' && e['value']
+          ? { value: certificateBase64(e['value']) }
+          : {}),
       })),
     };
   }

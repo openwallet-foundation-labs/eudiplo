@@ -1,4 +1,4 @@
-/** Rotation intervals in days that an import of a CA key for rotation leaves out. */
+/** Rotation intervals in days that an import with rotation enabled leaves out. */
 const IMPORTED_ROTATION_DEFAULTS = {
     intervalDays: 90,
     certValidityDays: 365,

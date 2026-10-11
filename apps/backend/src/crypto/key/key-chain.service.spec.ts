@@ -1,5 +1,5 @@
 import type { ExecutionContext } from "@nestjs/common";
-import { ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { describe, expect, it, vi } from "vitest";
 import { Role } from "../../auth/roles/role.enum.js";
@@ -135,6 +135,94 @@ describe("KeyChainService.export", () => {
         expect(service.keyChainRepository.findOne).toHaveBeenCalledWith({
             where: { tenantId: "tenant", id: "key" },
         });
+    });
+});
+
+describe("KeyChainService.update rotation policy", () => {
+    function updateServiceFor(entity: KeyChainEntity) {
+        const service = serviceFor(entity, "db") as any;
+        service.keyChainRepository.update = vi.fn();
+        service.logger = { log: vi.fn() };
+        return service as KeyChainService & {
+            keyChainRepository: { update: ReturnType<typeof vi.fn> };
+        };
+    }
+
+    it("rejects enabling rotation without an interval", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await expect(
+            service.update("tenant", "key", {
+                rotationPolicy: { enabled: true },
+            }),
+        ).rejects.toThrow(BadRequestException);
+        expect(service.keyChainRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("enables rotation with the interval of the request", async () => {
+        const service = updateServiceFor(keyChain({}));
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: true, intervalDays: 30 },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: true, rotationIntervalDays: 30 },
+        );
+    });
+
+    it("enables rotation with the stored interval", async () => {
+        const service = updateServiceFor(
+            keyChain({ rotationIntervalDays: 90 }),
+        );
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: true },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: true },
+        );
+    });
+
+    it("turns off rotation of a key chain without interval", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: false },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: false },
+        );
+    });
+
+    it("leaves other updates of a key chain without interval alone", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await service.update("tenant", "key", { description: "Signing" });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { description: "Signing" },
+        );
     });
 });
 

@@ -226,36 +226,46 @@
           </mat-error>
         </mat-form-field>
         <div formArrayName="trustedAuthorities" fxLayout="column" fxLayoutGap="8px">
-          @for (authority of trustedAuthorities.controls; track authority; let index = $index) {
-            @if (authority.get('frameworkType')?.value === 'x509') {
-              <div
-                [formGroupName]="index"
-                fxLayout="row"
-                fxLayoutGap="8px"
-                fxLayoutAlign="start center"
-              >
-                <mat-form-field appearance="outline" fxFlex>
-                  <mat-label>Root certificate (base64 DER)</mat-label>
-                  <textarea
-                    matInput
-                    formControlName="value"
-                    [id]="'root-certificate-' + index"
-                    rows="3"
-                    placeholder="MIIB..."
-                  ></textarea>
+          @for (certificate of rootCertificates; track certificate.group; let n = $index) {
+            <div
+              [formGroupName]="certificate.index"
+              fxLayout="row"
+              fxLayoutGap="8px"
+              fxLayoutAlign="start center"
+            >
+              <mat-form-field appearance="outline" fxFlex>
+                <mat-label>Root certificate {{ n + 1 }} (PEM or base64 DER)</mat-label>
+                <textarea
+                  matInput
+                  formControlName="value"
+                  [id]="'root-certificate-' + (n + 1)"
+                  rows="3"
+                  placeholder="MIIB..."
+                ></textarea>
+                @if (certificate.group.get('value')?.hasError('certificate')) {
+                  <mat-error>Must be a base64-encoded DER or PEM certificate.</mat-error>
+                } @else if (
+                  certificate.group.get('value')?.getError('multipleCertificates');
+                  as error
+                ) {
+                  <mat-error
+                    >Contains {{ error.count }} certificates. Paste only the root
+                    certificate.</mat-error
+                  >
+                } @else {
                   <mat-error>Paste the root certificate or remove this entry.</mat-error>
-                </mat-form-field>
-                <button
-                  mat-icon-button
-                  type="button"
-                  (click)="removeTrustedAuthority(index)"
-                  matTooltip="Remove root certificate"
-                  aria-label="Remove root certificate"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
+                }
+              </mat-form-field>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="removeTrustedAuthority(certificate.index)"
+                [matTooltip]="'Remove root certificate ' + (n + 1)"
+                [attr.aria-label]="'Remove root certificate ' + (n + 1)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           }
         </div>
         <button mat-stroked-button type="button" (click)="addX509TrustAnchor()" class="no-shrink">

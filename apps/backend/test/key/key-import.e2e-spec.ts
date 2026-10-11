@@ -165,6 +165,72 @@ describe("Key Chain — Import (e2e)", () => {
                 .expect(201);
 
             expect(reimported.body.id).toBe(keyId);
+            const keyChain = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(keyChain.body.type).toBe("internalChain");
+            expect(keyChain.body.rootCertificate.pem).toBe(
+                exported.body.crt[0],
+            );
+        });
+
+        test("re-imports the export of a standalone key chain with rotation enabled", async () => {
+            const created = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send({
+                    usageType: KeyUsageType.Attestation,
+                    type: "standalone",
+                    rotationPolicy: { enabled: true, intervalDays: 90 },
+                })
+                .expect(201);
+            const keyId = created.body.id;
+            const original = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+
+            const exported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}/export`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+
+            expect(exported.body.crt).toHaveLength(1);
+            expect(exported.body.rotationPolicy).toEqual({
+                enabled: true,
+                intervalDays: 90,
+            });
+
+            await request(app.getHttpServer())
+                .delete(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(204);
+            await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send(exported.body)
+                .expect(201);
+
+            const reimported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(reimported.body).toMatchObject({
+                type: "standalone",
+                activePublicKey: original.body.activePublicKey,
+                activeCertificate: { pem: original.body.activeCertificate.pem },
+                rotationPolicy: { enabled: true, intervalDays: 90 },
+            });
+            expect(reimported.body.rotationPolicy.nextRotationAt).toBeDefined();
+            expect(reimported.body).not.toHaveProperty("rootCertificate");
+
+            const reexported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}/export`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(reexported.body.key).toEqual(exported.body.key);
+            expect(reexported.body.crt).toEqual(exported.body.crt);
         });
 
         test("does not export key chains of another tenant", async () => {
@@ -174,6 +240,40 @@ describe("Key Chain — Import (e2e)", () => {
                 .get(`/key-chain/${keyId}/export`)
                 .set("Authorization", `Bearer ${tenantAdminToken}`)
                 .expect(404);
+        });
+    });
+
+    describe("rotation policy", () => {
+        test("rejects enabling rotation without an interval", async () => {
+            const response = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    usageType: KeyUsageType.Attestation,
+                    type: "standalone",
+                    rotationPolicy: { enabled: true },
+                })
+                .expect(400);
+            expect(JSON.stringify(response.body)).toContain("intervalDays");
+
+            const created = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    usageType: KeyUsageType.Attestation,
+                    type: "standalone",
+                })
+                .expect(201);
+            await request(app.getHttpServer())
+                .put(`/key-chain/${created.body.id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({ rotationPolicy: { enabled: true } })
+                .expect(400);
+            await request(app.getHttpServer())
+                .put(`/key-chain/${created.body.id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({ rotationPolicy: { enabled: true, intervalDays: 30 } })
+                .expect(204);
         });
     });
 });

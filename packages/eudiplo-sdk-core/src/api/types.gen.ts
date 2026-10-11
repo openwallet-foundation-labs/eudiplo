@@ -75,10 +75,6 @@ export type TokenResponse = {
      */
     access_token: string;
     /**
-     * Optional refresh token
-     */
-    refresh_token?: string;
-    /**
      * Token type
      */
     token_type: 'Bearer';
@@ -1184,7 +1180,7 @@ export type RotationPolicyCreateDto = {
      */
     intervalDays?: number;
     /**
-     * Certificate validity in days. Defaults to rotation interval + 30 days grace period.
+     * Certificate validity in days. Defaults to 365.
      */
     certValidityDays?: number;
 };
@@ -1215,7 +1211,7 @@ export type KeyChainCreateDto = {
          */
         enabled?: boolean;
         /**
-         * Rotation interval in days.
+         * Rotation interval in days. Required when `enabled` is true.
          */
         intervalDays?: number;
         /**
@@ -1265,7 +1261,7 @@ export type EcJwk = {
 
 export type RotationPolicyImportDto = {
     /**
-     * Whether rotation is enabled. When true, the imported key becomes a root CA signer.
+     * Whether rotation is enabled. When true, the imported key becomes a root CA signer, unless crt is a single self-signed certificate that is not a CA.
      */
     enabled: boolean;
     /**
@@ -1329,7 +1325,7 @@ export type KeyChainImportDto = {
      */
     usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
     /**
-     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate.
+     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate, unless the chain is a single self-signed certificate that is not a CA.
      */
     crt?: Array<string>;
     /**
@@ -1337,7 +1333,7 @@ export type KeyChainImportDto = {
      */
     kmsProvider?: string;
     /**
-     * Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key.
+     * Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. intervalDays defaults to 90 and certValidityDays to 365.
      */
     rotationPolicy?: RotationPolicyImportDto & {
         /**
@@ -1357,7 +1353,7 @@ export type KeyChainImportDto = {
 
 export type RotationPolicyUpdateDto = {
     /**
-     * Whether automatic key rotation is enabled.
+     * Whether automatic key rotation is enabled. Enabling it needs intervalDays, in the request or already set on the key chain.
      */
     enabled?: boolean;
     /**
@@ -1676,7 +1672,7 @@ export type SchemaUriEntry = {
 
 export type TrustAuthorityEntry = {
     /**
-     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
      */
     trustListId?: string;
     /**
@@ -1684,7 +1680,7 @@ export type TrustAuthorityEntry = {
      */
     frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
     /**
-     * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+     * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
      */
     value?: string;
     /**
@@ -1744,11 +1740,11 @@ export type SchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -1756,7 +1752,7 @@ export type SchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -4979,11 +4975,11 @@ export type PublishSchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -4991,7 +4987,7 @@ export type PublishSchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -5088,11 +5084,11 @@ export type SignSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5100,7 +5096,7 @@ export type SignSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
@@ -5182,11 +5178,11 @@ export type SignVersionSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5194,7 +5190,7 @@ export type SignVersionSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
@@ -6781,6 +6777,10 @@ export type KeyChainControllerUpdateData = {
 };
 
 export type KeyChainControllerUpdateErrors = {
+    /**
+     * Invalid request, for example rotation enabled while neither the request nor the key chain has intervalDays
+     */
+    400: unknown;
     /**
      * Key chain not found
      */

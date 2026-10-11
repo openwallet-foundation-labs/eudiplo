@@ -1,5 +1,9 @@
+import { createPrivateKey, type KeyObject, X509Certificate } from "node:crypto";
 import type { KeyChainEntity } from "../../crypto/key/entities/key-chain.entity.js";
 import { importedRotationIntervals } from "../../crypto/key/key-chain-import-rotation.js";
+import type { ConfigDocument } from "./config-resource.types.js";
+import { documentSourceHash } from "./config-source-hash.js";
+import type { ConfigResourceMetadataEntity } from "./entities/config-resource-metadata.entity.js";
 
 type Spec = Record<string, any>;
 
@@ -7,6 +11,184 @@ interface RotationPolicy {
     enabled: boolean;
     intervalDays?: number;
     certValidityDays?: number;
+}
+
+interface InternalChainProblem {
+    code: string;
+    path: string;
+    message: string;
+}
+
+/**
+ * A `private-jwk` key source with `activeJwk` describes an internal chain as
+ * stored: `jwk` is the root CA key with its certificate in `crt`, `activeJwk`
+ * the signing key with its certificate in `activeCertificate`. Applying it
+ * saves both pairs in the database as they are. A private key without
+ * `activeJwk` goes through the key chain importer instead.
+ */
+export function isInternalChainWithPrivateKeys(spec: Spec): boolean {
+    return spec.keySource?.type === "private-jwk" && !!spec.keySource.activeJwk;
+}
+
+/**
+ * A key chain never equals its document once applied: importers add key IDs,
+ * EUDIPLO creates the signing key of a CA key, and rotation or registrar
+ * enrollment replace keys and certificates. So a key chain that this source
+ * applied from the same document and that stayed file-managed is unchanged,
+ * without comparing it with the stored key chain.
+ */
+export function keyChainAppliedAsIs(
+    document: ConfigDocument,
+    metadata: Pick<
+        ConfigResourceMetadataEntity,
+        "ownership" | "source" | "sourceHash"
+    >,
+    source: string,
+): boolean {
+    return (
+        document.kind === "KeyChain" &&
+        metadata.ownership === "file-managed" &&
+        metadata.source === source &&
+        metadata.sourceHash === documentSourceHash(document)
+    );
+}
+
+/**
+ * The KMS provider that applying a key chain document stores, so the plan
+ * and apply agree: an internal chain with private keys always goes into the
+ * database.
+ */
+export function appliedKmsProvider(spec: Spec): string | undefined {
+    return isInternalChainWithPrivateKeys(spec) ? "db" : spec.kmsProvider;
+}
+
+/** What applying an internal chain with private keys would reject or drop. */
+export function internalChainProblems(spec: Spec): InternalChainProblem[] {
+    const rootKey = privateKey(spec.keySource?.jwk);
+    const activeKey = privateKey(spec.keySource?.activeJwk);
+    const problems: Array<InternalChainProblem | undefined> = [
+        spec.kmsProvider === undefined || spec.kmsProvider === "db"
+            ? undefined
+            : {
+                  code: "INVALID_KMS_PROVIDER",
+                  path: "/spec/kmsProvider",
+                  message:
+                      "An internal chain with private keys is stored in the database. Omit kmsProvider or set it to db.",
+              },
+        rootKey
+            ? undefined
+            : {
+                  code: "INVALID_PRIVATE_KEY",
+                  path: "/spec/keySource/jwk",
+                  message: "keySource.jwk is not a valid private key.",
+              },
+        activeKey
+            ? undefined
+            : {
+                  code: "INVALID_PRIVATE_KEY",
+                  path: "/spec/keySource/activeJwk",
+                  message: "keySource.activeJwk is not a valid private key.",
+              },
+        rootCertificateProblem(spec.crt, rootKey),
+        activeCertificateProblem(spec.activeCertificate, activeKey),
+    ];
+    return problems.filter((problem) => problem !== undefined);
+}
+
+function rootCertificateProblem(
+    crt: unknown,
+    rootKey: KeyObject | undefined,
+): InternalChainProblem | undefined {
+    if (!Array.isArray(crt) || crt.length !== 1) {
+        return {
+            code: "ROOT_CERTIFICATE_REQUIRED",
+            path: "/spec/crt",
+            message:
+                "crt must contain exactly one certificate: the root CA certificate of keySource.jwk.",
+        };
+    }
+    const root = certificate(crt[0]);
+    if (!root) {
+        return {
+            code: "INVALID_CERTIFICATE",
+            path: "/spec/crt/0",
+            message: "The root CA certificate is not a PEM certificate.",
+        };
+    }
+    // Rotation signs new signing certificates with the root.
+    if (!root.ca) {
+        return {
+            code: "ROOT_CERTIFICATE_NOT_CA",
+            path: "/spec/crt/0",
+            message:
+                "The root certificate must be a CA certificate (basicConstraints CA=true).",
+        };
+    }
+    if (rootKey && !belongsTo(root, rootKey)) {
+        return {
+            code: "CERTIFICATE_KEY_MISMATCH",
+            path: "/spec/crt/0",
+            message:
+                "The root CA certificate does not belong to keySource.jwk.",
+        };
+    }
+    return undefined;
+}
+
+function activeCertificateProblem(
+    activeCertificate: unknown,
+    activeKey: KeyObject | undefined,
+): InternalChainProblem | undefined {
+    if (!activeCertificate) {
+        return {
+            code: "ACTIVE_CERTIFICATE_REQUIRED",
+            path: "/spec/activeCertificate",
+            message: "activeCertificate is required with keySource.activeJwk.",
+        };
+    }
+    const active = certificate(activeCertificate);
+    if (!active) {
+        return {
+            code: "INVALID_CERTIFICATE",
+            path: "/spec/activeCertificate",
+            message: "activeCertificate does not start with a PEM certificate.",
+        };
+    }
+    if (activeKey && !belongsTo(active, activeKey)) {
+        return {
+            code: "CERTIFICATE_KEY_MISMATCH",
+            path: "/spec/activeCertificate",
+            message:
+                "The first certificate in activeCertificate does not belong to keySource.activeJwk.",
+        };
+    }
+    return undefined;
+}
+
+function privateKey(jwk: unknown): KeyObject | undefined {
+    try {
+        return createPrivateKey({ key: jwk as JsonWebKey, format: "jwk" });
+    } catch {
+        return undefined;
+    }
+}
+
+/** The first certificate of a PEM value. */
+function certificate(value: unknown): X509Certificate | undefined {
+    if (typeof value !== "string") return undefined;
+    try {
+        return new X509Certificate(value);
+    } catch {
+        return undefined;
+    }
+}
+
+function belongsTo(certificate: X509Certificate, key: KeyObject): boolean {
+    try {
+        return certificate.checkPrivateKey(key);
+    } catch {
+        return false;
+    }
 }
 
 /**
@@ -35,7 +217,10 @@ export function appliedRotationPolicy(spec: Spec): RotationPolicy {
     const enabled: boolean = policy.enabled ?? false;
     const intervalDays = policy.intervalDays ?? undefined;
     const certValidityDays = policy.certValidityDays ?? undefined;
-    if (spec.keySource?.type !== "private-jwk" || spec.keySource.activeJwk)
+    if (
+        spec.keySource?.type !== "private-jwk" ||
+        isInternalChainWithPrivateKeys(spec)
+    )
         return { enabled, intervalDays, certValidityDays };
     if (!enabled) return { enabled };
     return { enabled, ...importedRotationIntervals(policy) };

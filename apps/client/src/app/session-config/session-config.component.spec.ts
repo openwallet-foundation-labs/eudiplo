@@ -93,7 +93,7 @@ describe('SessionConfigComponent', () => {
       providers: [
         {
           provide: ConfigOwnershipService,
-          useValue: { get: async () => undefined, isManaged: async () => false },
+          useValue: { get: async () => undefined },
         },
       ],
     })

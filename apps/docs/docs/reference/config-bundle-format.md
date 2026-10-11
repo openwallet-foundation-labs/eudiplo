@@ -147,6 +147,25 @@ A secret that is not set, such as the client secret of a registrar account witho
 `regenerate` keeps the key chain ID but creates a new cryptographic identity:
 certificates and anything bound to the old key must be renewed.
 
+A `private-jwk` key source takes one of two forms:
+
+- With only `jwk`, the document is imported like
+  [`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate)
+  and accepts only that request's fields. To restore an exported internal
+  chain from its root CA key, remove `activeCertificate` and set
+  `rotationPolicy` to `{ "enabled": true }`, optionally with intervals:
+  EUDIPLO keeps the root and creates a new signing key under it (an external
+  CA chain). Without rotation, the root CA key itself becomes the signing key.
+- With `activeJwk` as well, it stores an internal chain as given, in the
+  database: `jwk` is the root CA key and `crt` holds exactly its certificate,
+  `activeJwk` is the signing key and `activeCertificate` its certificate,
+  which may be followed by the root certificate. Both certificates must be
+  PEM and match their keys, the root certificate must be a CA certificate,
+  and `kmsProvider` must be `db` or left out; the plan blocks the resource
+  otherwise. Exports never contain the signing key of an internal chain
+  ([key chain export](../trust/keys-and-certificates.md#import-a-key-and-certificate)),
+  so this form needs key material you hold outside EUDIPLO.
+
 **Placeholders.** Any string value can be `${VAR}` or `${VAR:default}`
 (uppercase letters, digits, `_`; an empty variable counts as unset). Values are
 substituted once and not interpreted again. In tenant folders, unresolved
@@ -169,7 +188,7 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | ----------- | ------------------------------------------------------------------------------------------- |
 | `create`    | The resource will be created                                                                |
 | `update`    | The resource will change; the plan lists redacted field changes                            |
-| `unchanged` | Already matches; only ownership metadata may be updated                                     |
+| `unchanged` | Already matches, or a key chain document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), or in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
@@ -181,6 +200,8 @@ A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields
 - A rotation value it leaves out or sets to `null` is not set. Exception: a `private-jwk` key source without `activeJwk` is imported like `POST /api/key-chain/import`, so with rotation enabled a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365, and with rotation disabled no intervals are stored.
 
 The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
+
+A `KeyChain` document that is identical to the one last applied from the same source (the same config folder, or bundles whose manifest names the same tenant) plans `unchanged` while the key chain is `file-managed`, without comparing it with the stored key chain: importers add key IDs, EUDIPLO creates the signing key of a CA key, and rotation or registrar enrollment replace keys and certificates later. These changes stay, so certificates EUDIPLO created during the import are only renewed by rotation. Reattaching always applies the folder version. To apply an unchanged document again, for example to regenerate a key, raise `metadata.generation`; in a bundle, also update the document's `sha256` in `manifest.json`.
 
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in

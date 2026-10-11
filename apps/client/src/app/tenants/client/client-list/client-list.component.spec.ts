@@ -20,7 +20,7 @@ describe('ClientListComponent role limits', () => {
       providers: [
         provideRouter([]),
         { provide: JwtService, useValue: { getRoles: () => ['clients:manage', 'issuance:offer'] } },
-        { provide: ConfigOwnershipService, useValue: { isManaged: async () => false } },
+        { provide: ConfigOwnershipService, useValue: { get: async () => undefined } },
       ],
     }).compileComponents();
 
@@ -91,7 +91,7 @@ describe('ClientListComponent delete', () => {
       providers: [
         provideRouter([]),
         { provide: JwtService, useValue: { getRoles: () => ['clients:manage', 'issuance:offer'] } },
-        { provide: ConfigOwnershipService, useValue: { isManaged: async () => false } },
+        { provide: ConfigOwnershipService, useValue: { get: async () => undefined } },
         { provide: ApiService, useValue: { getClientId: () => 'offer', logout } },
         { provide: MatSnackBar, useValue: snackBar },
       ],

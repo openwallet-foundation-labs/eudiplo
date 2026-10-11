@@ -53,6 +53,7 @@
         <button
           matIconButton
           [routerLink]="[endpoint.id]"
+          matTooltip="View webhook endpoint"
           [attr.aria-label]="'View webhook endpoint ' + endpoint.id"
         >
           <mat-icon>visibility</mat-icon>
@@ -63,6 +64,7 @@
           appConfigManaged
           managedKind="WebhookEndpoint"
           [managedResourceId]="endpoint.id"
+          matTooltip="Edit webhook endpoint"
           [attr.aria-label]="'Edit webhook endpoint ' + endpoint.id"
         >
           <mat-icon>edit</mat-icon>

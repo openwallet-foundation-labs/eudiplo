@@ -60,10 +60,6 @@ export class ConfigOwnershipService {
     return (await this.listKind(kind)).find((resource) => resource.resourceId === resourceId);
   }
 
-  async isManaged(kind: ConfigResourceKind, resourceId: string): Promise<boolean> {
-    return (await this.get(kind, resourceId))?.ownership === 'file-managed';
-  }
-
   async detach(kind: ConfigResourceKind, resourceId: string): Promise<ConfigResourceMetadata> {
     const result = await configPortabilityControllerDetach<true>({
       client: this.api.client,

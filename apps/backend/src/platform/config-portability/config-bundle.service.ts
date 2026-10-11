@@ -45,7 +45,9 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import {
+    appliedKmsProvider,
     appliedRotationPolicy,
+    keyChainAppliedAsIs,
     keyChainSettingsSpec,
 } from "./key-chain-document.js";
 
@@ -557,10 +559,21 @@ export class ConfigBundleService {
                     issue.severity === "error" ||
                     issue.severity === "required-input",
             );
-            const comparison =
-                exists && mode !== "create" && !blocked && !skipDiverged
-                    ? await this.compareDocument(tenantId, result.document)
-                    : undefined;
+            let comparison:
+                | { unchanged: boolean; changes: ConfigChange[] }
+                | undefined;
+            if (exists && mode !== "create" && !blocked && !skipDiverged) {
+                // Reattach restores the folder version, so it always compares.
+                comparison =
+                    !options.reattach &&
+                    keyChainAppliedAsIs(
+                        result.document,
+                        metadata,
+                        ownershipSource,
+                    )
+                        ? { unchanged: true, changes: [] }
+                        : await this.compareDocument(tenantId, result.document);
+            }
             const metadataChanged =
                 metadata.ownership !== "file-managed" ||
                 metadata.source !== ownershipSource ||
@@ -1289,9 +1302,11 @@ export class ConfigBundleService {
             desired.registrationCertificateDefaults === null
         )
             delete desired.registrationCertificateDefaults;
-        // Compare with the rotation policy the importers store for the document.
-        if (document.kind === "KeyChain")
+        // Compare with the settings the importers store for the document.
+        if (document.kind === "KeyChain") {
             desired.rotationPolicy = appliedRotationPolicy(desired);
+            desired.kmsProvider = appliedKmsProvider(desired);
+        }
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&

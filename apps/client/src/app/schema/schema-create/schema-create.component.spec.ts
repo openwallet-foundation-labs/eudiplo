@@ -3,10 +3,16 @@ import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import {
+  OTHER_TEST_ROOT_CERTIFICATE_PEM,
+  pemToBase64Der,
+  TEST_ROOT_CERTIFICATE_PEM,
+} from '../../utils/certificate-validator.testing';
 import { SchemaService } from '../schema.service';
 import { SchemaCreateComponent } from './schema-create.component';
 import { errorSnackBarDuration } from '../../utils/error-snackbar';
@@ -324,6 +330,8 @@ describe('SchemaCreateComponent loading its sources', () => {
 });
 
 describe('SchemaCreateComponent required fields', () => {
+  const root = pemToBase64Der(TEST_ROOT_CERTIFICATE_PEM);
+  const other = pemToBase64Der(OTHER_TEST_ROOT_CERTIFICATE_PEM);
   let publishSchemaMetadata: ReturnType<typeof vi.fn>;
   let loadConfigurations: ReturnType<typeof vi.fn>;
   /** Answer of the backend to the trust-list request. */
@@ -426,10 +434,152 @@ describe('SchemaCreateComponent required fields', () => {
     fixture.detectChanges();
 
     const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
-      'label[for="root-certificate-0"]'
+      'label[for="root-certificate-1"]'
     );
     expect(labels).toHaveLength(1);
-    expect(labels[0].textContent).toContain('Root certificate (base64 DER)');
+    expect(labels[0].textContent).toContain('Root certificate 1 (PEM or base64 DER)');
+  });
+
+  it('numbers root certificates among themselves, behind the selected trust lists', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    component.addX509TrustAnchor();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({ value: root });
+    component.trustedAuthorities.at(1).patchValue({ value: other });
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    fixture.detectChanges();
+
+    const fields = () =>
+      [...element.querySelectorAll<HTMLTextAreaElement>('textarea[id^="root-certificate-"]')].map(
+        (textarea) => ({
+          label: element.querySelector(`label[for="${textarea.id}"]`)?.textContent?.trim(),
+          value: textarea.value,
+        })
+      );
+    const removeButtons = () => [
+      ...element.querySelectorAll<HTMLButtonElement>(
+        'button[aria-label^="Remove root certificate"]'
+      ),
+    ];
+
+    expect(fields()).toEqual([
+      { label: 'Root certificate 1 (PEM or base64 DER)', value: root },
+      { label: 'Root certificate 2 (PEM or base64 DER)', value: other },
+    ]);
+    expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Remove root certificate 1',
+      'Remove root certificate 2',
+    ]);
+    const tooltipText = async (name: string) => {
+      const tooltip = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+        MatTooltipHarness.with({ selector: `[aria-label="${name}"]` })
+      );
+      await tooltip.show();
+      return tooltip.getTooltipText();
+    };
+    expect(await tooltipText('Remove root certificate 2')).toBe('Remove root certificate 2');
+
+    removeButtons()[0].click();
+    fixture.detectChanges();
+
+    expect(fields()).toEqual([{ label: 'Root certificate 1 (PEM or base64 DER)', value: other }]);
+    expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Remove root certificate 1',
+    ]);
+    expect(await tooltipText('Remove root certificate 1')).toBe('Remove root certificate 1');
+
+    // The remaining row still edits its own entry, behind the trust list.
+    const textarea = element.querySelector<HTMLTextAreaElement>('#root-certificate-1')!;
+    textarea.value = TEST_ROOT_CERTIFICATE_PEM;
+    textarea.dispatchEvent(new Event('input'));
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    await component.submit();
+
+    expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
+      { trustListId: 'tl-1' },
+      { frameworkType: 'x509', value: root },
+    ]);
+  });
+
+  it('flags a root certificate that is not base64 DER at its field, without sending it', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({ value: 'not a certificate' });
+    const fieldText = () =>
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('#root-certificate-1')!
+        .closest('mat-form-field')!.textContent;
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(fieldText()).toContain('Must be a base64-encoded DER or PEM certificate.');
+    expect(fieldText()).not.toContain('Paste the root certificate');
+
+    // Selecting a trust list afterwards keeps the entry and its error.
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    fixture.detectChanges();
+
+    expect(fieldText()).toContain('Must be a base64-encoded DER or PEM certificate.');
+    submitButton(fixture).click();
+    fixture.detectChanges();
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+  });
+
+  it('flags a pasted certificate chain at its field, without sending it', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    // A fullchain.pem: the first certificate's base64 has no padding, so
+    // without the PEM armor the two read as one base64 value.
+    component.trustedAuthorities.at(0).patchValue({
+      value: TEST_ROOT_CERTIFICATE_PEM + OTHER_TEST_ROOT_CERTIFICATE_PEM,
+    });
+    const fieldText = () =>
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('#root-certificate-1')!
+        .closest('mat-form-field')!
+        .textContent!.replace(/\s+/g, ' ');
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(fieldText()).toContain('Contains 2 certificates. Paste only the root certificate.');
+    expect(fieldText()).not.toContain('Must be a base64-encoded DER or PEM certificate.');
+
+    component.trustedAuthorities.at(0).patchValue({ value: OTHER_TEST_ROOT_CERTIFICATE_PEM });
+    fixture.detectChanges();
+
+    expect(fieldText()).not.toContain('Contains 2 certificates');
+  });
+
+  it('sends a pasted PEM root certificate as base64 DER', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({ value: OTHER_TEST_ROOT_CERTIFICATE_PEM });
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    await component.submit();
+
+    expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
+      { frameworkType: 'x509', value: other },
+    ]);
   });
 
   it('does not navigate after a submit that finishes once the user has left', async () => {

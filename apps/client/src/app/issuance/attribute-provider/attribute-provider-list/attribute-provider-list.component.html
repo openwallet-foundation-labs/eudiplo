@@ -53,6 +53,7 @@
         <button
           matIconButton
           [routerLink]="[provider.id]"
+          matTooltip="View attribute provider"
           [attr.aria-label]="'View attribute provider ' + provider.id"
         >
           <mat-icon>visibility</mat-icon>
@@ -63,6 +64,7 @@
           appConfigManaged
           managedKind="AttributeProvider"
           [managedResourceId]="provider.id"
+          matTooltip="Edit attribute provider"
           [attr.aria-label]="'Edit attribute provider ' + provider.id"
         >
           <mat-icon>edit</mat-icon>

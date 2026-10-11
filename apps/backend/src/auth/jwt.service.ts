@@ -3,8 +3,11 @@ import { ConfigService } from "@nestjs/config";
 import { jwtVerify, SignJWT } from "jose";
 import { InternalTokenPayload, TokenPayload } from "./token.decorator.js";
 
+/** Lifetime of the access tokens the built-in OAuth2 server issues. */
+export const ACCESS_TOKEN_LIFETIME_SECONDS = 24 * 60 * 60;
+
 export interface GenerateTokenOptions {
-    expiresIn?: string;
+    expiresInSeconds: number;
     audience?: string;
     subject: string;
 }
@@ -17,7 +20,7 @@ export class JwtService {
      * Generate a JWT token for integrated OAuth2 server
      */
     async generateToken(
-        payload: InternalTokenPayload,
+        payload: Omit<InternalTokenPayload, "iat" | "exp">,
         options: GenerateTokenOptions,
     ): Promise<string> {
         if (this.isUsingExternalOIDC()) {
@@ -28,9 +31,8 @@ export class JwtService {
 
         const secret = this.configService.getOrThrow<string>("MASTER_SECRET");
         const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
-        const expiresIn =
-            options.expiresIn ||
-            this.configService.getOrThrow<string>("JWT_EXPIRES_IN");
+        // One clock read, so exp - iat is exactly the lifetime.
+        const issuedAt = Math.floor(Date.now() / 1000);
 
         const secretKey = new TextEncoder().encode(secret);
 
@@ -38,10 +40,10 @@ export class JwtService {
             ...payload,
         })
             .setProtectedHeader({ alg: "HS256" })
-            .setIssuedAt()
+            .setIssuedAt(issuedAt)
             .setIssuer(issuer)
             .setSubject(options.subject)
-            .setExpirationTime(expiresIn);
+            .setExpirationTime(issuedAt + options.expiresInSeconds);
 
         if (options.audience) {
             jwt.setAudience(options.audience);

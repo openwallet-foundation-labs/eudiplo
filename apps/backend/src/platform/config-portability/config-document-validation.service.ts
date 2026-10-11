@@ -22,6 +22,10 @@ import type {
     ConfigMigrationIssue,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import {
+    internalChainProblems,
+    isInternalChainWithPrivateKeys,
+} from "./key-chain-document.js";
 
 @Injectable()
 export class ConfigDocumentValidationService {
@@ -143,6 +147,10 @@ export class ConfigDocumentValidationService {
                 "provider, externalKeyId, and publicJwk are required for an external key reference.",
             );
         }
+        if (isInternalChainWithPrivateKeys(spec)) {
+            for (const problem of internalChainProblems(spec))
+                issue(problem.code, problem.path, problem.message);
+        }
         return issues;
     }
 
@@ -199,10 +207,15 @@ export class ConfigDocumentValidationService {
                 return CreateClientSchema;
             case "KmsConfig":
                 return KmsConfigSchema;
-            case "KeyChain":
-                return (document.spec as any).keySource?.type === "private-jwk"
+            case "KeyChain": {
+                // Only a private key without activeJwk goes through the key
+                // chain importer, so only that shape needs its request schema.
+                const spec = document.spec as Record<string, any>;
+                return spec.keySource?.type === "private-jwk" &&
+                    !isInternalChainWithPrivateKeys(spec)
                     ? KeyChainImportSchema
                     : undefined;
+            }
             case "RegistrarConfig":
                 return CreateRegistrarConfigSchema;
             case "IssuanceConfig":

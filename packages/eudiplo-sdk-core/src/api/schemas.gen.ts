@@ -148,10 +148,6 @@ export const TokenResponseSchema = {
             type: 'string',
             description: 'Bearer access token'
         },
-        refresh_token: {
-            type: 'string',
-            description: 'Optional refresh token'
-        },
         token_type: {
             enum: [
                 'Bearer'
@@ -2831,7 +2827,7 @@ export const RotationPolicyCreateDtoSchema = {
             example: 90
         },
         certValidityDays: {
-            description: 'Certificate validity in days. Defaults to rotation interval + 30 days grace period.',
+            description: 'Certificate validity in days. Defaults to 365.',
             type: 'number',
             minimum: 1,
             maximum: 3650,
@@ -2886,7 +2882,7 @@ export const KeyChainCreateDtoSchema = {
                     description: 'Enable or disable automatic key rotation.'
                 },
                 intervalDays: {
-                    description: 'Rotation interval in days.',
+                    description: 'Rotation interval in days. Required when `enabled` is true.',
                     type: 'number',
                     minimum: 1,
                     maximum: 3650
@@ -2973,7 +2969,7 @@ export const RotationPolicyImportDtoSchema = {
     properties: {
         enabled: {
             type: 'boolean',
-            description: 'Whether rotation is enabled. When true, the imported key becomes a root CA signer.',
+            description: 'Whether rotation is enabled. When true, the imported key becomes a root CA signer, unless crt is a single self-signed certificate that is not a CA.',
             default: false
         },
         intervalDays: {
@@ -3064,7 +3060,7 @@ export const KeyChainImportDtoSchema = {
             description: 'Usage type for this key chain.'
         },
         crt: {
-            description: 'Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate.',
+            description: 'Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate, unless the chain is a single self-signed certificate that is not a CA.',
             items: {
                 type: 'string'
             },
@@ -3075,7 +3071,7 @@ export const KeyChainImportDtoSchema = {
             type: 'string'
         },
         rotationPolicy: {
-            description: 'Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key.',
+            description: 'Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. intervalDays defaults to 90 and certValidityDays to 365.',
             properties: {
                 enabled: {
                     type: 'boolean',
@@ -3112,7 +3108,7 @@ export const RotationPolicyUpdateDtoSchema = {
     type: 'object',
     properties: {
         enabled: {
-            description: 'Whether automatic key rotation is enabled.',
+            description: 'Whether automatic key rotation is enabled. Enabling it needs intervalDays, in the request or already set on the key chain.',
             type: 'boolean'
         },
         intervalDays: {
@@ -3829,7 +3825,7 @@ export const TrustAuthorityEntrySchema = {
     type: 'object',
     properties: {
         trustListId: {
-            description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+            description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
             type: 'string'
         },
         frameworkType: {
@@ -3843,7 +3839,7 @@ export const TrustAuthorityEntrySchema = {
             ]
         },
         value: {
-            description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+            description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
             type: 'string'
         },
         verificationMethod: {
@@ -3949,12 +3945,12 @@ export const SchemaMetaConfigSchema = {
             type: 'array'
         },
         trustedAuthorities: {
-            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).',
+            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
             items: {
                 type: 'object',
                 properties: {
                     trustListId: {
-                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                         type: 'string'
                     },
                     frameworkType: {
@@ -3968,7 +3964,7 @@ export const SchemaMetaConfigSchema = {
                         ]
                     },
                     value: {
-                        description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+                        description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                         type: 'string'
                     },
                     verificationMethod: {
@@ -10651,12 +10647,12 @@ export const PublishSchemaMetaConfigSchema = {
             type: 'array'
         },
         trustedAuthorities: {
-            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).',
+            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
             items: {
                 type: 'object',
                 properties: {
                     trustListId: {
-                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                         type: 'string'
                     },
                     frameworkType: {
@@ -10670,7 +10666,7 @@ export const PublishSchemaMetaConfigSchema = {
                         ]
                     },
                     value: {
-                        description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+                        description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                         type: 'string'
                     },
                     verificationMethod: {
@@ -10844,13 +10840,13 @@ export const SignSchemaMetaConfigDtoSchema = {
                     }
                 },
                 trustedAuthorities: {
-                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).',
+                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             trustListId: {
-                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                                 type: 'string'
                             },
                             frameworkType: {
@@ -10864,7 +10860,7 @@ export const SignSchemaMetaConfigDtoSchema = {
                                 ]
                             },
                             value: {
-                                description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+                                description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                                 type: 'string'
                             },
                             verificationMethod: {
@@ -11021,13 +11017,13 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                     }
                 },
                 trustedAuthorities: {
-                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).',
+                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             trustListId: {
-                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                                 type: 'string'
                             },
                             frameworkType: {
@@ -11041,7 +11037,7 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                                 ]
                             },
                             value: {
-                                description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+                                description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                                 type: 'string'
                             },
                             verificationMethod: {

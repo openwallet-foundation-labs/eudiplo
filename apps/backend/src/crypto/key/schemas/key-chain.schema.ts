@@ -11,7 +11,9 @@ export const RotationPolicyCreateSchema = z
             .min(1)
             .max(3650)
             .optional()
-            .describe("Rotation interval in days."),
+            .describe(
+                "Rotation interval in days. Required when `enabled` is true.",
+            ),
         certValidityDays: z
             .number()
             .min(1)
@@ -20,6 +22,10 @@ export const RotationPolicyCreateSchema = z
             .describe(
                 "Certificate validity period in days for generated leaf certificates.",
             ),
+    })
+    .refine((policy) => !policy.enabled || policy.intervalDays !== undefined, {
+        message: "intervalDays is required when rotation is enabled.",
+        path: ["intervalDays"],
     })
     .describe("Rotation policy used when creating key chains.")
     .strict();

@@ -62,6 +62,65 @@ describe("ConfigDocumentValidationService", () => {
         ).toEqual([]);
     });
 
+    describe("key chains with private keys", () => {
+        const jwk = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        const keyChain = (keySource: Record<string, unknown>) => ({
+            $schema: schemaUrl("KeyChain"),
+            kind: "KeyChain" as const,
+            metadata: {},
+            spec: {
+                id: "issuer",
+                usageType: "attestation",
+                keySource: { type: "private-jwk", ...keySource },
+                crt: ["root certificate"],
+                activeCertificate: "active certificate",
+            },
+        });
+
+        it("checks the keys and certificates of an internal chain instead of the importer schema", () => {
+            expect(
+                service
+                    .validate(keyChain({ jwk, activeJwk: jwk }))
+                    .map(({ code, path, resource }) => ({
+                        code,
+                        path,
+                        resource,
+                    })),
+            ).toEqual([
+                {
+                    code: "INVALID_PRIVATE_KEY",
+                    path: "/spec/keySource/jwk",
+                    resource: { kind: "KeyChain", id: "issuer" },
+                },
+                {
+                    code: "INVALID_PRIVATE_KEY",
+                    path: "/spec/keySource/activeJwk",
+                    resource: { kind: "KeyChain", id: "issuer" },
+                },
+                {
+                    code: "INVALID_CERTIFICATE",
+                    path: "/spec/crt/0",
+                    resource: { kind: "KeyChain", id: "issuer" },
+                },
+                {
+                    code: "INVALID_CERTIFICATE",
+                    path: "/spec/activeCertificate",
+                    resource: { kind: "KeyChain", id: "issuer" },
+                },
+            ]);
+        });
+
+        it("keeps the importer schema for a private key without activeJwk", () => {
+            expect(service.validate(keyChain({ jwk }))).toEqual([
+                expect.objectContaining({
+                    code: "CURRENT_SCHEMA_VALIDATION_FAILED",
+                    path: "/spec/",
+                    message: expect.stringContaining("activeCertificate"),
+                }),
+            ]);
+        });
+    });
+
     it("accepts identity carried by the schema-described spec", () => {
         expect(
             service.validate({

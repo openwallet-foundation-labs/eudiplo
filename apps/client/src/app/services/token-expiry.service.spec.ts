@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -13,10 +13,12 @@ describe('TokenExpiryService', () => {
     getAuthenticationStatus: () => boolean;
     getTokenTimeRemaining: () => number;
     canRefreshToken: () => boolean;
+    isReconnecting: () => boolean;
     ensureAuthenticated: ReturnType<typeof vi.fn>;
+    tokenRenewed$: Subject<void>;
     logout: ReturnType<typeof vi.fn>;
   };
-  let router: { url: string; navigate: ReturnType<typeof vi.fn> };
+  let router: { url: string; navigate: ReturnType<typeof vi.fn>; events: Subject<unknown> };
   let notices: { action: Subject<void>; dismissed: Subject<void>; dismiss: () => void }[];
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let service: TokenExpiryService;
@@ -29,10 +31,12 @@ describe('TokenExpiryService', () => {
       getAuthenticationStatus: () => true,
       getTokenTimeRemaining: () => 60 * 60_000,
       canRefreshToken: () => false,
+      isReconnecting: () => false,
       ensureAuthenticated: vi.fn().mockResolvedValue(false),
+      tokenRenewed$: new Subject<void>(),
       logout: vi.fn(),
     };
-    router = { url: '/dashboard', navigate: vi.fn() };
+    router = { url: '/dashboard', navigate: vi.fn(), events: new Subject<unknown>() };
     notices = [];
     snackBar = {
       open: vi.fn(() => {
@@ -129,6 +133,89 @@ describe('TokenExpiryService', () => {
     ]);
     expect(api.logout).toHaveBeenCalledOnce();
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('reports an unreachable backend without a logout while the kept session reconnects', async () => {
+    api.getAuthenticationStatus = () => false;
+    api.canRefreshToken = () => true;
+    api.isReconnecting = () => true;
+
+    await service.check();
+    await service.check();
+    const dismiss = vi.spyOn(notices[0], 'dismiss');
+    api.ensureAuthenticated.mockResolvedValue(true);
+    await service.check();
+
+    expect(texts()).toEqual([
+      'The backend cannot be reached. Your session resumes once it is back; stay on this page to keep unsaved changes.',
+    ]);
+    expect(snackBar.open.mock.calls[0][1]).toBeUndefined();
+    expect(dismiss).toHaveBeenCalledOnce();
+  });
+
+  it('switches to the expired notice when the credentials are rejected while reconnecting', async () => {
+    api.getAuthenticationStatus = () => false;
+    api.canRefreshToken = () => true;
+    api.isReconnecting = () => true;
+    await service.check();
+
+    // A rejection drops the secret but keeps the token, which stays usable until it expires.
+    api.isReconnecting = () => false;
+    api.canRefreshToken = () => false;
+    await service.check();
+
+    expect(texts()).toEqual([
+      'The backend cannot be reached. Your session resumes once it is back; stay on this page to keep unsaved changes.',
+      'Your session has expired. Log in again; unsaved changes on this page will be lost.',
+    ]);
+  });
+
+  it('closes the unreachable notice as soon as the session resumes', async () => {
+    vi.useFakeTimers();
+    let valid = false;
+    api.getAuthenticationStatus = () => valid;
+    api.canRefreshToken = () => true;
+    api.isReconnecting = () => true;
+    service.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const dismiss = vi.spyOn(notices[0], 'dismiss');
+
+    valid = true;
+    api.tokenRenewed$.next();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(dismiss).toHaveBeenCalledOnce();
+  });
+
+  it('closes the unreachable notice when the user goes to the login page', async () => {
+    vi.useFakeTimers();
+    api.getAuthenticationStatus = () => false;
+    api.canRefreshToken = () => true;
+    api.isReconnecting = () => true;
+    service.start();
+    await vi.advanceTimersByTimeAsync(0);
+    const dismiss = vi.spyOn(notices[0], 'dismiss');
+
+    router.url = '/login';
+    router.events.next(new NavigationEnd(1, '/login', '/login'));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(dismiss).toHaveBeenCalledOnce();
+  });
+
+  it('does not open a notice on the login page the user reached while renewing', async () => {
+    let renew: (value: boolean) => void = () => undefined;
+    api.getAuthenticationStatus = () => false;
+    api.canRefreshToken = () => true;
+    api.isReconnecting = () => true;
+    api.ensureAuthenticated.mockReturnValue(new Promise<boolean>((resolve) => (renew = resolve)));
+
+    const pending = service.check();
+    router.url = '/login';
+    renew(false);
+    await pending;
+
+    expect(snackBar.open).not.toHaveBeenCalled();
   });
 
   it('shows the expired notice again when another message replaced it', async () => {
