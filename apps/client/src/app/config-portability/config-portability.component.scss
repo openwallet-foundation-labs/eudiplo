@@ -87,6 +87,13 @@ table {
 .generated-secrets {
   border: 1px solid var(--mat-sys-error);
 
+  .generated-secret {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
   code {
     display: inline-block;
     margin: 6px;

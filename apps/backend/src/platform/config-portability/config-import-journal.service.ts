@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import {
     ConflictException,
-    HttpException,
     Injectable,
     NotFoundException,
     ServiceUnavailableException,
@@ -9,6 +8,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
+import { generatedSecretsOf } from "./generated-secrets.js";
 
 @Injectable()
 export class ConfigImportJournalService {
@@ -72,21 +72,14 @@ export class ConfigImportJournalService {
     }
 
     private persistenceFailure(run: ConfigImportRunEntity, result: unknown) {
-        const response =
-            result instanceof HttpException ? result.getResponse() : result;
-        const generatedSecrets =
-            response &&
-            typeof response === "object" &&
-            "generatedSecrets" in response
-                ? response.generatedSecrets
-                : undefined;
+        const generatedSecrets = generatedSecretsOf(result);
         return new ServiceUnavailableException({
             code: "CONFIG_JOURNAL_WRITE_FAILED",
             operationId: run.id,
             message:
                 "Could not finalize the configuration journal. Inspect the operation and target state before retrying; its tenant lock may still be held.",
             operations: run.operations,
-            ...(Array.isArray(generatedSecrets) ? { generatedSecrets } : {}),
+            ...(generatedSecrets ? { generatedSecrets } : {}),
         });
     }
 

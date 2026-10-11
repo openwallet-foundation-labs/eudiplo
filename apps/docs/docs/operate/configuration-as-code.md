@@ -48,7 +48,8 @@ Reattaching reads the resource from the tenant folder in `CONFIG_FOLDER`,
 applies it, and makes the resource `file-managed` again. Its stored generation
 becomes the file's generation, so later startups apply the folder again.
 
-The web client lists ownership and offers **Detach** and **Reset to file** under
+The web client lists ownership and offers **Detach** and **Reset to file**, and
+for clients from the config folder **Apply from file**, under
 **Settings > Config Portability** (shown to a tenant's clients and users with
 `tenant:admin` or `tenants:manage`). On the screens of a `file-managed` resource
 it shows a lock notice and disables editing and deleting, also for clients that
@@ -84,6 +85,25 @@ A folder of a tenant that does not exist yet is imported only if it contains
 placeholder fails the import of that tenant while other tenants continue.
 Restart the backend to apply changed files. The folder layout is listed in the
 [format reference](../reference/config-bundle-format.md#tenant-folder-layout).
+
+### Clients with generated secrets
+
+A client file with `"secret": "!generate"` gets a random secret when it is first
+imported from this folder or its file changes, but a startup import cannot return it. The backend
+writes a warning to its application log (not to the audit log) that names the
+client, never the secret:
+
+```text
+[acme] Client 'shop-backend' got a generated secret ("secret": "!generate"), which a startup import does not show. ...
+```
+
+To get a secret you can use, apply the client from the file again: choose
+**Apply from file** in its row under **Settings > Config Portability**, or
+reattach it through the API as above, with `Client/shop-backend` in the path.
+The client stays `file-managed`, its old secret stops working, and the new one
+is shown once in the result. Later startups keep the secret while the file does
+not change. To skip this step, give the secret in the file as an environment
+variable, for example `"secret": "${SHOP_BACKEND_SECRET}"`.
 
 ## Validate in CI
 
@@ -192,8 +212,8 @@ returned once in the import result; store them immediately. The client keeps its
 secret on later imports of the same document from the same source; change the
 document or raise `metadata.generation` to get a new one
 ([details](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
-A startup import does not show the secret it generates: detach the client and
-rotate its secret through the API or web client.
+A startup import cannot return the secret; see
+[clients with generated secrets](#clients-with-generated-secrets).
 
 ## Plans, locks and recovery
 

@@ -100,4 +100,21 @@ describe('ConfigOwnershipNoticeComponent', () => {
     const failed = await render(() => Promise.reject({ statusCode: 403 }));
     expect(failed.textContent?.trim()).toBe('');
   });
+  it('points a client from the config folder to Apply from file for a new secret', async () => {
+    const folder = await render(async () => resource('file-managed'), ['tenant:admin'], 'Client');
+    TestBed.resetTestingModule();
+    const bundle = await render(
+      async () => resource('file-managed', 'bundle:demo'),
+      ['tenant:admin'],
+      'Client'
+    );
+    TestBed.resetTestingModule();
+    const other = await render(async () => resource('file-managed'), ['tenant:admin']);
+
+    expect(folder.textContent).toContain(
+      'choose Apply from file under Config Portability to get a new secret'
+    );
+    expect(bundle.textContent).not.toContain('Apply from file');
+    expect(other.textContent).not.toContain('Apply from file');
+  });
 });

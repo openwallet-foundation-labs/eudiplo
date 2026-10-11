@@ -14,6 +14,7 @@ import {
   ConfigOwnershipService,
   ConfigResourceKind,
   ConfigResourceOwnership,
+  offersApplyFromFile,
 } from './config-ownership.service';
 
 @Component({
@@ -31,6 +32,10 @@ import {
               <span>
                 Edit {{ metadata?.source || 'the provisioning source' }} and apply it again. Direct
                 changes and deletion are disabled. Generation {{ metadata?.generation }}.
+                @if (offersApplyFromFile) {
+                  If its file sets "secret": "!generate", choose Apply from file under Config
+                  Portability to get a new secret.
+                }
               </span>
             } @else {
               <span>
@@ -86,6 +91,9 @@ export class ConfigOwnershipNoticeComponent implements OnChanges {
   /** Config Portability offers "Reset to file" for folder sources, and never for the tenant settings. */
   get canReset(): boolean {
     return this.kind !== 'Tenant' && !this.metadata?.source?.startsWith('bundle:');
+  }
+  get offersApplyFromFile(): boolean {
+    return offersApplyFromFile(this.kind, this.metadata);
   }
   private request = 0;
 

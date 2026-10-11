@@ -30,6 +30,7 @@ import {
   ConfigResourceMetadata,
 } from './config-portability.service';
 import { openErrorSnackBar } from '../utils/error-snackbar';
+import { offersApplyFromFile } from './config-ownership.service';
 
 @Component({
   selector: 'app-config-portability',
@@ -68,6 +69,11 @@ export class ConfigPortabilityComponent implements OnInit {
   operations: ConfigOperation[] = [];
   selected = new Set<string>();
   busy = false;
+  /**
+   * Secrets that applies on this page generated. They stay until dismissed, so
+   * planning the next import or reset cannot discard a value shown only once.
+   */
+  generatedSecrets: NonNullable<ConfigImportPlan['generatedSecrets']> = [];
 
   constructor(
     private readonly portability: ConfigPortabilityService,
@@ -176,6 +182,7 @@ export class ConfigPortabilityComponent implements OnInit {
             fingerprint
           )
         : await this.portability.import(this.bundle!, this.mode, confirmed, fingerprint);
+      this.keepGeneratedSecrets(this.plan.generatedSecrets);
       await this.refreshResources();
       this.snackBar.open('Configuration bundle imported', 'Close', { duration: 3000 });
     }, 'Configuration import failed');
@@ -197,35 +204,75 @@ export class ConfigPortabilityComponent implements OnInit {
   }
 
   async planReattach(resource: ConfigResourceMetadata): Promise<void> {
-    await this.run(async () => {
-      this.plan = await this.portability.planReattach(resource.kind, resource.resourceId);
-      this.reattachTarget = resource;
-      // The plan renders above the ownership table, out of view of the clicked row.
-      setTimeout(() =>
-        document.getElementById('config-plan')?.scrollIntoView({ behavior: 'smooth' })
-      );
-    }, 'Could not plan the reset to the file version');
+    await this.run(
+      async () => {
+        this.plan = await this.portability.planReattach(resource.kind, resource.resourceId);
+        this.reattachTarget = resource;
+        // The plan renders above the ownership table, out of view of the clicked row.
+        setTimeout(() =>
+          document.getElementById('config-plan')?.scrollIntoView({ behavior: 'smooth' })
+        );
+      },
+      resource.ownership === 'file-managed'
+        ? 'Could not plan applying the file version'
+        : 'Could not plan the reset to the file version'
+    );
   }
 
   async applyReattach(): Promise<void> {
     const target = this.reattachTarget;
     if (!target || !this.plan?.applicable || !this.plan.planFingerprint || this.plan.operationId)
       return;
-    if (
-      !globalThis.confirm(
-        `Reset ${this.resourceKey(target)} to the file version? Changes made through the API or UI are discarded.`
-      )
-    ) {
+    const key = this.resourceKey(target);
+    const reapply = this.reappliesFileVersion;
+    const question = reapply
+      ? `Apply ${key} from the config folder again?`
+      : `Reset ${key} to the file version? Changes made through the API or UI are discarded.`;
+    const secretNotice = this.planRegeneratesClientSecret
+      ? ` ${target.resourceId} gets a new secret, and its current secret stops working immediately.`
+      : '';
+    if (!globalThis.confirm(question + secretNotice)) {
       return;
     }
     const fingerprint = this.plan.planFingerprint;
-    await this.run(async () => {
-      this.plan = await this.portability.reattach(target.kind, target.resourceId, fingerprint);
-      await this.refreshResources();
-      this.snackBar.open(`${this.resourceKey(target)} is file-managed again`, 'Close', {
-        duration: 3000,
-      });
-    }, 'Could not reset the resource to the file version');
+    await this.run(
+      async () => {
+        this.plan = await this.portability.reattach(target.kind, target.resourceId, fingerprint);
+        this.keepGeneratedSecrets(this.plan.generatedSecrets);
+        await this.refreshResources();
+        this.snackBar.open(
+          reapply ? `${key} was applied from the file` : `${key} is file-managed again`,
+          'Close',
+          { duration: 3000 }
+        );
+      },
+      reapply
+        ? 'Could not apply the file version'
+        : 'Could not reset the resource to the file version'
+    );
+  }
+
+  canApplyFromFile(resource: ConfigResourceMetadata): boolean {
+    return offersApplyFromFile(resource.kind, resource);
+  }
+
+  /**
+   * The plan lists `/spec/secret` when applying it replaces the secret of an
+   * existing client: with a new generated one for "secret": "!generate", or
+   * with the one in the file.
+   */
+  get planRegeneratesClientSecret(): boolean {
+    return !!this.plan?.items.some(
+      (item) =>
+        item.kind === 'Client' &&
+        item.action === 'update' &&
+        item.changes?.some((change) => change.path === '/spec/secret')
+    );
+  }
+
+  /** True while the shown plan applies the file version of a resource that is still file-managed. */
+  get reappliesFileVersion(): boolean {
+    return this.reattachTarget?.ownership === 'file-managed';
   }
 
   resourceKey(resource: ConfigResourceMetadata): string {
@@ -338,13 +385,42 @@ export class ConfigPortabilityComponent implements OnInit {
   }
 
   downloadImportResult(): void {
-    if (!this.plan?.generatedSecrets?.length) return;
+    if (!this.generatedSecrets.length) return;
     this.download(
-      new Blob([JSON.stringify({ generatedSecrets: this.plan.generatedSecrets }, null, 2)], {
+      new Blob([JSON.stringify({ generatedSecrets: this.generatedSecrets }, null, 2)], {
         type: 'application/json',
       }),
       'eudiplo-import-secrets.json'
     );
+  }
+
+  async copySecret(secret: { id: string; value: string }): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(secret.value);
+      this.snackBar.open(`Secret of ${secret.id} copied to clipboard`, 'Close', { duration: 2000 });
+    } catch {
+      openErrorSnackBar(this.snackBar, 'Could not copy the secret. Select it and copy it by hand.');
+    }
+  }
+
+  dismissGeneratedSecrets(): void {
+    if (
+      !globalThis.confirm(
+        'Remove the generated secrets from this page? They cannot be shown again; download or copy them first.'
+      )
+    )
+      return;
+    this.generatedSecrets = [];
+  }
+
+  /** A later secret of the same client replaces the earlier one, which no longer works. */
+  private keepGeneratedSecrets(secrets: ConfigImportPlan['generatedSecrets']): void {
+    if (!secrets?.length) return;
+    const ids = new Set(secrets.map((secret) => secret.id));
+    this.generatedSecrets = [
+      ...this.generatedSecrets.filter((secret) => !ids.has(secret.id)),
+      ...secrets,
+    ];
   }
 
   async refreshOperations(): Promise<void> {
@@ -389,6 +465,7 @@ export class ConfigPortabilityComponent implements OnInit {
           operationId: report.operationId,
           generatedSecrets: report.generatedSecrets,
         };
+      this.keepGeneratedSecrets(report?.generatedSecrets);
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, fallback));
     } finally {
       this.busy = false;

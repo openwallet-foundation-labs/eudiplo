@@ -24,6 +24,7 @@ import { compare as compareSecret } from "bcrypt";
 import request from "supertest";
 import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { AuditLogEntity } from "../../src/audit-log/entities/audit-log.entity.js";
 import { ClientEntity } from "../../src/auth/client/entities/client.entity.js";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
 import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
@@ -1355,6 +1356,15 @@ describe("startup configuration reconciliation", () => {
                     await storedSecret(),
                 ),
             ).toBe(true);
+
+            // The secret returned by reattach survives the next startup.
+            await folder.applyTenantFolder("demo", "upsert");
+            expect(
+                await compareSecret(
+                    reattached.generatedSecrets![0].value,
+                    await storedSecret(),
+                ),
+            ).toBe(true);
         } finally {
             rmSync(file, { force: true });
             await clients.delete({ tenantId: "demo", clientId });
@@ -1365,6 +1375,109 @@ describe("startup configuration reconciliation", () => {
                     kind: "Client",
                     resourceId: clientId,
                 });
+        }
+    });
+
+    it("returns a new secret for a file-managed !generate client through the reattach endpoints and audits only its ID", async () => {
+        const appConfig = app.get(ConfigService);
+        const http = app.getHttpServer();
+        const tenantId = "reattach-generated-secret";
+        const clientId = "reattach-generated-secret-client";
+        const bootstrap = await request(http)
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: appConfig.getOrThrow<string>("AUTH_CLIENT_ID"),
+                client_secret:
+                    appConfig.getOrThrow<string>("AUTH_CLIENT_SECRET"),
+            })
+            .expect(201);
+        const tenant = await request(http)
+            .post("/tenant")
+            .set("Authorization", `Bearer ${bootstrap.body.access_token}`)
+            .send({
+                id: tenantId,
+                name: "Reattach generated secret",
+                roles: ["tenant:admin"],
+            })
+            .expect(201);
+        const token = await request(http)
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: tenant.body.client.clientId,
+                client_secret: tenant.body.client.clientSecret,
+            })
+            .expect(201);
+        const authorization = `Bearer ${token.body.access_token}`;
+        const tenantFolder = join(runtimeFolder, "config", tenantId);
+        mkdirSync(join(tenantFolder, "clients"), { recursive: true });
+        writeFileSync(
+            join(tenantFolder, "clients", `${clientId}.json`),
+            JSON.stringify({
+                $schema: schemaUrl("Client"),
+                metadata: { generation: 1 },
+                spec: {
+                    clientId,
+                    secret: "!generate",
+                    roles: ["issuance:offer"],
+                },
+            }),
+        );
+
+        try {
+            await app
+                .get(ConfigFolderBundleService)
+                .applyTenantFolder(tenantId, "upsert");
+
+            const plan = await request(http)
+                .post(
+                    `/config-bundles/resources/Client/${clientId}/reattach/plan`,
+                )
+                .set("Authorization", authorization)
+                .expect(201);
+            expect(plan.body.items).toEqual([
+                expect.objectContaining({
+                    kind: "Client",
+                    id: clientId,
+                    action: "update",
+                    // The web client warns that the secret changes when the plan lists this path.
+                    changes: expect.arrayContaining([
+                        expect.objectContaining({ path: "/spec/secret" }),
+                    ]),
+                }),
+            ]);
+            const reattached = await request(http)
+                .post(`/config-bundles/resources/Client/${clientId}/reattach`)
+                .query({ planFingerprint: plan.body.planFingerprint })
+                .set("Authorization", authorization)
+                .expect(201);
+            expect(reattached.body.generatedSecrets).toEqual([
+                expect.objectContaining({ kind: "Client", id: clientId }),
+            ]);
+            const secret: string = reattached.body.generatedSecrets[0].value;
+            await request(http)
+                .post("/api/oauth2/token")
+                .send({
+                    grant_type: "client_credentials",
+                    client_id: clientId,
+                    client_secret: secret,
+                })
+                .expect(201);
+
+            const audits = await app
+                .get(DataSource)
+                .getRepository(AuditLogEntity)
+                .findBy({
+                    tenantId,
+                    actionType: "config_client_secret_generated",
+                });
+            expect(audits.map((audit) => audit.after)).toEqual([
+                { clients: [clientId], count: 1 },
+            ]);
+            expect(JSON.stringify(audits)).not.toContain(secret);
+        } finally {
+            rmSync(tenantFolder, { recursive: true, force: true });
         }
     });
 
