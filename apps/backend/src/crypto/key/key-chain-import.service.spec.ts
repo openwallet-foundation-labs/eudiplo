@@ -1,7 +1,9 @@
 import { webcrypto } from "node:crypto";
+import { ConflictException } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { exportPKCS8, generateKeyPair } from "jose";
 import { describe, expect, it, vi } from "vitest";
+import { KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainImportService } from "./key-chain-import.service.js";
 
 describe("key replacement preparation", () => {
@@ -12,7 +14,9 @@ describe("key replacement preparation", () => {
                 KeyChainImportService.prototype,
             ) as any;
             service.keyChainRepository = {
-                existsBy: vi.fn().mockResolvedValue(true),
+                findOne: vi
+                    .fn()
+                    .mockResolvedValue({ id: "key", usage: KeyUsage.Sign }),
                 save: vi.fn(),
                 delete: vi.fn(),
             };
@@ -51,6 +55,40 @@ describe("key replacement preparation", () => {
             expect(service.keyChainRepository.delete).not.toHaveBeenCalled();
         },
     );
+});
+
+describe("system-owned key chains", () => {
+    it("refuses to replace the tenant's encryption key chain", async () => {
+        const service = Object.create(KeyChainImportService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: vi
+                .fn()
+                .mockResolvedValue({ id: "key", usage: KeyUsage.Encrypt }),
+            save: vi.fn(),
+        };
+        service.tenantRepository = {
+            findOneByOrFail: async () => ({ name: "Tenant" }),
+        };
+        service.getHostname = () => "issuer.example";
+        const adapter = { type: "db", importKey: vi.fn() };
+        service.kmsRegistry = { resolve: () => adapter };
+
+        await expect(
+            service.importKeyChain("tenant", {
+                id: "key",
+                key: { kty: "EC" },
+                usageType: "encrypt",
+            }),
+        ).rejects.toThrow(ConflictException);
+
+        expect(service.keyChainRepository.findOne).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { tenantId: "tenant", id: "key" },
+            }),
+        );
+        expect(adapter.importKey).not.toHaveBeenCalled();
+        expect(service.keyChainRepository.save).not.toHaveBeenCalled();
+    });
 });
 
 describe("PEM private key imports", () => {
@@ -121,7 +159,7 @@ describe("imports with rotation enabled", () => {
         const service = Object.create(KeyChainImportService.prototype) as any;
         service.logger = { log: vi.fn() };
         service.keyChainRepository = {
-            existsBy: vi.fn().mockResolvedValue(false),
+            findOne: vi.fn().mockResolvedValue(null),
             save: vi.fn(),
         };
         service.tenantRepository = {

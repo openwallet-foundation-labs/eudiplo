@@ -206,7 +206,7 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | `create`    | The resource will be created                                                                |
 | `update`    | The resource will change; the plan lists redacted field changes                            |
 | `unchanged` | Already matches, or a key chain document this source already applied (see below); only ownership metadata may be updated |
-| `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), or in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`) |
+| `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
 
@@ -220,6 +220,8 @@ A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields
 The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
 
 A `KeyChain` document that is identical to the one last applied from the same source (the same config folder, or bundles whose manifest names the same tenant) plans `unchanged` while the key chain is `file-managed`, without comparing it with the stored key chain: importers add key IDs, EUDIPLO creates the signing key of a CA key, and rotation or registrar enrollment replace keys and certificates later. These changes stay, so certificates EUDIPLO created during the import are only renewed by rotation. Reattaching always applies the folder version. To apply an unchanged document again, for example to regenerate a key, raise `metadata.generation`; in a bundle, also update the document's `sha256` in `manifest.json`.
+
+The tenant's encryption key chain is managed by EUDIPLO and is not configuration: exports leave it out, and plans neither change nor delete it. A `KeyChain` document with its ID, such as the one exports of earlier versions contain, is skipped (warning `KEY_CHAIN_ID_RESERVED`).
 
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in

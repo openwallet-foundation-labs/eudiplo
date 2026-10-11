@@ -6840,6 +6840,13 @@ export type KeyChainControllerImportData = {
     url: '/api/key-chain/import';
 };
 
+export type KeyChainControllerImportErrors = {
+    /**
+     * The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.
+     */
+    409: unknown;
+};
+
 export type KeyChainControllerImportResponses = {
     /**
      * Key chain imported successfully
