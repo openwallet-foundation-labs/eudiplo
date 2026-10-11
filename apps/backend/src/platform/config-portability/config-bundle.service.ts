@@ -353,13 +353,7 @@ export class ConfigBundleService {
                 tenantId,
                 "TrustList",
                 trustList.id,
-                {
-                    id: trustList.id,
-                    description: trustList.description ?? undefined,
-                    keyChainId: trustList.keyChainId,
-                    entities: trustList.entityConfig ?? [],
-                    data: trustList.data,
-                },
+                this.trustListSpec(trustList),
             );
         }
 
@@ -372,13 +366,7 @@ export class ConfigBundleService {
                 tenantId,
                 "StatusList",
                 status.id,
-                {
-                    id: status.id,
-                    credentialConfigurationId: status.credentialConfigurationId,
-                    keyChainId: status.keyChainId,
-                    capacity: status.elements.length,
-                    bits: status.bits,
-                },
+                this.statusListSpec(status),
             );
         }
 
@@ -1065,9 +1053,11 @@ export class ConfigBundleService {
                         ? withoutRemovedChainedVp(entity.authorizationServers)
                               .servers
                         : entity.authorizationServers,
+                    // The schema accepts null for these, and applying null clears them.
                     federation: entity.federation,
                     registrationCertificate: entity.registrationCertificate,
-                    display: entity.display,
+                    // An unset display column is null; the schema has it optional.
+                    display: entity.display ?? undefined,
                     notificationEndpointEnabled:
                         entity.notificationEndpointEnabled,
                     credentialResponseEncryption:
@@ -1126,6 +1116,31 @@ export class ConfigBundleService {
                     `No entity export mapper registered for ${kind}`,
                 );
         }
+    }
+
+    private trustListSpec(
+        trustList: Record<string, any>,
+    ): Record<string, unknown> {
+        return {
+            id: trustList.id,
+            description: trustList.description ?? undefined,
+            keyChainId: trustList.keyChainId,
+            entities: trustList.entityConfig ?? [],
+            data: trustList.data,
+        };
+    }
+
+    private statusListSpec(
+        statusList: Record<string, any>,
+    ): Record<string, unknown> {
+        return {
+            id: statusList.id,
+            credentialConfigurationId: statusList.credentialConfigurationId,
+            // A list without its own key chain has null; the schema has it optional.
+            keyChainId: statusList.keyChainId ?? undefined,
+            capacity: statusList.elements.length,
+            bits: statusList.bits,
+        };
     }
 
     private async addDocument(
@@ -1541,26 +1556,13 @@ export class ConfigBundleService {
             case "TrustList": {
                 entity = await this.trustLists.findOneBy({ tenantId, id });
                 return entity
-                    ? {
-                          id,
-                          description: entity.description ?? undefined,
-                          keyChainId: entity.keyChainId,
-                          entities: entity.entityConfig ?? [],
-                          data: entity.data,
-                      }
+                    ? { ...this.trustListSpec(entity), id }
                     : undefined;
             }
             case "StatusList": {
                 entity = await this.statusLists.findOneBy({ tenantId, id });
                 return entity
-                    ? {
-                          id,
-                          credentialConfigurationId:
-                              entity.credentialConfigurationId,
-                          keyChainId: entity.keyChainId,
-                          capacity: entity.elements.length,
-                          bits: entity.bits,
-                      }
+                    ? { ...this.statusListSpec(entity), id }
                     : undefined;
             }
         }
