@@ -602,7 +602,14 @@ export class ApiService implements OnDestroy {
     if (stored?.clientId !== clientId || stored.baseUrl !== this.baseUrl) return;
     const token = localStorage.getItem('access_token');
     const expirationTime = Number.parseInt(localStorage.getItem('token_expiration') ?? '', 10);
-    if (!token || !(expirationTime > (this.tokenExpirationTime ?? 0))) return;
+    // Only a newer token is taken; an unreadable expiration is not.
+    if (
+      !token ||
+      Number.isNaN(expirationTime) ||
+      expirationTime <= (this.tokenExpirationTime ?? 0)
+    ) {
+      return;
+    }
     this._localAccessToken = token;
     this.tokenExpirationTime = expirationTime;
     this.isAuthenticated = true;

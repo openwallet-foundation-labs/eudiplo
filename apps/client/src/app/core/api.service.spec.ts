@@ -414,6 +414,9 @@ describe('ApiService token refresh', () => {
       storeFromOtherTab('other-client', 60 * 60_000, { clientId: 'other' });
       storeFromOtherTab('other-backend', 60 * 60_000, { baseUrl: 'http://other.test' });
       storeFromOtherTab('older', 10 * 60_000);
+      store.set('access_token', 'unreadable');
+      store.set('token_expiration', 'not a number');
+      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
 
       expect(service.accessToken).toBe('stored');
     });
