@@ -1007,6 +1007,14 @@ export function createTestFetch(
     };
 }
 
+/** The wallet nonce in the `request_uri` of an OID4VP request URI. */
+export function walletNonceOf(uri: string): string {
+    const requestUri = new URL(uri).searchParams.get("request_uri") ?? "";
+    const match = /\/presentations\/([^/]+)\/oid4vp\//.exec(requestUri);
+    if (!match) throw new Error(`No wallet nonce in ${uri}`);
+    return match[1];
+}
+
 /**
  * Helper function to create a presentation request via the verifier API
  */
