@@ -30,6 +30,9 @@ async function tenantToken(request: APIRequestContext): Promise<string> {
 
 test.describe('verifier admin', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
+  // One worker, so beforeAll creates the client once: the backend allows one
+  // config write per tenant at a time (409 CONFIG_WRITER_ACTIVE otherwise).
+  test.describe.configure({ mode: 'default' });
 
   // A client per run, so the spec also passes against a reused dev backend.
   const clientId = `session-settings-${randomBytes(4).toString('hex')}`;
@@ -49,7 +52,7 @@ test.describe('verifier admin', () => {
         roles: ['presentation:manage'],
       },
     });
-    expect(response.ok(), 'create the verifier admin (needs clients:manage)').toBe(true);
+    expect(response.ok(), `create the verifier admin: ${await response.text()}`).toBe(true);
   });
 
   test.afterAll(async ({ request }) => {
@@ -72,5 +75,17 @@ test.describe('verifier admin', () => {
     await expect(page).toHaveURL(/\/session-management\/config$/);
     expect((await config).ok(), 'GET /api/session-config').toBe(true);
     await expect(page.getByText('Session Retention Settings')).toBeVisible();
+  });
+
+  test('is turned away from the session list', async ({ page }) => {
+    await loginWithClientCredentials(page, clientId, clientSecret);
+    const nav = page.locator('mat-sidenav');
+    await expect(nav.getByText('Session Settings', { exact: true })).toBeVisible();
+    await expect(nav.getByText('All Sessions')).toHaveCount(0);
+
+    await page.goto('/session-management');
+    // The guard's snackbar closes after 3 seconds, so check it first.
+    await expect(page.getByText('Access denied')).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard$/);
   });
 });

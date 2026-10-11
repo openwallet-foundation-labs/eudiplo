@@ -17,7 +17,7 @@ function accessToken(roles: Role[]): string {
   return `header.${payload}.signature`;
 }
 
-describe('Session Settings route', () => {
+describe('Session management routes', () => {
   let token: string;
   const navigate = vi.fn();
   const openSnackBar = vi.fn();
@@ -41,9 +41,9 @@ describe('Session Settings route', () => {
     });
   });
 
-  function canOpen(roles: Role[]): boolean {
+  function canOpen(path: string, roles: Role[]): boolean {
     token = accessToken(roles);
-    const route = sessionManagementRoutes.find((r) => r.path === 'config')!;
+    const route = sessionManagementRoutes.find((r) => r.path === path)!;
     expect(route.canActivate).toContain(RoleGuard);
     const snapshot = { data: route.data } as unknown as ActivatedRouteSnapshot;
     return TestBed.inject(RoleGuard).canActivate(snapshot);
@@ -54,14 +54,34 @@ describe('Session Settings route', () => {
     ['issuance', ['issuance:manage']],
     ['verification', ['presentation:manage']],
     ['issuance and verification', ['issuance:manage', 'presentation:manage']],
-  ])('opens for %s admins', (_, roles) => {
-    expect(canOpen(roles)).toBe(true);
+  ])('opens Session Settings for %s admins', (_, roles) => {
+    expect(canOpen('config', roles)).toBe(true);
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('denies clients that can only start sessions', () => {
-    expect(canOpen(['issuance:offer', 'presentation:request'])).toBe(false);
+  it('denies Session Settings to clients that can only start sessions', () => {
+    expect(canOpen('config', ['issuance:offer', 'presentation:request'])).toBe(false);
     expect(navigate).toHaveBeenCalledWith(['/']);
     expect(openSnackBar).toHaveBeenCalledWith('Access denied', 'Close', { duration: 3000 });
   });
+
+  // Matches the backend (session.controller.ts) and the All Sessions entry in app.component.html.
+  it.each<[string, Role[]]>([
+    ['', ['issuance:offer']],
+    ['', ['presentation:request']],
+    [':id', ['issuance:offer']],
+    [':id', ['presentation:request']],
+  ])('opens the session route "%s" for %j', (path, roles) => {
+    expect(canOpen(path, roles)).toBe(true);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it.each(['', ':id'])(
+    'denies the session route "%s" to clients that only manage configs',
+    (path) => {
+      expect(canOpen(path, ['issuance:manage', 'presentation:manage'])).toBe(false);
+      expect(navigate).toHaveBeenCalledWith(['/']);
+      expect(openSnackBar).toHaveBeenCalledWith('Access denied', 'Close', { duration: 3000 });
+    }
+  );
 });
