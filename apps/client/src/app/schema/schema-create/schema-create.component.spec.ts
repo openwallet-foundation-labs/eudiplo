@@ -425,7 +425,7 @@ describe('SchemaCreateComponent required fields', () => {
       'label[for="root-certificate-1"]'
     );
     expect(labels).toHaveLength(1);
-    expect(labels[0].textContent).toContain('Root certificate 1 (base64 DER)');
+    expect(labels[0].textContent).toContain('Root certificate 1 (PEM or base64 DER)');
   });
 
   it('numbers root certificates among themselves, behind the selected trust lists', async () => {
@@ -454,8 +454,8 @@ describe('SchemaCreateComponent required fields', () => {
     ];
 
     expect(fields()).toEqual([
-      { label: 'Root certificate 1 (base64 DER)', value: 'MIIBFIRST0==' },
-      { label: 'Root certificate 2 (base64 DER)', value: 'MIIBSECOND==' },
+      { label: 'Root certificate 1 (PEM or base64 DER)', value: 'MIIBFIRST0==' },
+      { label: 'Root certificate 2 (PEM or base64 DER)', value: 'MIIBSECOND==' },
     ]);
     expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
       'Remove root certificate 1',
@@ -473,7 +473,9 @@ describe('SchemaCreateComponent required fields', () => {
     removeButtons()[0].click();
     fixture.detectChanges();
 
-    expect(fields()).toEqual([{ label: 'Root certificate 1 (base64 DER)', value: 'MIIBSECOND==' }]);
+    expect(fields()).toEqual([
+      { label: 'Root certificate 1 (PEM or base64 DER)', value: 'MIIBSECOND==' },
+    ]);
     expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
       'Remove root certificate 1',
     ]);
@@ -491,6 +493,54 @@ describe('SchemaCreateComponent required fields', () => {
     expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
       { trustListId: 'tl-1' },
       { frameworkType: 'x509', value: 'MIIBTYPED0==' },
+    ]);
+  });
+
+  it('flags a root certificate that is not base64 DER at its field, without sending it', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({ value: 'not a certificate' });
+    const fieldText = () =>
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('#root-certificate-1')!
+        .closest('mat-form-field')!.textContent;
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(fieldText()).toContain('Must be a base64-encoded DER or PEM certificate.');
+    expect(fieldText()).not.toContain('Paste the root certificate');
+
+    // Selecting a trust list afterwards keeps the entry and its error.
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    fixture.detectChanges();
+
+    expect(fieldText()).toContain('Must be a base64-encoded DER or PEM certificate.');
+    submitButton(fixture).click();
+    fixture.detectChanges();
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+  });
+
+  it('sends a pasted PEM root certificate as base64 DER', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({
+      value: '-----BEGIN CERTIFICATE-----\nMIIBkTCB\n+wIJ\n-----END CERTIFICATE-----\n',
+    });
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    await component.submit();
+
+    expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
+      { frameworkType: 'x509', value: 'MIIBkTCB+wIJ' },
     ]);
   });
 

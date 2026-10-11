@@ -234,7 +234,7 @@
               fxLayoutAlign="start center"
             >
               <mat-form-field appearance="outline" fxFlex>
-                <mat-label>Root certificate {{ n + 1 }} (base64 DER)</mat-label>
+                <mat-label>Root certificate {{ n + 1 }} (PEM or base64 DER)</mat-label>
                 <textarea
                   matInput
                   formControlName="value"
@@ -242,7 +242,11 @@
                   rows="3"
                   placeholder="MIIB..."
                 ></textarea>
-                <mat-error>Paste the root certificate or remove this entry.</mat-error>
+                @if (certificate.group.get('value')?.hasError('certificate')) {
+                  <mat-error>Must be a base64-encoded DER or PEM certificate.</mat-error>
+                } @else {
+                  <mat-error>Paste the root certificate or remove this entry.</mat-error>
+                }
               </mat-form-field>
               <button
                 mat-icon-button
