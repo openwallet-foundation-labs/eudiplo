@@ -28,7 +28,18 @@ function provider({
             update: vi.fn().mockResolvedValue(undefined),
             getServiceAccountUser: vi.fn().mockResolvedValue(serviceAccount),
         },
-        roles: { find: vi.fn().mockResolvedValue([]) },
+        roles: {
+            find: vi
+                .fn()
+                .mockResolvedValue(
+                    [
+                        "issuance:offer",
+                        "clients:manage",
+                        "presentation:request",
+                        "default-roles-eudiplo",
+                    ].map((name) => ({ id: `id-${name}`, name })),
+                ),
+        },
         users: {
             listCompositeRealmRoleMappings: vi
                 .fn()
@@ -53,11 +64,23 @@ function provider({
                     { name: "realm-admin" },
                     { name: "manage-users" },
                 ]),
+            listRealmRoleMappings: vi
+                .fn()
+                .mockResolvedValue(
+                    [
+                        "issuance:offer",
+                        "clients:manage",
+                        "default-roles-eudiplo",
+                    ].map((name) => ({ id: `id-${name}`, name })),
+                ),
             addRealmRoleMappings: vi.fn(),
+            delRealmRoleMappings: vi.fn(),
         },
     };
     const clientRepo = {
         findOneBy: vi.fn().mockResolvedValue(mirror ?? null),
+        findOneByOrFail: vi.fn().mockResolvedValue(mirror),
+        update: vi.fn(),
         countBy: vi.fn().mockResolvedValue(mirror ? 1 : 0),
         create: vi.fn((entity) => entity),
         save: vi.fn(),
@@ -191,5 +214,57 @@ describe("KeycloakClientsProvider.addClient", () => {
 
         expect(kc.clients.update).toHaveBeenCalled();
         expect(clientRepo.save).toHaveBeenCalled();
+    });
+});
+
+describe("KeycloakClientsProvider.updateClient", () => {
+    const tenantClient = {
+        mirror: {
+            clientId: "app",
+            description: "App",
+            roles: ["issuance:offer", "clients:manage"] as never,
+        },
+        kcClient: { id: "kc-app", attributes: { tenant_id: "tenant-1" } },
+    };
+
+    it("keeps the roles in Keycloak when the update has none", async () => {
+        const { provider: clients, kc, clientRepo } = provider(tenantClient);
+
+        await clients.updateClient("tenant-1", "app", {
+            description: "Renamed",
+        });
+
+        expect(kc.users.delRealmRoleMappings).not.toHaveBeenCalled();
+        expect(kc.users.addRealmRoleMappings).not.toHaveBeenCalled();
+        expect(kc.clients.update).toHaveBeenCalledWith(
+            { id: "kc-app" },
+            { description: "Renamed" },
+        );
+        expect(clientRepo.update).toHaveBeenCalledWith(
+            { clientId: "app", tenant: { id: "tenant-1" } },
+            { description: "Renamed" },
+        );
+    });
+
+    it("replaces only the EUDIPLO roles of the service account", async () => {
+        const { provider: clients, kc } = provider(tenantClient);
+
+        await clients.updateClient("tenant-1", "app", {
+            roles: ["issuance:offer", "presentation:request"] as never,
+        });
+
+        expect(kc.users.delRealmRoleMappings).toHaveBeenCalledWith({
+            id: "svc",
+            roles: [{ id: "id-clients:manage", name: "clients:manage" }],
+        });
+        expect(kc.users.addRealmRoleMappings).toHaveBeenCalledWith({
+            id: "svc",
+            roles: [
+                {
+                    id: "id-presentation:request",
+                    name: "presentation:request",
+                },
+            ],
+        });
     });
 });

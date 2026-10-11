@@ -114,7 +114,11 @@ Choose the roles from the [roles reference](../reference/roles.md), for example
 Tenant administrators need `clients:manage` and `users:manage` plus every role
 they hand out ([granting roles](../reference/roles.md#granting-roles)), or
 `tenant:admin`, which also allows key export and KMS settings. Roles you assign
-in Keycloak, also through groups, count for that check.
+in Keycloak, also through groups, count for that check. When an update of a
+user or client (`PATCH /api/user/{id}`, `PATCH /api/client/{id}` or a
+configuration bundle) sets `roles`, EUDIPLO replaces only the EUDIPLO realm
+roles mapped directly to it; Keycloak's default roles, other realm roles and
+roles from groups stay. An update without `roles` keeps all of them.
 
 **Checkpoint:** sign in to the web client as a tenant user. The dashboard loads
 and shows only that tenant's data.

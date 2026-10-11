@@ -37,3 +37,11 @@ export const allRoles = [
     Role.Registrar,
     Role.TenantAdmin,
 ];
+
+/**
+ * Whether a role name is an EUDIPLO role, unlike for example a Keycloak realm
+ * role such as `default-roles-<realm>`.
+ */
+export function isRole(name: unknown): name is Role {
+    return allRoles.includes(name as Role);
+}

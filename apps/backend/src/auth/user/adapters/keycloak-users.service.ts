@@ -9,7 +9,8 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { decodeJwt } from "jose";
 import { keycloakAuthorizationRoles } from "../../keycloak-authorization-roles.js";
-import { allRoles, Role } from "../../roles/role.enum.js";
+import { syncEudiploRealmRoles } from "../../keycloak-realm-roles.js";
+import { allRoles, isRole, Role } from "../../roles/role.enum.js";
 import { ManagedUserDto } from "../dto/managed-user.dto.js";
 import type { CreateUser, UpdateUser } from "../schemas/create-user.schema.js";
 import { UsersProvider } from "../user.provider.js";
@@ -316,51 +317,15 @@ export class KeycloakUsersProvider extends UsersProvider {
             username: user.username!,
             email: user.email,
             enabled: user.enabled ?? true,
-            roles: roles.map((role) => role.name).filter(Boolean) as Role[],
+            // Only EUDIPLO roles; Keycloak's default roles cannot be granted.
+            roles: roles.map((role) => role.name).filter(isRole),
             tenantId: this.getTenantOwnerFromKcUser(user),
         };
     }
 
     private async syncRoles(userId: string, nextRoles: Role[]): Promise<void> {
         await this.ensureRealmRoles(nextRoles);
-
-        const allRealmRoles = await this.kc.roles.find();
-        const currentRoles = await this.kc.users.listRealmRoleMappings({
-            id: userId,
-        });
-
-        const desired = nextRoles
-            .map((role) =>
-                allRealmRoles.find((realmRole) => realmRole.name === role),
-            )
-            .filter(
-                (role): role is NonNullable<typeof role> =>
-                    !!role?.id && !!role?.name,
-            )
-            .map((role) => ({ id: role.id!, name: role.name! }));
-
-        const toRemove = currentRoles
-            .filter((role) => !nextRoles.includes(role.name as Role))
-            .map((role) => ({ id: role.id!, name: role.name! }));
-
-        const toAdd = desired.filter(
-            (role) =>
-                !currentRoles.some((current) => current.name === role.name),
-        );
-
-        if (toRemove.length > 0) {
-            await this.kc.users.delRealmRoleMappings({
-                id: userId,
-                roles: toRemove,
-            });
-        }
-
-        if (toAdd.length > 0) {
-            await this.kc.users.addRealmRoleMappings({
-                id: userId,
-                roles: toAdd,
-            });
-        }
+        await syncEudiploRealmRoles(this.kc, userId, nextRoles);
     }
 
     private async ensureRealmRoles(requestedRoles: Role[]): Promise<void> {

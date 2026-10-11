@@ -1,8 +1,6 @@
 import type KeycloakAdminClient from "@keycloak/keycloak-admin-client";
 import type RoleRepresentation from "@keycloak/keycloak-admin-client/lib/defs/roleRepresentation.js";
-import { allRoles } from "./roles/role.enum.js";
-
-const knownRoles = new Set<string>(allRoles);
+import { isRole } from "./roles/role.enum.js";
 
 /** The Keycloak client whose roles administer the realm. */
 const REALM_MANAGEMENT = "realm-management";
@@ -46,7 +44,7 @@ export async function keycloakAuthorizationRoles(
     return [
         ...new Set([
             ...realmRoles.flatMap((role) =>
-                role.name && knownRoles.has(role.name) ? [role.name] : [],
+                isRole(role.name) ? [role.name] : [],
             ),
             ...names(REALM_MANAGEMENT, adminRoles),
             ...clientMappings.flatMap(({ client, mappings: roles }) =>

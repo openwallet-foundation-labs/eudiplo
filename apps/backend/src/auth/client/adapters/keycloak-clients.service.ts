@@ -14,6 +14,7 @@ import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../../../platform/config-import/config-import.service.js";
 import { keycloakAuthorizationRoles } from "../../keycloak-authorization-roles.js";
+import { syncEudiploRealmRoles } from "../../keycloak-realm-roles.js";
 import { allRoles, Role } from "../../roles/role.enum.js";
 import { ClientsProvider } from "../client.provider.js";
 import {
@@ -580,43 +581,18 @@ export class KeycloakClientsProvider
             });
         }
         this.ensureTenantOwnership(tenantId, kcClient, "updated");
-        const svcUser = await this.kc.clients.getServiceAccountUser({
-            id: kcClient.id,
-        });
 
-        // Get all realm roles
-        const allRealmRoles = await this.kc.roles.find();
-
-        // Roles to assign
-        const newRoles = updateClientDto.roles || [];
-        const toAssign = newRoles
-            .map((r) => allRealmRoles.find((ar) => ar.name === r))
-            .filter(Boolean) as { id?: string; name?: string }[];
-
-        // Get currently assigned roles
-        const currentRoles = await this.kc.users.listRealmRoleMappings({
-            id: svcUser.id!,
-        });
-
-        // Roles to remove
-        const toRemove = currentRoles
-            .filter((cr) => !newRoles.includes(cr.name as Role))
-            .map((r) => ({ id: r.id!, name: r.name! }));
-
-        // Remove roles no longer assigned
-        if (toRemove.length) {
-            await this.kc.users.delRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toRemove,
+        // Without roles the update keeps the client's roles, as the internal
+        // adapter does.
+        if (updateClientDto.roles) {
+            const svcUser = await this.kc.clients.getServiceAccountUser({
+                id: kcClient.id,
             });
-        }
-
-        // Add new roles
-        if (toAssign.length) {
-            await this.kc.users.addRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toAssign.map((r) => ({ id: r.id!, name: r.name! })),
-            });
+            await syncEudiploRealmRoles(
+                this.kc,
+                svcUser.id!,
+                updateClientDto.roles,
+            );
         }
 
         // Update client in Keycloak
