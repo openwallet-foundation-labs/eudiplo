@@ -372,8 +372,9 @@ export class SchemaCreateComponent implements OnInit {
       trustedAuthorities: (raw.trustedAuthorities as Record<string, unknown>[]).map((e) => ({
         ...(e['trustListId'] ? { trustListId: e['trustListId'] } : {}),
         ...(e['frameworkType'] ? { frameworkType: e['frameworkType'] } : {}),
-        ...(e['value'] ? { value: certificateBase64(String(e['value'])) } : {}),
-        ...(e['verificationMethod'] ? { verificationMethod: e['verificationMethod'] } : {}),
+        ...(typeof e['value'] === 'string' && e['value']
+          ? { value: certificateBase64(e['value']) }
+          : {}),
       })),
     };
   }
