@@ -9,8 +9,23 @@
   @if (isLoading) {
     <div fxLayout="column" fxLayoutAlign="center center" class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading registrar data...</p>
+      <p role="status">Loading registrar data...</p>
     </div>
+  } @else if (loadError) {
+    <!-- Without the stored configuration the form would replace it on save -->
+    <mat-card class="error-card">
+      <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
+        <mat-icon>error</mat-icon>
+        <div fxFlex role="alert">
+          <p>{{ loadError }}</p>
+          <p>Retry before making changes. If this keeps failing, check the backend log.</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="loadData()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </mat-card-content>
+    </mat-card>
   } @else {
     <!-- Main Content -->
     <div fxLayout="column" fxLayoutGap="24px">
@@ -60,6 +75,7 @@
                   placeholder="https://registrar.example.com/api"
                 />
                 <mat-hint>Base URL of the registrar API</mat-hint>
+                <mat-error>{{ fieldError('registrarUrl') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -70,6 +86,7 @@
                   placeholder="https://auth.example.com/realms/registrar"
                 />
                 <mat-hint>OpenID Connect realm URL</mat-hint>
+                <mat-error>{{ fieldError('oidcUrl') }}</mat-error>
               </mat-form-field>
             </div>
 
@@ -77,6 +94,7 @@
               <mat-form-field fxFlex appearance="outline">
                 <mat-label>Client ID</mat-label>
                 <input matInput formControlName="clientId" placeholder="registrar-client" />
+                <mat-error>{{ fieldError('clientId') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -84,7 +102,7 @@
                 <input
                   matInput
                   formControlName="clientSecret"
-                  [type]="showPassword ? 'text' : 'password'"
+                  [type]="showClientSecret ? 'text' : 'password'"
                   [placeholder]="
                     config?.hasClientSecret && !urlsChanged
                       ? 'Leave empty to keep existing'
@@ -95,15 +113,19 @@
                   mat-icon-button
                   matSuffix
                   type="button"
-                  (click)="togglePasswordVisibility()"
+                  (click)="toggleClientSecretVisibility()"
+                  aria-label="Show client secret"
+                  [attr.aria-pressed]="showClientSecret"
+                  matTooltip="Show client secret"
                 >
-                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  <mat-icon>{{ showClientSecret ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 @if (config?.hasClientSecret && urlsChanged) {
                   <mat-hint>The URL changed. Enter it again, or leave empty to remove it.</mat-hint>
                 } @else if (config?.hasClientSecret) {
                   <mat-hint>Client secret is set. Enter a new value to change it.</mat-hint>
                 }
+                <mat-error>{{ fieldError('clientSecret') }}</mat-error>
               </mat-form-field>
             </div>
 
@@ -111,6 +133,7 @@
               <mat-form-field fxFlex appearance="outline">
                 <mat-label>Username</mat-label>
                 <input matInput formControlName="username" placeholder="user@example.com" />
+                <mat-error>{{ fieldError('username') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -119,9 +142,10 @@
                   matInput
                   formControlName="password"
                   [type]="showPassword ? 'text' : 'password'"
-                  placeholder="Enter password"
                   [placeholder]="
-                    config?.hasPassword && !urlsChanged ? 'Leave empty to keep existing' : ''
+                    config?.hasPassword && !urlsChanged
+                      ? 'Leave empty to keep existing'
+                      : 'Enter password'
                   "
                 />
                 <button
@@ -129,6 +153,9 @@
                   matSuffix
                   type="button"
                   (click)="togglePasswordVisibility()"
+                  aria-label="Show password"
+                  [attr.aria-pressed]="showPassword"
+                  matTooltip="Show password"
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
@@ -137,13 +164,7 @@
                 } @else if (config?.hasPassword) {
                   <mat-hint>Password is set. Enter a new value to change it.</mat-hint>
                 }
-                <mat-error>
-                  {{
-                    urlsChanged
-                      ? 'The URL changed. Enter the password again.'
-                      : 'Password is required'
-                  }}
-                </mat-error>
+                <mat-error>{{ fieldError('password') }}</mat-error>
               </mat-form-field>
             </div>
 
@@ -185,7 +206,7 @@
             </div>
             <p class="section-help">
               More advanced default fields (such as provides_attestations) can still be set via
-              registrar API or registrar.json.
+              registrar API or registrar.json. Saving here keeps them.
             </p>
           </form>
         </mat-card-content>
@@ -195,7 +216,7 @@
             mat-button
             color="warn"
             (click)="deleteConfig()"
-            [disabled]="!hasConfig || isSaving"
+            [disabled]="!hasConfig || isSaving || isDeleting"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"
@@ -207,7 +228,7 @@
             mat-raised-button
             color="primary"
             (click)="saveConfig()"
-            [disabled]="configForm.invalid || isSaving"
+            [disabled]="configForm.invalid || isSaving || isDeleting"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"
