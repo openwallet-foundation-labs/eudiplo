@@ -5887,7 +5887,7 @@ export const CredentialConfigSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         webhookEndpoint: {
             $ref: '#/components/schemas/WebhookEndpointEntity'
@@ -6042,7 +6042,7 @@ export const CredentialConfigCreateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'
@@ -6190,7 +6190,7 @@ export const CredentialConfigUpdateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'
