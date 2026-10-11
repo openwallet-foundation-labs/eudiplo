@@ -35,7 +35,12 @@ import {
     type SessionStateUpdate,
     SessionStatus,
 } from "../domain/session-state.js";
-import type { SessionTypeStatusCount } from "../domain/session-stats.js";
+import {
+    MAX_FAILURE_CODE_LENGTH,
+    type SessionCountFilter,
+    type SessionFailureCodeCount,
+    type SessionTypeStatusCount,
+} from "../domain/session-stats.js";
 import { Session } from "../entities/session.entity.js";
 import type {
     SessionCount,
@@ -64,9 +69,14 @@ function countByTypeAndStatus(
         .addGroupBy("s.status");
 }
 
+/** Reads the {@link ISSUANCE_CASE} column of a raw row. */
+function sessionTypeOf(issuance: number | string | boolean): SessionType {
+    return Number(issuance) === 1 ? "issuance" : "presentation";
+}
+
 function toTypeStatusCount(row: TypeStatusCountRow): SessionTypeStatusCount {
     return {
-        type: Number(row.issuance) === 1 ? "issuance" : "presentation",
+        type: sessionTypeOf(row.issuance),
         status: row.status,
         count: Number(row.count),
     };
@@ -276,22 +286,50 @@ export class TypeOrmSessionRepository implements SessionRepository {
 
     async countForTenant(
         tenantId: string,
-        type?: SessionType,
+        filter: SessionCountFilter,
     ): Promise<SessionTypeStatusCount[]> {
         const rows: TypeStatusCountRow[] = await countByTypeAndStatus(
-            this.filteredSessions(tenantId, { type }),
+            this.filteredSessions(tenantId, filter),
         ).getRawMany();
         return rows.map(toTypeStatusCount);
     }
 
+    async topFailureCodesForTenant(
+        tenantId: string,
+        filter: SessionCountFilter & { type: SessionType },
+        limit: number,
+    ): Promise<SessionFailureCodeCount[]> {
+        // Wallets choose the codes of their errors; keep the result small in SQL.
+        const code = `SUBSTR(s.failureCode, 1, ${MAX_FAILURE_CODE_LENGTH})`;
+        const rows: { code: string; count: number | string }[] =
+            await this.filteredSessions(tenantId, {
+                ...filter,
+                status: [SessionStatus.Failed],
+            })
+                .andWhere("s.failureCode IS NOT NULL")
+                .select(code, "code")
+                .addSelect("COUNT(*)", "count")
+                .groupBy(code)
+                .orderBy("COUNT(*)", "DESC")
+                .addOrderBy(code, "ASC")
+                .limit(limit)
+                .getRawMany();
+        return rows.map((row) => ({
+            code: row.code,
+            count: Number(row.count),
+        }));
+    }
+
     async lastUpdatedForTenant(
         tenantId: string,
-        type: SessionType,
-        status: SessionStatus,
+        {
+            status,
+            ...filter
+        }: SessionCountFilter & { type: SessionType; status: SessionStatus },
     ): Promise<Date | null> {
         // Read through the entity, so both databases return a Date.
         const session = await this.filteredSessions(tenantId, {
-            type,
+            ...filter,
             status: [status],
         })
             .select(["s.id", "s.updatedAt"])

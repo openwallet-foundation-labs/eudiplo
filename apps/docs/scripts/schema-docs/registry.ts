@@ -38,16 +38,7 @@ export interface SchemaDoc {
  */
 export const schemaDocs: SchemaDoc[] = [
     { name: "presentation-request", schema: PresentationRequestSchema },
-    {
-        name: "credential-configuration",
-        schema: CredentialConfigCreateSchema,
-        descriptions: {
-            iaeActions:
-                "Interactive authorization steps (a presentation or a web flow) that the wallet completes, in order, before the credential is issued.",
-            webhookEndpointId:
-                "Not used for notifications: they go to the webhook endpoint of the offer.",
-        },
-    },
+    { name: "credential-configuration", schema: CredentialConfigCreateSchema },
     // One entry of `fields[]`; recursive (`children`), so it gets its own table.
     { name: "credential-field", schema: CredentialConfigCreateSchema.shape.fields.element },
     { name: "offer-request", schema: OfferRequestSchema },

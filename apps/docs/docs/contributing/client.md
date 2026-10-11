@@ -42,7 +42,7 @@ apps/client/src/
 ├── app/
 │   ├── app.config.ts, app.routes.ts   # providers and top-level routes
 │   ├── core/                # API service (SDK setup), OIDC service, auth interceptor
-│   ├── services/            # environment, theme, version check, Grafana links, JWT helpers
+│   ├── services/            # environment, theme, version check, frontend config, session expiry warning, Grafana links, JWT helpers
 │   ├── guards/              # auth.guard.ts, roles.guard.ts
 │   ├── common/              # shared base list component and small utilities
 │   ├── utils/               # reusable UI: editor, image field, webhook config, schema validation

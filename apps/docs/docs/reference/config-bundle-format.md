@@ -46,14 +46,15 @@ rejects versions newer than its own.
 | `KeyChain`           | `KeyChainConfigFile`          | 1               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
-| `CredentialConfig`   | `CredentialConfigFile`        | 1               |           |
+| `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
 | `WebhookEndpoint`    | `WebhookEndpointConfigFile`   | 1               |           |
 | `TrustList`          | `TrustListConfigFile`         | 1               |           |
 | `StatusList`         | `StatusListConfigFile`        | 1               |           |
 
-Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
+IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
+9.0; 8.x cannot read them:
 
 - **IssuanceConfig v2** adds the optional `offerLifetimeSeconds`. A v1 document
   is migrated unchanged.
@@ -70,6 +71,11 @@ Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
 (PEM public key of the list signer) to `walletProviderTrustLists` entries. A v2
 document is migrated unchanged; releases that only know v2, such as 9.0, cannot
 read v3 files.
+
+**CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
+`frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
+certificate in `value`. A v1 document is migrated unchanged; 9.x cannot read v2
+files.
 
 ## Tenant folder layout
 
@@ -136,6 +142,8 @@ Exports never contain secret values or database-held private keys:
 | Keys in an external KMS                                               | `keySource: { "type": "external-reference", provider, externalKeyId, publicJwk }` | -  | The target provider must reach the same key; checked by signing a challenge |
 | Sessions, status values, caches                                       | not exported                                                 | -                        | -                                                                     |
 
+A secret that is not set, such as the client secret of a registrar account without one, is left out of the export and adds no requirement.
+
 `regenerate` keeps the key chain ID but creates a new cryptographic identity:
 certificates and anything bound to the old key must be renewed.
 
@@ -165,6 +173,8 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), or in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
+
+A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. For the other kinds, a top-level field the document leaves out keeps its stored value.
 
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in

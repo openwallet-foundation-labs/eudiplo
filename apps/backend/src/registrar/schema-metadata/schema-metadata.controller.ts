@@ -32,6 +32,11 @@ import { SchemaMetadataSubmissionService } from "./schema-metadata-submission.se
  * catalog provider. Operations are scoped to the calling tenant; auth is
  * delegated to the registrar via the tenant's registrar credentials.
  *
+ * Publishing needs `issuance:manage` as well as `registrar:manage`: it uses the
+ * registrar credentials and can write the reserved ID into a credential
+ * config. A handler's `@Secured` replaces the class roles, so the publish
+ * handlers list both with `match: "all"`.
+ *
  * @experimental The TS11 specification (EUDI Catalogue of Attestations) is
  * not yet finalized.
  */
@@ -55,7 +60,7 @@ export class SchemaMetadataController {
      * @experimental The TS11 specification is not yet finalized.
      */
     @Post("publish")
-    @Secured([Role.Issuances])
+    @Secured([Role.Issuances, Role.Registrar], { match: "all" })
     @ApiOperation({
         summary: "Publish TS11 schema metadata via registrar",
         description:
@@ -89,7 +94,7 @@ export class SchemaMetadataController {
      * @experimental The TS11 specification is not yet finalized.
      */
     @Post("publish-version")
-    @Secured([Role.Issuances])
+    @Secured([Role.Issuances, Role.Registrar], { match: "all" })
     @ApiOperation({
         summary: "Publish a new version of an existing schema metadata entry",
         description:

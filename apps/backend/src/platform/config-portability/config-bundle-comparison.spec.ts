@@ -111,6 +111,87 @@ describe("configuration comparisons", () => {
                 .unchanged,
         ).toBe(false);
     });
+    it("treats a stored null key chain description like an omitted one", async () => {
+        const publicJwk = { kty: "EC", crv: "P-256", x: "x", y: "y" };
+        const result = service({}) as any;
+        // Use the real stored-spec mapping instead of the stub.
+        delete result.currentSpec;
+        result.repos = {
+            keyChains: {
+                findOneBy: async () => ({
+                    description: null,
+                    usageType: "attestation",
+                    kmsProvider: "vault",
+                    externalKeyId: "vault-key",
+                    activeJwk: { ...publicJwk, d: "private" },
+                    activeCertificate: "cert",
+                    rotationEnabled: false,
+                    rotationIntervalDays: null,
+                    certValidityDays: null,
+                    hasInternalCa: () => false,
+                }),
+            },
+        };
+        const document: ConfigDocument = {
+            $schema: schemaUrl("KeyChain"),
+            kind: "KeyChain",
+            metadata: {},
+            spec: {
+                id: "key",
+                usageType: "attestation",
+                kmsProvider: "vault",
+                keySource: {
+                    type: "external-reference",
+                    provider: "vault",
+                    externalKeyId: "vault-key",
+                    publicJwk,
+                },
+                crt: ["cert"],
+                rotationPolicy: { enabled: false },
+            },
+        };
+        expect(await result.compareDocument("tenant", document)).toEqual({
+            unchanged: true,
+            changes: [],
+        });
+    });
+    it("reports a description added to a trust list without one as new", async () => {
+        const entities = [
+            {
+                type: "internal",
+                issuerKeyChainId: "issuer",
+                revocationKeyChainId: "issuer",
+                info: { name: "Issuer" },
+            },
+        ];
+        const result = service({}) as any;
+        // Use the real stored-spec mapping instead of the stub.
+        delete result.currentSpec;
+        result.repos = {
+            trustLists: {
+                findOneBy: async () => ({
+                    description: null,
+                    keyChainId: "signer",
+                    entityConfig: entities,
+                }),
+            },
+        };
+        const document: ConfigDocument = {
+            $schema: schemaUrl("TrustList"),
+            kind: "TrustList",
+            metadata: {},
+            spec: {
+                id: "list",
+                description: "Signer list",
+                keyChainId: "signer",
+                entities,
+            },
+        };
+        expect(await result.compareDocument("tenant", document)).toEqual({
+            unchanged: false,
+            changes: [{ path: "/spec/description", after: "Signer list" }],
+        });
+    });
     it("detects removal of fields in KMS configs that replace the entire file", async () => {
         const document: ConfigDocument = {
             $schema: schemaUrl("KmsConfig"),
@@ -126,5 +207,67 @@ describe("configuration comparisons", () => {
                 )
             ).unchanged,
         ).toBe(false);
+    });
+    it("reports registrar fields that the replacement removes", async () => {
+        const document: ConfigDocument = {
+            $schema: schemaUrl("RegistrarConfig"),
+            kind: "RegistrarConfig",
+            metadata: {},
+            spec: {
+                registrarUrl: "https://registrar.example/api",
+                oidcUrl: "https://auth.example/realms/registrar",
+                clientId: "client",
+                username: "user",
+                password: "password",
+            },
+        };
+
+        expect(
+            await service({ ...document.spec }).compareDocument(
+                "tenant",
+                document,
+            ),
+        ).toEqual({ unchanged: true, changes: [] });
+        const changed = await service({
+            ...document.spec,
+            clientSecret: "stored-secret",
+            registrationCertificateDefaults: {
+                privacy_policy: "https://rp.example/privacy",
+            },
+        }).compareDocument("tenant", document);
+        expect(changed.unchanged).toBe(false);
+        expect(changed.changes).toEqual([
+            {
+                path: "/spec/clientSecret",
+                before: "[redacted]",
+                after: undefined,
+                redacted: true,
+            },
+            {
+                path: "/spec/registrationCertificateDefaults/privacy_policy",
+                before: "https://rp.example/privacy",
+                after: undefined,
+            },
+        ]);
+    });
+    it("treats registrar defaults set to null like omitted defaults", async () => {
+        const document: ConfigDocument = {
+            $schema: schemaUrl("RegistrarConfig"),
+            kind: "RegistrarConfig",
+            metadata: {},
+            spec: {
+                registrarUrl: "https://registrar.example/api",
+                oidcUrl: "https://auth.example/realms/registrar",
+                clientId: "client",
+                username: "user",
+                password: "password",
+                registrationCertificateDefaults: null,
+            },
+        };
+        const { registrationCertificateDefaults, ...stored } = document.spec;
+
+        expect(
+            await service(stored).compareDocument("tenant", document),
+        ).toEqual({ unchanged: true, changes: [] });
     });
 });

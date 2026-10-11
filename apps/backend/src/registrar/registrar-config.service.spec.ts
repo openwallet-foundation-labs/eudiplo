@@ -2,6 +2,7 @@ import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
 import { RegistrarConfigService } from "./registrar-config.service.js";
+import type { CreateRegistrarConfig } from "./schemas/registrar.schema.js";
 
 const stored = {
     tenantId: "tenant",
@@ -12,6 +13,14 @@ const stored = {
     username: "user",
     password: "stored-password",
 } as RegistrarConfigEntity;
+
+const dto: CreateRegistrarConfig = {
+    registrarUrl: "https://registrar.example/api",
+    oidcUrl: "https://auth.example/realms/registrar",
+    clientId: "client",
+    username: "user",
+    password: "password",
+};
 
 describe("RegistrarConfigService", () => {
     let repository: {
@@ -172,6 +181,68 @@ describe("RegistrarConfigService", () => {
             expect(repository.save).toHaveBeenCalledWith(
                 expect.objectContaining({ clientSecret: "new-secret" }),
             );
+        });
+
+        it("does not save when the registrar rejects the credentials", async () => {
+            authService.testCredentials.mockRejectedValue(
+                new BadRequestException("Invalid registrar credentials"),
+            );
+
+            await expect(service.saveConfig("tenant", dto)).rejects.toThrow(
+                BadRequestException,
+            );
+            expect(authService.testCredentials).toHaveBeenCalledWith(dto);
+            expect(repository.save).not.toHaveBeenCalled();
+            expect(authService.invalidateToken).not.toHaveBeenCalled();
+        });
+
+        it("replaces the configuration once the credentials are accepted", async () => {
+            await service.saveConfig("tenant", dto);
+
+            expect(repository.save).toHaveBeenCalledWith({
+                tenantId: "tenant",
+                ...dto,
+                clientSecret: null,
+                registrationCertificateDefaults: null,
+            });
+        });
+    });
+
+    describe("replaceConfig", () => {
+        it("saves clientSecret and registrationCertificateDefaults null when the replacement leaves them out", async () => {
+            await service.replaceConfig("tenant", dto);
+
+            expect(repository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    clientSecret: null,
+                    registrationCertificateDefaults: null,
+                }),
+            );
+        });
+
+        it("stores the clientSecret and registrationCertificateDefaults of the replacement", async () => {
+            const defaults = { privacy_policy: "https://rp.example/privacy" };
+
+            await service.replaceConfig("tenant", {
+                ...dto,
+                clientSecret: "secret",
+                registrationCertificateDefaults: defaults,
+            });
+
+            expect(repository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    clientSecret: "secret",
+                    registrationCertificateDefaults: defaults,
+                }),
+            );
+        });
+
+        it("saves without contacting the registrar", async () => {
+            await service.replaceConfig("tenant", dto);
+
+            expect(authService.testCredentials).not.toHaveBeenCalled();
+            expect(repository.save).toHaveBeenCalled();
+            expect(authService.invalidateToken).toHaveBeenCalledWith("tenant");
         });
     });
 });

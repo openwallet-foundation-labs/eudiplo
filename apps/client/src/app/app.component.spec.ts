@@ -1,9 +1,14 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { NEVER, of } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
+import { ApiService } from './core';
 import { JwtService, type Role } from './services/jwt.service';
 import {
   NAV_SECTION_ROUTES,
@@ -71,6 +76,169 @@ describe('AppComponent navigation', () => {
     expect(menuItems(['issuance:offer', 'presentation:request'])).not.toContain(
       'Webhook Endpoints'
     );
+  });
+});
+
+describe('AppComponent session expiry', () => {
+  it('warns on any page before a token without refresh expires', async () => {
+    const open = vi.fn<(message: string, action: string) => object>(() => ({
+      onAction: () => NEVER,
+      afterDismissed: () => NEVER,
+    }));
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatSnackBar, useValue: { open } },
+        {
+          provide: ApiService,
+          useValue: {
+            accessToken: 'token',
+            getAuthenticationStatus: () => true,
+            getTokenTimeRemaining: () => 4 * 60_000,
+            canRefreshToken: () => false,
+            getBaseUrl: () => undefined,
+            getClientId: () => undefined,
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    await vi.waitFor(() => expect(open).toHaveBeenCalled());
+    expect(open.mock.calls[0][0]).toBe('Your session expires in 4 minutes. Save your work.');
+    fixture.destroy();
+  });
+});
+
+describe('AppComponent help menu', () => {
+  function helpLinks(baseUrl: string | undefined): { text: string; href: string | null }[] {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ApiService,
+          useValue: {
+            accessToken: '',
+            getAuthenticationStatus: () => false,
+            getTokenTimeRemaining: () => 0,
+            canRefreshToken: () => false,
+            getBaseUrl: () => baseUrl,
+            getClientId: () => undefined,
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.componentInstance.shouldShowToolbar = true;
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('button[aria-label="Help and resources"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const links = Array.from(document.querySelectorAll('.mat-mdc-menu-panel a'), (link) => ({
+      text: link.querySelector('span')?.textContent?.trim() ?? '',
+      href: link.getAttribute('href'),
+    }));
+    fixture.destroy();
+    return links;
+  }
+
+  it("links the instance's management API reference", () => {
+    expect(helpLinks('https://eudiplo.example')).toContainEqual({
+      text: 'API reference of this instance',
+      href: 'https://eudiplo.example/api/docs',
+    });
+  });
+
+  it('leaves the API reference out while no instance is configured', () => {
+    expect(helpLinks(undefined).map((link) => link.text)).toEqual([
+      'Documentation',
+      'GitHub',
+      'Discord community',
+    ]);
+  });
+});
+
+describe('AppComponent navigation toggle', () => {
+  function render(handset: boolean) {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        // jsdom fires no transitionend, so the drawer settles only without animations.
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
+        {
+          provide: BreakpointObserver,
+          useValue: { observe: () => of({ matches: handset, breakpoints: {} }) },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const toggle = element.querySelector(
+      'button[aria-label="Toggle navigation"]'
+    ) as HTMLButtonElement;
+    return { fixture, element, toggle };
+  }
+
+  it('names the menu button after the navigation it controls', () => {
+    const { element, toggle } = render(false);
+
+    expect(toggle.querySelector('mat-icon')?.textContent?.trim()).toBe('menu');
+    expect(element.querySelector(`#${toggle.getAttribute('aria-controls')}`)?.tagName).toBe(
+      'MAT-SIDENAV'
+    );
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('reports whether the navigation is open on a phone', () => {
+    const { fixture, toggle } = render(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('reports the navigation closed when the user taps the backdrop', async () => {
+    const { fixture, element, toggle } = render(true);
+    toggle.click();
+    fixture.detectChanges();
+    const backdrop = element.querySelector('.mat-drawer-backdrop') as HTMLElement;
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(backdrop.classList).toContain('mat-drawer-shown');
+    });
+
+    backdrop.click();
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(backdrop.classList).toContain('mat-drawer-shown');
+  });
+
+  it('keeps the side-mode navigation open on Escape', async () => {
+    const { fixture, element, toggle } = render(false);
+    const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
+
+    sidenav.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 }));
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(sidenav.classList).toContain('mat-drawer-opened');
   });
 });
 

@@ -150,20 +150,38 @@ export class RegistrarConfigService {
 
     /**
      * Create or replace the registrar configuration for a tenant.
-     * Credentials are validated before saving. A client secret missing from
-     * `dto` removes the stored one, so only the tested credentials are kept.
+     * Credentials are validated before saving; {@link replaceConfig} stores
+     * them.
      */
     async saveConfig(
         tenantId: string,
         dto: CreateRegistrarConfig,
     ): Promise<RegistrarConfigEntity> {
         await this.authService.testCredentials(dto);
+        return this.replaceConfig(tenantId, dto);
+    }
 
+    /**
+     * Create or replace the registrar configuration for a tenant without
+     * checking the credentials. Configuration imports use this: the
+     * registrar may be unreachable at startup, and a failed check would stop
+     * the rest of the import. Wrong credentials fail on first use instead.
+     *
+     * A `clientSecret` or `registrationCertificateDefaults` missing from
+     * `dto` removes the stored one, so a stored secret is never sent to the
+     * `oidcUrl` of a replacement.
+     */
+    async replaceConfig(
+        tenantId: string,
+        dto: CreateRegistrarConfig,
+    ): Promise<RegistrarConfigEntity> {
         const config = await this.configRepository.save({
             tenantId,
             ...dto,
-            // `save` skips undefined columns and would keep the stored secret.
+            // `save` skips undefined columns and would keep the stored values.
             clientSecret: dto.clientSecret ?? null,
+            registrationCertificateDefaults:
+                dto.registrationCertificateDefaults ?? null,
         });
 
         this.authService.invalidateToken(tenantId);

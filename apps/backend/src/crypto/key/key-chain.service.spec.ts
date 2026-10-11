@@ -8,6 +8,7 @@ import type { TokenPayload } from "../../auth/token.decorator.js";
 import { KeyChainEntity } from "./entities/key-chain.entity.js";
 import { KeyChainController } from "./key-chain.controller.js";
 import { KeyChainService } from "./key-chain.service.js";
+import { KeyChainImportSchema } from "./schemas/key-chain.schema.js";
 import { KeyUsageType } from "./types/key-usage-type.js";
 
 const privateJwk = {
@@ -80,6 +81,50 @@ describe("KeyChainService.export", () => {
         const exported = await service.export("tenant", "key");
 
         expect(exported.key).not.toHaveProperty("d");
+    });
+
+    it("leaves out unset optional columns so the import accepts the export", async () => {
+        // Nullable columns are read back as null, not undefined.
+        const service = serviceFor(
+            keyChain({
+                description: null,
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+                certValidityDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+            "db",
+        );
+
+        const exported = JSON.parse(
+            JSON.stringify(await service.export("tenant", "key")),
+        );
+
+        expect(exported).not.toHaveProperty("description");
+        expect(exported.rotationPolicy).toEqual({ enabled: true });
+        expect(KeyChainImportSchema.safeParse(exported).success).toBe(true);
+    });
+
+    it("exports the description and rotation intervals that are set", async () => {
+        const service = serviceFor(
+            keyChain({
+                description: "Signing",
+                rotationEnabled: true,
+                rotationIntervalDays: 90,
+                certValidityDays: 365,
+            }),
+            "db",
+        );
+
+        const exported = await service.export("tenant", "key");
+
+        expect(exported).toMatchObject({
+            description: "Signing",
+            rotationPolicy: {
+                enabled: true,
+                intervalDays: 90,
+                certValidityDays: 365,
+            },
+        });
     });
 
     it("scopes the lookup to the tenant", async () => {

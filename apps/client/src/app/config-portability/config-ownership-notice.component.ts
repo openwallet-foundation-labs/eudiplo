@@ -99,7 +99,8 @@ export class ConfigOwnershipNoticeComponent implements OnChanges {
     void this.refresh();
   }
 
-  private async refresh(): Promise<void> {
+  /** Loads the ownership again, for example after the resource was deleted on the same screen. */
+  async refresh(): Promise<void> {
     const request = ++this.request;
     this.canManageOwnership = this.jwt.canUseConfigPortability();
     if (!this.kind || !this.resourceId) {

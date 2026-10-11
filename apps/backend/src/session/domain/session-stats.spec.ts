@@ -17,6 +17,7 @@ describe("sessionTypeStats", () => {
                     count: 7,
                 },
             ],
+            [],
             lastCompletedAt,
         );
 
@@ -30,17 +31,19 @@ describe("sessionTypeStats", () => {
                 failed: 0,
                 cancelled: 2,
             },
+            failureCodes: [],
             lastCompletedAt,
         });
     });
 
     it("returns zeros for a type without sessions", () => {
-        const stats = sessionTypeStats("presentation", [], null);
+        const stats = sessionTypeStats("presentation", [], [], null);
 
         expect(stats.total).toBe(0);
         expect(Object.values(stats.byStatus)).toEqual(
             Object.values(SessionStatus).map(() => 0),
         );
+        expect(stats.failureCodes).toEqual([]);
         expect(stats.lastCompletedAt).toBeNull();
     });
 
@@ -55,6 +58,7 @@ describe("sessionTypeStats", () => {
                     count: 4,
                 },
             ],
+            [],
             null,
         );
 
@@ -62,5 +66,13 @@ describe("sessionTypeStats", () => {
         expect(Object.keys(stats.byStatus)).toEqual(
             Object.values(SessionStatus),
         );
+    });
+
+    it("passes the failure codes of the type through", () => {
+        const failureCodes = [{ code: "invalid_proof", count: 2 }];
+
+        const stats = sessionTypeStats("presentation", [], failureCodes, null);
+
+        expect(stats.failureCodes).toEqual(failureCodes);
     });
 });

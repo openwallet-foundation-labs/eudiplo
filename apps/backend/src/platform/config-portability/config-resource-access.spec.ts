@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { RequestMethod, type Type } from "@nestjs/common";
 import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants.js";
 import { beforeAll, describe, expect, it } from "vitest";
+import { rolesAllow } from "../../../test/roles-guard.js";
 import { allRoles, Role } from "../../auth/roles/role.enum.js";
-import { ROLES_KEY } from "../../auth/roles/roles.decorator.js";
 import { ConfigPortabilityController } from "./config-portability.controller.js";
 import {
     CONFIG_RESOURCE_KINDS,
@@ -52,17 +52,21 @@ function configWrites(controllers: Type[]) {
                 `/${Reflect.getMetadata(PATH_METADATA, controller)}/${Reflect.getMetadata(PATH_METADATA, handler)}`
                     .replaceAll(/:\w+/g, "sample")
                     .replaceAll(/\/+/g, "/");
-            const match = routes.match(RequestMethod[method], path, {
+            const resource = routes.match(RequestMethod[method], path, {
                 id: "sample",
                 clientId: "sample",
             });
-            if (!match) return [];
-            const roles: Role[] =
-                Reflect.getMetadata(ROLES_KEY, handler) ??
-                Reflect.getMetadata(ROLES_KEY, controller) ??
-                [];
+            if (!resource) return [];
+            // The roles that pass RolesGuard on their own for this handler.
+            const roles = allRoles.filter((role) =>
+                rolesAllow(controller, name, [role]),
+            );
             return [
-                { route: `${RequestMethod[method]} ${path}`, ...match, roles },
+                {
+                    route: `${RequestMethod[method]} ${path}`,
+                    ...resource,
+                    roles,
+                },
             ];
         }),
     );
@@ -92,6 +96,16 @@ describe("mayReadConfigOwnership", () => {
             false,
         );
         expect(mayReadConfigOwnership(undefined, "Tenant")).toBe(false);
+    });
+
+    it("sees only write routes that a single role may call", () => {
+        // A route that needs several roles together has no single writer role;
+        // the read rule would need a combined check, so it has to revisit the map.
+        expect(
+            writes
+                .filter(({ roles }) => roles.length === 0)
+                .map(({ route }) => route),
+        ).toEqual([]);
     });
 
     it("admits exactly the admin roles and the roles that change each kind", () => {
@@ -138,11 +152,10 @@ describe("mayReadConfigOwnership", () => {
                 mayReadConfigOwnership([role], kind),
             ),
         );
-        const guarded: Role[] = Reflect.getMetadata(
-            ROLES_KEY,
-            ConfigPortabilityController.prototype.resourcesOfKind,
+        const guarded = allRoles.filter((role) =>
+            rolesAllow(ConfigPortabilityController, "resourcesOfKind", [role]),
         );
 
-        expect(new Set(guarded)).toEqual(new Set(readers));
+        expect(guarded).toEqual(readers);
     });
 });

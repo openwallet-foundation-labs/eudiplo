@@ -168,7 +168,7 @@ describe("Trust List e2e Tests", () => {
             expect(response.body.sequenceNumber).toBe(2);
         });
 
-        test("should export a trust list in LoTE format", async () => {
+        test("should export a trust list in the create format", async () => {
             const response = await request(ctx.app.getHttpServer())
                 .get(`/trust-list/${testTrustListId}/export`)
                 .set("Authorization", `Bearer ${ctx.authToken}`)
@@ -177,6 +177,49 @@ describe("Trust List e2e Tests", () => {
             expect(response.body.id).toBe(testTrustListId);
             expect(response.body.entities).toBeDefined();
             expect(response.body.data).toBeDefined();
+        });
+
+        test("should re-import the export of a trust list created without a description", async () => {
+            const id = "no-description-trust-list";
+            await request(ctx.app.getHttpServer())
+                .post("/trust-list")
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .send({
+                    id,
+                    keyChainId: "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
+                    entities: [
+                        {
+                            type: "internal",
+                            issuerKeyChainId:
+                                "c3f24b6e-9b71-4b62-8d37-5f1a2c9e47ad",
+                            revocationKeyChainId:
+                                "1f8c6b29-a4d3-4e7f-b2a0-9c5d13e8f746",
+                            info: { name: "Test Provider" },
+                        },
+                    ],
+                } satisfies TrustListCreateDto)
+                .expect(201);
+
+            const exported = await request(ctx.app.getHttpServer())
+                .get(`/trust-list/${id}/export`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(200);
+
+            // POST /trust-list drops a null optional field itself; the config
+            // folder import validates strictly, so the export must leave it out.
+            expect(exported.body).not.toHaveProperty("description");
+
+            await request(ctx.app.getHttpServer())
+                .delete(`/trust-list/${id}`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(204);
+            const reimported = await request(ctx.app.getHttpServer())
+                .post("/trust-list")
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .send(exported.body)
+                .expect(201);
+
+            expect(reimported.body.id).toBe(id);
         });
 
         test("should get version history for a trust list", async () => {

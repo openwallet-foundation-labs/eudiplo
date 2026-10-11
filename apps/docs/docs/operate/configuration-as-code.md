@@ -108,8 +108,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npx @eudiplo/cli@9 config validate tenants ./config
-      - run: npx @eudiplo/cli@9 config upgrade ./config --check
+      - run: npx @eudiplo/cli@10 config validate tenants ./config
+      - run: npx @eudiplo/cli@10 config upgrade ./config --check
 ```
 
 Use the CLI major version that matches your backend. For completion and inline
@@ -150,9 +150,10 @@ eudiplo config upgrade ./config --output ./config-upgraded --diff
 ```
 
 The command writes to a separate output, never invents missing security-relevant
-values, and leaves the output untouched when validation fails. A 9.0 bundle
-cannot be imported into 8.x: since 9.0, IssuanceConfig files are format
-version 2 and PresentationConfig files version 3.
+values, and leaves the output untouched when validation fails. A bundle exported
+by a newer release cannot be imported into a release that does not know its
+format versions, for example a 10.0 bundle into 9.x
+([format versions](../reference/config-bundle-format.md#resource-types-and-versions)).
 
 ## Plan and import
 

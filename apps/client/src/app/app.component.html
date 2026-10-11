@@ -1,6 +1,14 @@
 @if (shouldShowToolbar) {
   <mat-toolbar class="app-toolbar">
-    <button matIconButton (click)="toggleSidenav()" fxHide.gt-sm>
+    <button
+      matIconButton
+      (click)="toggleSidenav()"
+      fxHide.gt-sm
+      aria-label="Toggle navigation"
+      aria-controls="app-sidenav"
+      [attr.aria-expanded]="sidenavOpened"
+      matTooltip="Toggle navigation"
+    >
       <mat-icon>menu</mat-icon>
     </button>
     <img src="logo.svg" alt="EUDIPLO" class="toolbar-logo" />
@@ -9,16 +17,39 @@
     <!-- Spacer -->
     <span fxFlex></span>
 
-    <a
+    <button
       matIconButton
-      href="https://docs.eudiplo.dev/"
-      target="_blank"
-      rel="noopener"
-      aria-label="Open documentation"
-      matTooltip="Documentation"
+      [matMenuTriggerFor]="helpMenu"
+      aria-label="Help and resources"
+      matTooltip="Help and resources"
     >
       <mat-icon>help</mat-icon>
-    </a>
+    </button>
+    <mat-menu #helpMenu="matMenu">
+      <a mat-menu-item href="https://docs.eudiplo.dev/" target="_blank" rel="noopener">
+        <mat-icon>description</mat-icon>
+        <span>Documentation</span>
+      </a>
+      @if (apiService.getBaseUrl()) {
+        <a
+          mat-menu-item
+          [href]="apiService.getBaseUrl() + '/api/docs'"
+          target="_blank"
+          rel="noopener"
+        >
+          <mat-icon>api</mat-icon>
+          <span>API reference of this instance</span>
+        </a>
+      }
+      <a mat-menu-item href="https://github.com/EUDIPLO/eudiplo" target="_blank" rel="noopener">
+        <mat-icon>code</mat-icon>
+        <span>GitHub</span>
+      </a>
+      <a mat-menu-item href="https://discord.gg/58ys8XfXDu" target="_blank" rel="noopener">
+        <mat-icon>forum</mat-icon>
+        <span>Discord community</span>
+      </a>
+    </mat-menu>
     <button
       matIconButton
       (click)="themeService.toggle()"
@@ -27,7 +58,7 @@
     >
       <mat-icon>{{ themeService.isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
     </button>
-    <button matIconButton [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+    <button matIconButton [matMenuTriggerFor]="menu" aria-label="Account menu">
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
@@ -47,8 +78,19 @@
     </mat-menu>
   </mat-toolbar>
   <mat-sidenav-container class="sidenav-container">
-    <!-- Side Navigation -->
-    <mat-sidenav #sidenav [mode]="sidenavMode" [opened]="sidenavOpened" class="app-sidenav">
+    <!-- Side Navigation. The phone drawer closes itself on Escape or a tap on the backdrop;
+         follow it as soon as it starts closing, so the menu button reports it and one tap
+         reopens it. In side mode the navigation is part of the page and wide screens hide the
+         menu button, so Escape must not close it there. -->
+    <mat-sidenav
+      #sidenav
+      id="app-sidenav"
+      [mode]="sidenavMode"
+      [opened]="sidenavOpened"
+      [disableClose]="sidenavMode === 'side'"
+      (closedStart)="sidenavOpened = false"
+      class="app-sidenav"
+    >
       <mat-nav-list>
         <!-- Dashboard - Always visible, entry point -->
         <mat-list-item

@@ -1,5 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { SessionCleanupMode } from "../domain/session-retention.js";
 import type { SessionStatus } from "../domain/session-state.js";
+import {
+    MAX_FAILURE_CODE_LENGTH,
+    MAX_FAILURE_CODES,
+} from "../domain/session-stats.js";
 
 /**
  * Number of sessions per status. Lists every status of `SessionStatus`;
@@ -39,6 +44,20 @@ export class SessionStatusCountsDto
 }
 
 /**
+ * Number of failed sessions with one failure code.
+ */
+export class SessionFailureCodeCountDto {
+    @ApiProperty({
+        description:
+            "Failure code, see the session outcome reference; presentation errors a wallet sent keep their own code",
+    })
+    code!: string;
+
+    @ApiProperty({ description: "Number of failed sessions with this code" })
+    count!: number;
+}
+
+/**
  * Session counts of one type.
  */
 export class SessionTypeStatsDto {
@@ -53,6 +72,12 @@ export class SessionTypeStatsDto {
     byStatus!: SessionStatusCountsDto;
 
     @ApiProperty({
+        type: [SessionFailureCodeCountDto],
+        description: `Failure codes of the failed sessions, most frequent first, at most ${MAX_FAILURE_CODES}, cut to ${MAX_FAILURE_CODE_LENGTH} characters. Failed sessions without a code are not listed.`,
+    })
+    failureCodes!: SessionFailureCodeCountDto[];
+
+    @ApiProperty({
         type: String,
         format: "date-time",
         nullable: true,
@@ -63,10 +88,35 @@ export class SessionTypeStatsDto {
 }
 
 /**
+ * How long the tenant keeps sessions; only stored sessions are counted.
+ */
+export class SessionRetentionDto {
+    @ApiProperty({
+        description:
+            "Seconds after creation when the maintenance job processes a session",
+    })
+    ttlSeconds!: number;
+
+    @ApiProperty({
+        enum: SessionCleanupMode,
+        description:
+            "full: processed sessions are deleted and no longer counted; anonymize: they are kept with their status and still counted",
+    })
+    cleanupMode!: SessionCleanupMode;
+}
+
+/**
  * Session counts of the caller's tenant. A type is present only when the
  * caller may read its sessions, as in the session list.
  */
 export class SessionStatsResponseDto {
+    @ApiProperty({
+        type: SessionRetentionDto,
+        description:
+            "Effective session retention of the tenant; tells how far back the counts reach",
+    })
+    retention!: SessionRetentionDto;
+
     @ApiPropertyOptional({
         type: SessionTypeStatsDto,
         description:

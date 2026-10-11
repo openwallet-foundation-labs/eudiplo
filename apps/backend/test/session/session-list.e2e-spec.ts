@@ -4,6 +4,10 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { Role } from "../../src/auth/roles/role.enum.js";
+import {
+    SESSION_SETTINGS,
+    type SessionSettings,
+} from "../../src/session/session-settings.js";
 import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto.js";
 import { clientToken, getToken, setupIssuanceTestApp } from "../utils.js";
 
@@ -102,12 +106,14 @@ describe("Session list filters and search", () => {
                 failed: 0,
                 cancelled: 0,
             },
+            failureCodes: [],
             lastCompletedAt: null,
         };
 
         expect(await stats(authToken)).toEqual({
             issuance: oneActive,
             presentation: oneActive,
+            retention: { ttlSeconds: expect.any(Number), cleanupMode: "full" },
         });
 
         const verifierToken = await clientToken(
@@ -118,6 +124,7 @@ describe("Session list filters and search", () => {
         );
         expect(await stats(verifierToken)).toEqual({
             presentation: oneActive,
+            retention: { ttlSeconds: expect.any(Number), cleanupMode: "full" },
         });
 
         const config = app.get(ConfigService);
@@ -130,6 +137,73 @@ describe("Session list filters and search", () => {
         const otherStats = await stats(otherToken);
         expect(otherStats.issuance.total).toBe(0);
         expect(otherStats.presentation.total).toBe(0);
+    });
+
+    test("counts only sessions created in the requested time range", async () => {
+        const stats = (query: string) =>
+            request(app.getHttpServer())
+                .get(`/session/stats?${query}`)
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`);
+        const tomorrow = new Date(Date.now() + 86_400_000).toISOString();
+        const yesterday = new Date(Date.now() - 86_400_000).toISOString();
+
+        const { body } = await stats(
+            `createdFrom=${encodeURIComponent(tomorrow)}`,
+        ).expect(200);
+        expect(body.issuance.total).toBe(0);
+        expect(body.presentation.total).toBe(0);
+
+        const recent = await stats(
+            `createdFrom=${encodeURIComponent(yesterday)}&createdTo=${encodeURIComponent(tomorrow)}`,
+        ).expect(200);
+        expect(recent.body.issuance.total).toBe(1);
+        expect(recent.body.presentation.total).toBe(1);
+
+        for (const query of [
+            `createdFrom=${encodeURIComponent(tomorrow)}&createdTo=${encodeURIComponent(yesterday)}`,
+            "createdFrom=yesterday",
+            "status=failed",
+        ])
+            expect((await stats(query)).status).toBe(400);
+    });
+
+    test("reports the retention the tenant keeps sessions for", async () => {
+        const retention = async () =>
+            (
+                await request(app.getHttpServer())
+                    .get("/session/stats")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .expect(200)
+            ).body.retention;
+        const sessionConfig = () =>
+            request(app.getHttpServer())
+                .put("/session-config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`);
+        const defaults = app.get<SessionSettings>(SESSION_SETTINGS);
+
+        try {
+            await sessionConfig()
+                .send({ ttlSeconds: 7200, cleanupMode: "anonymize" })
+                .expect(200);
+            expect(await retention()).toEqual({
+                ttlSeconds: 7200,
+                cleanupMode: "anonymize",
+            });
+        } finally {
+            await request(app.getHttpServer())
+                .delete("/session-config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(204);
+        }
+
+        expect(await retention()).toEqual({
+            ttlSeconds: defaults.defaultTtlSeconds,
+            cleanupMode: defaults.defaultCleanupMode,
+        });
     });
 
     test("finds the session behind a pasted offer or request link", async () => {
