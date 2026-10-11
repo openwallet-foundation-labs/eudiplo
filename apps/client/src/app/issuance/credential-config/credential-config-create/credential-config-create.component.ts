@@ -460,7 +460,7 @@ export class CredentialConfigCreateComponent implements OnInit {
           (error) => {
             console.error('Error saving configuration:', error);
             this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
-              duration: 3000,
+              duration: 5000,
             });
           }
         )

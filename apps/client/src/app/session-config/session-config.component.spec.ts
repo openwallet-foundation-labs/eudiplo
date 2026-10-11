@@ -137,7 +137,8 @@ describe('SessionConfigComponent', () => {
     const element = await render();
 
     expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-      'Failed to load the session settings: the backend could not be reached'
+      'Failed to load the session settings: the backend could not be reached. ' +
+        'Check the connection and try again.'
     );
     expect(element.querySelector('form')).toBeNull();
   });

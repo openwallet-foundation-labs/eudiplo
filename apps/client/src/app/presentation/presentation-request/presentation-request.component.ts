@@ -213,7 +213,7 @@ export class PresentationRequestComponent implements OnInit {
       // The backend names a missing access certificate here.
       const message = getApiErrorMessage(error, 'Failed to generate presentation request');
       this.snackBar.open(message, 'Close', {
-        duration: 3000,
+        duration: 5000,
         panelClass: ['error-snackbar'],
       });
     } finally {

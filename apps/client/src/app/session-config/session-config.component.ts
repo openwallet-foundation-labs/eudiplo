@@ -86,7 +86,7 @@ export class SessionConfigComponent implements OnInit {
       this.currentConfig = await this.sessionConfigService.getConfig();
     } catch (error) {
       console.error('Load error:', error);
-      this.loadError = this.errorMessage(error, 'Failed to load the session settings');
+      this.loadError = getApiErrorMessage(error, 'Failed to load the session settings');
       return;
     } finally {
       this.isLoading = false;
@@ -118,7 +118,7 @@ export class SessionConfigComponent implements OnInit {
     try {
       this.currentConfig = await this.sessionConfigService.updateConfig(update);
     } catch (error) {
-      this.snackBar.open(this.errorMessage(error, 'Failed to save configuration'), 'Close', {
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
         duration: 5000,
       });
       return;
@@ -140,7 +140,7 @@ export class SessionConfigComponent implements OnInit {
     try {
       await this.sessionConfigService.resetConfig();
     } catch (error) {
-      this.snackBar.open(this.errorMessage(error, 'Failed to reset configuration'), 'Close', {
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
         duration: 5000,
       });
       return;
@@ -170,13 +170,6 @@ export class SessionConfigComponent implements OnInit {
       `SESSION_TTL are cleaned up with SESSION_CLEANUP_MODE, which can delete them completely. ` +
       `This cannot be undone.`
     );
-  }
-
-  /** fetch rejects with a TypeError ("Failed to fetch") when the backend is unreachable. */
-  private errorMessage(error: unknown, fallback: string): string {
-    return error instanceof TypeError
-      ? `${fallback}: the backend could not be reached`
-      : getApiErrorMessage(error, fallback);
   }
 
   /**

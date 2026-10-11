@@ -822,7 +822,7 @@ export class IssuanceOfferComponent implements OnInit {
       this.router.navigate(['/session-management', offerResult!.session]);
     } catch (error: unknown) {
       this.snackBar.open(getApiErrorMessage(error, 'Failed to generate offer'), 'Close', {
-        duration: 3000,
+        duration: 5000,
         panelClass: ['error-snackbar'],
       });
     } finally {
