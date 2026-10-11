@@ -9,7 +9,7 @@ import { NEVER, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { ApiService } from './core';
-import { JwtService, type Role } from './services/jwt.service';
+import { JwtService, roles as allRoles, type Role } from './services/jwt.service';
 import {
   NAV_SECTION_ROUTES,
   NavSectionsService,
@@ -30,12 +30,15 @@ describe('AppComponent', () => {
   });
 });
 
+@Component({ template: '' })
+class EmptyPageComponent {}
+
 describe('AppComponent navigation', () => {
   function renderNav(roles: Role[]): HTMLElement {
     TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: '**', component: EmptyPageComponent }]),
         {
           provide: JwtService,
           useValue: {
@@ -57,6 +60,37 @@ describe('AppComponent navigation', () => {
       (item) => item.textContent?.trim() ?? ''
     );
   }
+
+  // RouterLink only listens for click; on an anchor the browser turns Enter into one.
+  it('renders every entry as a link, so Enter opens it', () => {
+    const element = renderNav(allRoles);
+    const entries = Array.from(element.querySelectorAll('mat-sidenav .mat-mdc-list-item'));
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries).toHaveLength(element.querySelectorAll('mat-sidenav [matListItemTitle]').length);
+    for (const entry of entries) {
+      expect(entry.tagName).toBe('A');
+      expect(entry.getAttribute('href')).toMatch(/^\//);
+    }
+  });
+
+  it('marks only the entry of the open page as the current page', async () => {
+    const element = renderNav(allRoles);
+    const router = TestBed.inject(Router);
+    const entries = Array.from(element.querySelectorAll('mat-sidenav a.mat-mdc-list-item'));
+    expect(entries.length).toBeGreaterThan(0);
+
+    for (const entry of entries) {
+      const href = entry.getAttribute('href')!;
+      await router.navigateByUrl(href);
+
+      // RouterLinkActive sets aria-current in a microtask after the navigation.
+      await vi.waitFor(() => {
+        const current = element.querySelectorAll('mat-sidenav [aria-current="page"]');
+        expect(current, href).toHaveLength(1);
+        expect(current[0], href).toBe(entry);
+      });
+    }
+  });
 
   it.each<[string, Role[]]>([
     ['issuance', ['issuance:manage', 'issuance:offer']],
@@ -246,6 +280,21 @@ describe('AppComponent navigation toggle', () => {
     expect(backdrop.classList).toContain('mat-drawer-shown');
   });
 
+  it('collapses and reopens the side-mode navigation', () => {
+    const { fixture, element, toggle } = render(false);
+    const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(sidenav.classList).not.toContain('mat-drawer-opened');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(sidenav.classList).toContain('mat-drawer-opened');
+  });
+
   it('keeps the side-mode navigation open on Escape', async () => {
     const { fixture, element, toggle } = render(false);
     const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
@@ -259,8 +308,37 @@ describe('AppComponent navigation toggle', () => {
   });
 });
 
-@Component({ template: '' })
-class EmptyPageComponent {}
+describe('AppComponent skip link', () => {
+  function render() {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [provideRouter([{ path: 'login', component: EmptyPageComponent }])],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    return { fixture, element: fixture.nativeElement as HTMLElement };
+  }
+
+  it('is the first focusable element and moves focus to the main content', () => {
+    const { element } = render();
+    const link = element.querySelector('a, button, [tabindex="0"]') as HTMLAnchorElement;
+    expect(link.textContent?.trim()).toBe('Skip to main content');
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(element.querySelector('#main-content'));
+  });
+
+  it('is left out on the login page', async () => {
+    const { fixture, element } = render();
+    await TestBed.inject(Router).navigateByUrl('/login');
+    fixture.detectChanges();
+
+    expect(element.querySelector('.skip-link')).toBeNull();
+  });
+});
 
 describe('AppComponent collapsible navigation', () => {
   function render(

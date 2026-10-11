@@ -1,13 +1,16 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { JwtService } from '../../services/jwt.service';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { SchemaMetadata, SchemaService } from '../schema.service';
+import { compareVersionsDesc } from '../schema-version';
 
 interface GroupedSchemaMetadata {
   id: string;
@@ -22,6 +25,7 @@ interface GroupedSchemaMetadata {
     CommonModule,
     DatePipe,
     MatButtonModule,
+    MatCardModule,
     MatIconModule,
     MatTableModule,
     MatTooltipModule,
@@ -36,7 +40,8 @@ export class SchemaListComponent implements OnInit {
   items: SchemaMetadata[] = [];
   groupedItems: GroupedSchemaMetadata[] = [];
   loading = false;
-  loadError: string | null = null;
+  /** Why the list could not be loaded; shown instead of the empty state. */
+  loadError = '';
 
   get schemaMetadataCount(): number {
     return this.groupedItems.length;
@@ -54,7 +59,15 @@ export class SchemaListComponent implements OnInit {
     'actions',
   ];
 
-  constructor(private readonly schemaService: SchemaService) {}
+  constructor(
+    private readonly schemaService: SchemaService,
+    private readonly jwtService: JwtService
+  ) {}
+
+  /** Creating a schema publishes it, which needs `issuance:manage` besides `registrar:manage`. */
+  get canCreate(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
+  }
 
   ngOnInit(): void {
     this.loadItems();
@@ -62,13 +75,15 @@ export class SchemaListComponent implements OnInit {
 
   async loadItems(): Promise<void> {
     this.loading = true;
-    this.loadError = null;
+    this.loadError = '';
     try {
       this.items = await this.schemaService.listMine();
       this.groupedItems = this.groupById(this.items);
     } catch (error) {
       console.error('Failed to load schema metadata:', error);
-      this.loadError = getApiErrorMessage(error, 'Failed to load schema');
+      this.items = [];
+      this.groupedItems = [];
+      this.loadError = getApiErrorMessage(error, 'Failed to load schemas');
     } finally {
       this.loading = false;
     }
@@ -99,24 +114,8 @@ export class SchemaListComponent implements OnInit {
     return Array.from(groups.values())
       .map((group) => ({
         ...group,
-        versions: Array.from(new Set(group.versions)).sort((a, b) => this.compareSemverDesc(a, b)),
+        versions: Array.from(new Set(group.versions)).sort(compareVersionsDesc),
       }))
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }
-
-  private compareSemverDesc(a: string, b: string): number {
-    const aParts = a.split('.').map((part) => Number.parseInt(part, 10));
-    const bParts = b.split('.').map((part) => Number.parseInt(part, 10));
-    const maxLen = Math.max(aParts.length, bParts.length);
-
-    for (let index = 0; index < maxLen; index += 1) {
-      const aValue = Number.isNaN(aParts[index]) ? 0 : (aParts[index] ?? 0);
-      const bValue = Number.isNaN(bParts[index]) ? 0 : (bParts[index] ?? 0);
-      if (aValue !== bValue) {
-        return bValue - aValue;
-      }
-    }
-
-    return 0;
   }
 }

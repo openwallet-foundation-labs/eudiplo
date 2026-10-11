@@ -110,6 +110,27 @@ describe("OpenAPI contract", () => {
         ]);
     });
 
+    test("documents registrar category and tags only on schema metadata publish requests", () => {
+        const schemas = document.components?.schemas ?? {};
+        const publishConfig = schemas.PublishSchemaMetaConfig as any;
+
+        expect(publishConfig.properties.category.enum).toContain("identity");
+        expect(publishConfig.properties.tags.items.enum).toContain("pid");
+        for (const body of [
+            "SignSchemaMetaConfigDto",
+            "SignVersionSchemaMetaConfigDto",
+        ]) {
+            expect((schemas[body] as any).properties.config.allOf).toEqual([
+                { $ref: "#/components/schemas/PublishSchemaMetaConfig" },
+            ]);
+        }
+        // SchemaMetaConfig is also the schemaMeta of credential configs,
+        // whose endpoints and config files reject these fields.
+        const schemaMetaConfig = schemas.SchemaMetaConfig as any;
+        expect(schemaMetaConfig.properties).not.toHaveProperty("category");
+        expect(schemaMetaConfig.properties).not.toHaveProperty("tags");
+    });
+
     test("documents tenant description clearing without create-only PATCH fields", () => {
         const createTenantSchema = document.components?.schemas
             ?.CreateTenantDto as any;

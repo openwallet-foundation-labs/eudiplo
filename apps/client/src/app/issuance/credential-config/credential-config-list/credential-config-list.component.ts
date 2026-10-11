@@ -10,6 +10,7 @@ import { BaseAsyncListComponent } from '../../../common/base-async-list.componen
 import { CredentialConfigService } from '../credential-config.service';
 import { DisplayFormValue } from '../credential-config.types';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
+import { JwtService } from '../../../services/jwt.service';
 
 @Component({
   selector: 'app-credential-config-list',
@@ -42,8 +43,16 @@ export class CredentialConfigListComponent extends BaseAsyncListComponent<Creden
     'actions',
   ];
 
-  constructor(private readonly credentialConfigService: CredentialConfigService) {
+  constructor(
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly jwtService: JwtService
+  ) {
     super();
+  }
+
+  /** The schema pages need `registrar:manage`; without it the badge link would end in "Access denied". */
+  get canOpenSchemas(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
   }
 
   protected fetchItems(): Promise<CredentialConfig[]> {
