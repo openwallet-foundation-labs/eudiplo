@@ -258,24 +258,20 @@ export class CertService {
     /**
      * Add an external certificate to an existing key chain.
      * Used for storing certificates obtained from external sources (e.g., registrar).
+     * Only the active certificate changes; the key chain keeps its description,
+     * which users select it by.
      */
     async addCertificate(
         tenantId: string,
         options: {
             crt: string[];
             keyId: string;
-            description?: string;
         },
     ): Promise<string> {
-        const { crt, keyId, description } = options;
+        const { crt, keyId } = options;
 
-        // Get the existing key chain
-        const keyChain = await this.keyChainService.getEntity(tenantId, keyId);
-
-        // Update the key chain with the new certificate
         await this.keyChainService.update(tenantId, keyId, {
             activeCertificate: crt.join("\n"),
-            description: description || keyChain.description,
         });
 
         this.logger.log(

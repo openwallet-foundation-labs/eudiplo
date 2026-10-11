@@ -6457,7 +6457,7 @@ export type RegistrarControllerCreateAccessCertificateData = {
 
 export type RegistrarControllerCreateAccessCertificateErrors = {
     /**
-     * The registrar rejected the relying-party registration or the certificate request
+     * Authentication with the registrar failed (for example wrong credentials or an unreachable OIDC provider), the registrar or OIDC URL is blocked by the outbound URL policy, or the registrar rejected the relying-party lookup or registration or the certificate request
      */
     400: unknown;
     /**

@@ -61,3 +61,21 @@ describe("CertService.validateCertificate", () => {
         );
     });
 });
+
+describe("CertService.addCertificate", () => {
+    it("stores the certificate chain and keeps the key chain description", async () => {
+        const update = vi.fn().mockResolvedValue(undefined);
+        const service = new CertService({ update } as never, {} as never);
+
+        await expect(
+            service.addCertificate("tenant", {
+                crt: ["leaf", "intermediate"],
+                keyId: "access",
+            }),
+        ).resolves.toBe("access");
+
+        expect(update).toHaveBeenCalledWith("tenant", "access", {
+            activeCertificate: "leaf\nintermediate",
+        });
+    });
+});
