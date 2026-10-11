@@ -895,6 +895,9 @@ describe("OID4VP request object signing key", () => {
             `cert-of-${keyId}`,
         ]);
         const signJWT = vi.fn().mockResolvedValue("signed.request.object");
+        const getOrIssueRegistrationCertificate = vi
+            .fn()
+            .mockResolvedValue("registration.cert.jwt");
         const service = Object.assign(
             Object.create(Oid4vpService.prototype) as Oid4vpService,
             {
@@ -942,9 +945,15 @@ describe("OID4VP request object signing key", () => {
                     ),
                 },
                 keyChainService: { signJWT },
+                registrarService: {
+                    isEnabledForTenant: vi.fn().mockResolvedValue(true),
+                },
+                registrationCertificateService: {
+                    getOrIssueRegistrationCertificate,
+                },
             },
         );
-        return { service, find, signJWT };
+        return { service, find, signJWT, getOrIssueRegistrationCertificate };
     }
 
     it("signs with the access key chain stored with the client_id, not the current default", async () => {
@@ -963,6 +972,29 @@ describe("OID4VP request object signing key", () => {
         expect(header.x5c).toEqual(["cert-of-access-a"]);
         expect(tenantId).toBe("tenant");
         expect(keyId).toBe("access-a");
+    });
+
+    it("links the registration certificate to the access key chain stored with the client_id", async () => {
+        const { service, signJWT, getOrIssueRegistrationCertificate } =
+            createService(
+                {
+                    clientId: "x509_hash:hash-of-access-a",
+                    accessKeyChainId: "access-a",
+                },
+                { registration_cert: { body: {} } },
+            );
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        expect(getOrIssueRegistrationCertificate).toHaveBeenCalledWith(
+            expect.objectContaining({ registration_cert: { body: {} } }),
+            { credentials: [] },
+            "presentation",
+            expect.objectContaining({ keyId: "access-a" }),
+        );
+        expect(signJWT.mock.calls[0][0].verifier_info).toEqual([
+            expect.objectContaining({ data: "registration.cert.jwt" }),
+        ]);
     });
 
     it("falls back to the presentation configuration's key chain for sessions without a stored one", async () => {

@@ -288,30 +288,6 @@ export class Oid4vpService {
                 this.settings.removeTrustedAuthorities,
             );
 
-            if (
-                presentationConfig.registration_cert &&
-                (await this.registrarService.isEnabledForTenant(
-                    session.tenantId,
-                ))
-            ) {
-                regCert =
-                    await this.registrationCertificateService.getOrIssueRegistrationCertificate(
-                        presentationConfig,
-                        dcql_query,
-                        session.requestId!,
-                    );
-            }
-            const nonce = randomUUID();
-            await this.sessionStore.updateForTenant(
-                session.tenantId,
-                session.id,
-                {
-                    vp_nonce: nonce,
-                },
-            );
-
-            const lifeTime = 60 * 60;
-
             // Sign with the key chain the offer's client_id was derived from:
             // the default access key chain may have changed since then. A
             // rotation of that key chain in between still changes its
@@ -325,6 +301,33 @@ export class Oid4vpService {
                     presentationConfig.accessKeyChainId ??
                     undefined,
             });
+
+            // The registration certificate links the access certificate that
+            // signs this request.
+            if (
+                presentationConfig.registration_cert &&
+                (await this.registrarService.isEnabledForTenant(
+                    session.tenantId,
+                ))
+            ) {
+                regCert =
+                    await this.registrationCertificateService.getOrIssueRegistrationCertificate(
+                        presentationConfig,
+                        dcql_query,
+                        session.requestId!,
+                        cert,
+                    );
+            }
+            const nonce = randomUUID();
+            await this.sessionStore.updateForTenant(
+                session.tenantId,
+                session.id,
+                {
+                    vp_nonce: nonce,
+                },
+            );
+
+            const lifeTime = 60 * 60;
 
             const clientId =
                 session.clientId ?? createClientId(cert, this.certService);
