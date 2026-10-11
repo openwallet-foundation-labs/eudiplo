@@ -3,9 +3,27 @@ import {
     ApiProperty,
     ApiPropertyOptional,
 } from "@nestjs/swagger";
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    PrimaryColumn,
+    type ValueTransformer,
+} from "typeorm";
 import { Role } from "../../roles/role.enum.js";
 import { TenantEntity } from "../../tenant/entities/tenant.entity.js";
+
+/**
+ * Stores an instant as milliseconds since the epoch. Tokens carry the exact
+ * value, so it must read back the same in every process: `timestamp` columns
+ * are read in the process time zone on PostgreSQL.
+ */
+const epochMilliseconds: ValueTransformer = {
+    to: (value?: Date | null) =>
+        value instanceof Date ? value.getTime() : value,
+    from: (value?: string | number | null) =>
+        value === null || value === undefined ? null : new Date(Number(value)),
+};
 
 /**
  * Represents a client in the system that belongs to a tenant.
@@ -79,6 +97,21 @@ export class ClientEntity {
     })
     @Column({ type: "json", nullable: true })
     allowedIssuanceConfigs?: string[] | null;
+
+    /**
+     * When the client was created or got its current secret. Tokens of the
+     * built-in OAuth2 server carry it as `credentials_at` and are rejected
+     * when it no longer matches, so a re-created client or a new secret ends
+     * older tokens. Null for clients created before 10.0: their tokens are
+     * not limited.
+     */
+    @ApiHideProperty()
+    @Column({
+        type: "bigint",
+        nullable: true,
+        transformer: epochMilliseconds,
+    })
+    tokensValidAfter?: Date | null;
 
     /**
      * The tenant that the client belongs to.

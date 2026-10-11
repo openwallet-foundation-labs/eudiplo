@@ -7847,6 +7847,79 @@ export const TrustListVersionSchema = {
     ]
 } as const;
 
+export const TrustListReferenceDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'PresentationConfig',
+                'CredentialConfig',
+                'IssuanceConfig'
+            ],
+            type: 'string',
+            description: 'Kind of configuration that references the trust list.'
+        },
+        id: {
+            type: 'string',
+            description: 'ID of the presentation or credential config. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the configuration; absent for configurations the caller may not read.'
+        }
+    },
+    required: [
+        'kind'
+    ]
+} as const;
+
+export const TrustListInUseDtoSchema = {
+    type: 'object',
+    properties: {
+        statusCode: {
+            type: 'number',
+            description: 'HTTP status code.',
+            example: 409
+        },
+        timestamp: {
+            type: 'string',
+            description: 'Time of the response.',
+            example: '2026-10-11T12:00:00.000Z'
+        },
+        path: {
+            type: 'string',
+            description: 'Path of the request.',
+            example: '/api/trust-list/pid-issuers'
+        },
+        code: {
+            enum: [
+                'TRUST_LIST_IN_USE'
+            ],
+            type: 'string',
+            description: 'Configurations still reference the trust list.'
+        },
+        message: {
+            type: 'string',
+            description: 'Names the referencing configurations the caller may read and counts the others.',
+            example: 'Trust list "pid-issuers" is still referenced by 1 presentation config ("pid") and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.'
+        },
+        references: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrustListReferenceDto'
+            }
+        }
+    },
+    required: [
+        'statusCode',
+        'timestamp',
+        'path',
+        'code',
+        'message',
+        'references'
+    ]
+} as const;
+
 export const TrustListCacheStatsDtoSchema = {
     type: 'object',
     properties: {

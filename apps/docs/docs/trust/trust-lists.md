@@ -54,9 +54,37 @@ EUDIPLO publishes the signed JWT at `GET /issuers/{tenantId}/trust-list/{id}` wi
 | Version history            | `GET /api/trust-list/{id}/versions`, `GET /api/trust-list/{id}/versions/{versionId}`             |
 | List, read, export, delete | `GET /api/trust-list`, `GET /api/trust-list/{id}`, `GET /api/trust-list/{id}/export`, `DELETE /api/trust-list/{id}` |
 
-`DELETE` does not check whether configurations still use the list. Before deleting, open the list in the Web Client: its page shows the credential configurations (with `issuance:manage`) and the presentation configurations (with `presentation:manage` or `presentation:request`) that reference it. It does not show `walletProviderTrustLists` of the issuance configuration; check those as described in [Wallet and Key Attestation](attestation.md#1-provide-wallet-provider-trust-lists).
+`DELETE` refuses a list that configurations still use ([Delete a trust list](#delete-a-trust-list)). In the Web Client, the page of a list shows the credential configurations (with `issuance:manage`) and the presentation configurations (with `presentation:manage` or `presentation:request`) that reference it, and the delete button (**Delete list**) says so instead of sending the request. The page does not show `walletProviderTrustLists` of the issuance configuration; check those as described in [Wallet and Key Attestation](attestation.md#1-provide-wallet-provider-trust-lists).
 
 To manage lists as files, put the same JSON into `config/<tenant>/trust-lists/` ([Configuration as Code](../operate/configuration-as-code.md)). `GET /api/trust-list/{id}/export` returns a list in this format.
+
+### Delete a trust list
+
+`DELETE /api/trust-list/{id}` answers `409` while a configuration of the tenant still references the list, because that configuration would fail without it. The response names the configurations in `message` and lists them in `references`. Configurations the caller's roles cannot read are only counted, without ID and description: credential configs and the issuance configuration need `issuance:manage`, presentation configs `presentation:manage` or `presentation:request`.
+
+```json
+{
+    "statusCode": 409,
+    "timestamp": "2026-10-11T12:00:00.000Z",
+    "path": "/api/trust-list/membership-issuers",
+    "code": "TRUST_LIST_IN_USE",
+    "message": "Trust list \"membership-issuers\" is still referenced by 1 presentation config (\"membership-check\") and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.",
+    "references": [
+        { "kind": "PresentationConfig", "id": "membership-check", "description": "Verify a membership name and ID" },
+        { "kind": "IssuanceConfig" }
+    ]
+}
+```
+
+These entries count as a reference. "The list URL" is `<TENANT_URL>/trust-list/<id>` or any URL that ends in `/issuers/<tenant>/trust-list/<id>` with the list's own tenant; a trailing slash, a query or a fragment is ignored:
+
+- an `etsi_tl` entry in the `trusted_authorities` of a presentation config, by `trustListId` or `url`,
+- an entry of `schemaMeta.trustedAuthorities` in a credential config, by `trustListId`, or with `frameworkType: "etsi_tl"` by a `value` that is the list URL or the bare list ID,
+- an entry of `walletProviderTrustLists` in the issuance configuration, shared or of an authorization server, by `trustListId` or `url`.
+
+Remove these references, or point them to another list, then delete the list. Deleting an unknown ID answers `204`. EUDIPLO does not see references from other tenants or other systems that fetch the list from its public URL.
+
+A [configuration bundle](../operate/configuration-as-code.md#plan-and-import) or a [config folder](../operate/configuration-as-code.md#provision-tenants-from-a-folder) imported in `replace` mode (`CONFIG_IMPORT_MODE=replace` at startup) deletes a list that it created and no longer contains. Its plan is blocked when a document of the bundle names that list by `trustListId`, but it does not check configurations outside the bundle or references by URL.
 
 ### Validity and renewal
 

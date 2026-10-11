@@ -95,7 +95,9 @@ curl -X POST https://eudiplo.example.com/api/client \
 ```
 
 The response contains the generated secret once; it is stored as a bcrypt hash
-and cannot be read again. Rotate it with `POST /api/client/:id/rotate-secret`.
+and cannot be read again. Rotate it with `POST /api/client/:id/rotate-secret`;
+with the built-in server, tokens issued with the old secret stop working at
+once ([revoke access](#revoke-access)).
 Client IDs may contain letters, digits, `.`, `_`, `:` and `-`, and are unique
 across all tenants: an ID that is already taken answers `409`.
 
@@ -153,17 +155,33 @@ With the built-in server, EUDIPLO reads the client on every request: a token is
 accepted only while its client exists in the token's tenant, and with the roles,
 `allowedIssuanceConfigs` and `allowedPresentationConfigs` the client has now.
 Deleting a client (`DELETE /api/client/:id`) ends its access at once; changing
-its roles or limits applies to the tokens it already has. Rotating the secret
-does not end those tokens. Tokens of a deleted client become valid again while
-a client with the same ID exists in the same tenant, so give a replacement a new
-ID. This includes `<tenant>-admin` when you create a deleted tenant again.
+its roles or limits applies to the tokens it already has.
+
+A token is accepted only for the client and secret it was issued for. A client
+created again with the same ID, including `<tenant>-admin` when you create a
+deleted tenant again, does not revive the old tokens. A new secret ends the
+client's tokens at once, also a token requested while the secret changed:
+
+- `POST /api/client/:id/rotate-secret`;
+- `POST /api/tenant` with `roles` for an existing tenant, which gives
+  `<tenant>-admin` a new secret;
+- a configuration bundle import with another secret, or with `!generate` for
+  an existing client;
+- a startup import with another secret. A client file without `secret` gets a
+  new random secret on every start in `upsert` or `replace` mode, so set the
+  secret in the file.
+
+Importing the secret the client already has keeps its tokens, also when the
+startup import in `upsert` or `replace` mode re-creates the client. To change a
+secret without interrupting an integration, create a second client, switch the
+integration to it, then delete the first one.
 
 With Keycloak, EUDIPLO checks tokens without asking Keycloak. Deleting a client
 also deletes it in Keycloak, which then issues no new tokens to it, but the
 tokens it already has stay valid until they expire (the realm's access token
-lifespan, 5 minutes by default), and during that time its config limits no
-longer apply. Keep that lifespan short. Changes to the limits apply at once,
-role changes in Keycloak with the next token.
+lifespan, 5 minutes by default), as they do after a new secret, and during that
+time its config limits no longer apply. Keep that lifespan short. Changes to
+the limits apply at once, role changes in Keycloak with the next token.
 
 ## External OIDC provider and human users
 

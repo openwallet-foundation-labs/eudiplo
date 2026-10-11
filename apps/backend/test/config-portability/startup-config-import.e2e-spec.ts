@@ -39,10 +39,10 @@ import { ConfigOwnershipService } from "../../src/platform/config-portability/co
 import type {
     ConfigBundle,
     ConfigImportPlan,
-    ConfigResourceKind,
 } from "../../src/platform/config-portability/config-resource.types.js";
 import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
 import { RegistrarConfigEntity } from "../../src/registrar/entities/registrar-config.entity.js";
+import { documentBundle } from "../shared/config-bundle.js";
 
 describe("startup configuration reconciliation", () => {
     let app: INestApplication;
@@ -1728,6 +1728,7 @@ describe("startup configuration reconciliation", () => {
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
     return documentBundle(
+        "demo",
         "RegistrarConfig",
         "registrar",
         "registrar.json",
@@ -1740,53 +1741,13 @@ function keyChainBundle(
     generation = 1,
 ): ConfigBundle {
     return documentBundle(
+        "demo",
         "KeyChain",
         String(spec.id),
         `key-chains/${spec.id}.json`,
         spec,
         generation,
     );
-}
-
-function documentBundle(
-    kind: ConfigResourceKind,
-    id: string,
-    path: string,
-    spec: Record<string, unknown>,
-    generation = 1,
-): ConfigBundle {
-    const document = {
-        $schema: schemaUrl(kind),
-        metadata: { generation },
-        spec,
-    };
-    return {
-        manifest: {
-            format: "eudiplo.config-bundle",
-            formatVersion: 2,
-            sourceVersion: "document-import",
-            exportedAt: new Date(0).toISOString(),
-            tenant: "demo",
-            resources: [
-                {
-                    kind,
-                    id,
-                    $schema: document.$schema,
-                    path,
-                    sha256: createHash("sha256")
-                        .update(JSON.stringify(document))
-                        .digest("hex"),
-                    ownership: "unmanaged",
-                    generation,
-                },
-            ],
-            assets: [],
-            requirements: [],
-            warnings: [],
-        },
-        documents: [document],
-        assets: [],
-    } as ConfigBundle;
 }
 
 function restoreEnvironment(key: string, value: string | undefined): void {

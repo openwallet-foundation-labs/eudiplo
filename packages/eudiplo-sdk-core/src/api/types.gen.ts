@@ -3541,6 +3541,45 @@ export type TrustListVersion = {
     createdAt: string;
 };
 
+export type TrustListReferenceDto = {
+    /**
+     * Kind of configuration that references the trust list.
+     */
+    kind: 'PresentationConfig' | 'CredentialConfig' | 'IssuanceConfig';
+    /**
+     * ID of the presentation or credential config. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.
+     */
+    id?: string;
+    /**
+     * Description of the configuration; absent for configurations the caller may not read.
+     */
+    description?: string;
+};
+
+export type TrustListInUseDto = {
+    /**
+     * HTTP status code.
+     */
+    statusCode: number;
+    /**
+     * Time of the response.
+     */
+    timestamp: string;
+    /**
+     * Path of the request.
+     */
+    path: string;
+    /**
+     * Configurations still reference the trust list.
+     */
+    code: 'TRUST_LIST_IN_USE';
+    /**
+     * Names the referencing configurations the caller may read and counts the others.
+     */
+    message: string;
+    references: Array<TrustListReferenceDto>;
+};
+
 export type TrustListCacheStatsDto = {
     /**
      * Whether the trust list cache is populated
@@ -7280,6 +7319,15 @@ export type TrustListControllerDeleteTrustListData = {
     query?: never;
     url: '/api/trust-list/{id}';
 };
+
+export type TrustListControllerDeleteTrustListErrors = {
+    /**
+     * Presentation configs, credential configs or the issuance configuration of the tenant still reference the trust list; the response names those the caller may read and counts the others
+     */
+    409: TrustListInUseDto;
+};
+
+export type TrustListControllerDeleteTrustListError = TrustListControllerDeleteTrustListErrors[keyof TrustListControllerDeleteTrustListErrors];
 
 export type TrustListControllerDeleteTrustListResponses = {
     /**

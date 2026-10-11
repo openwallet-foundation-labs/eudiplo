@@ -1,0 +1,66 @@
+import { createHash } from "node:crypto";
+import { schemaUrl } from "@eudiplo/config-format/config-format.js";
+import type {
+    ConfigBundle,
+    ConfigResourceKind,
+} from "../../src/platform/config-portability/config-resource.types.js";
+
+/**
+ * A configuration bundle of `tenant` with one unmanaged document, as an
+ * export would produce it.
+ */
+export function documentBundle(
+    tenant: string,
+    kind: ConfigResourceKind,
+    id: string,
+    path: string,
+    spec: Record<string, unknown>,
+    generation = 1,
+): ConfigBundle {
+    const document = {
+        $schema: schemaUrl(kind),
+        metadata: { generation },
+        spec,
+    };
+    return {
+        manifest: {
+            format: "eudiplo.config-bundle",
+            formatVersion: 2,
+            sourceVersion: "e2e",
+            exportedAt: new Date(0).toISOString(),
+            tenant,
+            resources: [
+                {
+                    kind,
+                    id,
+                    $schema: document.$schema,
+                    path,
+                    sha256: createHash("sha256")
+                        .update(JSON.stringify(document))
+                        .digest("hex"),
+                    ownership: "unmanaged",
+                    generation,
+                },
+            ],
+            assets: [],
+            requirements: [],
+            warnings: [],
+        },
+        documents: [document],
+        assets: [],
+    } as ConfigBundle;
+}
+
+/** A configuration bundle of `tenant` with one client. */
+export function clientBundle(
+    tenant: string,
+    spec: Record<string, unknown> & { clientId: string },
+): ConfigBundle {
+    return documentBundle(
+        tenant,
+        "Client",
+        spec.clientId,
+        `clients/${spec.clientId}.json`,
+        spec,
+    );
+}

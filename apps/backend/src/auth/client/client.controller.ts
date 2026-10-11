@@ -80,6 +80,9 @@ export class ClientController {
      * Users with `clients:manage` role can only rotate secrets for clients in
      * their tenant whose roles they hold or may grant.
      *
+     * With the built-in authorization server, tokens issued with the old secret
+     * are rejected at once (HTTP 401).
+     *
      * @param id
      * @param user
      * @returns The new client secret (displayed only once)

@@ -433,6 +433,28 @@ describe('ApiService token refresh', () => {
     expect(JSON.parse(store.get('oauth_config') ?? '{}').clientId).toBe('other');
   });
 
+  it('continues the session with a rotated secret of the signed-in client', async () => {
+    const service = await signIn();
+    fetchMock.mockResolvedValueOnce(tokenResponse('rotated'));
+
+    await service.useRotatedSecret('new-secret');
+
+    const [url, init] = fetchMock.mock.lastCall ?? [];
+    expect(String(url)).toBe(tokenEndpoint);
+    expect(atob(String(new Headers(init?.headers).get('Authorization')).slice(6))).toBe(
+      'client:new-secret'
+    );
+    expect(service.accessToken).toBe('rotated');
+    expect(service.getClientSecret()).toBe('new-secret');
+    // Kept in memory only; the stored old secret is refused now.
+    expect(store.has('oauth_client_secret')).toBe(false);
+
+    // A reload keeps the renewed token until it expires, without renewing it.
+    const reloaded = reload();
+    expect(reloaded.accessToken).toBe('rotated');
+    expect(reloaded.canRefreshToken()).toBe(false);
+  });
+
   it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {
     storeSession(-1_000);
     const answerPrevious = holdNextRequest();
