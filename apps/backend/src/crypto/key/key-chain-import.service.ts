@@ -112,8 +112,14 @@ export class KeyChainImportService {
         if (replacing && adapter.type !== "db")
             privateKey.kid = `${id}-import-${v4()}`;
         const normalizedCertificates = this.resolveCertificateChain(dto);
+        const rotationEnabled = dto.rotationPolicy?.enabled ?? false;
 
-        if (dto.rotationPolicy?.enabled) {
+        // With rotation, the key is a CA key unless the certificate is the
+        // self-signed one of a standalone key chain, as in its export.
+        if (
+            rotationEnabled &&
+            !this.isStandaloneCertificate(normalizedCertificates)
+        ) {
             return this.importKeyChainWithRotation(
                 id,
                 tenantId,
@@ -152,6 +158,9 @@ export class KeyChainImportService {
             );
         }
 
+        const intervals = rotationEnabled
+            ? importedRotationIntervals(dto.rotationPolicy)
+            : undefined;
         await this.keyChainRepository.save({
             id,
             tenantId,
@@ -165,15 +174,35 @@ export class KeyChainImportService {
             rootJwk: null as any,
             rootCertificate: null as any,
             rootExternalKeyId: null as any,
-            rotationEnabled: false,
-            rotationIntervalDays: null as any,
-            certValidityDays: null as any,
+            rotationEnabled,
+            rotationIntervalDays: intervals?.intervalDays ?? (null as any),
+            certValidityDays: intervals?.certValidityDays ?? (null as any),
         });
 
         this.logger.log(
-            `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId})`,
+            `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId}, rotation: ${rotationEnabled})`,
         );
         return id;
+    }
+
+    /**
+     * True for a single self-signed certificate that is not a CA, as a
+     * standalone key chain has. It cannot sign the leaves of a CA chain.
+     */
+    private isStandaloneCertificate(certificates?: string[]): boolean {
+        if (certificates?.length !== 1) return false;
+        let certificate: X509Certificate;
+        try {
+            certificate = new X509Certificate(certificates[0]);
+        } catch {
+            // The CA path reports the parse error.
+            return false;
+        }
+        return (
+            !certificate.ca &&
+            certificate.issuer === certificate.subject &&
+            certificate.verify(certificate.publicKey)
+        );
     }
 
     private async resolvePrivateKey(dto: KeyChainImportDto): Promise<JWK> {

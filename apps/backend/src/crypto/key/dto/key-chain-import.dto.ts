@@ -29,13 +29,14 @@ class EcJwk extends createZodDto(EcJwkSchema) implements JWK {
 
 /**
  * Rotation policy for imported key chains.
- * When enabled, the imported key becomes the root CA key,
- * and a new leaf key is generated for signing.
+ * When enabled, the imported key becomes the root CA key and a new leaf key
+ * is generated for signing, unless the certificate is the self-signed
+ * certificate of a standalone key chain.
  */
 class RotationPolicyImportDto extends createZodDto(RotationPolicyImportSchema) {
     @ApiProperty({
         description:
-            "Whether rotation is enabled. When true, the imported key becomes a root CA signer.",
+            "Whether rotation is enabled. When true, the imported key becomes a root CA signer, unless crt is a single self-signed certificate that is not a CA.",
         default: false,
     })
     enabled!: boolean;
@@ -97,7 +98,7 @@ export class KeyChainImportDto extends createZodDto(KeyChainImportSchema) {
 
     @ApiPropertyOptional({
         description:
-            "Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate.",
+            "Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate, unless the chain is a single self-signed certificate that is not a CA.",
     })
     crt?: string[];
 
@@ -108,7 +109,7 @@ export class KeyChainImportDto extends createZodDto(KeyChainImportSchema) {
 
     @ApiPropertyOptional({
         description:
-            "Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key.",
+            "Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. intervalDays defaults to 90 and certValidityDays to 365.",
     })
     rotationPolicy?: RotationPolicyImportDto;
 }
