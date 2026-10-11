@@ -30,10 +30,12 @@ import {
     ImportPhase,
 } from "../../platform/config-import/config-import-orchestrator.service.js";
 import { loadConfigDto } from "../../shared/utils/config-file-loader.util.js";
+import { TrustListReferences } from "./application/trust-list-references.js";
 import {
     isTrustListRenewalDue,
     trustListNextUpdate,
 } from "./domain/trust-list-validity.js";
+import { TrustListInUseError } from "./domain/trust-list-reference.js";
 import {
     TrustListCreateDto,
     TrustListEntity,
@@ -84,6 +86,7 @@ export class TrustListService {
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly references: TrustListReferences,
     ) {
         configImportOrchestrator.register(
             "status-lists",
@@ -231,12 +234,29 @@ export class TrustListService {
     }
 
     /**
-     * Remove a trust list
+     * Remove a trust list, whether configurations reference it or not
      * @param tenantId
      * @param id
      */
     async remove(tenantId: string, id: string): Promise<void> {
         await this.trustListRepo.delete({ tenantId, id });
+    }
+
+    /**
+     * Remove a trust list that no presentation, credential or issuance
+     * configuration of its tenant references. An unknown ID removes nothing.
+     * @throws TrustListInUseError naming the configurations that reference it
+     */
+    async removeUnreferenced(tenantId: string, id: string): Promise<void> {
+        if (!(await this.trustListRepo.existsBy({ tenantId, id }))) return;
+        // Not atomic: a config saved between this lookup and the delete can
+        // still name the list. Accepted for administrative CRUD; verification
+        // then fails as it did before this check.
+        const references = await this.references.find({ tenantId, id });
+        if (references.length > 0) {
+            throw new TrustListInUseError(id, references);
+        }
+        await this.remove(tenantId, id);
     }
 
     /**
