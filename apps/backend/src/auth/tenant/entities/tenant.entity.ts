@@ -56,11 +56,12 @@ export class TenantEntity {
 
     /**
      * Status list configuration for this tenant.
-     * Controls the size and bits per status entry for newly created status lists.
+     * Capacity and bits apply to status lists created afterwards; TTL, update
+     * mode and aggregation apply to all status lists of the tenant.
      */
     @ApiPropertyOptional({
         description:
-            "Status list configuration for this tenant. Only affects newly created status lists.",
+            "Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.",
         type: () => StatusListConfig,
     })
     @Column("json", { nullable: true })
