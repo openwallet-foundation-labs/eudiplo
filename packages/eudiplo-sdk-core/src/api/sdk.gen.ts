@@ -926,7 +926,7 @@ export const sessionEventsControllerSubscribeToSessionEvents = <ThrowOnError ext
 /**
  * Reset status list configuration
  *
- * Reset the status list configuration to global defaults. Only affects newly created status lists.
+ * Reset the status list configuration to global defaults. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.
  */
 export const statusListConfigControllerResetConfig = <ThrowOnError extends boolean = true>(options?: Options<StatusListConfigControllerResetConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).delete<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -948,7 +948,7 @@ export const statusListConfigControllerGetConfig = <ThrowOnError extends boolean
 /**
  * Update status list configuration
  *
- * Update the status list configuration. Changes only affect newly created status lists. Set a field to null to reset to global default.
+ * Update the status list configuration. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant. Set a field to null to reset to global default.
  */
 export const statusListConfigControllerUpdateConfig = <ThrowOnError extends boolean = true>(options: Options<StatusListConfigControllerUpdateConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError> => (options.client ?? client).put<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
