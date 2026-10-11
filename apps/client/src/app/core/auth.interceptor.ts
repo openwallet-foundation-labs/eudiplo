@@ -25,7 +25,7 @@ export function authInterceptor(
     tap({
       error: (error: unknown) => {
         if (managementApi && error instanceof HttpErrorResponse) {
-          refusals.handleApiResponse(error.status, authToken);
+          refusals.handleApiResponse(error.status, authToken, error.error);
         }
       },
     })
