@@ -948,7 +948,7 @@ export const trustListControllerUpdateTrustList = <ThrowOnError extends boolean 
 });
 
 /**
- * Exports the trust list in LoTE format
+ * Exports the trust list in the format accepted by create and config import
  */
 export const trustListControllerExportTrustList = <ThrowOnError extends boolean = true>(options: Options<TrustListControllerExportTrustListData, ThrowOnError>): RequestResult<TrustListControllerExportTrustListResponses, unknown, ThrowOnError> => (options.client ?? client).get<TrustListControllerExportTrustListResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
