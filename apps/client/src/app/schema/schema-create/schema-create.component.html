@@ -244,6 +244,14 @@
                 ></textarea>
                 @if (certificate.group.get('value')?.hasError('certificate')) {
                   <mat-error>Must be a base64-encoded DER or PEM certificate.</mat-error>
+                } @else if (
+                  certificate.group.get('value')?.getError('multipleCertificates');
+                  as error
+                ) {
+                  <mat-error
+                    >Contains {{ error.count }} certificates. Paste only the root
+                    certificate.</mat-error
+                  >
                 } @else {
                   <mat-error>Paste the root certificate or remove this entry.</mat-error>
                 }
