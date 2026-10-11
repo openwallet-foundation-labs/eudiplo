@@ -18,6 +18,20 @@ import { ConfigOwnershipDirective } from '../config-portability/config-ownership
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
 import { getApiErrorMessage } from '../utils/error-message';
 
+const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
+
+/** The instance variable that applies to a setting the tenant does not store. */
+const globalDefaults: Record<keyof StatusListConfig, string> = {
+  capacity: 'STATUS_CAPACITY',
+  bits: 'STATUS_BITS',
+  ttl: 'STATUS_TTL',
+  immediateUpdate: 'STATUS_IMMEDIATE_UPDATE',
+  enableAggregation: 'STATUS_ENABLE_AGGREGATION',
+};
+
+/** Fixed when a list is created; the other settings apply to every list when it is signed. */
+const newListsOnly: (keyof StatusListConfig)[] = ['capacity', 'bits'];
+
 @Component({
   selector: 'app-status-list-config',
   imports: [
@@ -45,6 +59,8 @@ export class StatusListConfigComponent implements OnInit {
   configForm: FormGroup;
   isLoading = true;
   isSaving = false;
+  /** Set when the stored settings could not be loaded; the form stays hidden. */
+  loadError = '';
   currentConfig: StatusListConfig | null = null;
 
   bitsOptions = bitsOptions;
@@ -65,34 +81,31 @@ export class StatusListConfigComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadConfig();
+    void this.loadConfig();
   }
 
-  private async loadConfig(): Promise<void> {
+  async loadConfig(): Promise<void> {
     this.isLoading = true;
+    this.loadError = '';
     try {
       this.currentConfig = await this.statusListConfigService.getConfig();
-      this.configForm.patchValue({
-        capacity: this.currentConfig?.capacity ?? null,
-        bits: this.currentConfig?.bits ?? 1,
-        ttl: this.currentConfig?.ttl ?? null,
-        immediateUpdate: this.currentConfig?.immediateUpdate ?? false,
-        enableAggregation: this.currentConfig?.enableAggregation ?? true,
-      });
     } catch (error) {
-      this.snackBar.open(
-        getApiErrorMessage(error, 'Failed to load status list configuration'),
-        'Close',
-        { duration: 5000 }
-      );
       console.error('Load error:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load status list configuration');
+      return;
     } finally {
       this.isLoading = false;
     }
+    this.patchForm(this.currentConfig);
+  }
+
+  /** Whether the tenant overrides any global default, so Reset has something to do. */
+  get hasStoredOverride(): boolean {
+    return this.storedSettings().length > 0;
   }
 
   async onSave(): Promise<void> {
-    if (this.configForm.invalid) {
+    if (this.configForm.invalid || this.loadError) {
       return;
     }
 
@@ -120,27 +133,81 @@ export class StatusListConfigComponent implements OnInit {
   }
 
   async onReset(): Promise<void> {
+    if (!this.hasStoredOverride || !confirm(this.resetConfirmation())) {
+      return;
+    }
+
     this.isSaving = true;
     try {
       await this.statusListConfigService.resetConfig();
-      this.currentConfig = null;
-      this.configForm.patchValue({
-        capacity: null,
-        bits: 1,
-        ttl: null,
-        immediateUpdate: false,
-        enableAggregation: true,
-      });
-      this.snackBar.open('Status list configuration reset to defaults', 'Close', {
-        duration: 3000,
-      });
     } catch (error) {
       this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
         duration: 5000,
       });
+      return;
     } finally {
       this.isSaving = false;
     }
+    this.currentConfig = null;
+    this.patchForm(this.currentConfig);
+    this.snackBar.open('Status list configuration reset to defaults', 'Close', {
+      duration: 3000,
+    });
+  }
+
+  private resetConfirmation(): string {
+    const stored = this.storedSettings();
+    const removed = stored.map((setting) => this.describeStored(setting));
+    const variables = (settings: (keyof StatusListConfig)[]) =>
+      listFormat.format(settings.map((setting) => globalDefaults[setting]));
+    const forNewLists = stored.filter((setting) => newListsOnly.includes(setting));
+    const forAllLists = stored.filter((setting) => !newListsOnly.includes(setting));
+    const effects = [
+      forNewLists.length ? `new status lists use ${variables(forNewLists)}` : '',
+      forAllLists.length
+        ? `all status lists, including existing ones, use ${variables(forAllLists)}`
+        : '',
+    ].filter(Boolean);
+    return (
+      `Reset the status list settings to the global defaults of this instance? ` +
+      `This removes ${listFormat.format(removed)}. Afterwards, ${effects.join('; ')} of this ` +
+      `instance. This cannot be undone.`
+    );
+  }
+
+  /** The settings the tenant stores, which Reset to Defaults removes. */
+  private storedSettings(): (keyof StatusListConfig)[] {
+    const config = this.currentConfig;
+    if (!config) return [];
+    return (Object.keys(globalDefaults) as (keyof StatusListConfig)[]).filter(
+      (setting) => config[setting] != null
+    );
+  }
+
+  private describeStored(setting: keyof StatusListConfig): string {
+    const config = this.currentConfig ?? {};
+    switch (setting) {
+      case 'capacity':
+        return `the capacity of ${this.formatCapacity(config.capacity)}`;
+      case 'bits':
+        return `${config.bits} ${config.bits === 1 ? 'bit' : 'bits'} per status`;
+      case 'ttl':
+        return `the TTL of ${this.formatTtl(config.ttl)}`;
+      case 'immediateUpdate':
+        return `${config.immediateUpdate ? 'immediate' : 'lazy'} JWT regeneration`;
+      case 'enableAggregation':
+        return `${config.enableAggregation ? 'enabled' : 'disabled'} aggregation`;
+    }
+  }
+
+  private patchForm(config: StatusListConfig | null): void {
+    this.configForm.patchValue({
+      capacity: config?.capacity ?? null,
+      bits: config?.bits ?? 1,
+      ttl: config?.ttl ?? null,
+      immediateUpdate: config?.immediateUpdate ?? false,
+      enableAggregation: config?.enableAggregation ?? true,
+    });
   }
 
   formatCapacity(capacity?: number | null): string {
