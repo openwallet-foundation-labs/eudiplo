@@ -74,6 +74,7 @@ export class AccessCertificateService {
         const certId = await this.certService.addCertificate(tenantId, {
             crt: [crt],
             keyId: dto.keyId,
+            defaultDescription: `Access certificate from registrar (ID: ${id})`,
         });
 
         this.logger.log(
