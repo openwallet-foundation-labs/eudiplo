@@ -153,6 +153,7 @@ describe('ApiService token refresh', () => {
   });
 
   afterEach(() => {
+    delete (oidcStub as { logout?: unknown }).logout;
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
@@ -244,16 +245,20 @@ describe('ApiService token refresh', () => {
     async (_, rejection) => {
       const service = await signIn();
       // The waiting login page takes the rejection while sessionEnded$ emits.
-      const ended = vi.fn(() => service.takeRejectedSession());
+      const ended = vi.fn(() => service.takeEndedSession());
       service.sessionEnded$.subscribe(ended);
 
       fetchMock.mockResolvedValueOnce(rejection());
       await runScheduledRefresh();
 
       expect(ended).toHaveBeenCalledOnce();
-      expect(ended).toHaveReturnedWith({ clientId: 'client', baseUrl: backend });
+      expect(ended).toHaveReturnedWith({
+        clientId: 'client',
+        baseUrl: backend,
+        reason: 'rejected',
+      });
       // Reported once.
-      expect(service.takeRejectedSession()).toBeUndefined();
+      expect(service.takeEndedSession()).toBeUndefined();
       expect(service.getAuthenticationStatus()).toBe(false);
       expect(service.isReconnecting()).toBe(false);
       expect(service.hasKeptSession()).toBe(false);
@@ -289,7 +294,7 @@ describe('ApiService token refresh', () => {
 
     await expect(service.refreshAccessToken()).rejects.toThrow();
 
-    expect(service.takeRejectedSession()).toBeUndefined();
+    expect(service.takeEndedSession()).toBeUndefined();
     expect([...store.keys()]).toEqual([]);
   });
 
@@ -300,7 +305,21 @@ describe('ApiService token refresh', () => {
 
     service.logout();
 
-    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
+    expect(service.takeEndedSession()).toEqual({
+      clientId: 'client',
+      baseUrl: backend,
+      reason: 'rejected',
+    });
+  });
+
+  it('keeps the rejection as the reason when the expired notice logs out', async () => {
+    const service = await signIn();
+    fetchMock.mockResolvedValueOnce(backendRejection());
+    await runScheduledRefresh();
+
+    service.logoutExpired();
+
+    expect(service.takeEndedSession()?.reason).toBe('rejected');
   });
 
   it('stops renewing the previous session when a new sign-in starts, even if discovery fails', async () => {
@@ -373,6 +392,61 @@ describe('ApiService token refresh', () => {
     expect(service.hasKeptSession()).toBe(false);
     await expect(service.ensureAuthenticated()).resolves.toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(service.hasEndedSession()).toBe(false);
+
+    // The expired notice logs out and hands the client and instance, not the secret, to the login page.
+    service.logoutExpired();
+
+    expect(service.getClientId()).toBeUndefined();
+    expect(service.hasEndedSession()).toBe(true);
+    expect(service.takeEndedSession()).toEqual({
+      clientId: 'client',
+      baseUrl: backend,
+      reason: 'expired',
+    });
+    expect(service.hasEndedSession()).toBe(false);
+    expect([...store.keys()]).toEqual([]);
+  });
+
+  it('hands no ended session to the login page after a plain logout', async () => {
+    const service = await signIn();
+    service.logout();
+    expect(service.hasEndedSession()).toBe(false);
+  });
+
+  it('hands no ended session to the login page in SSO mode', async () => {
+    const service = await signIn();
+    expect(service.getClientId()).toBe('client');
+    oidcStub.mode = 'oidc';
+    const logout = vi.fn();
+    Object.assign(oidcStub, { logout });
+
+    service.logoutExpired();
+
+    expect(logout).toHaveBeenCalledOnce();
+    expect(service.hasEndedSession()).toBe(false);
+  });
+
+  it('hands no ended session to the login page for an expired stored session without a client ID', () => {
+    store.set('access_token', 'stored');
+    store.set('token_expiration', String(Date.now() - 1_000));
+    store.set('oauth_config', JSON.stringify({ server: backend, baseUrl: backend }));
+
+    const service = TestBed.inject(ApiService);
+
+    expect(service.hasEndedSession()).toBe(false);
+    expect([...store.keys()]).toEqual([]);
+  });
+
+  it('forgets the ended session on a new sign-in', async () => {
+    storeSession(-1_000);
+    const service = TestBed.inject(ApiService);
+    expect(service.hasEndedSession()).toBe(true);
+
+    fetchMock.mockResolvedValueOnce(tokenResponse('first'));
+    await service.loginWithClientCredentials('other', 'secret', backend, backend, tokenEndpoint);
+
+    expect(service.takeEndedSession()).toBeUndefined();
   });
 
   describe('token renewed by another tab', () => {
@@ -465,7 +539,7 @@ describe('ApiService token refresh', () => {
       expect(service.accessToken).toBe('other-tab');
       expect(service.getAuthenticationStatus()).toBe(true);
       expect(service.areCredentialsRejected()).toBe(false);
-      expect(service.takeRejectedSession()).toBeUndefined();
+      expect(service.takeEndedSession()).toBeUndefined();
     });
 
     it('is not taken by a tab that renews its own token', async () => {
@@ -503,7 +577,7 @@ describe('ApiService token refresh', () => {
     });
   });
 
-  it('forgets a stored session whose token expired, without a token request', async () => {
+  it('forgets a stored session whose token expired, without a token request, and hands its client to the login page', async () => {
     store.set('oauth_client_secret', 'secret');
     storeSession(-1_000);
 
@@ -512,7 +586,11 @@ describe('ApiService token refresh', () => {
 
     expect(service.getAuthenticationStatus()).toBe(false);
     expect(service.hasKeptSession()).toBe(false);
-    expect(service.takeRejectedSession()).toBeUndefined();
+    expect(service.takeEndedSession()).toEqual({
+      clientId: 'client',
+      baseUrl: backend,
+      reason: 'expired',
+    });
     expect([...store.keys()]).toEqual([]);
     expect(fetchMock).not.toHaveBeenCalled();
   });

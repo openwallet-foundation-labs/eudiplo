@@ -15,8 +15,10 @@ export class AuthGuard implements CanActivate {
     if (this.apiService.getAuthenticationStatus()) {
       return true;
     } else {
-      // A kept session resumes on the login page and then returns to this page.
-      const queryParams = this.apiService.hasKeptSession() ? { returnUrl: state.url } : undefined;
+      // A kept session resumes on the login page, and signing in again as the client of an
+      // ended session returns to this page.
+      const returnsHere = this.apiService.hasKeptSession() || this.apiService.hasEndedSession();
+      const queryParams = returnsHere ? { returnUrl: state.url } : undefined;
       this.router.navigate(['/login'], { queryParams });
       return false;
     }

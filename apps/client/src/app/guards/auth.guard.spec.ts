@@ -11,7 +11,7 @@ import { ApiService } from '../core';
 import { AuthGuard } from './auth.guard';
 
 describe('AuthGuard', () => {
-  const api = { authenticated: false, kept: false };
+  const api = { authenticated: false, kept: false, ended: false };
   const route = {} as ActivatedRouteSnapshot;
   const state = { url: '/issuance/offers?page=2' } as RouterStateSnapshot;
   let navigate: MockInstance<Router['navigate']>;
@@ -20,6 +20,7 @@ describe('AuthGuard', () => {
   beforeEach(() => {
     api.authenticated = false;
     api.kept = false;
+    api.ended = false;
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -28,6 +29,7 @@ describe('AuthGuard', () => {
           useValue: {
             getAuthenticationStatus: () => api.authenticated,
             hasKeptSession: () => api.kept,
+            hasEndedSession: () => api.ended,
           },
         },
       ],
@@ -45,6 +47,15 @@ describe('AuthGuard', () => {
 
   it('sends a kept session to the login page with the page to return to', () => {
     api.kept = true;
+
+    expect(guard.canActivate(route, state)).toBe(false);
+    expect(navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: '/issuance/offers?page=2' },
+    });
+  });
+
+  it('sends an expired or rejected session to the login page with the page to return to', () => {
+    api.ended = true;
 
     expect(guard.canActivate(route, state)).toBe(false);
     expect(navigate).toHaveBeenCalledWith(['/login'], {

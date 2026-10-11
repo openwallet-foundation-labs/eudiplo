@@ -6,7 +6,7 @@ import { OAuth2HttpError } from '@badgateway/oauth2-client';
 import { Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, type Mock, type MockInstance, vi } from 'vitest';
 
-import { ApiService } from '../core';
+import { ApiService, type EndedSession } from '../core';
 import { OidcService } from '../core/oidc.service';
 import { EnvironmentService } from '../services/environment.service';
 import { LoginComponent } from './login.component';
@@ -18,13 +18,14 @@ describe('LoginComponent with a kept session', () => {
   let api: {
     authenticated: boolean;
     kept: boolean;
-    /** The session the service reports as rejected, once. */
-    rejected?: { clientId: string; baseUrl?: string };
+    /** The session the service reports as expired or rejected, once. */
+    ended?: EndedSession;
     tokenRenewed$: Subject<void>;
     sessionEnded$: Subject<void>;
     refreshAccessToken: Mock<() => Promise<void>>;
     loginWithClientCredentials: Mock<() => Promise<void>>;
     logout: Mock<() => void>;
+    discovery: Record<string, string>;
   };
   let queryParams: Record<string, string>;
   let snackBar: { open: Mock };
@@ -45,7 +46,7 @@ describe('LoginComponent with a kept session', () => {
 
   /** The real service forgets the credentials and emits sessionEnded$ when the token endpoint rejects them. */
   function rejectKeptCredentials(): void {
-    api.rejected = { clientId: 'client-a', baseUrl: 'http://backend.test' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'rejected' };
     api.sessionEnded$.next();
   }
 
@@ -67,6 +68,7 @@ describe('LoginComponent with a kept session', () => {
       loginWithClientCredentials: vi.fn(() => Promise.resolve()),
       // Like the real service, logout forgets the credentials and says so.
       logout: vi.fn(() => api.sessionEnded$.next()),
+      discovery: {},
     };
     queryParams = {};
     snackBar = { open: vi.fn() };
@@ -80,9 +82,9 @@ describe('LoginComponent with a kept session', () => {
           useValue: {
             getAuthenticationStatus: () => api.authenticated,
             hasKeptSession: () => api.kept,
-            takeRejectedSession: () => {
-              const session = api.rejected;
-              api.rejected = undefined;
+            takeEndedSession: () => {
+              const session = api.ended;
+              api.ended = undefined;
               return session;
             },
             getClientId: () => 'client-a',
@@ -92,7 +94,7 @@ describe('LoginComponent with a kept session', () => {
             refreshAccessToken: api.refreshAccessToken,
             loginWithClientCredentials: api.loginWithClientCredentials,
             logout: api.logout,
-            fetchDiscovery: () => Promise.resolve({}),
+            fetchDiscovery: () => Promise.resolve(api.discovery),
           },
         },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParams } } },
@@ -175,13 +177,109 @@ describe('LoginComponent with a kept session', () => {
 
   it('explains a rejection that happened before the page opened, starting from that session', () => {
     api.kept = false;
-    api.rejected = { clientId: 'client-a', baseUrl: 'http://backend.test' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'rejected' };
     render();
 
     expect(page().querySelector('form')).not.toBeNull();
     expect(snackTexts()).toEqual([rejectedText]);
     expect(input('apiUrl')?.value).toBe('http://backend.test');
     expect(fixture.componentInstance.loginForm.value.clientId).toBe('client-a');
+  });
+
+  it('says that the session expired, starting from that session', () => {
+    api.kept = false;
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'expired' };
+    render();
+
+    expect(snackTexts()).toEqual(['The session of client-a expired. Log in again to continue.']);
+    expect(snackBar.open.mock.calls[0][2]).toMatchObject({ panelClass: ['warning-snackbar'] });
+    expect(input('apiUrl')?.value).toBe('http://backend.test');
+    expect(fixture.componentInstance.loginForm.value.clientId).toBe('client-a');
+    expect(fixture.componentInstance.loginForm.value.clientSecret).toBe('');
+  });
+
+  it('opens the client credentials tab with focus on the secret after an expiry, even where SSO is offered', async () => {
+    api.kept = false;
+    api.discovery = { issuer: 'http://backend.test', ui_client_id: 'ui' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'expired' };
+    render();
+
+    await vi.waitFor(() => expect(fixture.componentInstance.detectedMode).toBe('oidc'));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.selectedLoginMode).toBe('client');
+    expect(input('clientId')?.value).toBe('client-a');
+    await vi.waitFor(() => expect(document.activeElement).toBe(input('clientSecret')));
+  });
+
+  it('keeps the SSO tab the user chose after an expiry when the instance is detected again', async () => {
+    api.kept = false;
+    api.discovery = { issuer: 'http://backend.test', ui_client_id: 'ui' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'expired' };
+    render();
+    const component = fixture.componentInstance;
+    await vi.waitFor(() => expect(component.detectedMode).toBe('oidc'));
+
+    component.onLoginTabChange(0);
+    component.onApiUrlBlur();
+    await vi.waitFor(() => expect(component.detectedMode).toBe('oidc'));
+
+    expect(component.selectedLoginMode).toBe('sso');
+  });
+
+  it('opens the client credentials tab after a rejection where SSO is offered, without focusing the secret', async () => {
+    api.kept = false;
+    api.discovery = { issuer: 'http://backend.test', ui_client_id: 'ui' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'rejected' };
+    render();
+
+    await vi.waitFor(() => expect(fixture.componentInstance.detectedMode).toBe('oidc'));
+    fixture.detectChanges();
+    await fixture.whenRenderingDone();
+
+    expect(fixture.componentInstance.selectedLoginMode).toBe('client');
+    expect(input('clientSecret')).not.toBeNull();
+    expect(document.activeElement).not.toBe(input('clientSecret'));
+  });
+
+  it('opens the SSO tab after an expiry when the user moves to another instance that offers SSO', async () => {
+    api.kept = false;
+    api.discovery = { issuer: 'http://backend.test', ui_client_id: 'ui' };
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'expired' };
+    render();
+    const component = fixture.componentInstance;
+    await vi.waitFor(() => expect(component.detectedMode).toBe('oidc'));
+    expect(component.selectedLoginMode).toBe('client');
+
+    component.loginForm.patchValue({ apiUrl: 'http://other.test' });
+    component.detectedMode = null;
+    component.onApiUrlBlur();
+    await vi.waitFor(() => expect(component.detectedMode).toBe('oidc'));
+
+    expect(component.selectedLoginMode).toBe('sso');
+  });
+
+  it('opens the SSO tab where SSO is offered when no session ended', async () => {
+    api.kept = false;
+    api.discovery = { issuer: 'http://backend.test', ui_client_id: 'ui' };
+    queryParams['apiUrl'] = 'http://backend.test';
+    render();
+
+    await vi.waitFor(() => expect(fixture.componentInstance.detectedMode).toBe('oidc'));
+    expect(fixture.componentInstance.selectedLoginMode).toBe('sso');
+  });
+
+  it('returns to the page after an expiry only when the same client signs in again', async () => {
+    api.kept = false;
+    queryParams['returnUrl'] = '/settings/connection';
+    api.ended = { clientId: 'client-a', baseUrl: 'http://backend.test', reason: 'expired' };
+    render();
+
+    await submitForm('client-a', 'http://backend.test');
+    expect(navigateByUrl).toHaveBeenLastCalledWith('/settings/connection');
+
+    await submitForm('client-a', 'http://other.test');
+    expect(navigateByUrl).toHaveBeenLastCalledWith('/dashboard');
   });
 
   it('returns to the page after a rejection only when the same client signs in again', async () => {

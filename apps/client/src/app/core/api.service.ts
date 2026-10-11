@@ -29,6 +29,19 @@ const refreshRetryMaxMs = 60_000;
  */
 const legacyClientSecretKey = 'oauth_client_secret';
 
+/**
+ * A session that ended without a logout, handed to the login page so it can say
+ * why and prefill the client and instance. It never holds the client secret.
+ * `expired`: its token expired and could not be renewed, for example after a
+ * reload, which keeps only the token. `rejected`: the token endpoint rejected
+ * its credentials.
+ */
+export interface EndedSession {
+  clientId: string;
+  baseUrl?: string;
+  reason: 'expired' | 'rejected';
+}
+
 /** OAuth settings stored for a reload. The client secret is kept in memory only. */
 interface StoredOAuthConfig {
   server?: string;
@@ -75,8 +88,8 @@ export class ApiService implements OnDestroy {
   readonly sessionEnded$ = this.ended.asObservable();
   /** The token endpoint rejected the credentials of this session. */
   private credentialsRejected = false;
-  /** A started session whose credentials the token endpoint rejected, until the login page reports it. */
-  private rejectedSession?: { clientId: string; baseUrl?: string };
+  /** A session that expired or whose credentials were rejected, until the login page reports it. */
+  private endedSession?: EndedSession;
   /** OAuth settings of the current sign-in, stored with each new token. */
   private sessionConfig?: StoredOAuthConfig;
 
@@ -177,7 +190,7 @@ export class ApiService implements OnDestroy {
     // session stops renewing, and a failure of the first token request ends the new one.
     this.resetRefresh();
     this.credentialsRejected = false;
-    this.rejectedSession = undefined;
+    this.endedSession = undefined;
     const discovery = tokenEndpoint ? undefined : await this.fetchDiscovery(baseUrl);
     const oidcUrl = issuerUrl ?? discovery?.issuer;
     const resolvedTokenEndpoint = tokenEndpoint ?? discovery?.token_endpoint;
@@ -340,7 +353,7 @@ export class ApiService implements OnDestroy {
         this.credentialsRejected = rejected;
         const clientId = this.oauth2Client?.settings.clientId;
         if (rejected && this.sessionStarted && clientId) {
-          this.rejectedSession = { clientId, baseUrl: this.baseUrl };
+          this.endedSession = { clientId, baseUrl: this.baseUrl, reason: 'rejected' };
         }
         this.forgetCredentials();
       }
@@ -367,14 +380,34 @@ export class ApiService implements OnDestroy {
   }
 
   /**
-   * Returns the session whose credentials the token endpoint rejected, once, so
-   * the login page can say why it ended even when it opens afterwards, for
-   * example after a logout from the expired notice. A new sign-in clears it.
+   * Returns the session that expired or whose credentials the token endpoint
+   * rejected, once, so the login page can say why it ended and prefill its client
+   * and instance even when it opens afterwards, for example after a logout from
+   * the expired notice. A new sign-in clears it.
    */
-  takeRejectedSession(): { clientId: string; baseUrl?: string } | undefined {
-    const session = this.rejectedSession;
-    this.rejectedSession = undefined;
+  takeEndedSession(): EndedSession | undefined {
+    const session = this.endedSession;
+    this.endedSession = undefined;
     return session;
+  }
+
+  /** True while an ended session waits for the login page to report it. */
+  hasEndedSession(): boolean {
+    return !!this.endedSession;
+  }
+
+  /**
+   * Logs out after the token expired and could not be renewed, and keeps the
+   * client ID and instance URL, never the secret, for the login page. A session
+   * whose credentials were rejected keeps that reason.
+   */
+  logoutExpired(): void {
+    const clientId = this.oidcService.mode === 'oidc' ? undefined : this.getClientId();
+    const baseUrl = this.baseUrl;
+    this.logout();
+    if (clientId && !this.endedSession) {
+      this.endedSession = { clientId, baseUrl, reason: 'expired' };
+    }
   }
 
   /** A started session keeps its credentials through failures other than rejection, and retries. */
@@ -553,7 +586,8 @@ export class ApiService implements OnDestroy {
   /**
    * Restores the session of a stored token that is still valid. Without the client
    * secret, which is never stored, it cannot be renewed: it lasts until the token
-   * expires, and then the user logs in again.
+   * expires, and then the user logs in again. An expired one is removed, and its
+   * client and instance are handed to the login page.
    */
   private loadTokenFromStorage(): void {
     try {
@@ -564,14 +598,13 @@ export class ApiService implements OnDestroy {
 
       if (storedToken && storedExpiration && storedOAuthConfig) {
         const expirationTime = Number.parseInt(storedExpiration, 10);
+        const oauthConfig: StoredOAuthConfig = JSON.parse(storedOAuthConfig);
 
         // Check if token is still valid (with 1 minute buffer)
         if (expirationTime > Date.now() + 60000) {
           this._localAccessToken = storedToken;
           this.tokenExpirationTime = expirationTime;
           this.isAuthenticated = true;
-
-          const oauthConfig: StoredOAuthConfig = JSON.parse(storedOAuthConfig);
           this.oauth2Client = this.clientFromStoredConfig(oauthConfig);
 
           // Set up the client with the stored base URL
@@ -580,6 +613,13 @@ export class ApiService implements OnDestroy {
           }
         } else {
           this.clearTokenFromStorage();
+          if (oauthConfig.clientId) {
+            this.endedSession = {
+              clientId: oauthConfig.clientId,
+              baseUrl: oauthConfig.baseUrl,
+              reason: 'expired',
+            };
+          }
         }
       }
     } catch (error) {
@@ -616,7 +656,7 @@ export class ApiService implements OnDestroy {
     this.isAuthenticated = true;
     // Another tab signed in again, for example with the new secret of this client.
     this.credentialsRejected = false;
-    this.rejectedSession = undefined;
+    this.endedSession = undefined;
     this.renewed.next();
   }
 

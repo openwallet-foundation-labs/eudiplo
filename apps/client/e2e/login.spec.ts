@@ -131,6 +131,32 @@ test.describe('kept session', () => {
   });
 });
 
+/**
+ * Expects the login page after an expired session: the form starts from its client and
+ * instance and names the client. Then signs in again with the secret alone.
+ */
+async function expectExpiredLogin(page: Page): Promise<void> {
+  await expect(page).toHaveURL(/\/login\?returnUrl=%2Fsettings%2Fconnection$/);
+  await expect(page.getByText('Resuming the session of')).toHaveCount(0);
+  await expect(
+    page.getByText(
+      `The session of ${resolvedE2EConfig.clientId} expired. Log in again to continue.`
+    )
+  ).toBeVisible();
+  await expect(page.getByLabel('EUDIPLO Instance')).toHaveValue(resolvedE2EConfig.apiBaseUrl);
+  await expect(page.getByRole('tab', { name: 'Client ID and Secret' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await expect(page.getByRole('textbox', { name: 'Client Secret' })).toBeFocused();
+  await expect(page.getByRole('textbox', { name: 'Client ID' })).toHaveValue(
+    resolvedE2EConfig.clientId!
+  );
+  await expect(page.getByRole('textbox', { name: 'Client Secret' })).toHaveValue('');
+  await page.getByRole('textbox', { name: 'Client Secret' }).fill(resolvedE2EConfig.clientSecret!);
+  await page.getByRole('button', { name: 'Login with Client Credentials' }).click();
+}
+
 test.describe('reload', () => {
   test.skip(
     !hasAuthCredentials,
@@ -159,12 +185,32 @@ test.describe('reload', () => {
     await expect(page.getByText('Automatic token refresh: disabled')).toBeVisible();
     expect(await storesSecret()).toBe(false);
 
-    // Without the secret, an expired token is not renewed: the login form asks for it.
+    // Without the secret, an expired token is not renewed: the login form asks for the
+    // secret only, says why, and returns to the page after signing in again.
     await page.evaluate(() => localStorage.setItem('token_expiration', String(Date.now() - 1000)));
     await page.goto('/settings/connection');
-    await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByText('Resuming the session of')).toHaveCount(0);
-    await expect(page.getByLabel('EUDIPLO Instance')).toBeVisible();
+    await expectExpiredLogin(page);
+    await expect(page).toHaveURL(/\/settings\/connection$/);
+  });
+
+  test('returns to the page after a restored session expires on it', async ({ page }) => {
+    await page.clock.install();
+    await loginWithClientCredentials(
+      page,
+      resolvedE2EConfig.clientId!,
+      resolvedE2EConfig.clientSecret!
+    );
+    await page.reload();
+    await page.getByRole('link', { name: 'Connection Settings' }).click();
+    await expect(page).toHaveURL(/\/settings\/connection$/);
+
+    // The built-in server issues tokens for 24 hours; the restored session cannot renew it.
+    await page.clock.fastForward('24:01:00');
+    const notice = page.locator('mat-snack-bar-container', { hasText: 'Your session has expired' });
+    await notice.getByRole('button', { name: 'Log in' }).click();
+
+    await expectExpiredLogin(page);
+    await expect(page).toHaveURL(/\/settings\/connection$/);
   });
 
   test('a tab opened later takes over the token that the tab you logged in with renews', async ({
