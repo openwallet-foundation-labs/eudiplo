@@ -83,3 +83,15 @@
     }
   }
 }
+
+.load-error {
+  mat-icon {
+    color: var(--mat-sys-error);
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 4px 0 0 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}

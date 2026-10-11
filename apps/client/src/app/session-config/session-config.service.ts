@@ -4,9 +4,12 @@ import {
   sessionConfigControllerUpdateConfig,
   sessionConfigControllerResetConfig,
   SessionStorageConfig,
+  UpdateSessionConfigDto,
 } from '@eudiplo/sdk-core';
 
-export const cleanupModes = [
+export type SessionCleanupMode = NonNullable<SessionStorageConfig['cleanupMode']>;
+
+export const cleanupModes: { value: SessionCleanupMode; label: string; description: string }[] = [
   { value: 'full', label: 'Full Delete', description: 'Delete entire session record' },
   {
     value: 'anonymize',
@@ -28,9 +31,10 @@ export class SessionConfigService {
   }
 
   /**
-   * Update the session storage configuration.
+   * Update the session storage configuration. Omitted fields keep their stored
+   * value; `ttlSeconds: null` removes the TTL override.
    */
-  async updateConfig(config: Partial<SessionStorageConfig>): Promise<SessionStorageConfig> {
+  async updateConfig(config: UpdateSessionConfigDto): Promise<SessionStorageConfig> {
     const response = await sessionConfigControllerUpdateConfig<true>({
       body: config,
     });
