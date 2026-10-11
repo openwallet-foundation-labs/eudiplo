@@ -132,6 +132,7 @@
                   mat-icon-button
                   [routerLink]="['/credential-config', cc.id]"
                   matTooltip="Open credential config"
+                  [attr.aria-label]="'Open credential config ' + (cc.description || cc.id)"
                 >
                   <mat-icon>open_in_new</mat-icon>
                 </a>
@@ -140,6 +141,45 @@
           </div>
         } @else {
           <p class="url-description">No credential configs reference this trust list.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Referenced by Presentation Configs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!canReadPresentationConfigs) {
+          <p class="url-description">
+            You need the <code>presentation:manage</code> or <code>presentation:request</code> role
+            to see which presentation configs reference this trust list.
+          </p>
+        } @else if (relatedPresentationConfigsLoading) {
+          <p class="url-description"><output>Loading presentation configs…</output></p>
+        } @else if (relatedPresentationConfigsFailed) {
+          <p class="url-description" role="alert">
+            Could not load the presentation configs that reference this trust list.
+          </p>
+        } @else if (relatedPresentationConfigs.length) {
+          <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
+            @for (pc of relatedPresentationConfigs; track pc.id) {
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-icon class="label-icon">verified_user</mat-icon>
+                <span class="value">{{ pc.description || pc.id }}</span>
+                <a
+                  mat-icon-button
+                  [routerLink]="['/presentation-config', pc.id]"
+                  matTooltip="Open presentation config"
+                  [attr.aria-label]="'Open presentation config ' + (pc.description || pc.id)"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="url-description">No presentation configs reference this trust list.</p>
         }
       </mat-card-content>
     </mat-card>
