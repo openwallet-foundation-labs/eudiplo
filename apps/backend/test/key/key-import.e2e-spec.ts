@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto.js";
 import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
+import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { getTenantAdminToken, getToken } from "../utils.js";
 
 describe("Key Chain — Import (e2e)", () => {
@@ -20,7 +21,7 @@ describe("Key Chain — Import (e2e)", () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
-        app.useGlobalPipes(new ValidationPipe());
+        app.useGlobalPipes(createAppValidationPipe());
         await app.init();
 
         const configService = app.get(ConfigService);
@@ -129,6 +130,41 @@ describe("Key Chain — Import (e2e)", () => {
 
             expect(response.body.id).toBe(keyId);
             expect(response.body.key.d).toBe(privateKey.d);
+        });
+
+        test("re-imports the export of a key chain created without a description", async () => {
+            const created = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send({
+                    usageType: KeyUsageType.Attestation,
+                    type: "internalChain",
+                    rotationPolicy: { enabled: true, intervalDays: 90 },
+                })
+                .expect(201);
+            const keyId = created.body.id;
+
+            const exported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}/export`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+
+            expect(exported.body).not.toHaveProperty("description");
+            expect(exported.body.rotationPolicy).not.toHaveProperty(
+                "certValidityDays",
+            );
+
+            await request(app.getHttpServer())
+                .delete(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(204);
+            const reimported = await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send(exported.body)
+                .expect(201);
+
+            expect(reimported.body.id).toBe(keyId);
         });
 
         test("does not export key chains of another tenant", async () => {

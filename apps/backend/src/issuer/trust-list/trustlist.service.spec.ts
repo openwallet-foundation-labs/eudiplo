@@ -4,6 +4,7 @@ import * as x509 from "@peculiar/x509";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { TrustListCreateDto } from "./dto/trust-list-create.dto.js";
 import type { TrustList } from "./entities/trust-list.entity.js";
+import { TrustListCreateSchema } from "./schemas/trust-list.schema.js";
 import { TrustListService } from "./trustlist.service.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -306,6 +307,44 @@ describe("TrustListService", () => {
             ).rejects.toBeInstanceOf(ConflictException);
             expect(store.get("list")!.jwt).toBe("list-jwt-3");
             expect(versions).toHaveLength(1);
+        });
+    });
+
+    describe("exportTrustList", () => {
+        it("leaves out an unset description so the create endpoint accepts the export", async () => {
+            // A nullable column is read back as null, not undefined.
+            const { service } = createService([
+                storedList("list", inDays(20), {
+                    description: null,
+                    entityConfig: [
+                        {
+                            type: "internal",
+                            issuerKeyChainId: "issuer-key",
+                            revocationKeyChainId: "status-key",
+                            info: { name: "Issuer" },
+                        },
+                    ],
+                } as unknown as Partial<TrustList>),
+            ]);
+
+            const exported = JSON.parse(
+                JSON.stringify(await service.exportTrustList("tenant", "list")),
+            );
+
+            expect(exported).not.toHaveProperty("description");
+            expect(TrustListCreateSchema.safeParse(exported).success).toBe(
+                true,
+            );
+        });
+
+        it("exports a description that is set", async () => {
+            const { service } = createService([
+                storedList("list", inDays(20), { description: "Issuers" }),
+            ]);
+
+            const exported = await service.exportTrustList("tenant", "list");
+
+            expect(exported.description).toBe("Issuers");
         });
     });
 });
