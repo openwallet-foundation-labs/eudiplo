@@ -11,15 +11,23 @@ interface EndpointDoc {
     method: string;
     path: string;
     roles: string[];
+    /** `any`: one of the roles is enough. `all`: the token needs every role. */
+    match: "any" | "all";
 }
 
 const model = rolesModel as { roles: RoleDoc[]; endpoints: EndpointDoc[] };
 
-/** Merge endpoints that share a path and accepted roles into one row (`GET, POST`). */
+/** Whether `role` alone passes the role check of `endpoint`. */
+const opens = (endpoint: EndpointDoc, role: string) =>
+    endpoint.roles.includes(role) && (endpoint.match === "any" || endpoint.roles.length === 1);
+
+const rowKey = (endpoint: EndpointDoc) => `${endpoint.path}|${endpoint.match}|${endpoint.roles.join(",")}`;
+
+/** Merge endpoints that share a path and role requirement into one row (`GET, POST`). */
 function endpointRows(): EndpointDoc[] {
     const rows = new Map<string, EndpointDoc>();
     for (const endpoint of model.endpoints) {
-        const key = `${endpoint.path}|${endpoint.roles.join(",")}`;
+        const key = rowKey(endpoint);
         const row = rows.get(key);
         if (row) {
             row.method = `${row.method}, ${endpoint.method}`;
@@ -56,7 +64,7 @@ export default function RoleReference({ table }: { table: "roles" | "endpoints" 
                                 <code>{role.value}</code>
                             </td>
                             <td>{role.description}</td>
-                            <td>{model.endpoints.filter((endpoint) => endpoint.roles.includes(role.value)).length}</td>
+                            <td>{model.endpoints.filter((endpoint) => opens(endpoint, role.value)).length}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -69,12 +77,12 @@ export default function RoleReference({ table }: { table: "roles" | "endpoints" 
                 <tr>
                     <th>Method</th>
                     <th>Path</th>
-                    <th>Accepted roles</th>
+                    <th>Required roles</th>
                 </tr>
             </thead>
             <tbody>
                 {endpointRows().map((row) => (
-                    <tr key={`${row.path}|${row.roles.join(",")}`}>
+                    <tr key={rowKey(row)}>
                         <td>{row.method}</td>
                         <td>
                             <code>{row.path}</code>
@@ -84,7 +92,7 @@ export default function RoleReference({ table }: { table: "roles" | "endpoints" 
                                 ? "any valid access token"
                                 : row.roles.map((role, index) => (
                                       <React.Fragment key={role}>
-                                          {index > 0 && " or "}
+                                          {index > 0 && (row.match === "all" ? " and " : " or ")}
                                           <code>{role}</code>
                                       </React.Fragment>
                                   ))}

@@ -1,9 +1,11 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MATERIAL_ANIMATIONS } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router, RouterLink } from '@angular/router';
-import { NEVER } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { ApiService } from './core';
@@ -29,7 +31,7 @@ describe('AppComponent', () => {
 });
 
 describe('AppComponent navigation', () => {
-  function menuItems(roles: Role[]): string[] {
+  function renderNav(roles: Role[]): HTMLElement {
     TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
@@ -46,9 +48,12 @@ describe('AppComponent navigation', () => {
     });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function menuItems(roles: Role[]): string[] {
     return Array.from(
-      element.querySelectorAll('mat-sidenav [matListItemTitle]'),
+      renderNav(roles).querySelectorAll('mat-sidenav [matListItemTitle]'),
       (item) => item.textContent?.trim() ?? ''
     );
   }
@@ -59,6 +64,29 @@ describe('AppComponent navigation', () => {
     ['issuance and verification', ['issuance:manage', 'presentation:manage']],
   ])('lists Webhook Endpoints once for %s admins', (_, roles) => {
     expect(menuItems(roles).filter((item) => item === 'Webhook Endpoints')).toHaveLength(1);
+  });
+
+  // Matches the route guard in session-management.routes.ts and the backend session controllers.
+  it.each<[Role[], string[]]>([
+    [['issuance:manage'], ['Session Settings']],
+    [['presentation:manage'], ['Session Settings']],
+    [['issuance:offer'], ['All Sessions']],
+    [
+      ['presentation:request', 'presentation:manage'],
+      ['All Sessions', 'Session Settings'],
+    ],
+  ])('lists the session entries for %j', (roles, entries) => {
+    expect(
+      menuItems(roles).filter((item) => ['All Sessions', 'Session Settings'].includes(item))
+    ).toEqual(entries);
+  });
+
+  it.each<[Role[], boolean]>([
+    [['presentation:manage'], true],
+    [['clients:manage'], false],
+  ])('shows the Sessions header for %j: %s', (roles, shown) => {
+    const header = renderNav(roles).querySelector('button[aria-controls="nav-section-sessions"]');
+    expect(header !== null).toBe(shown);
   });
 
   it('hides Webhook Endpoints from clients that cannot manage them', () => {
@@ -147,6 +175,87 @@ describe('AppComponent help menu', () => {
       'GitHub',
       'Discord community',
     ]);
+  });
+});
+
+describe('AppComponent navigation toggle', () => {
+  function render(handset: boolean) {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        // jsdom fires no transitionend, so the drawer settles only without animations.
+        { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
+        {
+          provide: BreakpointObserver,
+          useValue: { observe: () => of({ matches: handset, breakpoints: {} }) },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const toggle = element.querySelector(
+      'button[aria-label="Toggle navigation"]'
+    ) as HTMLButtonElement;
+    return { fixture, element, toggle };
+  }
+
+  it('names the menu button after the navigation it controls', () => {
+    const { element, toggle } = render(false);
+
+    expect(toggle.querySelector('mat-icon')?.textContent?.trim()).toBe('menu');
+    expect(element.querySelector(`#${toggle.getAttribute('aria-controls')}`)?.tagName).toBe(
+      'MAT-SIDENAV'
+    );
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('reports whether the navigation is open on a phone', () => {
+    const { fixture, toggle } = render(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('reports the navigation closed when the user taps the backdrop', async () => {
+    const { fixture, element, toggle } = render(true);
+    toggle.click();
+    fixture.detectChanges();
+    const backdrop = element.querySelector('.mat-drawer-backdrop') as HTMLElement;
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(backdrop.classList).toContain('mat-drawer-shown');
+    });
+
+    backdrop.click();
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(backdrop.classList).toContain('mat-drawer-shown');
+  });
+
+  it('keeps the side-mode navigation open on Escape', async () => {
+    const { fixture, element, toggle } = render(false);
+    const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
+
+    sidenav.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27 }));
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(sidenav.classList).toContain('mat-drawer-opened');
   });
 });
 

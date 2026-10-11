@@ -8,7 +8,7 @@ EUDIPLO can talk to the German EUDI wallet registrar to obtain access certificat
 
 ## Prerequisites
 
-- The `registrar:manage` role; without it the **Registrar** menu is hidden.
+- The `registrar:manage` role; without it the **Registrar** menu is hidden. Publishing schema metadata also needs `issuance:manage`.
 - Registrar URL, OIDC realm URL, client ID (and secret, if any), username and password from the registrar operator.
 
 ## 1. Connect the registrar
@@ -89,7 +89,7 @@ TS11 is still a draft. Fields, endpoints and screens can change.
 
 EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default, at most 5 MB, 10 seconds and three redirects per file.
 
-Schema metadata is versioned: the list groups versions by ID, and a new version is published from the existing entry. Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (role `issuance:manage`); the other `/api/schema-metadata` endpoints list, read, update, deprecate and delete entries (role `registrar:manage`).
+Schema metadata is versioned: the list groups versions by ID, and a new version is published from the existing entry. Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (roles `issuance:manage` and `registrar:manage`, both required); the other `/api/schema-metadata` endpoints list, read, update, deprecate and delete entries (role `registrar:manage`). All endpoints and their roles: [Roles](../reference/roles.md#endpoints).
 
 The `schemaMeta` of each credential configuration determines the `provides_attestations` of the [issuer registration certificate](registration-certificates.md#issuer-registration-certificate). Verifiers can start a presentation configuration from schema metadata with **Import from Schema** ([Configure Verification](../presentation/configure-verification.md)).
 

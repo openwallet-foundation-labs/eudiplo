@@ -19,7 +19,7 @@ pnpm --filter @eudiplo/docs start              # live reload on http://127.0.0.1
 | `pnpm --filter @eudiplo/docs build` | Runs `prebuild`, then a production build. Broken links and anchors fail the build. |
 | `pnpm --filter @eudiplo/docs serve` | Serves the last build on port 3003 |
 | `pnpm --filter @eudiplo/docs lint` | markdownlint (`apps/docs/.markdownlint.json`); `lint:fix` fixes what it can |
-| `pnpm --filter @eudiplo/docs test` | Sidebar orphan check and the schema generator tests |
+| `pnpm --filter @eudiplo/docs test` | Sidebar orphan check and the schema and roles generator tests |
 | `pnpm --filter @eudiplo/docs typecheck:scripts` | Type-checks the generator scripts |
 
 The search widget reads `ALGOLIA_APP_ID`, `ALGOLIA_SEARCH_API_KEY`, `ALGOLIA_INDEX_NAME` and `DOCSEARCH_AGENT_ID`; local builds work without them.

@@ -89,12 +89,18 @@ handles sessions older than the retention period:
 | `SESSION_CLEANUP_MODE` | `full`  | `full` deletes old sessions; `anonymize` keeps status and timestamps but removes credentials, claims, offers, requests and keys |
 
 A tenant can override both with `PUT /api/session-config` (roles
-`issuance:manage` or `presentation:manage`):
+`issuance:manage` or `presentation:manage`), or under
+**Sessions → Session Settings** in the web client:
 
 ```json
 { "ttlSeconds": 3600, "cleanupMode": "anonymize" }
 ```
 
-`ttlSeconds` must be at least 60. `DELETE /api/session-config` restores the
-global defaults. [Session logs](logging.md#session-logs) are deleted together
-with their session; `anonymize` keeps them.
+`ttlSeconds` must be a whole number of at least 60. Fields left out of the
+request keep their stored value, and `"ttlSeconds": null` removes only the TTL
+override. A stored `cleanupMode` cannot be removed on its own:
+`DELETE /api/session-config` restores the global defaults for both fields.
+The settings belong to the tenant, so for a file-managed tenant both requests
+return `409 Conflict` ([Configuration as Code](configuration-as-code.md#configuration-model)).
+[Session logs](logging.md#session-logs) are deleted together with their
+session; `anonymize` keeps them.

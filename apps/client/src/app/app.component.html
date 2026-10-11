@@ -9,6 +9,8 @@
       (click)="toggleSidenav()"
       fxHide.gt-sm
       aria-label="Toggle navigation"
+      aria-controls="app-sidenav"
+      [attr.aria-expanded]="sidenavOpened"
       matTooltip="Toggle navigation"
     >
       <mat-icon>menu</mat-icon>
@@ -80,8 +82,19 @@
     </mat-menu>
   </mat-toolbar>
   <mat-sidenav-container class="sidenav-container">
-    <!-- Side Navigation -->
-    <mat-sidenav #sidenav [mode]="sidenavMode" [opened]="sidenavOpened" class="app-sidenav">
+    <!-- Side Navigation. The phone drawer closes itself on Escape or a tap on the backdrop;
+         follow it as soon as it starts closing, so the menu button reports it and one tap
+         reopens it. In side mode the navigation is part of the page and wide screens hide the
+         menu button, so Escape must not close it there. -->
+    <mat-sidenav
+      #sidenav
+      id="app-sidenav"
+      [mode]="sidenavMode"
+      [opened]="sidenavOpened"
+      [disableClose]="sidenavMode === 'side'"
+      (closedStart)="sidenavOpened = false"
+      class="app-sidenav"
+    >
       <mat-nav-list>
         <!-- Dashboard - Always visible, entry point -->
         <mat-list-item
@@ -319,17 +332,26 @@
         }
 
         <!-- Sessions Section -->
-        @if (hasRole(['presentation:request', 'issuance:offer'])) {
+        @if (
+          hasRole([
+            'presentation:request',
+            'issuance:offer',
+            'issuance:manage',
+            'presentation:manage',
+          ])
+        ) {
           <app-nav-section section="sessions" icon="monitoring" label="Sessions">
-            <mat-list-item
-              [routerLink]="['/session-management']"
-              routerLinkActive="active-link"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="closeSidenavOnMobile()"
-            >
-              <mat-icon matListItemIcon>list_alt</mat-icon>
-              <span matListItemTitle>All Sessions</span>
-            </mat-list-item>
+            @if (hasRole(['presentation:request', 'issuance:offer'])) {
+              <mat-list-item
+                [routerLink]="['/session-management']"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="closeSidenavOnMobile()"
+              >
+                <mat-icon matListItemIcon>list_alt</mat-icon>
+                <span matListItemTitle>All Sessions</span>
+              </mat-list-item>
+            }
 
             @if (hasRole(['issuance:manage', 'presentation:manage'])) {
               <mat-list-item
