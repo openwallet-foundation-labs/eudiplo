@@ -376,6 +376,11 @@ describe('ApiService token refresh', () => {
   });
 
   describe('token renewed by another tab', () => {
+    /** The event a browser sends to the other tabs after one stored a token. */
+    function announceStoredToken(): void {
+      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+    }
+
     /** Another tab of the same browser stores its new token; only other tabs get the event. */
     function storeFromOtherTab(
       token: string,
@@ -388,7 +393,7 @@ describe('ApiService token refresh', () => {
         'oauth_config',
         JSON.stringify({ server: baseUrl, clientId, baseUrl, tokenEndpoint })
       );
-      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+      announceStoredToken();
     }
 
     it('is taken by a restored session, which cannot renew its own token', async () => {
@@ -416,7 +421,7 @@ describe('ApiService token refresh', () => {
       storeFromOtherTab('older', 10 * 60_000);
       store.set('access_token', 'no-expiry');
       store.delete('token_expiration');
-      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+      announceStoredToken();
 
       expect(service.accessToken).toBe('stored');
     });
