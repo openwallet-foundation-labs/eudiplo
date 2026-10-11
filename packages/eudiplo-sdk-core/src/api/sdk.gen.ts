@@ -172,6 +172,9 @@ export const clientControllerUpdateClient = <ThrowOnError extends boolean = true
  * Users with `tenants:manage` role can rotate secrets for any client.
  * Users with `clients:manage` role can only rotate secrets for clients in
  * their tenant whose roles they hold or may grant.
+ *
+ * With the built-in authorization server, tokens issued with the old secret
+ * are rejected at once (HTTP 401).
  */
 export const clientControllerRotateClientSecret = <ThrowOnError extends boolean = true>(options: Options<ClientControllerRotateClientSecretData, ThrowOnError>): RequestResult<ClientControllerRotateClientSecretResponses, ClientControllerRotateClientSecretErrors, ThrowOnError> => (options.client ?? client).post<ClientControllerRotateClientSecretResponses, ClientControllerRotateClientSecretErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

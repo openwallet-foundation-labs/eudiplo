@@ -59,3 +59,4 @@ export { ChangeSessionOauthBindingsToTimestamp1784400000000 } from "./1784400000
 export { EncryptStoredSecrets1784500000000 } from "./1784500000000-EncryptStoredSecrets.js";
 export { RedactAuditLogSecrets1784600000000 } from "./1784600000000-RedactAuditLogSecrets.js";
 export { HashAuthorizationCodes1784700000000 } from "./1784700000000-HashAuthorizationCodes.js";
+export { AddTokensValidAfterToClient1784800000000 } from "./1784800000000-AddTokensValidAfterToClient.js";

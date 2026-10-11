@@ -22,6 +22,7 @@ import { JwtService } from '../../../services/jwt.service';
 import { canManageRoles } from '../../../services/role-grants';
 import { getApiErrorMessage } from '../../../utils/error-message';
 import { clientDeleteConfirmation } from '../client-delete-confirmation';
+import { clientRotateConfirmation } from '../client-rotate-confirmation';
 import { openErrorSnackBar } from '../../../utils/error-snackbar';
 import { LoadErrorComponent } from '../../../common/load-error.component';
 
@@ -131,11 +132,7 @@ export class ClientListComponent implements OnInit {
    * Shows the new secret in a dialog for one-time viewing.
    */
   async rotateSecret(client: ClientEntity): Promise<void> {
-    if (
-      !confirm(
-        `Are you sure you want to rotate the secret for "${client.clientId}"?\n\nThe current secret will be invalidated immediately; tokens already issued with it stay valid until they expire. Make sure to save the new secret - you won't be able to see it again!`
-      )
-    ) {
+    if (!confirm(clientRotateConfirmation(client.clientId, this.apiService.getClientId()))) {
       return;
     }
 
@@ -154,10 +151,26 @@ export class ClientListComponent implements OnInit {
           width: '500px',
           disableClose: true,
         });
+        if (client.clientId === this.apiService.getClientId()) {
+          await this.continueWithSecret(result.data.secret);
+        }
       }
     } catch (error) {
       console.error('Error rotating secret:', error);
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to rotate client secret'));
+    }
+  }
+
+  /** The backend refuses the old secret's tokens, so the own session moves to the new secret. */
+  private async continueWithSecret(secret: string): Promise<void> {
+    try {
+      await this.apiService.useRotatedSecret(secret);
+    } catch (error) {
+      console.error('Error continuing the session with the new secret:', error);
+      openErrorSnackBar(
+        this.snackBar,
+        'Your session could not continue with the new secret. Save it, then log in again with it.'
+      );
     }
   }
 }

@@ -5,7 +5,7 @@
 export function clientDeleteConfirmation(clientId: string, signedInClientId?: string): string {
   const paragraphs = [
     `Are you sure you want to delete client "${clientId}"?`,
-    'Services can no longer sign in with this client, and tokens already issued to it stop working unless a client with this ID is created again. If your instance offers single sign-on (Keycloak), those tokens stay valid until they expire. This cannot be undone.',
+    'Services can no longer sign in with this client, and tokens already issued to it stop working, also if a client with this ID is created again. If your instance offers single sign-on (Keycloak), those tokens stay valid until they expire. This cannot be undone.',
   ];
   if (clientId === signedInClientId) {
     paragraphs.push(

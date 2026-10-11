@@ -8,6 +8,12 @@ export interface ClientData {
     roles: Role[];
     allowedPresentationConfigs?: string[] | null;
     allowedIssuanceConfigs?: string[] | null;
+    /**
+     * When the client was created or got its current secret; its tokens
+     * must name this instant. Only `getClientById` and
+     * `validateClientCredentials` set it; it is not part of the client API.
+     */
+    tokensValidAfter?: Date | null;
 }
 
 export interface CreatedClient extends ClientData {

@@ -15,7 +15,7 @@ function bearerToken(header: string | null | undefined): string | undefined {
 /**
  * Reacts to refused calls of the management API. The backend reads the client
  * behind a built-in token on every request: it answers `401` once the client is
- * deleted and `403` for roles the client no longer has. A new token tells
+ * deleted or has a new secret, and `403` for roles the client no longer has. A new token tells
  * whether the client still exists and carries its current roles. With OIDC,
  * keycloak-js keeps the session.
  */

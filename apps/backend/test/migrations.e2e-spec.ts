@@ -17,6 +17,10 @@ import { AddSessionListFilters1784300000000 } from "../src/database/migrations/1
 import { ChangeSessionOauthBindingsToTimestamp1784400000000 } from "../src/database/migrations/1784400000000-ChangeSessionOauthBindingsToTimestamp.js";
 import { describeWithContainers } from "./container-runtime.js";
 import {
+    addTokensValidAfterContract,
+    addTokensValidAfterEntities,
+} from "./persistence/add-tokens-valid-after.contract.js";
+import {
     encryptStoredSecretsContract,
     encryptStoredSecretsEntities,
 } from "./persistence/encrypt-stored-secrets.contract.js";
@@ -1313,6 +1317,16 @@ describe("Migration tests", () => {
                 type: "postgres",
                 url: postgresContainer.getConnectionUri(),
                 entities: hashAuthorizationCodesEntities,
+                synchronize: true,
+                dropSchema: true,
+            }).initialize(),
+        );
+
+        addTokensValidAfterContract(() =>
+            new DataSource({
+                type: "postgres",
+                url: postgresContainer.getConnectionUri(),
+                entities: addTokensValidAfterEntities,
                 synchronize: true,
                 dropSchema: true,
             }).initialize(),
