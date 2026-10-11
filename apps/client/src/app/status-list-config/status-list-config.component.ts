@@ -30,7 +30,7 @@ const globalDefaults: Record<keyof StatusListConfig, string> = {
 };
 
 /** Fixed when a list is created; the other settings apply to every list when it is signed. */
-const newListsOnly: (keyof StatusListConfig)[] = ['capacity', 'bits'];
+const newListsOnly = new Set<keyof StatusListConfig>(['capacity', 'bits']);
 
 @Component({
   selector: 'app-status-list-config',
@@ -160,8 +160,8 @@ export class StatusListConfigComponent implements OnInit {
     const removed = stored.map((setting) => this.describeStored(setting));
     const variables = (settings: (keyof StatusListConfig)[]) =>
       listFormat.format(settings.map((setting) => globalDefaults[setting]));
-    const forNewLists = stored.filter((setting) => newListsOnly.includes(setting));
-    const forAllLists = stored.filter((setting) => !newListsOnly.includes(setting));
+    const forNewLists = stored.filter((setting) => newListsOnly.has(setting));
+    const forAllLists = stored.filter((setting) => !newListsOnly.has(setting));
     const effects = [
       forNewLists.length ? `new status lists use ${variables(forNewLists)}` : '',
       forAllLists.length
