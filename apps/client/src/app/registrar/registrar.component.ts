@@ -22,6 +22,7 @@ import {
 } from '../config-portability/config-ownership.service';
 import { getHttpErrorMessage, getValidationIssues } from '../utils/error-message';
 import { httpUrlValidator } from '../utils/http-url-validator';
+import { registrarBaseUrlValidator } from './registrar-url.validator';
 
 interface RegistrarPreset {
   name: string;
@@ -46,6 +47,42 @@ const FIELD_LABELS: Record<string, string> = {
   username: 'Username',
   password: 'Password',
 };
+
+/** URL fields, which also follow the registrar base URL rule. */
+const URL_FIELDS = ['registrarUrl', 'oidcUrl'] as const;
+
+/** What to do when the instance's outbound URL policy blocks a URL. */
+const POLICY_HINT =
+  "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy.";
+
+/** What to do when the policy check could not resolve the host. */
+const DNS_HINT = 'Check the host name, or try again later.';
+
+/** The hint for an outbound URL policy rejection, by its reason. */
+function policyHint(message: string): string {
+  return message.includes('cannot be resolved') ? DNS_HINT : POLICY_HINT;
+}
+
+/**
+ * Paths of the issues the outbound URL policy raised, which `getValidationIssues`
+ * does not tell apart from other issues.
+ */
+function policyIssuePaths(error: any): Set<string> {
+  const issues = error?.error?.errors ?? error?.errors;
+  if (!Array.isArray(issues)) return new Set();
+  return new Set(
+    issues
+      .filter((issue) => issue?.code === 'outbound_url_policy' && Array.isArray(issue.path))
+      .map((issue) => issue.path.join('.'))
+  );
+}
+
+/** The message of a failed save that names no field. */
+function requestErrorMessage(error: unknown): string {
+  const message = getHttpErrorMessage(error, 'Failed to save configuration');
+  // A blocked token endpoint or redirect target has no field to show it.
+  return message.includes('outbound URL policy') ? `${message}. ${policyHint(message)}` : message;
+}
 
 /** Examples in the message for a URL field whose value is not a full URL. */
 const URL_EXAMPLES: Record<string, string> = {
@@ -110,8 +147,8 @@ export class RegistrarComponent implements OnInit {
     private readonly ownership: ConfigOwnershipService
   ) {
     this.configForm = this.fb.group({
-      registrarUrl: ['', [Validators.required, httpUrlValidator]],
-      oidcUrl: ['', [Validators.required, httpUrlValidator]],
+      registrarUrl: ['', [Validators.required, httpUrlValidator, registrarBaseUrlValidator]],
+      oidcUrl: ['', [Validators.required, httpUrlValidator, registrarBaseUrlValidator]],
       clientId: ['', [Validators.required]],
       clientSecret: [''],
       username: ['', [Validators.required]],
@@ -122,7 +159,7 @@ export class RegistrarComponent implements OnInit {
         intermediary: [''],
       }),
     });
-    for (const url of ['registrarUrl', 'oidcUrl']) {
+    for (const url of URL_FIELDS) {
       this.configForm.get(url)?.valueChanges.subscribe(() => this.updateCredentialValidators());
     }
   }
@@ -154,6 +191,11 @@ export class RegistrarComponent implements OnInit {
           ),
         });
         this.updateCredentialValidators();
+        // A URL stored before the base URL rule shows its error right away.
+        for (const field of URL_FIELDS) {
+          const control = this.configForm.get(field);
+          if (control?.invalid) control.markAsTouched();
+        }
       }
     } catch (error) {
       // Without the stored configuration the form would look like a new one,
@@ -194,11 +236,26 @@ export class RegistrarComponent implements OnInit {
     password?.updateValueAndValidity({ emitEvent: false });
   }
 
+  /**
+   * Whether the input itself is invalid. A rejection by the backend does not
+   * count: its cause may have been fixed outside the form, for example in the
+   * outbound URL policy, so saving again is allowed and checks anew.
+   */
+  get hasInvalidInput(): boolean {
+    return Object.values(this.configForm.controls).some((control) =>
+      Object.keys(control.errors ?? {}).some((key) => key !== 'server')
+    );
+  }
+
   async saveConfig(): Promise<void> {
-    if (this.configForm.invalid) {
+    if (this.hasInvalidInput) {
       this.configForm.markAllAsTouched();
       this.snackBar.open('Please correct the highlighted fields', 'Close', { duration: 3000 });
       return;
+    }
+    // Drop the previous backend rejections; the backend checks again.
+    for (const control of Object.values(this.configForm.controls)) {
+      if (control.hasError('server')) control.updateValueAndValidity({ emitEvent: false });
     }
 
     const formValue = this.configForm.value;
@@ -253,7 +310,8 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
-      this.snackBar.open(this.saveErrorMessage(error), 'Close', { duration: 5000 });
+      // Long enough to read a message that names a URL for the operator.
+      this.snackBar.open(this.saveErrorMessage(error), 'Close', { duration: 12000 });
     } finally {
       this.isSaving = false;
     }
@@ -266,21 +324,34 @@ export class RegistrarComponent implements OnInit {
    */
   private saveErrorMessage(error: any): string {
     const issues = getValidationIssues(error);
-    if (!issues.length) return getHttpErrorMessage(error, 'Failed to save configuration');
+    if (!issues.length) return requestErrorMessage(error);
+    const policyPaths = policyIssuePaths(error);
     const others: string[] = [];
+    let hint: string | undefined;
     for (const { path, message } of issues) {
-      const control = path in FIELD_LABELS ? this.configForm.get(path) : null;
-      if (control) {
-        control.setErrors({ ...control.errors, server: message });
-        control.markAsTouched();
-      } else {
-        others.push(path ? `${path}: ${message}` : message);
-      }
+      // A policy rejection is not always fixed by editing the field, so it
+      // says what to check and who can change the policy.
+      const policy = policyPaths.has(path) ? policyHint(message) : undefined;
+      hint = policy ?? hint;
+      const text = policy ? `${message}. ${policy}` : message;
+      if (!this.showAtField(path, text)) others.push(path ? `${path}: ${text}` : text);
     }
     const parts = ['Failed to save configuration.'];
-    if (others.length < issues.length) parts.push('Check the highlighted fields.');
+    if (others.length < issues.length) parts.push(hint ?? 'Check the highlighted fields.');
     if (others.length) parts.push(others.join('; '));
     return parts.join(' ');
+  }
+
+  /**
+   * Puts a backend issue under its form field, until the field is edited.
+   * @returns false when the form has no field for `path`
+   */
+  private showAtField(path: string, text: string): boolean {
+    const control = path in FIELD_LABELS ? this.configForm.get(path) : null;
+    if (!control) return false;
+    control.setErrors({ ...control.errors, server: text });
+    control.markAsTouched();
+    return true;
   }
 
   /** Message under a form field for its current error. */
@@ -288,6 +359,8 @@ export class RegistrarComponent implements OnInit {
     const control = this.configForm.get(name);
     if (control?.hasError('server')) return control.getError('server');
     if (control?.hasError('url')) return `Enter a full URL, for example ${URL_EXAMPLES[name]}`;
+    if (control?.hasError('registrarBaseUrl'))
+      return 'Enter an http(s) URL without query, fragment or credentials';
     if (name === 'password' && this.urlsChanged)
       return 'The URL changed. Enter the password again.';
     return `${FIELD_LABELS[name]} is required`;

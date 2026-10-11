@@ -53,9 +53,10 @@ again after major upgrades. Each item links to the guide that explains it.
       ([Web application firewall](waf.md)).
 - [ ] `OUTBOUND_URL_ALLOW_HTTP` and `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK` stay
       `false` (the default since 9.0). Webhooks, attribute providers, metadata,
-      trust lists, status lists, federation entities, external authorization
-      servers and the upstream provider of a chained authorization server then
-      need public HTTPS targets; CRLs may use HTTP.
+      trust lists, status lists, federation entities, the registrar and its
+      OIDC provider, external authorization servers and the upstream provider
+      of a chained authorization server then need public HTTPS targets; CRLs
+      may use HTTP.
       `OUTBOUND_URL_ALLOWED_HOSTS` additionally limits them to the listed
       hosts; it does not exempt a host from either check, so a webhook on a
       private address still needs `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK=true`.

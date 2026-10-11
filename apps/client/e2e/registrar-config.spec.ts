@@ -206,7 +206,9 @@ test('reports credentials the OIDC realm rejects', async ({ page }) => {
   await page.getByLabel('Password', { exact: true }).fill('wrong-password');
   await page.getByRole('button', { name: 'Save Configuration' }).click();
 
-  await expect(page.getByText('Invalid registrar credentials (HTTP 401)')).toBeVisible();
+  await expect(
+    page.getByText(/Invalid registrar credentials: the OIDC provider answered with HTTP 401/)
+  ).toBeVisible();
   expect((await tenant.call('GET', '/api/registrar/config')).status).toBe(404);
 });
 

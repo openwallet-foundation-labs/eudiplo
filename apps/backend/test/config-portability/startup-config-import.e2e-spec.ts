@@ -850,6 +850,86 @@ describe("startup configuration reconciliation", () => {
                 });
         }
     });
+
+    it("imports a registrar configuration whose hosts do not resolve yet", async () => {
+        const apply = app.get(ConfigBundleApplyService);
+        const registrars = app
+            .get(DataSource)
+            .getRepository(RegistrarConfigEntity);
+        const appConfig = app.get(ConfigService);
+        // The default policy, under which the check would resolve the hosts.
+        appConfig.set("OUTBOUND_URL_ALLOW_PRIVATE_NETWORK", false);
+        try {
+            await apply.apply(
+                "demo",
+                registrarBundle({
+                    registrarUrl: "https://registrar.example.invalid/api",
+                    oidcUrl: "https://auth.example.invalid/realms/registrar",
+                    clientId: "client",
+                    username: "user",
+                    password: "password",
+                }),
+                "upsert",
+            );
+            expect(
+                await registrars.findOneBy({ tenantId: "demo" }),
+            ).toMatchObject({
+                registrarUrl: "https://registrar.example.invalid/api",
+            });
+        } finally {
+            appConfig.set("OUTBOUND_URL_ALLOW_PRIVATE_NETWORK", true);
+            await registrars.delete({ tenantId: "demo" });
+            await app
+                .get(DataSource)
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "RegistrarConfig" });
+        }
+    });
+
+    it("stops a registrar import at a URL the outbound URL policy blocks", async () => {
+        const apply = app.get(ConfigBundleApplyService);
+        const registrars = app
+            .get(DataSource)
+            .getRepository(RegistrarConfigEntity);
+        const appConfig = app.get(ConfigService);
+        // The e2e environment allows private networks, so the allowlist is
+        // what blocks the OIDC host here. No request is sent either way.
+        appConfig.set(
+            "OUTBOUND_URL_ALLOWED_HOSTS",
+            "registrar.example.invalid",
+        );
+        try {
+            await expect(
+                apply.apply(
+                    "demo",
+                    registrarBundle({
+                        registrarUrl: "https://registrar.example.invalid/api",
+                        oidcUrl:
+                            "https://auth.blocked.invalid/realms/registrar",
+                        clientId: "client",
+                        username: "user",
+                        password: "password",
+                    }),
+                    "upsert",
+                ),
+            ).rejects.toMatchObject({
+                response: expect.objectContaining({
+                    code: "CONFIG_APPLY_FAILED",
+                    failedOperation: expect.objectContaining({
+                        kind: "RegistrarConfig",
+                    }),
+                }),
+            });
+            expect(await registrars.findOneBy({ tenantId: "demo" })).toBeNull();
+        } finally {
+            appConfig.set("OUTBOUND_URL_ALLOWED_HOSTS", "");
+            await registrars.delete({ tenantId: "demo" });
+            await app
+                .get(DataSource)
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "RegistrarConfig" });
+        }
+    });
 });
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {

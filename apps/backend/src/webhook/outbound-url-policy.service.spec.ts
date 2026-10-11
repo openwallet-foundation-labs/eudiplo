@@ -171,6 +171,35 @@ describe("OutboundUrlPolicyService", () => {
         ).rejects.toBeInstanceOf(BadRequestException);
     });
 
+    it("skips only the DNS lookup when resolveHost is false", async () => {
+        vi.mocked(lookup).mockRejectedValue(new Error("ENOTFOUND"));
+        const { service } = createService({
+            OUTBOUND_URL_ALLOWED_HOSTS: "example.invalid",
+        });
+        const stored = { resolveHost: false };
+
+        await expect(
+            service.assertSafeUrl(
+                "https://registrar.example.invalid/api",
+                stored,
+            ),
+        ).resolves.toBeUndefined();
+        expect(lookup).not.toHaveBeenCalled();
+        // Everything that needs no lookup is still checked.
+        await expect(
+            service.assertSafeUrl("http://registrar.example.invalid", stored),
+        ).rejects.toThrow("must use HTTPS");
+        await expect(
+            service.assertSafeUrl("https://other.example", stored),
+        ).rejects.toThrow("not in the allowlist");
+        await expect(
+            createService().service.assertSafeUrl("https://10.0.0.5/", stored),
+        ).rejects.toThrow("private or loopback IP");
+        await expect(
+            createService().service.assertSafeUrl("https://localhost/", stored),
+        ).rejects.toThrow("not allowed in this environment");
+    });
+
     it("allows configured host allowlist including subdomains", async () => {
         vi.mocked(lookup).mockResolvedValue([
             { address: "93.184.216.34", family: 4 },
