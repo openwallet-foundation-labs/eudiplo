@@ -722,7 +722,11 @@ export class ConfigBundleService {
         const kms = documents.find((document) => document.kind === "KmsConfig");
         // Create mode compares no existing key chain.
         if (!kms || mode === "create") return undefined;
-        const exists = await this.exists(tenantId, "KmsConfig", "kms");
+        const exists = await this.exists(
+            tenantId,
+            "KmsConfig",
+            resourceId(kms),
+        );
         const metadata = await this.ownershipService.get(
             tenantId,
             "KmsConfig",

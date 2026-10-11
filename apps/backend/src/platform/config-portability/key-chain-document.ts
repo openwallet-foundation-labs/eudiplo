@@ -304,9 +304,9 @@ function certificateChain(entries: unknown[]): string[] {
 export function importedKeyChainComparison(
     desired: Spec,
     current: Spec,
-    context: { kmsProvider: string; hostname: string; now?: Date },
+    context: { kmsProvider: string; hostname: string },
 ): { desired: Spec; current: Spec } {
-    const { kmsProvider, hostname, now = new Date() } = context;
+    const { kmsProvider, hostname } = context;
     const caChain = importsAsCaChain(
         appliedRotationPolicy(desired).enabled,
         importedPemEntries(desired.crt),
@@ -320,7 +320,6 @@ export function importedKeyChainComparison(
         generatedCertificateCurrent(
             pemCertificates(current.activeCertificate)[0],
             hostname,
-            now,
         );
 
     const key = importedPrivateKey(desired.id, desired.keySource.jwk);
@@ -336,7 +335,6 @@ export function importedKeyChainComparison(
         generatedCertificateCurrent(
             storedCertificates[0],
             caChain ? undefined : hostname,
-            now,
         );
 
     return {

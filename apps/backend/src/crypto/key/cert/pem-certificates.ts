@@ -62,18 +62,19 @@ export function pemCertificates(pem: string): string[] {
 }
 
 /**
- * Whether a PEM certificate is self-signed with the given key: issued by its
- * own subject, for that key and signed with it.
+ * Whether a PEM certificate is self-signed: issued by its own subject and
+ * signed with its own key, which is the given key if one is given.
  */
-export function isSelfSignedCertificate(pem: string, key: JWK): boolean {
+export function isSelfSignedCertificate(pem: string, key?: JWK): boolean {
     try {
         const certificate = new X509Certificate(pem);
         // Not checkIssued: it also requires keyCertSign, which leaf certificates lack.
         return (
             certificate.issuer === certificate.subject &&
-            certificate.publicKey.equals(
-                createPublicKey({ key: key as JsonWebKey, format: "jwk" }),
-            ) &&
+            (key === undefined ||
+                certificate.publicKey.equals(
+                    createPublicKey({ key: key as JsonWebKey, format: "jwk" }),
+                )) &&
             certificate.verify(certificate.publicKey)
         );
     } catch {

@@ -1,5 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import type { JWK } from "jose";
+import { isSelfSignedCertificate } from "./cert/pem-certificates.js";
 
 /*
  * What the key chain importer derives from a document. Kept free of service
@@ -52,18 +53,15 @@ function isStandaloneCertificate(
     certificates: readonly string[] | undefined,
 ): boolean {
     if (certificates?.length !== 1) return false;
-    let certificate: X509Certificate;
     try {
-        certificate = new X509Certificate(certificates[0]);
+        return (
+            !new X509Certificate(certificates[0]).ca &&
+            isSelfSignedCertificate(certificates[0])
+        );
     } catch {
         // The CA path reports the parse error.
         return false;
     }
-    return (
-        !certificate.ca &&
-        certificate.issuer === certificate.subject &&
-        certificate.verify(certificate.publicKey)
-    );
 }
 
 /** The host that certificates the importer generates name: the host of `PUBLIC_URL`. */
@@ -87,7 +85,6 @@ const RENEWAL_MARGIN_MS = 90 * 24 * 60 * 60 * 1000;
 export function generatedCertificateCurrent(
     pem: string | undefined,
     hostname: string | undefined,
-    now = new Date(),
 ): boolean {
     try {
         const certificate = new X509Certificate(pem ?? "");
@@ -95,7 +92,7 @@ export function generatedCertificateCurrent(
         const notAfter = certificate.validToDate.getTime();
         const margin = Math.min(RENEWAL_MARGIN_MS, (notAfter - notBefore) / 2);
         return (
-            now.getTime() <= notAfter - margin &&
+            Date.now() <= notAfter - margin &&
             (hostname === undefined ||
                 certificate.checkHost(hostname, { subject: "never" }) !==
                     undefined)

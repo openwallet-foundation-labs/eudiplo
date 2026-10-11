@@ -86,6 +86,8 @@ describe("key chain import rules", () => {
         expect(importsAsCaChain(true, [ca])).toBe(true);
         expect(importsAsCaChain(true, [leaf])).toBe(false);
         expect(importsAsCaChain(true, [leaf, ca])).toBe(true);
+        // The CA path reports an unreadable certificate.
+        expect(importsAsCaChain(true, ["garbage"])).toBe(true);
     });
 
     it("keeps a generated certificate while it names the host and is not due for renewal", async () => {

@@ -108,21 +108,28 @@ describe("re-importing unchanged key chain files", () => {
             rootCertificate: keyChain.rootCertificate,
         }));
 
-    const planKeyChains = async (tenantId: string) => {
+    const planKeyChains = async (
+        tenantId: string,
+        mode: "upsert" | "replace" = "upsert",
+    ) => {
         const root = join(configRoot, tenantId);
         const bundle = app
             .get(ConfigFolderBundleService)
             .buildBundle(tenantId, root);
         const plan = await app
             .get(ConfigBundleService)
-            .plan(tenantId, bundle, "upsert", `folder:${root}`);
+            .plan(tenantId, bundle, mode, `folder:${root}`);
         return plan.items.filter((item) => item.kind === "KeyChain");
     };
 
-    it.each(["demo", "haip", "legacy"])(
-        "plans the key chains of the %s folder as unchanged after the startup import and keeps their keys",
-        async (tenantId) => {
-            const items = await planKeyChains(tenantId);
+    it.each(
+        ["demo", "haip", "legacy"].flatMap((tenantId) =>
+            (["upsert", "replace"] as const).map((mode) => [tenantId, mode]),
+        ),
+    )(
+        "plans the key chains of the %s folder in %s mode as unchanged after the startup import and keeps their keys",
+        async (tenantId, mode) => {
+            const items = await planKeyChains(tenantId, mode);
             expect(items.length).toBeGreaterThan(0);
             expect(
                 items.map(({ id, action, changes }) => ({
@@ -139,10 +146,10 @@ describe("re-importing unchanged key chain files", () => {
             );
 
             const before = await keyMaterial(tenantId);
-            // What the next start with CONFIG_IMPORT_MODE=upsert runs.
+            // What the next start with this CONFIG_IMPORT_MODE runs.
             await app
                 .get(ConfigFolderBundleService)
-                .applyTenantFolder(tenantId, "upsert");
+                .applyTenantFolder(tenantId, mode);
             expect(await keyMaterial(tenantId)).toEqual(before);
         },
     );
