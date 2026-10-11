@@ -252,11 +252,11 @@ describe("Access key chain enrolled at the registrar (e2e)", () => {
             [Role.Keys],
         );
         // tenant:admin, which every tenant admin token has, may not enroll either.
-        await request(app.getHttpServer())
+        const keysOnlyRes = await request(app.getHttpServer())
             .post("/registrar/access-key-chain")
             .set("Authorization", `Bearer ${keysOnly}`)
-            .send({})
-            .expect(403);
+            .send({});
+        expect(keysOnlyRes.status).toBe(403);
 
         const registrarOnly = await getTenantAdminToken(
             app,
@@ -265,11 +265,11 @@ describe("Access key chain enrolled at the registrar (e2e)", () => {
             `${tenantId}-unconfigured`,
             [Role.Registrar],
         );
-        await request(app.getHttpServer())
+        const registrarOnlyRes = await request(app.getHttpServer())
             .post("/registrar/access-key-chain")
             .set("Authorization", `Bearer ${registrarOnly}`)
-            .send({})
-            .expect(404);
+            .send({});
+        expect(registrarOnlyRes.status).toBe(404);
     });
 
     test("creates no key chain without a registrar relying party answer", async () => {

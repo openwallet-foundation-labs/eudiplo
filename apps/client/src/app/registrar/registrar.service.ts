@@ -148,7 +148,7 @@ export class RegistrarService {
    * Create a standalone access key and enroll it at the registrar in one
    * request. When the enrollment fails, the backend deletes the key again.
    */
-  async createAccessKeyChain(body: CreateAccessKeyChainDto): Promise<AccessCertificateResponse> {
+  createAccessKeyChain(body: CreateAccessKeyChainDto): Promise<AccessCertificateResponse> {
     return firstValueFrom(
       this.http.post<AccessCertificateResponse>(
         `${this.getBaseUrl()}/api/registrar/access-key-chain`,
