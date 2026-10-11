@@ -33,13 +33,13 @@ ADMIN_TOKEN=$(curl -s -X POST "$EUDIPLO/api/oauth2/token" \
 
 Open **Credential Issuance → Status Lists** and choose the gear button (**Configure default settings**). Set:
 
-| Field            | Value                                          | Why                                                                           |
-| ---------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| Bits per status  | **2 bits** (Valid/Revoked/Suspended)           | The default of 1 bit can only express valid and revoked                       |
-| TTL (seconds)    | `60`                                           | Verifiers cache a status list until it expires; the default is one hour       |
-| Immediate Update | on                                             | EUDIPLO re-signs the list right after a status change                         |
+| Field             | Value                                | Why                                                                     |
+| ----------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| Bits per status   | **2 bits** (Valid/Revoked/Suspended) | The default of 1 bit can only express valid and revoked                 |
+| TTL (seconds)     | `60`                                 | Verifiers cache a status list until it expires; the default is one hour |
+| Regeneration mode | **Immediate**                        | EUDIPLO re-signs the list right after a status change                   |
 
-Choose **Save Configuration**. Capacity and bits only apply to lists created afterwards, so set them before the first credential with status is issued. In production, choose the TTL from how fast a revocation must take effect. The API equivalent is `PUT /api/status-list-config` with `{"bits": 2, "ttl": 60, "immediateUpdate": true}`.
+Fields you leave at **Global default** follow the instance's `STATUS_*` environment variables and are not stored for the tenant. Choose **Save Configuration**. Capacity and bits only apply to lists created afterwards, so set them before the first credential with status is issued. In production, choose the TTL from how fast a revocation must take effect. The API equivalent is `PUT /api/status-list-config` with `{"bits": 2, "ttl": 60, "immediateUpdate": true}`.
 
 **Checkpoint:** the page shows the saved values after a reload.
 

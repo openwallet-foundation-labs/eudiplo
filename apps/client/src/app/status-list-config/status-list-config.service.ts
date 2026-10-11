@@ -4,6 +4,7 @@ import {
   statusListConfigControllerUpdateConfig,
   statusListConfigControllerResetConfig,
   StatusListConfig,
+  UpdateStatusListConfigDto,
 } from '@eudiplo/sdk-core';
 
 export const bitsOptions = [
@@ -28,9 +29,9 @@ export class StatusListConfigService {
   }
 
   /**
-   * Update the status list configuration.
+   * Replace the stored settings; omitted settings follow the instance defaults.
    */
-  async updateConfig(config: Partial<StatusListConfig>): Promise<StatusListConfig> {
+  async updateConfig(config: UpdateStatusListConfigDto): Promise<StatusListConfig> {
     const response = await statusListConfigControllerUpdateConfig<true>({
       body: config,
     });
