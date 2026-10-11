@@ -95,18 +95,21 @@ export class TokenExpiryService implements OnDestroy {
       return;
     }
     this.dismissNotice();
+    this.warnBeforeExpiry(token);
+  }
 
+  /** Warns once per token that cannot be refreshed when it expires within five minutes. */
+  private warnBeforeExpiry(token: string): void {
     const remaining = this.apiService.getTokenTimeRemaining();
-    if (remaining < warnBeforeMs && !this.apiService.canRefreshToken()) {
-      if (this.warnedToken === token) return;
-      this.warnedToken = token;
-      const minutes = Math.max(1, Math.floor(remaining / 60_000));
-      this.snackBar.open(
-        `Your session expires in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}. Save your work.`,
-        'OK',
-        { duration: 10_000, panelClass: ['warning-snackbar'] }
-      );
-    }
+    if (remaining >= warnBeforeMs || this.apiService.canRefreshToken()) return;
+    if (this.warnedToken === token) return;
+    this.warnedToken = token;
+    const minutes = Math.max(1, Math.floor(remaining / 60_000));
+    this.snackBar.open(
+      `Your session expires in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}. Save your work.`,
+      'OK',
+      { duration: 10_000, panelClass: ['warning-snackbar'] }
+    );
   }
 
   /** Opens the notice again when another message replaced it, as long as the session stays expired. */
