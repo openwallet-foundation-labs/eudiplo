@@ -930,7 +930,7 @@ describe("startup configuration reconciliation", () => {
         const apply = app.get(ConfigBundleApplyService);
         const dataSource = app.get(DataSource);
         const keyChains = dataSource.getRepository(KeyChainEntity);
-        const ca = await caKeyWithCertificate();
+        const ca = await keyWithCertificate("Key chain CA", true);
         // A private key without active key goes through the key chain importer.
         const imported = {
             id: "replaced-imported-key",
@@ -1100,6 +1100,91 @@ describe("startup configuration reconciliation", () => {
                 .delete({ tenantId: "demo", kind: "RegistrarConfig" });
         }
     });
+
+    it("imports an internal chain with private keys and plans it again as unchanged", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const root = await keyWithCertificate("Restored Root CA", true);
+        const signer = await keyWithCertificate("Restored signer", false);
+        // Without kmsProvider: such a chain is always stored in the database.
+        const spec = {
+            id: "restored-internal-chain",
+            description: "Restored internal chain",
+            usageType: "attestation",
+            keySource: {
+                type: "private-jwk",
+                jwk: root.jwk,
+                activeJwk: signer.jwk,
+            },
+            crt: [root.certificate],
+            activeCertificate: signer.certificate,
+            rotationPolicy: {
+                enabled: true,
+                intervalDays: 30,
+                certValidityDays: 60,
+            },
+        };
+        const keyChainItem = (plan: ConfigImportPlan) =>
+            plan.items.find((item) => item.kind === "KeyChain");
+
+        try {
+            const bundle = keyChainBundle(spec);
+            const created = keyChainItem(
+                await service.plan("demo", bundle, "upsert"),
+            );
+            expect(created?.issues).toEqual([]);
+            expect(created?.action).toBe("create");
+            await apply.apply("demo", bundle, "upsert");
+            const stored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id: spec.id,
+            });
+            expect(stored.hasInternalCa()).toBe(true);
+            expect(stored).toMatchObject({
+                kmsProvider: "db",
+                rootJwk: root.jwk,
+                rootCertificate: root.certificate,
+                activeJwk: signer.jwk,
+                activeCertificate: signer.certificate,
+            });
+            expect(
+                keyChainItem(await service.plan("demo", bundle, "upsert"))
+                    ?.action,
+            ).toBe("unchanged");
+
+            // The plan, not the apply, reports a certificate of the other key.
+            const swapped = keyChainItem(
+                await service.plan(
+                    "demo",
+                    keyChainBundle({
+                        ...spec,
+                        activeCertificate: root.certificate,
+                    }),
+                    "upsert",
+                ),
+            );
+            expect(swapped?.action).toBe("blocked");
+            expect(
+                swapped?.issues.map(({ code, path }) => ({ code, path })),
+            ).toEqual([
+                {
+                    code: "CERTIFICATE_KEY_MISMATCH",
+                    path: "/spec/activeCertificate",
+                },
+            ]);
+        } finally {
+            await keyChains.delete({ tenantId: "demo", id: spec.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: spec.id,
+                });
+        }
+    });
 });
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
@@ -1176,8 +1261,8 @@ function jsonFiles(directory: string): string[] {
     });
 }
 
-/** An EC CA key as the portable key chain schema accepts it, with a self-signed CA certificate. */
-async function caKeyWithCertificate() {
+/** An EC key as the portable key chain schema accepts it, with a self-signed certificate. */
+async function keyWithCertificate(name: string, ca: boolean) {
     const crypto = webcrypto as Crypto;
     const algorithm = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
     const keys = (await crypto.subtle.generateKey(algorithm, true, [
@@ -1187,21 +1272,25 @@ async function caKeyWithCertificate() {
     const certificate = await x509.X509CertificateGenerator.createSelfSigned(
         {
             serialNumber: "01",
-            name: "CN=Key chain CA",
+            name: `CN=${name}`,
             notBefore: new Date(Date.now() - 60_000),
             notAfter: new Date(Date.now() + 3_600_000),
             keys,
             signingAlgorithm: algorithm,
-            extensions: [
-                new x509.BasicConstraintsExtension(true, undefined, true),
-                new x509.KeyUsagesExtension(
-                    x509.KeyUsageFlags.keyCertSign | x509.KeyUsageFlags.cRLSign,
-                    true,
-                ),
-            ],
+            extensions: ca
+                ? [
+                      new x509.BasicConstraintsExtension(true, undefined, true),
+                      new x509.KeyUsagesExtension(
+                          x509.KeyUsageFlags.keyCertSign |
+                              x509.KeyUsageFlags.cRLSign,
+                          true,
+                      ),
+                  ]
+                : [],
         },
         crypto,
     );
+    // WebCrypto adds key_ops and ext, which the key chain schema rejects.
     const { kty, crv, x, y, d } = await crypto.subtle.exportKey(
         "jwk",
         keys.privateKey,

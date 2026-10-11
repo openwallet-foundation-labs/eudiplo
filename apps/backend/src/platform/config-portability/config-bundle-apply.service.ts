@@ -1,9 +1,4 @@
-import {
-    createHash,
-    createPrivateKey,
-    randomBytes,
-    X509Certificate,
-} from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import {
     normalizeDocument,
     resourceId,
@@ -54,7 +49,12 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
-import { keyChainSettingsColumns } from "./key-chain-document.js";
+import {
+    appliedKmsProvider,
+    internalChainProblems,
+    isInternalChainWithPrivateKeys,
+    keyChainSettingsColumns,
+} from "./key-chain-document.js";
 
 function redactDiagnosticMessage(message: string): string {
     return message
@@ -695,28 +695,16 @@ export class ConfigBundleApplyService {
             return;
         }
         if (spec.keySource?.type === "private-jwk") {
-            if (spec.keySource.activeJwk) {
-                // Validate both key/certificate pairs before touching the live row.
-                for (const [jwk, certificate] of [
-                    [spec.keySource.jwk, spec.crt?.at(-1)],
-                    [spec.keySource.activeJwk, spec.activeCertificate],
-                ]) {
-                    const key = createPrivateKey({ key: jwk, format: "jwk" });
-                    if (
-                        !certificate ||
-                        !new X509Certificate(certificate).checkPrivateKey(key)
-                    ) {
-                        throw new BadRequestException(
-                            "Imported certificate does not match its private key",
-                        );
-                    }
-                }
+            if (isInternalChainWithPrivateKeys(spec)) {
+                // The plan blocks on these problems; check again before touching the live row.
+                const [problem] = internalChainProblems(spec);
+                if (problem) throw new BadRequestException(problem.message);
                 await this.keyChains.save({
                     id: resourceId(document),
                     tenantId,
                     usageType: spec.usageType,
                     usage: KeyUsage.Sign,
-                    kmsProvider: "db",
+                    kmsProvider: appliedKmsProvider(spec),
                     externalKeyId: null as any,
                     rootExternalKeyId: null as any,
                     rootJwk: spec.keySource.jwk,

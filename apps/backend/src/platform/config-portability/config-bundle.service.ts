@@ -45,6 +45,7 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import {
+    appliedKmsProvider,
     appliedRotationPolicy,
     keyChainSettingsSpec,
 } from "./key-chain-document.js";
@@ -1289,9 +1290,11 @@ export class ConfigBundleService {
             desired.registrationCertificateDefaults === null
         )
             delete desired.registrationCertificateDefaults;
-        // Compare with the rotation policy the importers store for the document.
-        if (document.kind === "KeyChain")
+        // Compare with the settings the importers store for the document.
+        if (document.kind === "KeyChain") {
             desired.rotationPolicy = appliedRotationPolicy(desired);
+            desired.kmsProvider = appliedKmsProvider(desired);
+        }
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&
