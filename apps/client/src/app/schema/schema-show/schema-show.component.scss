@@ -59,3 +59,12 @@
 .card-content-top {
   margin-top: 8px;
 }
+
+.loading-container {
+  min-height: 200px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.publish-blocked {
+  margin-right: auto;
+}

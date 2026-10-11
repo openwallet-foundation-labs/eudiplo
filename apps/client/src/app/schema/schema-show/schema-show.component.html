@@ -1,25 +1,94 @@
-@if (item) {
-  <div fxLayout="column" fxLayoutGap="16px">
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Schema Details</h2>
-      <div fxLayout="row" fxLayoutGap="4px">
-        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <button mat-icon-button matTooltip="Copy signed JWT" (click)="copyJwt()">
+<div fxLayout="column" fxLayoutGap="16px">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>Schema Details</h2>
+    <div fxLayout="row" fxLayoutGap="4px">
+      <button
+        mat-icon-button
+        [routerLink]="['../']"
+        matTooltip="Back to list"
+        aria-label="Back to list"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      @if (item) {
+        <button
+          mat-icon-button
+          matTooltip="Copy signed JWT"
+          aria-label="Copy signed JWT"
+          (click)="copyJwt()"
+        >
           <mat-icon>content_copy</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Download export" (click)="downloadExport()">
+        <button
+          mat-icon-button
+          matTooltip="Download export"
+          aria-label="Download export"
+          (click)="downloadExport()"
+        >
           <mat-icon>download</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Publish new version" (click)="togglePublishForm()">
+        <button
+          mat-icon-button
+          [disabled]="!canManageIssuance"
+          disabledInteractive
+          [matTooltip]="
+            canManageIssuance
+              ? 'Publish new version'
+              : 'Publishing a new version needs the issuance:manage role'
+          "
+          aria-label="Publish new version"
+          (click)="togglePublishForm()"
+        >
           <mat-icon>publish</mat-icon>
         </button>
-        <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete()">
+        @if (!item.deprecated) {
+          <button
+            mat-icon-button
+            matTooltip="Deprecate this version"
+            [attr.aria-label]="'Deprecate version ' + item.version"
+            [disabled]="deprecating"
+            (click)="deprecate()"
+          >
+            <mat-icon>block</mat-icon>
+          </button>
+        }
+        <button
+          mat-icon-button
+          color="warn"
+          matTooltip="Delete this version"
+          [attr.aria-label]="'Delete version ' + item.version"
+          [disabled]="deleting"
+          (click)="delete()"
+        >
           <mat-icon>delete</mat-icon>
         </button>
-      </div>
+      }
     </div>
+  </div>
+
+  @if (loading && !item) {
+    <div fxLayout="column" fxLayoutAlign="center center" class="loading-container" role="status">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading schema…</p>
+    </div>
+  } @else if (loadError) {
+    <mat-card appearance="outlined" role="alert">
+      <mat-card-content>
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon color="warn">error</mat-icon>
+          <span>{{ loadError }}</span>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <a mat-button routerLink="/registrar">Registrar configuration</a>
+        <a mat-button [routerLink]="['../']">Back to list</a>
+        <button mat-stroked-button type="button" (click)="retryLoad()">Retry</button>
+      </mat-card-actions>
+    </mat-card>
+  } @else if (item) {
+    @if (loading) {
+      <mat-progress-bar mode="indeterminate" aria-label="Loading schema version" />
+    }
 
     @if (showPublishForm) {
       <mat-card appearance="outlined">
@@ -40,7 +109,7 @@
               The new version keeps the category and tags of version
               <strong>{{ item.version }}</strong> and uses its ID as name.
             }
-            {{ notCarriedOverNote }}
+            {{ classificationNote }}
             @if (metadataForm.dirty) {
               Unsaved changes under Catalog Metadata are not included; save them first.
             }
@@ -49,8 +118,12 @@
             <mat-form-field appearance="outline">
               <mat-label>New Version (SemVer)</mat-label>
               <input matInput formControlName="newVersion" placeholder="1.1.0" />
-              @if (publishForm.get('newVersion')?.hasError('pattern')) {
+              @if (publishForm.get('newVersion')?.hasError('required')) {
+                <mat-error>New version is required.</mat-error>
+              } @else if (publishForm.get('newVersion')?.hasError('pattern')) {
                 <mat-error>Must be a valid semantic version (e.g. 1.2.0 or 1.2.0-rc.1)</mat-error>
+              } @else if (publishForm.get('newVersion')?.hasError('taken')) {
+                <mat-error>This version exists already.</mat-error>
               }
             </mat-form-field>
             <mat-form-field appearance="outline">
@@ -61,12 +134,20 @@
               Deprecate current version <strong>{{ item.version }}</strong>
             </mat-checkbox>
             <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+              @if (publishBlockedReason) {
+                <span class="label publish-blocked" role="status">
+                  {{ publishBlockedReason }}
+                  @if (loadState.credentialConfigs === 'failed') {
+                    <button mat-button type="button" (click)="retrySources()">Retry</button>
+                  }
+                </span>
+              }
               <button mat-button type="button" (click)="togglePublishForm()">Cancel</button>
               <button
                 mat-raised-button
                 color="primary"
                 type="button"
-                [disabled]="publishForm.invalid || publishing"
+                [disabled]="publishForm.invalid || publishing || !!publishBlockedReason"
                 (click)="publishNewVersion()"
               >
                 @if (publishing) {
@@ -139,6 +220,14 @@
             <span class="value">{{ item.bindingType }}</span>
           </div>
           <div class="metadata-item">
+            <span class="label">Category</span>
+            <span class="value">{{ item.category || '—' }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Tags</span>
+            <span class="value">{{ item.tags?.length ? item.tags!.join(', ') : '—' }}</span>
+          </div>
+          <div class="metadata-item">
             <span class="label">Created</span>
             <span class="value">{{ item.createdAt | date: 'medium' }}</span>
           </div>
@@ -158,6 +247,7 @@
                 matSuffix
                 type="button"
                 matTooltip="Copy JWT URL"
+                aria-label="Copy JWT URL"
                 (click)="copyJwtUrl()"
               >
                 <mat-icon>content_copy</mat-icon>
@@ -169,6 +259,7 @@
                 target="_blank"
                 rel="noopener"
                 matTooltip="Open JWT URL"
+                aria-label="Open JWT URL"
               >
                 <mat-icon>open_in_new</mat-icon>
               </a>
@@ -189,11 +280,12 @@
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
                 <mat-icon class="label-icon">verified</mat-icon>
                 <span class="value trust-value">{{ ta.value }}</span>
-                @if (ta.localId) {
+                @if (ta.localId && canOpenTrustLists) {
                   <a
                     mat-icon-button
                     [routerLink]="['/trust-list', ta.localId]"
                     matTooltip="Open trust list"
+                    [attr.aria-label]="'Open trust list ' + ta.localId"
                   >
                     <mat-icon>open_in_new</mat-icon>
                   </a>
@@ -212,7 +304,19 @@
         <mat-card-title>Referenced by Credential Configs</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (relatedCredentialConfigs.length) {
+        @if (!canManageIssuance) {
+          <p class="label">
+            Listing the credential configs that reference this schema needs the issuance:manage
+            role.
+          </p>
+        } @else if (loadState.credentialConfigs === 'loading') {
+          <p class="label" role="status">Loading credential configs…</p>
+        } @else if (loadState.credentialConfigs === 'failed') {
+          <p class="label">
+            Could not load credential configs.
+            <button mat-button type="button" (click)="retrySources()">Retry</button>
+          </p>
+        } @else if (relatedCredentialConfigs.length) {
           <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
             @for (cc of relatedCredentialConfigs; track cc.id) {
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
@@ -222,6 +326,7 @@
                   mat-icon-button
                   [routerLink]="['/credential-config', cc.id]"
                   matTooltip="Open credential config"
+                  [attr.aria-label]="'Open credential config ' + (cc.description || cc.id)"
                 >
                   <mat-icon>open_in_new</mat-icon>
                 </a>
@@ -261,6 +366,11 @@
                 </mat-option>
               }
             </mat-select>
+            @if (loadState.vocabularies === 'loading') {
+              <mat-hint role="status">Loading categories…</mat-hint>
+            } @else if (loadState.vocabularies === 'failed') {
+              <mat-hint>Could not load categories from the registrar.</mat-hint>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -272,15 +382,35 @@
                 </mat-option>
               }
             </mat-select>
+            @if (loadState.vocabularies === 'loading') {
+              <mat-hint role="status">Loading tags…</mat-hint>
+            } @else if (loadState.vocabularies === 'failed') {
+              <mat-hint>Could not load tags from the registrar.</mat-hint>
+            }
           </mat-form-field>
 
-          <div fxLayout="row" fxLayoutAlign="end center">
-            <button mat-raised-button color="primary" type="button" (click)="saveMetadata()">
-              Save
+          <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+            @if (loadState.vocabularies === 'failed') {
+              <button mat-button type="button" (click)="retrySources()">
+                Reload categories and tags
+              </button>
+            }
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              [disabled]="saving || metadataForm.pristine"
+              (click)="saveMetadata()"
+            >
+              @if (saving) {
+                Saving…
+              } @else {
+                Save
+              }
             </button>
           </div>
         </form>
       </mat-card-content>
     </mat-card>
-  </div>
-}
+  }
+</div>

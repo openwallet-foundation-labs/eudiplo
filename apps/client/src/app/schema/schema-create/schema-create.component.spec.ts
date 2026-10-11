@@ -284,3 +284,189 @@ describe('SchemaCreateComponent loading its sources', () => {
     expect(openSnackBar).not.toHaveBeenCalled();
   });
 });
+
+describe('SchemaCreateComponent required fields', () => {
+  let publishSchemaMetadata: ReturnType<typeof vi.fn>;
+  let loadConfigurations: ReturnType<typeof vi.fn>;
+  /** Answer of the backend to the trust-list request. */
+  let trustLists: { status: number; body: unknown };
+
+  async function render() {
+    client.setConfig({
+      fetch: async () =>
+        new Response(JSON.stringify(trustLists.body), {
+          status: trustLists.status,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    });
+    TestBed.configureTestingModule({
+      imports: [SchemaCreateComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatSnackBar, useValue: { open: vi.fn() } },
+        {
+          provide: SchemaService,
+          useValue: {
+            getVocabularies: async () => ({ version: '1', categories: [], tags: [] }),
+            publishSchemaMetadata,
+          },
+        },
+        { provide: CredentialConfigService, useValue: { loadConfigurations } },
+      ],
+    });
+    const fixture = TestBed.createComponent(SchemaCreateComponent);
+    const loadData = vi.spyOn(fixture.componentInstance, 'loadData');
+    fixture.detectChanges();
+    await loadData.mock.results[0].value;
+    fixture.componentInstance.composeForm.patchValue({
+      name: 'German PID',
+      version: '1.0.0',
+      rulebookURI: 'https://rules.example/pid.md',
+      attestationLoS: 'iso_18045_high',
+      bindingType: 'key',
+    });
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  function text(fixture: { nativeElement: HTMLElement }): string {
+    return (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
+  }
+
+  function submitButton(fixture: { nativeElement: HTMLElement }): HTMLButtonElement {
+    return [...fixture.nativeElement.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
+      b.textContent?.includes('Submit')
+    )!;
+  }
+
+  beforeEach(() => {
+    publishSchemaMetadata = vi.fn().mockResolvedValue({ id: 'schema-1' });
+    loadConfigurations = vi
+      .fn()
+      .mockResolvedValue([{ id: 'pid', vct: 'urn:eudi:pid:1', config: { format: 'dc+sd-jwt' } }]);
+    trustLists = { status: 200, body: [{ id: 'tl-1' }] };
+  });
+
+  afterEach(() => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it('says what is missing when Submit is pressed without schema URI and trusted authority', async () => {
+    const fixture = await render();
+    expect(text(fixture)).not.toContain('At least one schema URI is required');
+
+    const submit = submitButton(fixture);
+    expect(submit.disabled).toBe(false);
+    submit.click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(text(fixture)).toContain('At least one schema URI is required.');
+    expect(text(fixture)).toContain('At least one trusted authority is required.');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Some required fields are missing or invalid.'
+    );
+  });
+
+  it('flags a trust-list select that was left empty, and clears it for a root certificate', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+
+    component.importTrustListIds.markAsTouched();
+    fixture.detectChanges();
+    expect(text(fixture)).toContain('At least one trusted authority is required.');
+    expect(text(fixture)).not.toContain('At least one schema URI is required');
+
+    component.addX509TrustAnchor();
+    fixture.detectChanges();
+    expect(text(fixture)).not.toContain('At least one trusted authority is required.');
+  });
+
+  it('does not navigate after a submit that finishes once the user has left', async () => {
+    let finishPublish!: (entry: unknown) => void;
+    publishSchemaMetadata.mockReturnValue(new Promise((resolve) => (finishPublish = resolve)));
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+
+    const submitting = component.submit();
+    fixture.destroy();
+    finishPublish({ id: 'schema-1' });
+    await submitting;
+
+    expect(publishSchemaMetadata).toHaveBeenCalledOnce();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('names every missing required field after Submit', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.composeForm.patchValue({
+      name: '',
+      version: '',
+      rulebookURI: '',
+      attestationLoS: '',
+      bindingType: '',
+    });
+    component.addX509TrustAnchor();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    const page = text(fixture);
+    expect(page).toContain('Version is required.');
+    expect(page).not.toContain('Must be a valid semantic version');
+    expect(page).toContain('Rulebook URI is required.');
+    expect(page).toContain('Attestation LoS is required.');
+    expect(page).toContain('Binding type is required.');
+    expect(page).toContain('Name is required.');
+    expect(page).toContain('Paste the root certificate or remove this entry.');
+  });
+
+  it('keeps saying why a select is empty when Submit marks it as missing', async () => {
+    loadConfigurations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    trustLists = { status: 200, body: [] };
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one schema URI is required. The credential configs could not be loaded.'
+    );
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. No trust lists exist; add a root certificate.'
+    );
+  });
+
+  it('says to create a credential config first when none exist', async () => {
+    loadConfigurations.mockResolvedValue([]);
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one schema URI is required. Create a credential config first.'
+    );
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. Select a trust list or add a root certificate.'
+    );
+  });
+
+  it('suggests a root certificate when the trust lists could not be loaded', async () => {
+    trustLists = { status: 403, body: { statusCode: 403, message: 'Forbidden resource' } };
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. The trust lists could not be loaded; add a root certificate.'
+    );
+  });
+});
