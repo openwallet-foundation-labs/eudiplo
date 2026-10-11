@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -14,8 +20,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
+import { registrarBaseUrlValidator } from './registrar-url.validator';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+
+/** What to do when the instance's outbound URL policy blocks a URL. */
+const POLICY_HINT =
+  "This instance's outbound URL policy blocks the URL; ask the operator to allow it.";
+
+/** Fields checked against the registrar base URL rule. */
+const URL_FIELDS = ['registrarUrl', 'oidcUrl'] as const;
 
 interface RegistrarPreset {
   name: string;
@@ -74,8 +88,8 @@ export class RegistrarComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {
     this.configForm = this.fb.group({
-      registrarUrl: ['', [Validators.required]],
-      oidcUrl: ['', [Validators.required]],
+      registrarUrl: ['', [Validators.required, registrarBaseUrlValidator]],
+      oidcUrl: ['', [Validators.required, registrarBaseUrlValidator]],
       clientId: ['', [Validators.required]],
       clientSecret: [''],
       username: ['', [Validators.required]],
@@ -125,6 +139,11 @@ export class RegistrarComponent implements OnInit {
           this.configForm.get('password')?.clearValidators();
           this.configForm.get('password')?.updateValueAndValidity();
         }
+        // A URL stored before the base URL rule shows its error right away.
+        for (const field of URL_FIELDS) {
+          const control = this.configForm.get(field);
+          if (control?.invalid) control.markAsTouched();
+        }
       }
     } catch (error) {
       console.error('Error loading registrar data:', error);
@@ -134,10 +153,26 @@ export class RegistrarComponent implements OnInit {
     }
   }
 
+  /**
+   * Whether the input itself is invalid. A rejection by the backend does not
+   * count: its cause may have been fixed outside the form, so saving again is
+   * allowed and checks the URL anew.
+   */
+  get hasInvalidInput(): boolean {
+    return Object.values(this.configForm.controls).some((control) =>
+      Object.keys(control.errors ?? {}).some((key) => key !== 'server')
+    );
+  }
+
   async saveConfig(): Promise<void> {
-    if (this.configForm.invalid) {
-      this.snackBar.open('Please fill in all required fields', 'Close', { duration: 3000 });
+    if (this.hasInvalidInput) {
+      this.configForm.markAllAsTouched();
+      this.snackBar.open('Please correct the highlighted fields', 'Close', { duration: 3000 });
       return;
+    }
+    // Drop the previous backend rejections; the backend checks again.
+    for (const control of Object.values(this.configForm.controls)) {
+      if (control.hasError('server')) control.updateValueAndValidity();
     }
 
     const formValue = this.configForm.value;
@@ -193,11 +228,42 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
-      const message = error.error?.message || 'Failed to save configuration';
-      this.snackBar.open(message, 'Close', { duration: 5000 });
+      const shown = this.showFieldErrors(error.error?.errors);
+      const message =
+        shown === 'policy'
+          ? POLICY_HINT
+          : shown === 'input'
+            ? 'Please correct the highlighted fields'
+            : error.error?.message || 'Failed to save configuration';
+      this.snackBar.open(message, 'Close', { duration: 8000 });
     } finally {
       this.isSaving = false;
     }
+  }
+
+  /**
+   * Puts the backend's validation issues on the matching form fields, so a
+   * rejected URL is shown where it was entered. Editing the field clears it.
+   * @returns `policy` if the instance's outbound URL policy rejected a URL,
+   * which no edit in the form fixes; `input` for other issues shown on a
+   * field; `none` otherwise
+   */
+  private showFieldErrors(issues: unknown): 'policy' | 'input' | 'none' {
+    if (!Array.isArray(issues)) return 'none';
+    let shown: 'policy' | 'input' | 'none' = 'none';
+    for (const issue of issues) {
+      const field = issue?.path?.[0];
+      const control = typeof field === 'string' ? this.configForm.get(field) : null;
+      // Only input fields have a place to show the error.
+      if (control instanceof FormControl && typeof issue.message === 'string') {
+        const policy = issue.code === 'outbound_url_policy';
+        control.setErrors({ server: policy ? `${issue.message}. ${POLICY_HINT}` : issue.message });
+        control.markAsTouched();
+        if (policy) shown = 'policy';
+        else if (shown === 'none') shown = 'input';
+      }
+    }
+    return shown;
   }
 
   async deleteConfig(): Promise<void> {

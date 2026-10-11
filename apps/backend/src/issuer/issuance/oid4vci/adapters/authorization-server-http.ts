@@ -1,7 +1,11 @@
 import type { HttpService } from "@nestjs/axios";
 import type { AxiosResponse } from "axios";
 import { firstValueFrom } from "rxjs";
-import { outboundFetch } from "../../../../webhook/outbound-fetch.js";
+import {
+    outboundFetch,
+    policyRequestConfig,
+    toOutboundFetchError,
+} from "../../../../webhook/outbound-fetch.js";
 import type { OutboundUrlPolicyService } from "../../../../webhook/outbound-url-policy.service.js";
 
 /** Limits for requests to external and upstream authorization servers. */
@@ -54,24 +58,23 @@ export async function requestAuthorizationServer(
     },
 ): Promise<AxiosResponse<string>> {
     await policy.assertSafeUrl(request.url);
-    return firstValueFrom(
-        http.request<string>({
-            url: request.url,
-            method: request.method,
-            headers: request.headers,
-            data: request.body,
-            lookup: policy.safeLookup as never,
-            // No connection pooling, so safeLookup checks every connection
-            // instead of a socket opened by an earlier request being reused.
-            httpAgent: false,
-            httpsAgent: false,
-            maxRedirects: 0,
-            timeout: TIMEOUT_MS,
-            maxContentLength: MAX_BYTES,
-            responseType: "text",
-            validateStatus: () => true,
-        }),
-    );
+    const limits = { timeoutMs: TIMEOUT_MS, maxBytes: MAX_BYTES };
+    const deadline = AbortSignal.timeout(TIMEOUT_MS);
+    try {
+        return await firstValueFrom(
+            http.request<string>({
+                ...policyRequestConfig(policy, limits, deadline),
+                url: request.url,
+                method: request.method,
+                headers: request.headers,
+                data: request.body,
+                responseType: "text",
+            }),
+        );
+    } catch (error) {
+        // The axios error would carry the request body with the client secret.
+        throw toOutboundFetchError(error, request.url, limits, deadline);
+    }
 }
 
 /**

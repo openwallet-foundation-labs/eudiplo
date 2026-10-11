@@ -6201,7 +6201,7 @@ export type RegistrarControllerUpdateConfigData = {
 
 export type RegistrarControllerUpdateConfigErrors = {
     /**
-     * Invalid credentials
+     * The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy
      */
     400: unknown;
     /**
@@ -6209,7 +6209,7 @@ export type RegistrarControllerUpdateConfigErrors = {
      */
     404: unknown;
     /**
-     * Registrar OIDC endpoint unreachable — credentials could not be verified
+     * Registrar OIDC provider unreachable or without a token — credentials could not be verified
      */
     503: unknown;
 };
@@ -6232,11 +6232,11 @@ export type RegistrarControllerCreateConfigData = {
 
 export type RegistrarControllerCreateConfigErrors = {
     /**
-     * Invalid credentials
+     * The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy
      */
     400: unknown;
     /**
-     * Registrar OIDC endpoint unreachable — credentials could not be verified
+     * Registrar OIDC provider unreachable or without a token — credentials could not be verified
      */
     503: unknown;
 };

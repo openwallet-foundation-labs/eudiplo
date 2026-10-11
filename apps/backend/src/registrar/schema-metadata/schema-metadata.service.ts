@@ -24,13 +24,11 @@ import {
     schemaMetadataControllerUpdateSchema,
 } from "../generated/index.js";
 import { RegistrarAuthService } from "../registrar-auth.service.js";
+import { registrarErrorMessage } from "../registrar-error-message.js";
 import {
     DeprecateSchemaMetadataDto,
     UpdateSchemaMetadataDto,
 } from "./dto/schema-metadata.dto.js";
-
-/** Longest registrar error message passed on to the caller. */
-const MAX_UPSTREAM_MESSAGE_LENGTH = 500;
 
 type SchemaMetadataFilters = {
     attestationId?: string;
@@ -332,7 +330,7 @@ export class SchemaMetadataService {
         const statusCode = Number(
             (error as any)?.status ?? (error as any)?.statusCode,
         );
-        const message = this.upstreamMessage(error);
+        const message = registrarErrorMessage(error);
 
         this.logger.error(
             { tenantId, action, statusCode, error },
@@ -352,23 +350,5 @@ export class SchemaMetadataService {
         }
 
         throw new InternalServerErrorException(message);
-    }
-
-    /**
-     * The registrar's error message for the caller: only a string, and
-     * capped in length, so an arbitrary upstream body is never passed on.
-     */
-    private upstreamMessage(error: unknown): string {
-        const candidate = [
-            (error as any)?.error?.message,
-            (error as any)?.message,
-            (error as any)?.error,
-        ].find((value) => typeof value === "string" && value.length > 0);
-        if (candidate === undefined) {
-            return "Unknown registrar error";
-        }
-        return candidate.length > MAX_UPSTREAM_MESSAGE_LENGTH
-            ? `${candidate.slice(0, MAX_UPSTREAM_MESSAGE_LENGTH)}…`
-            : candidate;
     }
 }

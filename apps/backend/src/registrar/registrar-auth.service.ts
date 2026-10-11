@@ -13,6 +13,11 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { createValidationException } from "../shared/common/zod/zod-schema.util.js";
+import {
+    OutboundFetchError,
+    outboundFetch,
+} from "../webhook/outbound-fetch.js";
 import { OutboundUrlPolicyService } from "../webhook/outbound-url-policy.service.js";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
 import { createClient, createConfig } from "./generated/client/index.js";
@@ -21,7 +26,27 @@ import {
     relyingPartyControllerRegister,
 } from "./generated/index.js";
 import type { ClientOptions } from "./generated/types.gen.js";
-import { registrarFetch } from "./registrar-http.js";
+
+/**
+ * Limits for every request to the registrar API and its OIDC provider: one
+ * deadline per request including redirects and body, a response size cap,
+ * and a few redirects, each checked against the outbound URL policy.
+ */
+const REGISTRAR_REQUEST_LIMITS = {
+    timeoutMs: 30_000,
+    maxBytes: 5 * 1024 * 1024,
+    maxRedirects: 5,
+};
+
+/** OAuth 2.0 token error codes (RFC 6749, section 5.2) passed on to callers. */
+const OAUTH2_ERROR_CODES = new Set([
+    "invalid_request",
+    "invalid_client",
+    "invalid_grant",
+    "unauthorized_client",
+    "unsupported_grant_type",
+    "invalid_scope",
+]);
 
 /**
  * Cached OAuth2 token with its expiration time.
@@ -51,23 +76,50 @@ export class RegistrarAuthService {
         private readonly outboundUrlPolicy: OutboundUrlPolicyService,
         http: HttpService,
     ) {
-        this.fetch = registrarFetch(http, outboundUrlPolicy);
+        this.fetch = outboundFetch(
+            http,
+            outboundUrlPolicy,
+            REGISTRAR_REQUEST_LIMITS,
+        );
     }
 
     /**
      * Check the configured registrar and OIDC URLs against the outbound URL
      * policy, so a configuration pointing at a blocked target is rejected
-     * with a clear error before it is saved.
+     * before it is saved. The 400 names each rejected field, like a
+     * validation error.
      */
     async assertSafeUrls(urls: {
         registrarUrl?: string;
         oidcUrl?: string;
     }): Promise<void> {
-        await Promise.all(
-            [urls.registrarUrl, urls.oidcUrl]
-                .filter((url): url is string => url !== undefined)
-                .map((url) => this.outboundUrlPolicy.assertSafeUrl(url)),
+        const fields = (["registrarUrl", "oidcUrl"] as const).filter(
+            (field) => urls[field] !== undefined,
         );
+        const results = await Promise.allSettled(
+            fields.map((field) =>
+                this.outboundUrlPolicy.assertSafeUrl(urls[field]!),
+            ),
+        );
+        const issues = results.flatMap((result, index) =>
+            result.status === "rejected"
+                ? [
+                      {
+                          path: [fields[index]],
+                          message: (result.reason as Error).message,
+                          code: "outbound_url_policy",
+                      },
+                  ]
+                : [],
+        );
+        if (issues.length > 0) {
+            throw createValidationException(
+                issues,
+                `Rejected by the outbound URL policy of this instance: ${issues
+                    .map((issue) => `${issue.path[0]}: ${issue.message}`)
+                    .join("; ")}`,
+            );
+        }
     }
 
     /**
@@ -90,22 +142,24 @@ export class RegistrarAuthService {
             });
             this.logger.log("Registrar credentials validated successfully");
         } catch (error: any) {
+            this.logger.warn(
+                { err: error },
+                "Registrar credential check did not return a token",
+            );
+            // Only management callers get here, so the reason names URLs.
+            const reason = this.tokenFailureReason(error, true);
             if (error instanceof OAuth2HttpError) {
-                this.logger.error(
-                    `Registrar rejected credentials (HTTP ${error.httpCode}): ${error.message}`,
-                );
                 throw new BadRequestException(
-                    `Invalid registrar credentials (HTTP ${error.httpCode}). Please check your username, password, client ID and secret.`,
+                    `Invalid registrar credentials: ${reason}. Please check your username, password, client ID and secret.`,
                 );
             }
-            // Network-level failure (DNS, connection refused, timeout, a
-            // blocked target, etc.). The details stay in the log: echoing them
-            // would tell the caller whether an address is reachable.
-            this.logger.warn(
-                `Registrar is not reachable during credential check: ${error.message}`,
-            );
+            if (error instanceof OutboundFetchError && error.blocked) {
+                throw new BadRequestException(
+                    `Registrar credentials could not be verified: ${reason}`,
+                );
+            }
             throw new ServiceUnavailableException(
-                "Registrar OIDC endpoint is not reachable. Credentials could not be verified.",
+                `Registrar credentials could not be verified: ${reason}`,
             );
         }
     }
@@ -136,12 +190,13 @@ export class RegistrarAuthService {
             });
         } catch (error: any) {
             this.logger.error(
-                `[${tenantId}] Failed to obtain access token: ${error.message}`,
+                { err: error },
+                `[${tenantId}] Failed to obtain access token`,
             );
+            // Wallets can reach this through the OID4VP request object,
+            // which may need a registration certificate, so no URLs.
             throw new BadRequestException(
-                error instanceof OAuth2HttpError
-                    ? `Failed to authenticate with registrar (HTTP ${error.httpCode})`
-                    : "Failed to authenticate with registrar: OIDC endpoint is not reachable",
+                `Failed to authenticate with registrar: ${this.tokenFailureReason(error, false)}`,
             );
         }
 
@@ -244,6 +299,30 @@ export class RegistrarAuthService {
             discoveryEndpoint: `${config.oidcUrl}/.well-known/openid-configuration`,
             fetch: this.fetch,
         });
+    }
+
+    /**
+     * Why the OIDC provider gave no token, in words that may reach the API
+     * caller: the HTTP status with a registered OAuth2 error code, or why a
+     * policy-checked request failed. With `withUrls`, that is the request's
+     * message, which names URLs but no addresses. Anything else, such as an
+     * answer without an access token, is described only; the log keeps the
+     * error.
+     */
+    private tokenFailureReason(error: unknown, withUrls: boolean): string {
+        if (error instanceof OAuth2HttpError) {
+            const code = OAUTH2_ERROR_CODES.has(error.oauth2Code)
+                ? `, ${error.oauth2Code}`
+                : "";
+            return `the OIDC provider answered with HTTP ${error.httpCode}${code}`;
+        }
+        if (error instanceof OutboundFetchError) {
+            if (withUrls) return error.message;
+            return error.blocked
+                ? "the outbound URL policy blocks a request to the OIDC provider"
+                : "the OIDC provider could not be reached";
+        }
+        return "the OIDC provider did not answer with an access token; the server log has the cause";
     }
 
     /**

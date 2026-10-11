@@ -425,9 +425,18 @@ export class KeyCreateWizardComponent implements OnInit {
         } catch (error: any) {
           console.error('Error enrolling certificate:', error);
           const message = error.error?.message || 'Failed to enroll certificate from registrar';
-          this.snackBar.open(`Key created, but enrollment failed: ${message}`, 'View Key', {
-            duration: 8000,
-          });
+          // The key page opens below; the action leads to the registrar
+          // settings. A key cannot be enrolled later, so say how to retry.
+          this.snackBar
+            .open(
+              `Key created without a registrar certificate: ${message}. Fix the Registrar Config, then create the key again or enroll this key through the API.`,
+              'Go to Registrar',
+              { duration: 12000 }
+            )
+            .onAction()
+            .subscribe(() => {
+              this.router.navigate(['/registrar']);
+            });
         }
         this.router.navigate(['/keys', result.id]);
         return;

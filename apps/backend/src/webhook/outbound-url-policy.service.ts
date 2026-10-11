@@ -39,6 +39,9 @@ interface OutboundGetOptions {
     rejectUnauthorized?: boolean;
 }
 
+/** Raised by {@link OutboundUrlPolicyService.safeLookup} for a blocked address. */
+export class OutboundAddressBlockedError extends Error {}
+
 @Injectable()
 export class OutboundUrlPolicyService {
     constructor(private readonly configService: ConfigService) {}
@@ -61,7 +64,7 @@ export class OutboundUrlPolicyService {
                         addresses.some(({ address }) => isNonPublicIp(address)))
                 ) {
                     return callback(
-                        new Error(
+                        new OutboundAddressBlockedError(
                             "Outbound URL target resolves to a private or loopback IP",
                         ),
                         "",

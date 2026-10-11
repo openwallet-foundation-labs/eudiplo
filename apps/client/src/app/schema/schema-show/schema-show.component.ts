@@ -178,7 +178,9 @@ export class SchemaShowComponent implements OnInit {
       });
     } catch (error) {
       console.error('Failed to load schema metadata:', error);
-      this.snackBar.open('Failed to load schema', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to load schema'), 'Close', {
+        duration: 5000,
+      });
       this.router.navigate(['/schema']);
     } finally {
       this.loading = false;
@@ -212,7 +214,9 @@ export class SchemaShowComponent implements OnInit {
       this.snackBar.open('Metadata updated', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Failed to update metadata:', error);
-      this.snackBar.open('Failed to update metadata', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to update metadata'), 'Close', {
+        duration: 5000,
+      });
     }
   }
 
@@ -454,7 +458,9 @@ export class SchemaShowComponent implements OnInit {
       this.router.navigate(['/schema']);
     } catch (error) {
       console.error('Failed to delete schema metadata:', error);
-      this.snackBar.open('Failed to delete schema', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete schema'), 'Close', {
+        duration: 5000,
+      });
     }
   }
 

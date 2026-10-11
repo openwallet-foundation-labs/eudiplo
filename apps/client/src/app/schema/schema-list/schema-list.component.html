@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <div fxLayout="column" fxLayoutGap="4px">
     <h2>Schema</h2>
-    @if (!loading) {
+    @if (!loading && !loadError) {
       <p>
         {{ schemaMetadataCount }}
         {{ schemaMetadataCount === 1 ? 'schema entry' : 'schema entries' }}
@@ -11,7 +11,12 @@
     }
   </div>
   <div fxLayout="row" fxLayoutGap="8px">
-    <button matIconButton [routerLink]="['create']" matTooltip="Submit signed schema">
+    <button
+      matIconButton
+      [routerLink]="['create']"
+      matTooltip="Submit signed schema"
+      aria-label="Submit signed schema"
+    >
       <mat-icon>add</mat-icon>
     </button>
   </div>
@@ -19,6 +24,12 @@
 
 @if (loading) {
   <p>Loading schema...</p>
+} @else if (loadError) {
+  <p role="alert">{{ loadError }}</p>
+  <div fxLayout="row" fxLayoutGap="8px">
+    <button matButton (click)="loadItems()">Retry</button>
+    <a matButton routerLink="/registrar">Registrar Config</a>
+  </div>
 } @else if (groupedItems.length === 0) {
   <p>No schema found.</p>
 } @else {
@@ -54,7 +65,12 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let item">
-        <button matIconButton [routerLink]="[item.id]" matTooltip="View details">
+        <button
+          matIconButton
+          [routerLink]="[item.id]"
+          matTooltip="View details"
+          aria-label="View details"
+        >
           <mat-icon>visibility</mat-icon>
         </button>
       </td>

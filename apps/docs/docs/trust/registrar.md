@@ -13,7 +13,7 @@ EUDIPLO can talk to the German EUDI wallet registrar to obtain access certificat
 
 ## 1. Connect the registrar
 
-In the Web Client, open **Registrar → Registrar Config**. Pick the **German Sandbox** preset or enter the URLs, then the account credentials. Optionally set **Registration Certificate Defaults**: privacy policy URL, support URI and intermediary RP ID, used for every registration certificate of the tenant. Saving checks the credentials against the OIDC endpoint and fails if they are rejected (`400`) or the endpoint is unreachable (`503`).
+In the Web Client, open **Registrar → Registrar Config**. Pick the **German Sandbox** preset or enter the URLs, then the account credentials. Optionally set **Registration Certificate Defaults**: privacy policy URL, support URI and intermediary RP ID, used for every registration certificate of the tenant. Saving checks the URLs and the credentials. It fails with `400` if a URL is malformed or blocked by the outbound URL policy (the response names the field) or the token endpoint answers with an error status, for example `401` for wrong credentials or `404` for a wrong OIDC URL; the message names the status. It fails with `503` if the OIDC provider cannot be reached or returns no token.
 
 The same configuration via the API (`POST /api/registrar/config` creates or replaces it, `PATCH` changes fields, `DELETE` removes it) or as file:
 
@@ -31,9 +31,9 @@ The same configuration via the API (`POST /api/registrar/config` creates or repl
 }
 ```
 
-File imports are not checked against the registrar, because it may be unreachable at startup.
+Importing a new or changed `registrar.json`, at startup or with a configuration bundle, runs the same checks as the API. If one fails, the import of that tenant stops at the registrar configuration, and the configurations imported after it (attribute providers, webhooks, issuance, credential, trust list, presentation and status list configurations) are not applied. A URL with a query, fragment or credentials already makes the plan fail, so nothing of that tenant is imported. `eudiplo config validate` does not check the URL rule.
 
-Both URLs must be `http(s)` base URLs without query, fragment or credentials. Every request to the registrar and its OIDC provider, including the token endpoint named by the OIDC discovery document, goes through the [outbound URL policy](../concepts/security-model.md): HTTPS only and no private addresses by default, no redirects, at most 10 seconds and 5 MB per response. A URL the policy blocks is rejected with `400` when the configuration is saved. For a registrar on a private network or plain HTTP, set `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK` or `OUTBOUND_URL_ALLOW_HTTP`.
+Both URLs must be `http(s)` base URLs without query, fragment or credentials. Every request to the registrar and its OIDC provider, including the token endpoint named by the OIDC discovery document and every redirect target, goes through the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default. Up to 5 redirects are followed; the access token only goes to the origin of the original request, and a request body, such as the token request with the password, never goes to another origin: a `303`, or a `301` or `302` after a `POST`, continues as a `GET` without body, and any other redirect of a request with a body to another origin fails. Each request must finish within 30 seconds, redirects included, and a response may have at most 5 MiB. A configured URL that the policy blocks is rejected with `400` when the configuration is saved, as is a blocked token endpoint or redirect target. For a registrar on a private network or plain HTTP, set `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK` or `OUTBOUND_URL_ALLOW_HTTP`. If `OUTBOUND_URL_ALLOWED_HOSTS` is set, it must list the registrar host, the OIDC host and the host of the token endpoint.
 
 :::warning[Stored credentials]
 The password and client secret are encrypted in the database with the [data-at-rest key](../operate/encryption-keys.md). The API returns neither; `hasPassword` and `hasClientSecret` show whether they are set. Use a registrar account dedicated to this tenant.
@@ -87,7 +87,7 @@ TS11 is still a draft. Fields, endpoints and screens can change.
 4. Under **Trusted Authorities**, select trust lists or add root certificates (base64 DER).
 5. Choose **Submit**. EUDIPLO uploads the schemas and the rulebook, the registrar signs the result.
 
-EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default, at most 5 MB, 10 seconds and three redirects per file.
+EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default, at most 5 MiB, 10 seconds and three redirects per file.
 
 Schema metadata is versioned: the list groups versions by ID, and a new version is published from the existing entry. Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (role `issuance:manage`); the other `/api/schema-metadata` endpoints list, read, update, deprecate and delete entries (role `registrar:manage`).
 

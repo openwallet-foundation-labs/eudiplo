@@ -58,7 +58,7 @@ describe("RegistrarConfigService URL checks", () => {
         expect(repository.save).not.toHaveBeenCalled();
     });
 
-    it("checks both URLs before testing the credentials on save", async () => {
+    it("checks the URLs before testing the credentials on save", async () => {
         await expect(
             service.saveConfig("tenant", existing),
         ).rejects.toBeInstanceOf(BadRequestException);

@@ -60,6 +60,15 @@
                   placeholder="https://registrar.example.com/api"
                 />
                 <mat-hint>Base URL of the registrar API</mat-hint>
+                @if (configForm.get('registrarUrl')?.hasError('required')) {
+                  <mat-error>Registrar URL is required</mat-error>
+                }
+                @if (configForm.get('registrarUrl')?.hasError('registrarBaseUrl')) {
+                  <mat-error>Enter an http(s) URL without query, fragment or credentials</mat-error>
+                }
+                @if (configForm.get('registrarUrl')?.getError('server'); as serverError) {
+                  <mat-error>{{ serverError }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -70,6 +79,15 @@
                   placeholder="https://auth.example.com/realms/registrar"
                 />
                 <mat-hint>OpenID Connect realm URL</mat-hint>
+                @if (configForm.get('oidcUrl')?.hasError('required')) {
+                  <mat-error>OIDC URL is required</mat-error>
+                }
+                @if (configForm.get('oidcUrl')?.hasError('registrarBaseUrl')) {
+                  <mat-error>Enter an http(s) URL without query, fragment or credentials</mat-error>
+                }
+                @if (configForm.get('oidcUrl')?.getError('server'); as serverError) {
+                  <mat-error>{{ serverError }}</mat-error>
+                }
               </mat-form-field>
             </div>
 
@@ -77,6 +95,9 @@
               <mat-form-field fxFlex appearance="outline">
                 <mat-label>Client ID</mat-label>
                 <input matInput formControlName="clientId" placeholder="registrar-client" />
+                @if (configForm.get('clientId')?.hasError('required')) {
+                  <mat-error>Client ID is required</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -96,6 +117,8 @@
                   matSuffix
                   type="button"
                   (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="showPassword ? 'Hide secrets' : 'Show secrets'"
+                  [matTooltip]="showPassword ? 'Hide secrets' : 'Show secrets'"
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
@@ -109,6 +132,9 @@
               <mat-form-field fxFlex appearance="outline">
                 <mat-label>Username</mat-label>
                 <input matInput formControlName="username" placeholder="user@example.com" />
+                @if (configForm.get('username')?.hasError('required')) {
+                  <mat-error>Username is required</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field fxFlex appearance="outline">
@@ -125,11 +151,16 @@
                   matSuffix
                   type="button"
                   (click)="togglePasswordVisibility()"
+                  [attr.aria-label]="showPassword ? 'Hide secrets' : 'Show secrets'"
+                  [matTooltip]="showPassword ? 'Hide secrets' : 'Show secrets'"
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 @if (config?.hasPassword) {
                   <mat-hint>Password is set. Enter a new value to change it.</mat-hint>
+                }
+                @if (configForm.get('password')?.hasError('required')) {
+                  <mat-error>Password is required</mat-error>
                 }
               </mat-form-field>
             </div>
@@ -194,7 +225,7 @@
             mat-raised-button
             color="primary"
             (click)="saveConfig()"
-            [disabled]="configForm.invalid || isSaving"
+            [disabled]="hasInvalidInput || isSaving"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"

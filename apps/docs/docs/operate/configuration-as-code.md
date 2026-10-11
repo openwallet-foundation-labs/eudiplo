@@ -94,7 +94,9 @@ eudiplo config upgrade ./config --check                  # exit 1 if a file need
 ```
 
 The commands exit non-zero on any invalid document, which is enough for a CI
-gate:
+gate. The backend runs a few checks on top that the schemas cannot express,
+such as the rule that registrar URLs have no query, fragment or credentials,
+so an import can still fail on a folder that passed validation:
 
 ```yaml title=".github/workflows/config.yml"
 jobs:

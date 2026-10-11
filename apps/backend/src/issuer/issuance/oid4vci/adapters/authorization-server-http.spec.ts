@@ -11,6 +11,7 @@ import {
     it,
     vi,
 } from "vitest";
+import { OutboundFetchError } from "../../../../webhook/outbound-fetch.js";
 import { OutboundUrlPolicyService } from "../../../../webhook/outbound-url-policy.service.js";
 import {
     authorizationServerFetch,
@@ -26,6 +27,7 @@ describe("authorization server requests", () => {
     let server: Server;
     let localhost: string;
     let loopbackIp: string;
+    let closedUrl: string;
     let requests: { method?: string; url?: string; body: string }[];
 
     beforeAll(async () => {
@@ -71,6 +73,14 @@ describe("authorization server requests", () => {
         const { port } = server.address() as AddressInfo;
         localhost = `http://localhost:${port}`;
         loopbackIp = `http://127.0.0.1:${port}`;
+
+        // A port nothing listens on.
+        const closed = createServer();
+        await new Promise<void>((resolve) =>
+            closed.listen(0, "127.0.0.1", resolve),
+        );
+        closedUrl = `http://127.0.0.1:${(closed.address() as AddressInfo).port}`;
+        await new Promise<void>((resolve) => closed.close(() => resolve()));
     });
 
     afterAll(async () => {
@@ -213,6 +223,20 @@ describe("authorization server requests", () => {
                 post(outboundUrlPolicy, `${localhost}/ok`),
             ).rejects.toThrow("private or loopback IP");
             expect(requests).toEqual([]);
+        });
+
+        it("keeps the request body with the client secret out of errors", async () => {
+            // The axios error would carry the request configuration.
+            const error = await requestAuthorizationServer(http, permissive(), {
+                url: `${closedUrl}/token`,
+                method: "POST",
+                body: "client_secret=s3cret",
+            }).catch((caught: unknown) => caught);
+
+            expect(error).toBeInstanceOf(OutboundFetchError);
+            expect(Object.keys(error as object)).not.toContain("config");
+            expect(JSON.stringify(error)).not.toContain("s3cret");
+            expect((error as Error).message).not.toContain("s3cret");
         });
     });
 

@@ -71,12 +71,13 @@ export class RegistrarController {
     })
     @ApiResponse({
         status: 400,
-        description: "Invalid credentials",
+        description:
+            "The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy",
     })
     @ApiResponse({
         status: 503,
         description:
-            "Registrar OIDC endpoint unreachable — credentials could not be verified",
+            "Registrar OIDC provider unreachable or without a token — credentials could not be verified",
     })
     async createConfig(
         @Token() token: TokenPayload,
@@ -105,12 +106,13 @@ export class RegistrarController {
     })
     @ApiResponse({
         status: 400,
-        description: "Invalid credentials",
+        description:
+            "The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy",
     })
     @ApiResponse({
         status: 503,
         description:
-            "Registrar OIDC endpoint unreachable — credentials could not be verified",
+            "Registrar OIDC provider unreachable or without a token — credentials could not be verified",
     })
     @ApiResponse({
         status: 404,

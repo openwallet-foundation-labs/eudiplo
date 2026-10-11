@@ -86,6 +86,7 @@ describe("RegistrarAuthService outbound requests", () => {
     let server: Server;
     let localhost: string;
     let loopbackIp: string;
+    let closedUrl: string;
     let requests: { method?: string; url?: string }[];
 
     beforeAll(async () => {
@@ -101,6 +102,30 @@ describe("RegistrarAuthService outbound requests", () => {
                             token_endpoint: `${loopbackIp}/token`,
                         }),
                     );
+                    return;
+                }
+                const discovery = request.url?.match(
+                    /^\/(odd|empty)\/\.well-known\/openid-configuration$/,
+                );
+                if (discovery) {
+                    response.end(
+                        JSON.stringify({
+                            token_endpoint: `${localhost}/${discovery[1]}/token`,
+                        }),
+                    );
+                    return;
+                }
+                if (request.url === "/odd/token") {
+                    // Not a registered OAuth2 error code.
+                    response.writeHead(400);
+                    response.end(
+                        JSON.stringify({ error: "see http://10.0.0.5/admin" }),
+                    );
+                    return;
+                }
+                if (request.url === "/empty/token") {
+                    // A success answer without an access token.
+                    response.end("{}");
                     return;
                 }
                 if (request.url?.endsWith("/token")) {
@@ -130,6 +155,14 @@ describe("RegistrarAuthService outbound requests", () => {
         const { port } = server.address() as AddressInfo;
         localhost = `http://localhost:${port}`;
         loopbackIp = `http://127.0.0.1:${port}`;
+
+        // A port nothing listens on.
+        const closed = createServer();
+        await new Promise<void>((resolve) =>
+            closed.listen(0, "127.0.0.1", resolve),
+        );
+        closedUrl = `http://127.0.0.1:${(closed.address() as AddressInfo).port}`;
+        await new Promise<void>((resolve) => closed.close(() => resolve()));
     });
 
     afterAll(async () => {
@@ -146,6 +179,11 @@ describe("RegistrarAuthService outbound requests", () => {
                 (key: string, fallback?: unknown) => config[key] ?? fallback,
             ),
         } as never);
+    const permissive = () =>
+        policy({
+            OUTBOUND_URL_ALLOW_HTTP: true,
+            OUTBOUND_URL_ALLOW_PRIVATE_NETWORK: true,
+        });
     /** Allows the local server only by the name `localhost`. */
     const localhostOnly = () =>
         policy({
@@ -192,36 +230,107 @@ describe("RegistrarAuthService outbound requests", () => {
                 oidcUrl: `${localhost}/oidc`,
             });
 
-            // Fixed message: the cause is only logged, so the response does
-            // not tell whether the address is reachable.
             await expect(result).rejects.toThrow(
-                new ServiceUnavailableException(
-                    "Registrar OIDC endpoint is not reachable. Credentials could not be verified.",
+                new BadRequestException(
+                    `Registrar credentials could not be verified: Request to ${loopbackIp}/token is blocked by the outbound URL policy: Outbound URL host is not in the allowlist`,
                 ),
             );
             expect(requests.map(({ url }) => url)).toEqual([
                 "/oidc/.well-known/openid-configuration",
             ]);
         });
+
+        it("answers 503 without addresses when the OIDC provider is unreachable", async () => {
+            const result = service(permissive()).testCredentials({
+                ...credentials,
+                oidcUrl: `${closedUrl}/oidc`,
+            });
+
+            // The connection error names the address; only the log has it.
+            await expect(result).rejects.toThrow(
+                new ServiceUnavailableException(
+                    `Registrar credentials could not be verified: Request to ${closedUrl}/oidc/.well-known/openid-configuration failed`,
+                ),
+            );
+        });
+
+        it("leaves out an error code that is not registered", async () => {
+            const result = service(permissive()).testCredentials({
+                ...credentials,
+                oidcUrl: `${localhost}/odd`,
+            });
+
+            await expect(result).rejects.toThrow(
+                new BadRequestException(
+                    "Invalid registrar credentials: the OIDC provider answered with HTTP 400. Please check your username, password, client ID and secret.",
+                ),
+            );
+        });
+
+        it("answers 503 when the OIDC provider returns no access token", async () => {
+            const result = service(permissive()).testCredentials({
+                ...credentials,
+                oidcUrl: `${localhost}/empty`,
+            });
+
+            await expect(result).rejects.toThrow(
+                new ServiceUnavailableException(
+                    "Registrar credentials could not be verified: the OIDC provider did not answer with an access token; the server log has the cause",
+                ),
+            );
+        });
+
+        it("names the registered OAuth2 error code of a rejection", async () => {
+            const result = service(permissive()).testCredentials({
+                ...credentials,
+                oidcUrl: `${localhost}/plain`,
+            });
+
+            await expect(result).rejects.toThrow(
+                new BadRequestException(
+                    "Invalid registrar credentials: the OIDC provider answered with HTTP 401, invalid_grant. Please check your username, password, client ID and secret.",
+                ),
+            );
+        });
     });
 
     describe("getAccessToken", () => {
         it("does not pass on the OIDC provider's error description", async () => {
-            const result = service(
-                policy({
-                    OUTBOUND_URL_ALLOW_HTTP: true,
-                    OUTBOUND_URL_ALLOW_PRIVATE_NETWORK: true,
-                }),
-                {
-                    // No discovery document under this path, so the
-                    // client falls back to its default token endpoint.
-                    tenant: { ...credentials, oidcUrl: `${localhost}/plain` },
-                },
-            ).getAccessToken("tenant");
+            const result = service(permissive(), {
+                // No discovery document under this path, so the
+                // client falls back to its default token endpoint.
+                tenant: { ...credentials, oidcUrl: `${localhost}/plain` },
+            }).getAccessToken("tenant");
 
             await expect(result).rejects.toThrow(
                 new BadRequestException(
-                    "Failed to authenticate with registrar (HTTP 401)",
+                    "Failed to authenticate with registrar: the OIDC provider answered with HTTP 401, invalid_grant",
+                ),
+            );
+        });
+
+        // The message can reach a wallet through the OID4VP request object,
+        // so it names no URL.
+        it("does not pass on connection errors or URLs", async () => {
+            const result = service(permissive(), {
+                tenant: { ...credentials, oidcUrl: `${closedUrl}/oidc` },
+            }).getAccessToken("tenant");
+
+            await expect(result).rejects.toThrow(
+                new BadRequestException(
+                    "Failed to authenticate with registrar: the OIDC provider could not be reached",
+                ),
+            );
+        });
+
+        it("does not name a token endpoint that the policy blocks", async () => {
+            const result = service(localhostOnly(), {
+                tenant: { ...credentials, oidcUrl: `${localhost}/oidc` },
+            }).getAccessToken("tenant");
+
+            await expect(result).rejects.toThrow(
+                new BadRequestException(
+                    "Failed to authenticate with registrar: the outbound URL policy blocks a request to the OIDC provider",
                 ),
             );
         });
@@ -279,7 +388,7 @@ describe("RegistrarAuthService outbound requests", () => {
             const result = await client.get({ url: "/redirect" });
 
             expect((result.error as Error).message).toBe(
-                `Request to ${localhost}/registrar/redirect was redirected to http://169.254.169.254/; redirects are not followed`,
+                `Request to ${localhost}/registrar/redirect was redirected to http://169.254.169.254/, which the outbound URL policy blocks: Outbound URL host is not in the allowlist`,
             );
             expect(requests.map(({ url }) => url)).toEqual([
                 "/registrar/redirect",
@@ -302,6 +411,38 @@ describe("RegistrarAuthService outbound requests", () => {
             expect(assertSafeUrl).toHaveBeenCalledWith(
                 "https://registrar.example",
             );
+        });
+
+        it("names every rejected field", async () => {
+            const result = service(
+                policy({ OUTBOUND_URL_ALLOW_HTTP: true }),
+            ).assertSafeUrls({
+                registrarUrl: `${loopbackIp}/registrar`,
+                oidcUrl: "ftp://oidc.example",
+            });
+
+            await expect(result).rejects.toBeInstanceOf(BadRequestException);
+            const response = (
+                (await result.catch((error) => error)) as BadRequestException
+            ).getResponse();
+            expect(response).toMatchObject({
+                message:
+                    "Rejected by the outbound URL policy of this instance: registrarUrl: Outbound URL target resolves to a private or loopback IP; oidcUrl: Outbound URL must use HTTPS in this environment",
+                errors: [
+                    {
+                        path: ["registrarUrl"],
+                        message:
+                            "Outbound URL target resolves to a private or loopback IP",
+                        code: "outbound_url_policy",
+                    },
+                    {
+                        path: ["oidcUrl"],
+                        message:
+                            "Outbound URL must use HTTPS in this environment",
+                        code: "outbound_url_policy",
+                    },
+                ],
+            });
         });
     });
 });
