@@ -1,4 +1,6 @@
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,6 +25,8 @@ type StubResponse = { status: number; body?: unknown } | 'unreachable' | 'empty'
 describe('StatusListConfigComponent', () => {
   let responses: Record<string, StubResponse>;
   let requests: string[];
+  /** The parsed JSON body of the last request per method and path. */
+  let bodies: Record<string, unknown>;
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let fixture: ComponentFixture<StatusListConfigComponent>;
 
@@ -40,6 +44,19 @@ describe('StatusListConfigComponent', () => {
     return element.querySelector('mat-card-title');
   }
 
+  function select(name: string): Promise<MatSelectHarness> {
+    return TestbedHarnessEnvironment.loader(fixture).getHarness(
+      MatSelectHarness.with({ selector: `[formControlName="${name}"]` })
+    );
+  }
+
+  /** Picks the option of a select whose text contains `title`, case-sensitively. */
+  async function chooseOption(name: string, title: string): Promise<void> {
+    const harness = await select(name);
+    await harness.open();
+    await harness.clickOptions({ text: new RegExp(title) });
+  }
+
   /** Clicks a button and returns the message of the snackbar that reports the outcome. */
   async function click(element: HTMLElement, label: string): Promise<string> {
     snackBar.open.mockClear();
@@ -51,12 +68,15 @@ describe('StatusListConfigComponent', () => {
   beforeEach(async () => {
     responses = { 'GET /api/status-list-config': { status: 200, body: { capacity: 10000 } } };
     requests = [];
+    bodies = {};
     snackBar = { open: vi.fn() };
     client.setConfig({
       fetch: vi.fn<typeof fetch>(async (input) => {
         const request = input as Request;
         const key = `${request.method} ${new URL(request.url).pathname}`;
         requests.push(key);
+        const text = await request.clone().text();
+        if (text) bodies[key] = JSON.parse(text);
         const stub = responses[key] ?? { status: 404, body: {} };
         if (stub === 'unreachable') throw new TypeError('Failed to fetch');
         if (stub === 'empty') {
@@ -156,7 +176,7 @@ describe('StatusListConfigComponent', () => {
       capacity: 50000,
       bits: 2,
       ttl: null,
-      immediateUpdate: false,
+      immediateUpdate: null,
       enableAggregation: false,
     });
     expect(button(element, 'Save Configuration').disabled).toBe(false);
@@ -183,7 +203,7 @@ describe('StatusListConfigComponent', () => {
     responses['GET /api/status-list-config'] = 'empty';
     responses['PUT /api/status-list-config'] = {
       status: 200,
-      body: { capacity: 1000, bits: 1, immediateUpdate: false, enableAggregation: true },
+      body: { capacity: 1000 },
     };
     const element = await render();
     fixture.componentInstance.configForm.patchValue({ capacity: 1000 });
@@ -277,10 +297,10 @@ describe('StatusListConfigComponent', () => {
     expect(requests).toContain('DELETE /api/status-list-config');
     expect(fixture.componentInstance.configForm.value).toEqual({
       capacity: null,
-      bits: 1,
+      bits: null,
       ttl: null,
-      immediateUpdate: false,
-      enableAggregation: true,
+      immediateUpdate: null,
+      enableAggregation: null,
     });
     expectResetUnavailable(fixture, NOTHING_TO_RESET);
   });
@@ -330,6 +350,157 @@ describe('StatusListConfigComponent', () => {
       fixture.detectChanges();
       expect(document.activeElement).toBe(save);
     });
+  });
+
+  it('shows unstored settings as the global default of the instance', async () => {
+    responses['GET /api/status-list-config'] = 'empty';
+
+    const element = await render();
+
+    for (const variable of [
+      'STATUS_CAPACITY',
+      'STATUS_BITS',
+      'STATUS_TTL',
+      'STATUS_IMMEDIATE_UPDATE',
+      'STATUS_ENABLE_AGGREGATION',
+    ]) {
+      expect(element.textContent).toContain(`Global default (${variable} of this instance)`);
+    }
+    expect(element.textContent).not.toContain('global default (10,000)');
+    expect(element.textContent).not.toContain('global default (1 hour)');
+    expect(element.querySelector('mat-slide-toggle')).toBeNull();
+  });
+
+  it('shows stored false values as chosen settings, not as the global default', async () => {
+    responses['GET /api/status-list-config'] = {
+      status: 200,
+      body: { bits: 1, immediateUpdate: false, enableAggregation: false },
+    };
+
+    const element = await render();
+
+    expect(await (await select('bits')).getValueText()).toBe('1 bit');
+    expect(await (await select('immediateUpdate')).getValueText()).toBe('Lazy');
+    expect(await (await select('enableAggregation')).getValueText()).toBe('Disabled');
+    expect(element.textContent).toContain('Global default (STATUS_CAPACITY of this instance)');
+    expect(element.textContent).toContain('Global default (STATUS_TTL of this instance)');
+  });
+
+  it('saves only the chosen settings after a reset', async () => {
+    vi.stubGlobal('confirm', () => true);
+    responses['GET /api/status-list-config'] = {
+      status: 200,
+      body: { capacity: 50000, bits: 2, immediateUpdate: true, enableAggregation: false },
+    };
+    responses['DELETE /api/status-list-config'] = { status: 204 };
+    responses['PUT /api/status-list-config'] = { status: 200, body: { ttl: 900 } };
+    const element = await render();
+
+    await click(element, 'Reset to Defaults');
+    fixture.componentInstance.configForm.patchValue({ ttl: 900 });
+    fixture.detectChanges();
+    expect(await click(element, 'Save Configuration')).toBe(
+      'Status list configuration saved successfully'
+    );
+
+    expect(bodies['PUT /api/status-list-config']).toStrictEqual({ ttl: 900 });
+  });
+
+  it('keeps stored settings on save and drops those set back to the global default', async () => {
+    responses['GET /api/status-list-config'] = {
+      status: 200,
+      body: { bits: 2, immediateUpdate: false, enableAggregation: false },
+    };
+    // The backend's answer, not the form, is what the page shows afterwards.
+    responses['PUT /api/status-list-config'] = {
+      status: 200,
+      body: { capacity: 2000, bits: 2, immediateUpdate: false },
+    };
+    const element = await render();
+
+    fixture.componentInstance.configForm.patchValue({ capacity: 1000 });
+    await chooseOption('enableAggregation', 'Use global default');
+    expect(await (await select('enableAggregation')).getValueText()).toBe(
+      'Global default (STATUS_ENABLE_AGGREGATION of this instance)'
+    );
+    await click(element, 'Save Configuration');
+
+    expect(bodies['PUT /api/status-list-config']).toStrictEqual({
+      capacity: 1000,
+      bits: 2,
+      immediateUpdate: false,
+    });
+    expect(fixture.componentInstance.configForm.value).toEqual({
+      capacity: 2000,
+      bits: 2,
+      ttl: null,
+      immediateUpdate: false,
+      enableAggregation: null,
+    });
+  });
+
+  it('keeps the edited values when a save fails', async () => {
+    responses['PUT /api/status-list-config'] = {
+      status: 400,
+      body: { statusCode: 400, message: 'Validation failed' },
+    };
+    const element = await render();
+
+    fixture.componentInstance.configForm.patchValue({ capacity: 1000, ttl: 900 });
+    await click(element, 'Save Configuration');
+
+    expect(fixture.componentInstance.configForm.value).toMatchObject({ capacity: 1000, ttl: 900 });
+    expect(fixture.componentInstance.currentConfig).toEqual({ capacity: 10000 });
+  });
+
+  it('warns about immediate regeneration only when it is chosen', async () => {
+    const element = await render();
+    expect(element.querySelector('.info-box.warning')).toBeNull();
+
+    await chooseOption('immediateUpdate', 'Immediate');
+    fixture.detectChanges();
+
+    expect(element.querySelector('.info-box.warning')?.textContent).toContain('Performance note');
+    expect(fixture.componentInstance.configForm.value.immediateUpdate).toBe(true);
+  });
+
+  it('sends no settings when nothing is stored or chosen', async () => {
+    responses['GET /api/status-list-config'] = 'empty';
+    responses['PUT /api/status-list-config'] = { status: 200, body: {} };
+    const element = await render();
+
+    await click(element, 'Save Configuration');
+
+    expect(bodies['PUT /api/status-list-config']).toStrictEqual({});
+  });
+
+  it('rejects a capacity or TTL that is not a whole number', async () => {
+    const element = await render();
+    const form = fixture.componentInstance.configForm;
+
+    form.patchValue({ capacity: 1000.5, ttl: 90.5 });
+    form.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(form.invalid).toBe(true);
+    const errors = [...element.querySelectorAll('mat-error')].map((e) => e.textContent?.trim());
+    expect(errors).toEqual(['Enter a whole number of entries', 'Enter a whole number of seconds']);
+    expect(button(element, 'Save Configuration').disabled).toBe(true);
+    await fixture.componentInstance.onSave();
+    expect(requests).not.toContain('PUT /api/status-list-config');
+  });
+
+  it('rejects a capacity or TTL below the minimum', async () => {
+    const element = await render();
+    const form = fixture.componentInstance.configForm;
+
+    form.patchValue({ capacity: 50, ttl: 30 });
+    form.markAllAsTouched();
+    fixture.detectChanges();
+
+    const errors = [...element.querySelectorAll('mat-error')].map((e) => e.textContent?.trim());
+    expect(errors).toEqual(['Capacity must be at least 100', 'TTL must be at least 60 seconds']);
+    expect(button(element, 'Save Configuration').disabled).toBe(true);
   });
 
   it('names the field the backend rejected on save', async () => {

@@ -7,14 +7,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,13 +28,7 @@ import { LoadErrorComponent } from '../common/load-error.component';
 import { resetDefaultsTooltip } from '../common/reset-defaults';
 import { getApiErrorMessage } from '../utils/error-message';
 import { openErrorSnackBar } from '../utils/error-snackbar';
-
-/** The backend accepts whole seconds only. */
-function wholeNumber(control: AbstractControl): ValidationErrors | null {
-  const value = control.value;
-  if (value === null || value === '') return null;
-  return Number.isInteger(value) ? null : { integer: true };
-}
+import { wholeNumberValidator } from '../utils/whole-number-validator';
 
 @Component({
   selector: 'app-session-config',
@@ -93,7 +80,7 @@ export class SessionConfigComponent implements OnInit {
     private readonly snackBar: MatSnackBar
   ) {
     this.configForm = this.fb.group({
-      ttlSeconds: [null as number | null, [Validators.min(60), wholeNumber]],
+      ttlSeconds: [null as number | null, [Validators.min(60), wholeNumberValidator]],
       // null follows the instance's SESSION_CLEANUP_MODE.
       cleanupMode: [null as SessionCleanupMode | null],
     });

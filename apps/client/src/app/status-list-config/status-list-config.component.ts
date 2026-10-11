@@ -14,14 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { StatusListConfigService, bitsOptions } from './status-list-config.service';
-import { StatusListConfig } from '@eudiplo/sdk-core';
+import { StatusListConfig, UpdateStatusListConfigDto } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
 import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
@@ -29,6 +28,7 @@ import { LoadErrorComponent } from '../common/load-error.component';
 import { resetDefaultsTooltip } from '../common/reset-defaults';
 import { getApiErrorMessage } from '../utils/error-message';
 import { openErrorSnackBar } from '../utils/error-snackbar';
+import { wholeNumberValidator } from '../utils/whole-number-validator';
 
 const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
 
@@ -53,7 +53,6 @@ const newListsOnly = new Set<keyof StatusListConfig>(['capacity', 'bits']);
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    MatSlideToggleModule,
     MatIconModule,
     MatTooltipModule,
     MatSnackBarModule,
@@ -95,12 +94,13 @@ export class StatusListConfigComponent implements OnInit {
     private readonly statusListConfigService: StatusListConfigService,
     private readonly snackBar: MatSnackBar
   ) {
+    // null follows the instance's STATUS_* variable of the same setting.
     this.configForm = this.fb.group({
-      capacity: [null, [Validators.min(100)]],
-      bits: [1],
-      ttl: [null, [Validators.min(60)]],
-      immediateUpdate: [false],
-      enableAggregation: [true],
+      capacity: [null as number | null, [Validators.min(100), wholeNumberValidator]],
+      bits: [null as number | null],
+      ttl: [null as number | null, [Validators.min(60), wholeNumberValidator]],
+      immediateUpdate: [null as boolean | null],
+      enableAggregation: [null as boolean | null],
     });
   }
 
@@ -141,26 +141,21 @@ export class StatusListConfigComponent implements OnInit {
       return;
     }
 
+    const update = this.buildUpdate();
     this.isSaving = true;
     try {
-      const formValue = this.configForm.value;
-      // Convert empty string to null for capacity and ttl
-      if (formValue.capacity === '' || formValue.capacity === null) {
-        formValue.capacity = null;
-      }
-      if (formValue.ttl === '' || formValue.ttl === null) {
-        formValue.ttl = null;
-      }
-      this.currentConfig = await this.statusListConfigService.updateConfig(formValue);
-      this.snackBar.open('Status list configuration saved successfully', 'Close', {
-        duration: 3000,
-      });
+      this.currentConfig = await this.statusListConfigService.updateConfig(update);
     } catch (error) {
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save configuration'));
+      return;
     } finally {
       this.isSaving = false;
       focusAfterRenderIfLost(this.injector, () => this.saveButton?.nativeElement);
     }
+    this.patchForm(this.currentConfig);
+    this.snackBar.open('Status list configuration saved successfully', 'Close', {
+      duration: 3000,
+    });
   }
 
   async onReset(): Promise<void> {
@@ -231,23 +226,37 @@ export class StatusListConfigComponent implements OnInit {
     }
   }
 
+  /**
+   * Sends only what the user set. The backend replaces the stored settings, so
+   * a setting left at the global default is left out and no longer stored.
+   */
+  private buildUpdate(): UpdateStatusListConfigDto {
+    const chosen = Object.entries(this.configForm.value).filter(([, value]) => value !== null);
+    return Object.fromEntries(chosen) as UpdateStatusListConfigDto;
+  }
+
   private patchForm(config: StatusListConfig | null): void {
     this.configForm.patchValue({
       capacity: config?.capacity ?? null,
-      bits: config?.bits ?? 1,
+      bits: config?.bits ?? null,
       ttl: config?.ttl ?? null,
-      immediateUpdate: config?.immediateUpdate ?? false,
-      enableAggregation: config?.enableAggregation ?? true,
+      immediateUpdate: config?.immediateUpdate ?? null,
+      enableAggregation: config?.enableAggregation ?? null,
     });
   }
 
+  /** What applies to a setting the tenant does not store. */
+  globalDefaultLabel(setting: keyof StatusListConfig): string {
+    return `Global default (${globalDefaults[setting]} of this instance)`;
+  }
+
   formatCapacity(capacity?: number | null): string {
-    if (!capacity) return 'Using global default (10,000)';
+    if (!capacity) return this.globalDefaultLabel('capacity');
     return `${capacity.toLocaleString()} entries`;
   }
 
   formatTtl(ttl?: number | null): string {
-    if (!ttl) return 'Using global default (1 hour)';
+    if (!ttl) return this.globalDefaultLabel('ttl');
     if (ttl >= 3600) {
       const hours = ttl / 3600;
       return hours === 1 ? '1 hour' : `${hours} hours`;
@@ -257,6 +266,15 @@ export class StatusListConfigComponent implements OnInit {
       return minutes === 1 ? '1 minute' : `${minutes} minutes`;
     }
     return ttl === 1 ? '1 second' : `${ttl} seconds`;
+  }
+
+  // An unset select shows its placeholder, the global default, instead of a trigger.
+  immediateUpdateLabel(immediateUpdate: boolean): string {
+    return immediateUpdate ? 'Immediate' : 'Lazy';
+  }
+
+  aggregationLabel(enableAggregation: boolean): string {
+    return enableAggregation ? 'Enabled' : 'Disabled';
   }
 
   getSelectedBitsLabel(): string {
