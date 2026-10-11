@@ -1,11 +1,11 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
-  <h2>Trust lists</h2>
+  <h2 #listHeading tabindex="-1">Trust lists</h2>
   <div fxLayout="row" fxLayoutGap="8px">
     <button
       matIconButton
       [routerLink]="['create']"
       matTooltip="Create new Trust List"
-      aria-label="Create trust list"
+      aria-label="Create new Trust List"
     >
       <mat-icon>add</mat-icon>
     </button>
@@ -17,7 +17,7 @@
     <mat-spinner diameter="40" aria-label="Loading trust lists"></mat-spinner>
   </div>
 } @else if (loadError) {
-  <app-load-error [message]="loadError" (retry)="loadLists()" />
+  <app-load-error [message]="loadError" (retry)="loadItems()" />
 } @else if (lists.length === 0) {
   <div class="list-state">
     <mat-icon class="empty-icon">shield</mat-icon>

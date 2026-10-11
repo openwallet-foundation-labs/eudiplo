@@ -13,26 +13,18 @@
     </div>
   } @else if (loadError) {
     <!-- Without the stored configuration the form would replace it on save -->
-    <mat-card class="error-card">
-      <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
-        <mat-icon>error</mat-icon>
-        <div fxFlex role="alert">
-          <p>{{ loadError }}</p>
-          <p>Retry before making changes. If this keeps failing, check the backend log.</p>
-        </div>
-        <button mat-stroked-button type="button" (click)="loadData()">
-          <mat-icon>refresh</mat-icon>
-          Retry
-        </button>
-      </mat-card-content>
-    </mat-card>
+    <app-load-error
+      [message]="loadError"
+      hint="Retry before making changes. If this keeps failing, check the backend log."
+      (retry)="loadData()"
+    />
   } @else {
     <!-- Main Content -->
     <div fxLayout="column" fxLayoutGap="24px">
       <!-- Configuration Card -->
       <mat-card>
         <mat-card-header>
-          <mat-card-title>
+          <mat-card-title #settingsTitle tabindex="-1">
             <mat-icon>settings</mat-icon>
             Registrar Credentials
           </mat-card-title>

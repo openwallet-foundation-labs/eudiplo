@@ -5,6 +5,14 @@ import { By } from '@angular/platform-browser';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  expectResetAvailable,
+  expectResetUnavailable,
+  findButton as button,
+  loseFocus,
+  NOTHING_TO_RESET,
+  RESET_WHILE_SAVING,
+} from '../common/settings-screen.testing';
 import { ConfigOwnershipService } from '../config-portability/config-ownership.service';
 import { SessionConfigComponent } from './session-config.component';
 
@@ -26,20 +34,16 @@ describe('SessionConfigComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  function button(element: HTMLElement, label: string): HTMLButtonElement {
-    const found = [...element.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes(label)
-    );
-    if (!found) throw new Error(`No button "${label}"`);
-    return found;
-  }
-
   /** Clicks a button and waits for the snackbar that reports the outcome. */
   async function clickAndWait(element: HTMLElement, label: string): Promise<void> {
     snackBar.open.mockClear();
     button(element, label).click();
     await vi.waitFor(() => expect(snackBar.open).toHaveBeenCalled());
     fixture.detectChanges();
+  }
+
+  function settingsTitle(element: HTMLElement): HTMLElement | null {
+    return element.querySelector('mat-card-title');
   }
 
   /** Opens the cleanup mode select and returns its "Use global default" option. */
@@ -168,11 +172,16 @@ describe('SessionConfigComponent', () => {
     fixture.componentInstance.configForm.patchValue({ ttlSeconds: 3600 });
     fixture.detectChanges();
 
+    loseFocus();
     await clickAndWait(element, 'Save Configuration');
 
     expect(snackBar.open.mock.lastCall?.[0]).toBe(
       "Failed to save configuration: Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI."
     );
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(button(element, 'Save Configuration'));
+    });
   });
 
   it('leaves the cleanup mode out of the update while it follows the global default', async () => {
@@ -183,7 +192,14 @@ describe('SessionConfigComponent', () => {
     expect(fixture.componentInstance.configForm.value.cleanupMode).toBeNull();
     expect(globalDefaultOption().getAttribute('aria-disabled')).toBe('false');
     // Nothing is stored, so there is nothing to reset.
-    expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expectResetUnavailable(fixture, NOTHING_TO_RESET);
+    const confirm = vi.fn<(message?: string) => boolean>(() => true);
+    vi.stubGlobal('confirm', confirm);
+    // disabledInteractive does not stop the click on a <button>.
+    button(element, 'Reset to Defaults').click();
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(confirm).not.toHaveBeenCalled();
+    expect(requests).not.toContain('DELETE /api/session-config');
     expect(element.textContent).toContain('This tenant already follows the global defaults.');
     pickCleanupMode('Anonymize');
     pickCleanupMode('Use global default');
@@ -250,6 +266,7 @@ describe('SessionConfigComponent', () => {
     expect(snackBar.open).not.toHaveBeenCalled();
 
     confirm.mockReturnValue(true);
+    expectResetAvailable(fixture);
     await clickAndWait(element, 'Reset to Defaults');
     expect(requests).toContain('DELETE /api/session-config');
     expect(fixture.componentInstance.configForm.value).toEqual({
@@ -260,7 +277,7 @@ describe('SessionConfigComponent', () => {
     expect(element.querySelector('.summary-card')?.textContent).toContain(
       'Global default (SESSION_CLEANUP_MODE of this instance)'
     );
-    expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expectResetUnavailable(fixture, NOTHING_TO_RESET);
     expect(element.textContent).toContain('This tenant already follows the global defaults.');
 
     fixture.componentInstance.configForm.patchValue({ ttlSeconds: 3600 });
@@ -269,18 +286,94 @@ describe('SessionConfigComponent', () => {
     expect(putBodies).toEqual([{ ttlSeconds: 3600 }]);
   });
 
+  it('refuses a reset while a change is being saved', async () => {
+    const confirm = vi.fn<(message?: string) => boolean>(() => true);
+    vi.stubGlobal('confirm', confirm);
+    responses['GET /api/session-config'] = { status: 200, body: { cleanupMode: 'anonymize' } };
+    const element = await render();
+
+    fixture.componentInstance.isSaving = true;
+    fixture.detectChanges();
+    expectResetUnavailable(fixture, RESET_WHILE_SAVING);
+    // disabledInteractive does not stop the click on a <button>.
+    button(element, 'Reset to Defaults').click();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(requests).not.toContain('DELETE /api/session-config');
+  });
+
+  it('moves focus to the settings title when a retry succeeds', async () => {
+    responses['GET /api/session-config'] = loadFailure;
+    const element = await render();
+
+    responses['GET /api/session-config'] = { status: 200, body: {} };
+    const retry = button(element, 'Retry');
+    retry.focus();
+    retry.click();
+
+    // The retry removed the error card with its focused Retry button.
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
+    expect(settingsTitle(element)?.textContent).toContain('Session Retention Settings');
+  });
+
+  it('gives focus back to Save once saving has finished', async () => {
+    responses['GET /api/session-config'] = { status: 200, body: {} };
+    responses['PUT /api/session-config'] = { status: 200, body: { ttlSeconds: 3600 } };
+    const element = await render();
+    fixture.componentInstance.configForm.patchValue({ ttlSeconds: 3600 });
+    fixture.detectChanges();
+
+    const save = button(element, 'Save Configuration');
+    save.focus();
+    save.click();
+    fixture.detectChanges();
+    expect(save.disabled).toBe(true);
+    loseFocus();
+    expect(document.activeElement).toBe(document.body);
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(save);
+    });
+  });
+
+  it('moves focus to the settings title when a reset ends with focus lost', async () => {
+    vi.stubGlobal('confirm', () => true);
+    responses['GET /api/session-config'] = { status: 200, body: { ttlSeconds: 3600 } };
+    responses['DELETE /api/session-config'] = { status: 204 };
+    const element = await render();
+
+    // Safari, for one, does not focus a button on click.
+    loseFocus();
+    await clickAndWait(element, 'Reset to Defaults');
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
+  });
+
   it('shows the backend message when resetting is rejected', async () => {
     vi.stubGlobal('confirm', () => true);
     responses['GET /api/session-config'] = { status: 200, body: { cleanupMode: 'anonymize' } };
     responses['DELETE /api/session-config'] = { status: 409, body: conflict };
     const element = await render();
 
+    loseFocus();
     await clickAndWait(element, 'Reset to Defaults');
 
     expect(snackBar.open.mock.lastCall?.[0]).toContain(
       "Failed to reset configuration: Tenant 'tenant' is file-managed"
     );
     expect(fixture.componentInstance.hasStoredCleanupMode).toBe(true);
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
   });
 
   it('rejects a TTL that is not a whole number of seconds', async () => {

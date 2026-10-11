@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,7 +16,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatRadioButton, MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -16,16 +25,29 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { merge } from 'rxjs';
 import { KeyChainService } from '../key-chain.service';
-import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.service';
+import {
+  accessCertificateRefusal,
+  RegistrarConfig,
+  RegistrarService,
+} from '../../registrar/registrar.service';
 import { KeyChainCreateDto, KeyChainImportDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
 import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { JwtService } from '../../services/jwt.service';
+import { focusIfFocusWasLost } from '../../common/focus-if-lost.util';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
 export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
+
+/** Why a registrar enrollment was refused, shown next to Create & Enroll. */
+export interface EnrollmentError {
+  message: string;
+  /** False when the registrar configuration is not the cause, for example a missing role. */
+  offerRegistrar: boolean;
+}
 
 @Component({
   selector: 'app-key-create-wizard',
@@ -53,8 +75,25 @@ export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './key-create-wizard.component.scss',
 })
-export class KeyCreateWizardComponent implements OnInit {
+export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   @ViewChild('stepper') stepper!: MatStepper;
+
+  /**
+   * The Create & Enroll button is replaced while the enrollment runs, so focus
+   * falls back to the page; it moves to the error that appears afterwards.
+   */
+  @ViewChild('enrollmentErrorBox') set enrollmentErrorBox(
+    box: ElementRef<HTMLElement> | undefined
+  ) {
+    focusIfFocusWasLost(box?.nativeElement);
+  }
+
+  @ViewChild('registrarRetry', { read: ElementRef })
+  private readonly registrarRetry?: ElementRef<HTMLButtonElement>;
+  @ViewChildren(MatRadioButton) private readonly radioButtons?: QueryList<MatRadioButton>;
+
+  /** Set when the user left the wizard, so a running enrollment does not pull them back. */
+  private destroyed = false;
 
   // Form groups for each step
   usageForm: FormGroup;
@@ -67,6 +106,9 @@ export class KeyCreateWizardComponent implements OnInit {
   isLoadingKmsProviders = false;
   registrarConfig: RegistrarConfig | null = null;
   registrarConfigChecked = false;
+  /** Why the registrar configuration could not be read; null when it was read or is missing. */
+  registrarConfigError: string | null = null;
+  enrollmentError: EnrollmentError | null = null;
   availableKmsProviders: KmsProviderInfoDto[] = [];
   defaultKmsProvider = 'db';
 
@@ -209,6 +251,15 @@ export class KeyCreateWizardComponent implements OnInit {
       .get('rotationEnabled')!
       .valueChanges.subscribe(() => this.syncRotationControls());
     this.syncRotationControls();
+
+    // A refusal belongs to the registrar enrollment it reports.
+    merge(this.usageForm.valueChanges, this.accessSourceForm.valueChanges).subscribe(() => {
+      this.enrollmentError = null;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
   }
 
   /** Enables the interval and validity fields only while the Rotation Policy card shows them. */
@@ -269,14 +320,34 @@ export class KeyCreateWizardComponent implements OnInit {
    * Check if registrar credentials are configured.
    */
   async checkRegistrarConfig(): Promise<void> {
+    if (this.isCheckingRegistrar) return;
     this.isCheckingRegistrar = true;
     try {
       this.registrarConfig = await this.registrarService.getConfig();
-    } catch {
+      this.registrarConfigError = null;
+    } catch (error) {
+      // getConfig answers null for a missing configuration, so this is a failed load.
       this.registrarConfig = null;
+      this.registrarConfigError = getHttpErrorMessage(
+        error,
+        'Could not check the registrar configuration'
+      );
     } finally {
       this.isCheckingRegistrar = false;
       this.registrarConfigChecked = true;
+    }
+  }
+
+  /**
+   * Reads the registrar configuration again. The Retry button stays while it
+   * runs and goes away once the configuration is read, so focus then moves
+   * from it to the selected certificate source, where a radio group takes it.
+   */
+  async retryRegistrarCheck(): Promise<void> {
+    await this.checkRegistrarConfig();
+    const retryHadFocus = document.activeElement === this.registrarRetry?.nativeElement;
+    if (!this.registrarConfigError && retryHadFocus) {
+      this.radioButtons?.find((radio) => radio.value === this.selectedAccessSource)?.focus();
     }
   }
 
@@ -417,6 +488,7 @@ export class KeyCreateWizardComponent implements OnInit {
   async createKey(): Promise<void> {
     if (this.isSubmitting) return;
     this.isSubmitting = true;
+    this.enrollmentError = null;
 
     try {
       const usage = this.selectedUsage!;
@@ -439,33 +511,8 @@ export class KeyCreateWizardComponent implements OnInit {
 
       const result = await this.keyChainService.create(createDto);
 
-      // For registrar enrollment, request the certificate after creating the key
       if (isRegistrarEnrollment) {
-        try {
-          await this.registrarService.createAccessCertificate(result.id);
-          this.snackBar.open(
-            'Access certificate enrolled via registrar successfully!',
-            'View Key',
-            { duration: 5000 }
-          );
-        } catch (error: any) {
-          console.error('Error enrolling certificate:', error);
-          // Names an unreachable backend separately from a registrar failure.
-          const message = getHttpErrorMessage(error, 'Failed to enroll certificate from registrar');
-          // The key page opens below; the action leads to the registrar
-          // settings. The client cannot enroll an existing key, so say how to retry.
-          this.snackBar
-            .open(
-              `Key created without a registrar certificate: ${asSentence(message)} Fix the Registrar Config, then delete this key and create it again, or enroll it with POST /api/registrar/access-certificate and its keyId.`,
-              'Go to Registrar',
-              { duration: 12000 }
-            )
-            .onAction()
-            .subscribe(() => {
-              this.router.navigate(['/registrar']);
-            });
-        }
-        this.router.navigate(['/keys', result.id]);
+        await this.enrollWithRegistrar(result.id);
         return;
       }
 
@@ -514,6 +561,91 @@ export class KeyCreateWizardComponent implements OnInit {
       intervalDays: this.rotationEnabled ? this.configForm.value.rotationIntervalDays : undefined,
       certValidityDays: this.configForm.value.certValidityDays,
     };
+  }
+
+  /**
+   * Requests the registrar certificate for the access key just created. When
+   * EUDIPLO refuses the request, the key only has its self-signed certificate
+   * and could sign signed issuer metadata and the requests of presentation
+   * configurations that name no access key; it is deleted and the wizard says
+   * why next to Create & Enroll, so the user can check the registrar
+   * configuration and try again. After any other failure the certificate may
+   * have been stored, so the key is kept and opened. A user who left the
+   * wizard meanwhile gets the outcome in a snackbar and stays where they are.
+   */
+  private async enrollWithRegistrar(keyId: string): Promise<void> {
+    try {
+      await this.registrarService.createAccessCertificate(keyId);
+    } catch (error) {
+      console.error('Error enrolling certificate:', error);
+      // Names an unreachable backend separately from a registrar failure.
+      const reason = asSentence(
+        getHttpErrorMessage(error, 'Failed to enroll certificate from registrar')
+      );
+      const refusal = accessCertificateRefusal(error);
+      if (!refusal) {
+        this.openKeptKey(
+          keyId,
+          `Key created, but its registrar enrollment failed: ${reason} If the key's Active Certificate has the same Issuer as Subject, it is self-signed: delete the key and create it again.`
+        );
+        return;
+      }
+      const deleteReason = await this.deleteUnenrolledKey(keyId);
+      if (deleteReason) {
+        this.openKeptKey(
+          keyId,
+          `Key created without a registrar certificate: ${reason} ${deleteReason} Delete the key, check the registrar configuration, then create it again.`
+        );
+        return;
+      }
+      const enrollmentError: EnrollmentError =
+        refusal === 'role'
+          ? {
+              message:
+                'Enrolling through the registrar needs the registrar:manage role. The new key was deleted.',
+              offerRegistrar: false,
+            }
+          : {
+              message: `${reason} The new key was deleted. Check the registrar configuration and try again.`,
+              offerRegistrar: true,
+            };
+      if (this.destroyed) {
+        openErrorSnackBar(this.snackBar, enrollmentError.message);
+      } else {
+        this.enrollmentError = enrollmentError;
+      }
+      return;
+    }
+    this.snackBar
+      .open('Access certificate enrolled via registrar successfully!', 'View Key', {
+        duration: 5000,
+      })
+      .onAction()
+      .subscribe(() => this.router.navigate(['/keys', keyId]));
+    if (!this.destroyed) this.router.navigate(['/keys', keyId]);
+  }
+
+  /** Deletes a key whose enrollment was refused; why it is still there, if it is. */
+  private async deleteUnenrolledKey(keyId: string): Promise<string | undefined> {
+    try {
+      await this.keyChainService.delete(keyId);
+      return undefined;
+    } catch (error) {
+      console.error('Error deleting the key after the failed enrollment:', error);
+      return asSentence(getApiErrorMessage(error, 'Failed to delete it'));
+    }
+  }
+
+  /** Opens a key whose enrollment failed and says what to check there. */
+  private openKeptKey(keyId: string, message: string): void {
+    if (this.destroyed) {
+      openErrorSnackBar(this.snackBar, message, 'View Key')
+        .onAction()
+        .subscribe(() => this.router.navigate(['/keys', keyId]));
+      return;
+    }
+    openErrorSnackBar(this.snackBar, message);
+    this.router.navigate(['/keys', keyId]);
   }
 
   private showSuccessMessage(usage: KeyUsageSelection): void {

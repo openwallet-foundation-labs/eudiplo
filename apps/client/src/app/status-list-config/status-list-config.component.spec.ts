@@ -3,6 +3,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  expectResetAvailable,
+  expectResetUnavailable,
+  findButton as button,
+  loseFocus,
+  NOTHING_TO_RESET,
+  RESET_WHILE_SAVING,
+} from '../common/settings-screen.testing';
 import { ConfigOwnershipService } from '../config-portability/config-ownership.service';
 import { StatusListConfigComponent } from './status-list-config.component';
 
@@ -25,12 +33,8 @@ describe('StatusListConfigComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  function button(element: HTMLElement, label: string): HTMLButtonElement {
-    const found = [...element.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes(label)
-    );
-    if (!found) throw new Error(`No button "${label}"`);
-    return found;
+  function settingsTitle(element: HTMLElement): HTMLElement | null {
+    return element.querySelector('mat-card-title');
   }
 
   /** Clicks a button and returns the message of the snackbar that reports the outcome. */
@@ -128,12 +132,20 @@ describe('StatusListConfigComponent', () => {
       status: 200,
       body: { capacity: 50000, bits: 2, enableAggregation: false },
     };
-    button(element, 'Retry').click();
+    const retry = button(element, 'Retry');
+    retry.focus();
+    retry.click();
     await vi.waitFor(() => expect(fixture.componentInstance.isLoading).toBe(false));
     fixture.detectChanges();
 
     expect(element.querySelector('[role="alert"]')).toBeNull();
     expect(element.querySelector('form')).not.toBeNull();
+    // The retry removed the error card with its focused Retry button.
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
+    expect(settingsTitle(element)?.textContent).toContain('Status List Settings');
     expect(fixture.componentInstance.configForm.value).toEqual({
       capacity: 50000,
       bits: 2,
@@ -150,10 +162,13 @@ describe('StatusListConfigComponent', () => {
 
     const element = await render();
 
-    expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expectResetUnavailable(fixture, NOTHING_TO_RESET);
+    expect(element.textContent).toContain('This tenant already follows the global defaults.');
     const confirm = vi.fn<(message?: string) => boolean>(() => true);
     vi.stubGlobal('confirm', confirm);
-    await fixture.componentInstance.onReset();
+    // disabledInteractive does not stop the click on a <button>.
+    button(element, 'Reset to Defaults').click();
+    await new Promise((resolve) => setTimeout(resolve));
     expect(confirm).not.toHaveBeenCalled();
     expect(requests).not.toContain('DELETE /api/status-list-config');
   });
@@ -173,7 +188,7 @@ describe('StatusListConfigComponent', () => {
     );
     fixture.detectChanges();
 
-    expect(button(element, 'Reset to Defaults').disabled).toBe(false);
+    expectResetAvailable(fixture);
   });
 
   it('counts stored false values and 1 bit as settings to reset', async () => {
@@ -185,7 +200,7 @@ describe('StatusListConfigComponent', () => {
     };
     const element = await render();
 
-    expect(button(element, 'Reset to Defaults').disabled).toBe(false);
+    expectResetAvailable(fixture);
     button(element, 'Reset to Defaults').click();
 
     expect(confirm.mock.lastCall?.[0]).toContain(
@@ -261,7 +276,54 @@ describe('StatusListConfigComponent', () => {
       immediateUpdate: false,
       enableAggregation: true,
     });
-    expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expectResetUnavailable(fixture, NOTHING_TO_RESET);
+  });
+
+  it('refuses a reset while a change is being saved', async () => {
+    const confirm = vi.fn<(message?: string) => boolean>(() => true);
+    vi.stubGlobal('confirm', confirm);
+    const element = await render();
+
+    fixture.componentInstance.isSaving = true;
+    fixture.detectChanges();
+    expectResetUnavailable(fixture, RESET_WHILE_SAVING);
+    button(element, 'Reset to Defaults').click();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(requests).not.toContain('DELETE /api/status-list-config');
+  });
+
+  it('moves focus to the settings title when a reset ends with focus lost', async () => {
+    vi.stubGlobal('confirm', () => true);
+    responses['DELETE /api/status-list-config'] = { status: 204 };
+    const element = await render();
+
+    // Safari, for one, does not focus a button on click.
+    loseFocus();
+    await click(element, 'Reset to Defaults');
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
+  });
+
+  it('gives focus back to Save once saving has finished', async () => {
+    responses['PUT /api/status-list-config'] = { status: 200, body: { capacity: 10000 } };
+    const element = await render();
+
+    const save = button(element, 'Save Configuration');
+    save.focus();
+    save.click();
+    fixture.detectChanges();
+    expect(save.disabled).toBe(true);
+    loseFocus();
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(save);
+    });
   });
 
   it('names the field the backend rejected on save', async () => {
@@ -286,17 +348,27 @@ describe('StatusListConfigComponent', () => {
     responses['DELETE /api/status-list-config'] = 'unreachable';
     const element = await render();
 
+    loseFocus();
     expect(await click(element, 'Save Configuration')).toBe(
       `Failed to save configuration: ${unreachableHint}`
     );
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(button(element, 'Save Configuration'));
+    });
+    loseFocus();
     expect(await click(element, 'Reset to Defaults')).toBe(
       `Failed to reset configuration: ${unreachableHint}`
     );
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(settingsTitle(element));
+    });
     // The stored settings are still there, so Reset stays available.
     fixture.detectChanges();
     expect(snackBar.open).toHaveBeenCalledTimes(1);
     expect(fixture.componentInstance.configForm.value.capacity).toBe(10000);
-    expect(button(element, 'Reset to Defaults').disabled).toBe(false);
+    expectResetAvailable(fixture);
   });
 
   it("shows the backend's reason when saving is rejected", async () => {
