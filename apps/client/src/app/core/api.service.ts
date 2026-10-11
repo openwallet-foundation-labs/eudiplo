@@ -197,6 +197,27 @@ export class ApiService {
   }
 
   /**
+   * Continues the session with a new secret of the signed-in client. The
+   * built-in server refuses the tokens issued with the old secret once it is
+   * rotated, so a new token is requested at once.
+   */
+  async useRotatedSecret(clientSecret: string): Promise<void> {
+    const rotated = this.clientFromStoredConfig(this.getOAuthConfiguration(), clientSecret);
+    if (!rotated) {
+      throw new Error('OAuth2 client not properly configured. Please log in again.');
+    }
+    this.resetRefresh();
+    this.credentialsRejected = false;
+    this.oauth2Client = rotated;
+    try {
+      localStorage.setItem('oauth_client_secret', clientSecret);
+    } catch (e) {
+      console.warn('Failed to persist client secret (storage may be unavailable):', e);
+    }
+    await this.refreshAccessToken();
+  }
+
+  /**
    * Points the client at the backend of a restored OIDC session.
    * Called after OidcService.initialize(); no-op when no OIDC session was restored.
    */

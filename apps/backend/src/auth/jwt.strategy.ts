@@ -104,7 +104,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
      * A token of the built-in server is accepted only while its client exists
      * in the tenant the token names. Roles and resource limits come from the
      * stored client, so deleting or changing a client applies to the tokens
-     * it already has. The client lookup is the one every request already did.
+     * it already has. Tokens issued for an earlier client with this ID or an
+     * earlier secret are rejected. The client lookup is the one every request
+     * already did.
      */
     private async validateIntegratedToken(
         payload: InternalTokenPayload,
@@ -129,6 +131,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
         }
         // The root client has no tenant: both are null for its tokens.
         JwtStrategy.assertSameTenant(client, payload.tenant_id);
+        JwtStrategy.assertIssuedForCredentials(client, payload.credentials_at);
         // Clients go with their tenant, so it exists.
         const tenantEntity = client.tenantId
             ? await this.tenantService.getTenant(client.tenantId)
@@ -193,6 +196,24 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
         if ((client.tenantId ?? null) !== (tenantId ?? null)) {
             throw new UnauthorizedException(
                 "The client of this token does not exist",
+            );
+        }
+    }
+
+    /**
+     * A token naming other credentials than the client's current ones belongs
+     * to an earlier client with this ID, or to an old secret. The token
+     * endpoint reads them with the secret, so a change while a token is being
+     * issued ends that token too; comparing with `iat` would not.
+     */
+    private static assertIssuedForCredentials(
+        client: ClientData,
+        credentialsAt: number | undefined,
+    ) {
+        const current = client.tokensValidAfter;
+        if (current && credentialsAt !== current.getTime()) {
+            throw new UnauthorizedException(
+                "This token was issued for the client's earlier credentials",
             );
         }
     }

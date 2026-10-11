@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { InternalClientsProvider } from "./internal-clients.service.js";
 import { KeycloakClientsProvider } from "./keycloak-clients.service.js";
 
+const tokensValidAfter = new Date("2026-03-01T10:15:30Z");
+
 const persistedClient = {
     clientId: "client-1",
     tenantId: undefined,
@@ -11,6 +13,7 @@ const persistedClient = {
     allowedIssuanceConfigs: ["pid-credential"],
     secret: "hashed-secret-must-not-leak",
     tenant: { id: "relation-must-not-leak" },
+    tokensValidAfter,
 };
 
 describe.each([
@@ -45,7 +48,14 @@ describe.each([
 
         expect(list).toEqual([expected]);
         expect(detail).toEqual(expected);
-        expect(byId).toEqual({ ...expected, tenantId: undefined });
+        // Only the built-in OAuth2 server checks it, when validating tokens.
+        expect(byId).toEqual({
+            ...expected,
+            tenantId: undefined,
+            ...(Provider === InternalClientsProvider
+                ? { tokensValidAfter }
+                : {}),
+        });
         expect(list[0]).not.toHaveProperty("secret");
         expect(list[0]).not.toHaveProperty("tenant");
     });

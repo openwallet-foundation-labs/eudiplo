@@ -95,6 +95,52 @@ describe("JwtStrategy", () => {
             );
         });
 
+        test("accepts a token naming the client's current credentials", async () => {
+            const credentialsAt = new Date(NOW * 1000 + 900);
+            clients.set("shop", {
+                clientId: "shop",
+                tenantId: "acme",
+                roles: [Role.IssuanceOffer],
+                tokensValidAfter: credentialsAt,
+            });
+
+            await expect(
+                strategy.validate(
+                    token({ credentials_at: credentialsAt.getTime() }),
+                ),
+            ).resolves.toBeDefined();
+        });
+
+        test("rejects a token naming earlier or no credentials", async () => {
+            clients.set("shop", {
+                clientId: "shop",
+                tenantId: "acme",
+                roles: [Role.IssuanceOffer],
+                tokensValidAfter: new Date(NOW * 1000 + 900),
+            });
+
+            // Also when issued after the change: the secret was read before.
+            await expect(
+                strategy.validate(
+                    token({ iat: NOW + 1, credentials_at: NOW * 1000 }),
+                ),
+            ).rejects.toThrow(UnauthorizedException);
+            await expect(strategy.validate(token({}))).rejects.toThrow(
+                UnauthorizedException,
+            );
+        });
+
+        test("accepts any token of a client without tokensValidAfter", async () => {
+            clients.set("shop", {
+                clientId: "shop",
+                tenantId: "acme",
+                roles: [Role.IssuanceOffer],
+                tokensValidAfter: null,
+            });
+
+            await expect(strategy.validate(token({}))).resolves.toBeDefined();
+        });
+
         test("accepts the root client, which has no tenant", async () => {
             clients.set("root", {
                 clientId: "root",

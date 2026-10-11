@@ -61,4 +61,11 @@ export interface InternalTokenPayload extends TokenPayload {
 
     /** Expiry, in seconds since the epoch. */
     exp?: number;
+
+    /**
+     * The client's `tokensValidAfter` in milliseconds since the epoch, read
+     * together with the secret when the token was issued. Absent for clients
+     * from before 10.0, which have none.
+     */
+    credentials_at?: number;
 }
