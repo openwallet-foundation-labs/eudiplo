@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { KeyChainEntity } from "./entities/key-chain.entity.js";
+import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainService } from "./key-chain.service.js";
 
 /**
@@ -69,10 +69,13 @@ export class KeyRotationService {
     private async findKeyChainNeedingRotation(): Promise<KeyChainEntity[]> {
         const now = new Date();
 
-        // Get all key chains with rotation enabled
+        // Get all signing key chains with rotation enabled. The tenant's
+        // encryption key chain is not rotated, even if earlier versions let
+        // the API enable rotation for it.
         const keyChains = await this.keyChainRepository.find({
             where: {
                 rotationEnabled: true,
+                usage: KeyUsage.Sign,
             },
         });
 

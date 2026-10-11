@@ -293,19 +293,13 @@ export class KeyChainService {
     }
 
     async getById(tenantId: string, id: string): Promise<KeyChainResponseDto> {
-        const keyChain = await this.keyChainRepository.findOne({
-            where: { tenantId, id },
-        });
-
-        if (!keyChain) {
-            throw new NotFoundException(`Key chain ${id} not found`);
-        }
-
-        return this.toResponseDto(keyChain);
+        // Public key and certificate details only, so this also answers for
+        // the tenant's encryption key chain.
+        return this.toResponseDto(await this.getEntity(tenantId, id));
     }
 
     async export(tenantId: string, id: string): Promise<KeyChainExportDto> {
-        const keyChain = await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
         const storedKey = keyChain.hasInternalCa()
             ? keyChain.rootJwk!
             : keyChain.activeJwk;
@@ -356,9 +350,34 @@ export class KeyChainService {
         return exportDto;
     }
 
+    /**
+     * Any key chain of the tenant, including the system-owned encryption key
+     * chain. For internal lookups; management operations use
+     * {@link getManageable}.
+     */
     async getEntity(tenantId: string, id: string): Promise<KeyChainEntity> {
         const keyChain = await this.keyChainRepository.findOne({
             where: { tenantId, id },
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(`Key chain ${id} not found`);
+        }
+
+        return keyChain;
+    }
+
+    /**
+     * A key chain that the management API may change or export. Like
+     * {@link getAll}, it only finds signing key chains: the tenant's
+     * encryption key chain is system-owned and is reported as not found.
+     */
+    private async getManageable(
+        tenantId: string,
+        id: string,
+    ): Promise<KeyChainEntity> {
+        const keyChain = await this.keyChainRepository.findOne({
+            where: { tenantId, id, usage: KeyUsage.Sign },
         });
 
         if (!keyChain) {
@@ -383,9 +402,7 @@ export class KeyChainService {
             whereClause.id = keyId;
         }
 
-        let keyChain = await this.keyChainRepository.findOne({
-            where: whereClause,
-        });
+        let keyChain = await this.findOneByUsageType(whereClause);
 
         if (!keyChain && fallbackUsageType) {
             const fallbackWhere: Record<string, unknown> = {
@@ -395,9 +412,7 @@ export class KeyChainService {
             if (keyId) {
                 fallbackWhere.id = keyId;
             }
-            keyChain = await this.keyChainRepository.findOne({
-                where: fallbackWhere,
-            });
+            keyChain = await this.findOneByUsageType(fallbackWhere);
         }
 
         if (!keyChain) {
@@ -412,12 +427,33 @@ export class KeyChainService {
         return keyChain;
     }
 
+    /**
+     * For usage type `encrypt`, prefers the tenant's encryption key chain
+     * over signing key chains created with that usage type. Before imports
+     * checked the stored usage, an import with usage type `encrypt` could
+     * turn the encryption key chain into a signing key chain. Without an
+     * encryption key chain, the lookup stays as before, so such a tenant
+     * keeps decrypting with the same key.
+     */
+    private async findOneByUsageType(
+        where: Record<string, unknown>,
+    ): Promise<KeyChainEntity | null> {
+        if (where.usageType !== KeyUsageType.Encrypt) {
+            return this.keyChainRepository.findOne({ where });
+        }
+        return (
+            (await this.keyChainRepository.findOne({
+                where: { ...where, usage: KeyUsage.Encrypt },
+            })) ?? this.keyChainRepository.findOne({ where })
+        );
+    }
+
     async update(
         tenantId: string,
         id: string,
         dto: KeyChainUpdateDto,
     ): Promise<void> {
-        const keyChain = await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
 
         // Without an interval the rotation job never rotates the key chain.
         if (
@@ -456,12 +492,7 @@ export class KeyChainService {
     }
 
     async delete(tenantId: string, id: string): Promise<void> {
-        const keyChain = await this.keyChainRepository.findOne({
-            where: { tenantId, id },
-        });
-        if (!keyChain) {
-            throw new NotFoundException(`Key chain ${id} not found`);
-        }
+        const keyChain = await this.getManageable(tenantId, id);
 
         await this.deleteExternalKeyMaterial(keyChain);
 
@@ -498,7 +529,7 @@ export class KeyChainService {
     }
 
     async rotate(tenantId: string, id: string): Promise<void> {
-        const keyChain = await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
         const hostname = this.getHostname();
         const tenant = await this.tenantRepository.findOneByOrFail({
             id: tenantId,
