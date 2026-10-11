@@ -21,7 +21,7 @@ import {
     ClientsProvider,
 } from "../../auth/client/client.provider.js";
 import { ClientAccessService } from "../../auth/client/client-access.service.js";
-import { allRoles, type Role } from "../../auth/roles/role.enum.js";
+import { isRole } from "../../auth/roles/role.enum.js";
 import { assertMayGrantRoles } from "../../auth/roles/role-grants.js";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
 import { KeyChainType } from "../../crypto/key/dto/key-chain-create.dto.js";
@@ -113,9 +113,7 @@ export class ConfigBundleApplyService {
             const spec = document?.spec;
             if (!Array.isArray(spec?.roles)) continue;
             // Unknown role names are left to the document validation.
-            const roles = spec.roles.filter((role): role is Role =>
-                allRoles.includes(role as Role),
-            );
+            const roles = spec.roles.filter(isRole);
             if (typeof spec.clientId === "string") {
                 await this.clientAccess.assertMayAssignRoles(
                     callerRoles,
