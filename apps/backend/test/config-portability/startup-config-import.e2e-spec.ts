@@ -173,6 +173,104 @@ describe("startup configuration reconciliation", () => {
             });
     });
 
+    it("exports resources created without a description as a bundle that passes its own schema validation", async () => {
+        const appConfig = app.get(ConfigService);
+        const bootstrap = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: appConfig.getOrThrow<string>("AUTH_CLIENT_ID"),
+                client_secret:
+                    appConfig.getOrThrow<string>("AUTH_CLIENT_SECRET"),
+            })
+            .expect(201);
+        const tenantId = "export-without-description";
+        const tenant = await request(app.getHttpServer())
+            .post("/tenant")
+            .set("Authorization", `Bearer ${bootstrap.body.access_token}`)
+            .send({
+                id: tenantId,
+                name: "Export without description",
+                roles: ["tenant:admin", "issuance:manage"],
+            })
+            .expect(201);
+        const token = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: tenant.body.client.clientId,
+                client_secret: tenant.body.client.clientSecret,
+            })
+            .expect(201);
+        const authorization = `Bearer ${token.body.access_token}`;
+        await request(app.getHttpServer())
+            .post("/client")
+            .set("Authorization", authorization)
+            .send({ clientId: "no-description", roles: ["issuance:offer"] })
+            .expect(201);
+        const issuerKeyChain = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", authorization)
+            .send({ usageType: "attestation", type: "standalone" })
+            .expect(201);
+        const signerKeyChain = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", authorization)
+            .send({ usageType: "trustList", type: "standalone" })
+            .expect(201);
+        const trustList = await request(app.getHttpServer())
+            .post("/trust-list")
+            .set("Authorization", authorization)
+            .send({
+                keyChainId: signerKeyChain.body.id,
+                entities: [
+                    {
+                        type: "internal",
+                        issuerKeyChainId: issuerKeyChain.body.id,
+                        revocationKeyChainId: issuerKeyChain.body.id,
+                        info: { name: "Issuer" },
+                    },
+                ],
+            })
+            .expect(201);
+        const created = new Set([
+            "Tenant/tenant",
+            "Client/no-description",
+            `KeyChain/${issuerKeyChain.body.id}`,
+            `KeyChain/${signerKeyChain.body.id}`,
+            `TrustList/${trustList.body.id}`,
+        ]);
+
+        const service = app.get(ConfigBundleService);
+        const bundle = await service.exportBundle(tenantId);
+        const exported = bundle.documents.filter((document) =>
+            created.has(
+                `${normalizeDocument(document).kind}/${resourceId(document)}`,
+            ),
+        );
+        expect(exported).toHaveLength(created.size);
+        for (const document of exported) {
+            expect(document.spec).not.toHaveProperty("description");
+        }
+        const plan = await service.plan(tenantId, bundle, "upsert");
+        expect(
+            plan.issues.filter(
+                (issue) => issue.code === "CONFIG_SCHEMA_VALIDATION_FAILED",
+            ),
+            JSON.stringify(plan.issues, null, 2),
+        ).toEqual([]);
+        // Client and key chains are blocked on their secret and private key
+        // requirements, so only these two reach the comparison.
+        expect(
+            plan.items
+                .filter((item) => ["Tenant", "TrustList"].includes(item.kind))
+                .map(({ kind, action }) => ({ kind, action })),
+        ).toEqual([
+            { kind: "Tenant", action: "unchanged" },
+            { kind: "TrustList", action: "unchanged" },
+        ]);
+    });
+
     it("imports the demo folder through the versioned plan/apply pipeline", async () => {
         const configRoot = app
             .get(ConfigService)
