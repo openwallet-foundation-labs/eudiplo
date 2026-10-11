@@ -2,7 +2,7 @@ import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
-import { afterAll, beforeAll, describe, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { Role } from "../../src/auth/roles/role.enum.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
@@ -65,17 +65,17 @@ describe("Schema metadata publish roles (e2e)", () => {
 
     describe.each(["publish", "publish-version"])("POST %s", (path) => {
         test("rejects a token with only issuance:manage", async () => {
-            await publish(path, issuanceToken).expect(403);
+            expect((await publish(path, issuanceToken)).status).toBe(403);
         });
 
         test("rejects a token with only registrar:manage", async () => {
-            await publish(path, registrarToken).expect(403);
+            expect((await publish(path, registrarToken)).status).toBe(403);
         });
 
         test("passes a token with both roles to body validation", async () => {
             // Guards run before validation: 400 for the empty body means the
             // role check passed.
-            await publish(path, bothToken).expect(400);
+            expect((await publish(path, bothToken)).status).toBe(400);
         });
     });
 
@@ -86,7 +86,7 @@ describe("Schema metadata publish roles (e2e)", () => {
                 .set("Authorization", `Bearer ${token}`);
 
         // 404: the role check passed and the tenant has no registrar config.
-        await list(registrarToken).expect(404);
-        await list(issuanceToken).expect(403);
+        expect((await list(registrarToken)).status).toBe(404);
+        expect((await list(issuanceToken)).status).toBe(403);
     });
 });
