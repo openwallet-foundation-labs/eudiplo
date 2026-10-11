@@ -1,7 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
 
-import { getApiErrorMessage, getHttpErrorMessage, getValidationIssues } from './error-message';
+import {
+  getApiErrorMessage,
+  getHttpErrorMessage,
+  getValidationIssues,
+  groupUnreachable,
+  joinFailures,
+} from './error-message';
 
 function badRequest(errors: unknown) {
   return new HttpErrorResponse({
@@ -201,5 +207,87 @@ describe('getApiErrorMessage', () => {
         'Failed to load'
       )
     ).toBe('Failed to parse (config: Required)');
+  });
+});
+
+describe('groupUnreachable', () => {
+  const unreachable = new TypeError('Failed to fetch');
+  const forbidden = { statusCode: 403, message: 'Forbidden resource' };
+  const describeLoad = (labels: string) => `Could not load ${labels}`;
+
+  it('names every call the backend did not answer in one message', () => {
+    expect(
+      groupUnreachable(
+        [
+          { label: 'key chains', error: unreachable },
+          { label: 'trust lists', error: forbidden },
+          { label: 'credential configs', error: new TypeError('Load failed') },
+          { label: 'registrar config', error: unreachable },
+        ],
+        describeLoad
+      )
+    ).toEqual({
+      unreachable:
+        'Could not load key chains, credential configs, and registrar config: ' +
+        'the backend could not be reached. Check the connection and try again.',
+      other: [{ label: 'trust lists', error: forbidden }],
+    });
+  });
+
+  it('names a single call without a list', () => {
+    expect(groupUnreachable([{ label: 'trust lists', error: unreachable }], describeLoad)).toEqual({
+      unreachable:
+        'Could not load trust lists: the backend could not be reached. Check the connection and try again.',
+      other: [],
+    });
+  });
+
+  it('keeps every failure when the backend answered them all', () => {
+    const failures = [
+      { label: 'key chains', error: forbidden },
+      {
+        label: 'trust lists',
+        error: new TypeError("Cannot read properties of undefined (reading 'id')"),
+      },
+    ];
+
+    expect(groupUnreachable(failures, describeLoad)).toEqual({
+      unreachable: undefined,
+      other: failures,
+    });
+  });
+});
+
+describe('joinFailures', () => {
+  const reason = ({ label, error }: { label: string; error: unknown }) =>
+    `${label}: ${(error as { message: string }).message}`;
+
+  it('gives the reasons of the backend first and the unreachable calls once, last', () => {
+    expect(
+      joinFailures(
+        [
+          { label: 'a', error: new TypeError('Failed to fetch') },
+          { label: 'b', error: { statusCode: 404, message: 'Not found' } },
+          { label: 'c', error: new TypeError('Failed to fetch') },
+        ],
+        reason,
+        (labels) => labels
+      )
+    ).toBe(
+      'b: Not found; a and c: the backend could not be reached. Check the connection and try again.'
+    );
+  });
+
+  it('joins only the reasons when the backend answered every call', () => {
+    expect(
+      joinFailures(
+        [
+          { label: 'a', error: { message: 'Forbidden resource' } },
+          { label: 'b', error: { message: 'Not found' } },
+        ],
+        reason,
+        (labels) => labels
+      )
+    ).toBe('a: Forbidden resource; b: Not found');
   });
 });
