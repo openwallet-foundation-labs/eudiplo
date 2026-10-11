@@ -86,6 +86,9 @@ export class RegistrarComponent implements OnInit {
         intermediary: [''],
       }),
     });
+    for (const url of ['registrarUrl', 'oidcUrl']) {
+      this.configForm.get(url)?.valueChanges.subscribe(() => this.updateCredentialValidators());
+    }
   }
 
   ngOnInit(): void {
@@ -120,11 +123,7 @@ export class RegistrarComponent implements OnInit {
                 : '',
           },
         });
-        // If config exists with a password, password field is optional (keep existing)
-        if (this.config.hasPassword) {
-          this.configForm.get('password')?.clearValidators();
-          this.configForm.get('password')?.updateValueAndValidity();
-        }
+        this.updateCredentialValidators();
       }
     } catch (error) {
       console.error('Error loading registrar data:', error);
@@ -134,8 +133,32 @@ export class RegistrarComponent implements OnInit {
     }
   }
 
+  /**
+   * The backend keeps the stored password and client secret only while the
+   * registrar URL and OIDC URL stay the same. A changed URL therefore
+   * replaces the whole configuration.
+   */
+  get urlsChanged(): boolean {
+    // The group value lags behind while a control emits valueChanges.
+    const { registrarUrl, oidcUrl } = this.configForm.getRawValue();
+    return (
+      this.config !== null &&
+      (registrarUrl !== this.config.registrarUrl || oidcUrl !== this.config.oidcUrl)
+    );
+  }
+
+  /** Require the password unless the stored one is kept. */
+  private updateCredentialValidators(): void {
+    const password = this.configForm.get('password');
+    password?.setValidators(
+      !this.config?.hasPassword || this.urlsChanged ? [Validators.required] : []
+    );
+    password?.updateValueAndValidity({ emitEvent: false });
+  }
+
   async saveConfig(): Promise<void> {
     if (this.configForm.invalid) {
+      this.configForm.markAllAsTouched();
       this.snackBar.open('Please fill in all required fields', 'Close', { duration: 3000 });
       return;
     }
@@ -183,13 +206,19 @@ export class RegistrarComponent implements OnInit {
         configRequest.password = formValue.password;
       }
 
-      if (isUpdate) {
-        // Use PATCH for updates - only send fields that should be updated
-        this.config = await this.registrarService.updateConfig(configRequest);
+      if (isUpdate && !this.urlsChanged) {
+        // Use PATCH for updates. The URLs are unchanged, so leave them out:
+        // URLs changed elsewhere since loading would otherwise be rejected
+        const changes: Partial<RegistrarConfigRequest> = { ...configRequest };
+        delete changes.registrarUrl;
+        delete changes.oidcUrl;
+        this.config = await this.registrarService.updateConfig(changes);
       } else {
-        // Use POST for new config
+        // Use POST for a new config or new URLs: it replaces the stored
+        // credentials, and an empty client secret removes the stored one
         this.config = await this.registrarService.saveConfig(configRequest);
       }
+      this.updateCredentialValidators();
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
