@@ -424,30 +424,7 @@ export class KeyCreateWizardComponent implements OnInit {
       const isRegistrarEnrollment = usage === 'access' && this.selectedAccessSource === 'registrar';
 
       if (this.isExternalCertificate) {
-        const externalKey = this.parseExternalPrivateKey();
-        const externalCertificates = this.parseCertificateChain(
-          this.configForm.value.externalCertificate
-        );
-        const importDto: KeyChainImportDto = {
-          ...externalKey,
-          usageType: usage,
-          // Without type, the backend guesses from rotationPolicy and the certificate.
-          type: this.isExternalCaChain ? 'internalChain' : 'standalone',
-          description: description || this.getDefaultDescription(),
-          kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
-          crt: externalCertificates,
-          // certValidityDays also sets the validity of the first signing certificate.
-          rotationPolicy: this.isExternalCaChain ? this.rotationPolicy() : undefined,
-        };
-        const result = await this.keyChainService.import(importDto);
-        this.snackBar.open(
-          this.isExternalCaChain
-            ? 'CA imported and signing key created.'
-            : 'Key and certificate imported.',
-          'Close',
-          { duration: 5000 }
-        );
-        this.router.navigate(['/keys', result.id]);
+        await this.importExternalKey(usage, description);
         return;
       }
 
@@ -504,6 +481,30 @@ export class KeyCreateWizardComponent implements OnInit {
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  /** Imports the pasted key and certificate chain and opens the imported key chain. */
+  private async importExternalKey(usage: KeyUsageSelection, description?: string): Promise<void> {
+    const importDto: KeyChainImportDto = {
+      ...this.parseExternalPrivateKey(),
+      usageType: usage,
+      // Without type, the backend guesses from rotationPolicy and the certificate.
+      type: this.isExternalCaChain ? 'internalChain' : 'standalone',
+      description: description || this.getDefaultDescription(),
+      kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+      crt: this.parseCertificateChain(this.configForm.value.externalCertificate),
+      // certValidityDays also sets the validity of the first signing certificate.
+      rotationPolicy: this.isExternalCaChain ? this.rotationPolicy() : undefined,
+    };
+    const result = await this.keyChainService.import(importDto);
+    this.snackBar.open(
+      this.isExternalCaChain
+        ? 'CA imported and signing key created.'
+        : 'Key and certificate imported.',
+      'Close',
+      { duration: 5000 }
+    );
+    this.router.navigate(['/keys', result.id]);
   }
 
   /** The rotation policy of the Rotation Policy card; the interval only with rotation. */
