@@ -7,7 +7,7 @@ import { NEVER } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { ApiService } from './core';
-import { JwtService, type Role } from './services/jwt.service';
+import { JwtService, roles as allRoles, type Role } from './services/jwt.service';
 import {
   NAV_SECTION_ROUTES,
   NavSectionsService,
@@ -28,12 +28,15 @@ describe('AppComponent', () => {
   });
 });
 
+@Component({ template: '' })
+class EmptyPageComponent {}
+
 describe('AppComponent navigation', () => {
-  function menuItems(roles: Role[]): string[] {
+  function renderNav(roles: Role[]) {
     TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: '**', component: EmptyPageComponent }]),
         {
           provide: JwtService,
           useValue: {
@@ -46,12 +49,47 @@ describe('AppComponent navigation', () => {
     });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
+    return fixture;
+  }
+
+  function menuItems(roles: Role[]): string[] {
+    const element = renderNav(roles).nativeElement as HTMLElement;
     return Array.from(
       element.querySelectorAll('mat-sidenav [matListItemTitle]'),
       (item) => item.textContent?.trim() ?? ''
     );
   }
+
+  // RouterLink only listens for click; on an anchor the browser turns Enter into one.
+  it('renders every entry as a link, so Enter opens it', () => {
+    const element = renderNav(allRoles).nativeElement as HTMLElement;
+    const entries = Array.from(element.querySelectorAll('mat-sidenav .mat-mdc-list-item'));
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries).toHaveLength(element.querySelectorAll('mat-sidenav [matListItemTitle]').length);
+    for (const entry of entries) {
+      expect(entry.tagName).toBe('A');
+      expect(entry.getAttribute('href')).toMatch(/^\//);
+    }
+  });
+
+  it('marks only the entry of the open page as the current page', async () => {
+    const element = renderNav(allRoles).nativeElement as HTMLElement;
+    const router = TestBed.inject(Router);
+    const entries = Array.from(element.querySelectorAll('mat-sidenav a.mat-mdc-list-item'));
+    expect(entries.length).toBeGreaterThan(0);
+
+    for (const entry of entries) {
+      const href = entry.getAttribute('href')!;
+      await router.navigateByUrl(href);
+
+      // RouterLinkActive sets aria-current in a microtask after the navigation.
+      await vi.waitFor(() => {
+        const current = element.querySelectorAll('mat-sidenav [aria-current="page"]');
+        expect(current, href).toHaveLength(1);
+        expect(current[0], href).toBe(entry);
+      });
+    }
+  });
 
   it.each<[string, Role[]]>([
     ['issuance', ['issuance:manage', 'issuance:offer']],
@@ -149,9 +187,6 @@ describe('AppComponent help menu', () => {
     ]);
   });
 });
-
-@Component({ template: '' })
-class EmptyPageComponent {}
 
 describe('AppComponent collapsible navigation', () => {
   function render(
