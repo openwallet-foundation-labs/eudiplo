@@ -11,6 +11,7 @@ import {
   Self,
   SimpleChanges,
 } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ConfigOwnershipService, ConfigResourceKind } from './config-ownership.service';
 
@@ -40,9 +41,6 @@ export class ConfigOwnershipDirective implements OnInit, OnChanges, OnDestroy {
   pending = false;
   @HostBinding('attr.aria-busy') get ariaBusy(): string | null {
     return this.pending ? 'true' : null;
-  }
-  @HostBinding('attr.aria-disabled') get ariaDisabled(): string | null {
-    return this.managed ? 'true' : null;
   }
   /** Read by screen readers when the host has no tooltip; a tooltip's description takes precedence. */
   @HostBinding('attr.aria-description') get ariaDescription(): string | null {
@@ -84,13 +82,24 @@ export class ConfigOwnershipDirective implements OnInit, OnChanges, OnDestroy {
   }
 
   private request = 0;
+  /**
+   * A Material button binds `aria-disabled` itself, for example for
+   * `disabledInteractive`. A second binding on the same attribute would
+   * overwrite it whenever its own value changes, so the lock goes through the
+   * button's `ariaDisabled` input instead.
+   */
+  private readonly button: Pick<MatButton, 'ariaDisabled'> | null;
 
   constructor(
     private readonly ownership: ConfigOwnershipService,
     private readonly changeDetector: ChangeDetectorRef,
     private readonly host: ElementRef<HTMLElement>,
-    @Optional() @Self() private readonly tooltip: MatTooltip | null
-  ) {}
+    @Optional() @Self() private readonly tooltip: MatTooltip | null,
+    @Optional() @Self() matButton: MatButton | null,
+    @Optional() @Self() matIconButton: MatIconButton | null
+  ) {
+    this.button = matButton ?? matIconButton;
+  }
 
   ngOnInit(): void {
     for (const type of BLOCKED_EVENTS) {
@@ -122,6 +131,16 @@ export class ConfigOwnershipDirective implements OnInit, OnChanges, OnDestroy {
     event.stopImmediatePropagation();
   };
 
+  private syncAriaDisabled(): void {
+    if (this.button) {
+      this.button.ariaDisabled = this.managed || undefined;
+    } else if (this.managed) {
+      this.host.nativeElement.setAttribute('aria-disabled', 'true');
+    } else {
+      this.host.nativeElement.removeAttribute('aria-disabled');
+    }
+  }
+
   private syncTooltip(): void {
     if (!this.tooltip) return;
     if (!this.managed) {
@@ -137,6 +156,7 @@ export class ConfigOwnershipDirective implements OnInit, OnChanges, OnDestroy {
     if (!this.managedKind || !this.managedResourceId) {
       this.managed = false;
       this.pending = false;
+      this.syncAriaDisabled();
       this.syncTooltip();
       return;
     }
@@ -151,6 +171,7 @@ export class ConfigOwnershipDirective implements OnInit, OnChanges, OnDestroy {
     } finally {
       if (request === this.request) {
         this.pending = false;
+        this.syncAriaDisabled();
         this.syncTooltip();
         this.changeDetector.markForCheck();
       }
