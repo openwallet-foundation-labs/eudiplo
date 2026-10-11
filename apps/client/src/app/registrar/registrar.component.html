@@ -67,7 +67,7 @@
 
           <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="16px">
             <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Registrar URL</mat-label>
                 <input
                   matInput
@@ -78,7 +78,7 @@
                 <mat-error>{{ fieldError('registrarUrl') }}</mat-error>
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>OIDC URL</mat-label>
                 <input
                   matInput
@@ -97,7 +97,7 @@
                 <mat-error>{{ fieldError('clientId') }}</mat-error>
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Client Secret (optional)</mat-label>
                 <input
                   matInput
@@ -136,7 +136,7 @@
                 <mat-error>{{ fieldError('username') }}</mat-error>
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Password</mat-label>
                 <input
                   matInput
@@ -232,7 +232,7 @@
             mat-raised-button
             color="primary"
             (click)="saveConfig()"
-            [disabled]="configForm.invalid || isSaving || isDeleting"
+            [disabled]="hasInvalidInput || isSaving || isDeleting"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"

@@ -24,6 +24,7 @@ import {
     schemaMetadataControllerUpdateSchema,
 } from "../generated/index.js";
 import { RegistrarAuthService } from "../registrar-auth.service.js";
+import { registrarErrorMessage } from "../registrar-error-message.js";
 import {
     DeprecateSchemaMetadataDto,
     UpdateSchemaMetadataDto,
@@ -329,11 +330,7 @@ export class SchemaMetadataService {
         const statusCode = Number(
             (error as any)?.status ?? (error as any)?.statusCode,
         );
-        const message =
-            (error as any)?.error?.message ??
-            (error as any)?.message ??
-            (error as any)?.error ??
-            "Unknown registrar error";
+        const message = registrarErrorMessage(error);
 
         this.logger.error(
             { tenantId, action, statusCode, error },

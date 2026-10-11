@@ -100,11 +100,15 @@ export class RegistrarConfigService {
                 return;
             }
 
+            // Checked before the stored configuration is deleted.
+            await this.authService.assertSafeUrls(config, {
+                resolveHosts: false,
+            });
             if (existing && updateExisting) {
                 await this.configRepository.delete({ tenantId });
             }
 
-            await this.configRepository.save({ tenantId, ...config });
+            await this.replaceConfig(tenantId, config);
             await this.configOwnershipService.markApplied({
                 tenantId,
                 kind: "RegistrarConfig",
@@ -149,16 +153,17 @@ export class RegistrarConfigService {
     }
 
     /**
-     * Create or replace the registrar configuration for a tenant.
-     * Credentials are validated before saving; {@link replaceConfig} stores
-     * them.
+     * Create or replace the registrar configuration for a tenant. The URLs
+     * are checked against the outbound URL policy and the credentials against
+     * the OIDC provider before saving.
      */
     async saveConfig(
         tenantId: string,
         dto: CreateRegistrarConfig,
     ): Promise<RegistrarConfigEntity> {
+        await this.authService.assertSafeUrls(dto);
         await this.authService.testCredentials(dto);
-        return this.replaceConfig(tenantId, dto);
+        return this.store(tenantId, dto);
     }
 
     /**
@@ -166,12 +171,25 @@ export class RegistrarConfigService {
      * checking the credentials. Configuration imports use this: the
      * registrar may be unreachable at startup, and a failed check would stop
      * the rest of the import. Wrong credentials fail on first use instead.
-     *
-     * A `clientSecret` or `registrationCertificateDefaults` missing from
-     * `dto` removes the stored one, so a stored secret is never sent to the
-     * `oidcUrl` of a replacement.
+     * The URLs are still checked against the outbound URL policy, without
+     * resolving their hosts: a host that does not resolve at startup must
+     * not stop the import either. Its address is checked on first use.
      */
     async replaceConfig(
+        tenantId: string,
+        dto: CreateRegistrarConfig,
+    ): Promise<RegistrarConfigEntity> {
+        await this.authService.assertSafeUrls(dto, { resolveHosts: false });
+        return this.store(tenantId, dto);
+    }
+
+    /**
+     * Store `dto` as the whole configuration. A `clientSecret` or
+     * `registrationCertificateDefaults` missing from `dto` removes the stored
+     * one, so a stored secret is never sent to the `oidcUrl` of a
+     * replacement.
+     */
+    private async store(
         tenantId: string,
         dto: CreateRegistrarConfig,
     ): Promise<RegistrarConfigEntity> {
@@ -191,7 +209,8 @@ export class RegistrarConfigService {
 
     /**
      * Partially update the registrar configuration for a tenant.
-     * Credentials are re-validated only when auth-related fields are changed.
+     * The resulting URLs are checked against the outbound URL policy;
+     * credentials are re-validated only when auth-related fields are changed.
      *
      * @throws BadRequestException when `oidcUrl` or `registrarUrl` changes
      * and `dto` does not send the stored credentials again.
@@ -208,6 +227,12 @@ export class RegistrarConfigService {
         }
 
         this.assertCredentialsForChangedDestination(existing, dto);
+        // The URLs in effect after the update, stored ones included: a PATCH
+        // may leave unchanged URLs out, and the policy may have changed since.
+        await this.authService.assertSafeUrls({
+            registrarUrl: dto.registrarUrl ?? existing.registrarUrl,
+            oidcUrl: dto.oidcUrl ?? existing.oidcUrl,
+        });
 
         const hasAuthChanges =
             dto.oidcUrl !== undefined ||
