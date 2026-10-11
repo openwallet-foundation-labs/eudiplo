@@ -21,7 +21,8 @@
     "kmsProvider": "db",
     "rotationPolicy": {
       "certValidityDays": 30,
-      "enabled": true
+      "enabled": true,
+      "intervalDays": 20
     }
   }
 }

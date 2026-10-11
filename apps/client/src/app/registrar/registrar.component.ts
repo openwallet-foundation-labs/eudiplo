@@ -23,6 +23,7 @@ import {
 import { getHttpErrorMessage, getValidationIssues } from '../utils/error-message';
 import { httpUrlValidator } from '../utils/http-url-validator';
 import { registrarBaseUrlValidator } from './registrar-url.validator';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 interface RegistrarPreset {
   name: string;
@@ -410,9 +411,10 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting config:', error);
-      this.snackBar.open(getHttpErrorMessage(error, 'Failed to delete configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getHttpErrorMessage(error, 'Failed to delete configuration')
+      );
     } finally {
       this.isDeleting = false;
     }

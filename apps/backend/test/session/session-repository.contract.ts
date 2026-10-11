@@ -332,7 +332,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             ).resolves.toBe(false);
         });
 
-        it("preserves wallet nonce precedence, legacy ID fallback, and ISO protocol restriction", async () => {
+        it("finds wallet requests only by wallet nonce, and ISO sessions only by protocol", async () => {
             const nonceMatch = randomUUID();
             await adapter.create({
                 id: nonceMatch,
@@ -343,9 +343,19 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 { id: nonceMatch },
             );
             await adapter.deleteForTenant("tenant-b", nonceMatch);
-            expect(await adapter.findForWalletRequest(sessionId)).toMatchObject(
-                { id: sessionId },
-            );
+            // The session ID finds nothing, whatever the session's type.
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                requestId: "age-check",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: "iso-18013-7",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: null,
+            });
             expect(await adapter.findForWalletRequest(randomUUID())).toBeNull();
             expect(await adapter.findIso18013Session(sessionId)).toBeNull();
             await adapter.updateForTenant("tenant-a", sessionId, {
@@ -477,6 +487,75 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                         .findOneByOrFail({ id: sessionId })
                 ).txCodeFailedAttempts,
             ).toBe(8);
+        });
+
+        it("leaves out the sessions still open for a wallet of the hidden types", async () => {
+            const repository = getDataSource().getRepository(Session);
+            await repository.delete({ id: sessionId });
+            const tenantId = "tenant-a";
+            const [
+                openIssuance,
+                fetchedIssuance,
+                redeemedIssuance,
+                doneIssuance,
+            ] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+            const [openPresentation, donePresentation] = [
+                randomUUID(),
+                randomUUID(),
+            ];
+            await repository.save([
+                { id: openIssuance, tenantId },
+                {
+                    id: fetchedIssuance,
+                    tenantId,
+                    status: SessionStatus.Fetched,
+                },
+                { id: redeemedIssuance, tenantId, consumed: true },
+                {
+                    id: doneIssuance,
+                    tenantId,
+                    status: SessionStatus.Cancelled,
+                },
+                { id: openPresentation, tenantId, requestId: "age-check" },
+                {
+                    id: donePresentation,
+                    tenantId,
+                    requestId: "age-check",
+                    status: SessionStatus.Completed,
+                },
+            ]);
+            const listed = async (hideOpen: ("issuance" | "presentation")[]) =>
+                (
+                    await adapter.listForTenant(tenantId, {
+                        page: 1,
+                        pageSize: 10,
+                        hideOpen,
+                    })
+                ).items
+                    .map((item) => item.id)
+                    .sort();
+
+            expect(await listed([])).toEqual(
+                [
+                    openIssuance,
+                    fetchedIssuance,
+                    redeemedIssuance,
+                    doneIssuance,
+                    openPresentation,
+                    donePresentation,
+                ].sort(),
+            );
+            expect(await listed(["issuance"])).toEqual(
+                [
+                    redeemedIssuance,
+                    doneIssuance,
+                    openPresentation,
+                    donePresentation,
+                ].sort(),
+            );
+            expect(await listed(["issuance", "presentation"])).toEqual(
+                [redeemedIssuance, doneIssuance, donePresentation].sort(),
+            );
         });
 
         it("lists only tenant summaries with filters, ordering and pagination", async () => {

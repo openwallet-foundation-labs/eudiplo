@@ -16,7 +16,9 @@ import { StatusListConfigService, bitsOptions } from './status-list-config.servi
 import { StatusListConfig } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { LoadErrorComponent } from '../common/load-error.component';
 import { getApiErrorMessage } from '../utils/error-message';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
 
@@ -50,6 +52,7 @@ const newListsOnly = new Set<keyof StatusListConfig>(['capacity', 'bits']);
     FlexLayoutModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './status-list-config.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -124,9 +127,7 @@ export class StatusListConfigComponent implements OnInit {
         duration: 3000,
       });
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save configuration'));
     } finally {
       this.isSaving = false;
     }
@@ -141,9 +142,7 @@ export class StatusListConfigComponent implements OnInit {
     try {
       await this.statusListConfigService.resetConfig();
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to reset configuration'));
       return;
     } finally {
       this.isSaving = false;

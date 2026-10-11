@@ -20,7 +20,12 @@ import { Oid4vpService } from "./oid4vp.service.js";
  */
 @ApiTags("OID4VP")
 @Controller("presentations/:sessionId/oid4vp")
-@ApiParam({ name: "sessionId", required: true })
+@ApiParam({
+    name: "sessionId",
+    required: true,
+    description:
+        "The `walletNonce` from `request_uri` or `response_uri`; the session ID is not accepted.",
+})
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.

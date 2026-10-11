@@ -60,7 +60,7 @@ export type RoleDto = {
     /**
      * OAuth2 roles
      */
-    role: 'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage';
+    role: 'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage';
 };
 
 export type ClientCredentialsDto = {
@@ -214,7 +214,7 @@ export type ClientEntity = {
     /**
      * Roles assigned to the client
      */
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * List of presentation config IDs this client can use. If empty/null, all configs are allowed.
      */
@@ -275,7 +275,7 @@ export type CreateTenantDto = {
     /**
      * Roles of the tenant's admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.
      */
-    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional tenant-specific session storage configuration.
      */
@@ -443,7 +443,7 @@ export type UpdateClientDto = {
     /**
      * Optional replacement roles for the client.
      */
-    roles?: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles?: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional replacement allow-list of presentation config ids.
      */
@@ -470,7 +470,7 @@ export type CreateClientDto = {
     /**
      * Roles assigned to the client. At least one role is required.
      */
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional allow-list of presentation config ids this client can use.
      */
@@ -601,7 +601,7 @@ export type ManagedUserDto = {
     username: string;
     email?: string;
     enabled: boolean;
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     tenantId?: string;
     /**
      * One-time temporary password returned only on user creation.
@@ -612,14 +612,14 @@ export type ManagedUserDto = {
 export type CreateUserDto = {
     username: string;
     email?: string;
-    roles: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     enabled?: boolean;
 };
 
 export type UpdateUserDto = {
     username?: string;
     email?: string;
-    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     enabled?: boolean;
     password?: string;
 };
@@ -1153,11 +1153,15 @@ export type KeyChainExportDto = {
      */
     usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
     /**
-     * The key in JWK format (EC). Contains the private key for database-held keys and only the public key for external KMS providers.
+     * Key chain type. For internalChain, key and crt are the root CA key and certificate; the import generates a new signing key.
+     */
+    type: 'standalone' | 'internalChain';
+    /**
+     * The key in JWK format (EC): the root CA key of an internal chain, otherwise the signing key. Contains the private key for database-held keys and only the public key for external KMS providers.
      */
     key: ExportEcJwk;
     /**
-     * Certificate chain in PEM format (leaf first, then intermediates/CA).
+     * Certificate chain in PEM format: the root CA certificate of an internal chain, otherwise the chain leaf first, then intermediates/CA.
      */
     crt?: Array<string>;
     /**
@@ -1261,7 +1265,7 @@ export type EcJwk = {
 
 export type RotationPolicyImportDto = {
     /**
-     * Whether rotation is enabled. When true, the imported key becomes a root CA signer, unless crt is a single self-signed certificate that is not a CA.
+     * Whether rotation is enabled. Without type, true makes the imported key a root CA signer, unless crt is a single self-signed certificate that is not a CA.
      */
     enabled: boolean;
     /**
@@ -1325,7 +1329,11 @@ export type KeyChainImportDto = {
      */
     usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
     /**
-     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate, unless the chain is a single self-signed certificate that is not a CA.
+     * Key chain type. standalone: key is the signing key and crt its chain, leaf first. internalChain: key is a CA key and the last crt entry its CA certificate (created if crt is omitted); a new signing key is generated with a certificate issued by it. Without type, key is a CA key only if rotationPolicy.enabled is true and crt is not a single self-signed certificate that is not a CA. The export writes it.
+     */
+    type?: 'standalone' | 'internalChain';
+    /**
+     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. For an internal chain (see type), the last certificate in the chain is treated as the root CA certificate.
      */
     crt?: Array<string>;
     /**
@@ -1333,7 +1341,7 @@ export type KeyChainImportDto = {
      */
     kmsProvider?: string;
     /**
-     * Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. intervalDays defaults to 90 and certValidityDays to 365.
+     * Rotation policy. Without type, enabling it makes the imported key a root CA signer and a new leaf key is generated; if crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. With rotation enabled, intervalDays defaults to 90 and certValidityDays to 365; without it, no intervals are stored.
      */
     rotationPolicy?: RotationPolicyImportDto & {
         /**
@@ -1672,7 +1680,7 @@ export type SchemaUriEntry = {
 
 export type TrustAuthorityEntry = {
     /**
-     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
      */
     trustListId?: string;
     /**
@@ -1680,7 +1688,7 @@ export type TrustAuthorityEntry = {
      */
     frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
     /**
-     * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+     * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
      */
     value?: string;
     /**
@@ -1740,11 +1748,11 @@ export type SchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -1752,7 +1760,7 @@ export type SchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -4975,11 +4983,11 @@ export type PublishSchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -4987,7 +4995,7 @@ export type PublishSchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -5084,11 +5092,11 @@ export type SignSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5096,7 +5104,7 @@ export type SignSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
@@ -5178,11 +5186,11 @@ export type SignVersionSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5190,7 +5198,7 @@ export type SignVersionSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
@@ -6832,6 +6840,13 @@ export type KeyChainControllerImportData = {
     url: '/api/key-chain/import';
 };
 
+export type KeyChainControllerImportErrors = {
+    /**
+     * The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.
+     */
+    409: unknown;
+};
+
 export type KeyChainControllerImportResponses = {
     /**
      * Key chain imported successfully
@@ -7634,6 +7649,10 @@ export type SessionControllerRevokeAllErrors = {
      * The status does not fit the status list's bits per entry
      */
     400: unknown;
+    /**
+     * The token has neither credentials:status nor issuance:manage
+     */
+    403: unknown;
     /**
      * No status entry for the session, or a revoked credential would be reinstated or suspended
      */

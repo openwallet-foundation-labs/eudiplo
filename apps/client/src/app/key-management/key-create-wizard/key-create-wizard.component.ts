@@ -18,7 +18,9 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainService } from '../key-chain.service';
 import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.service';
 import { KeyChainCreateDto, KeyChainImportDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
-import { getHttpErrorMessage } from '../../utils/error-message';
+import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { JwtService } from '../../services/jwt.service';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
@@ -157,7 +159,8 @@ export class KeyCreateWizardComponent implements OnInit {
     private readonly registrarService: RegistrarService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly jwtService: JwtService
   ) {
     // Step 1: Usage selection
     this.usageForm = this.fb.group({
@@ -192,7 +195,8 @@ export class KeyCreateWizardComponent implements OnInit {
 
   ngOnInit(): void {
     // Pre-check registrar config so we can show status quickly
-    this.checkRegistrarConfig();
+    // checkRegistrarConfig handles its own errors.
+    if (this.canUseRegistrar) void this.checkRegistrarConfig();
     this.loadKmsProviders();
   }
 
@@ -223,9 +227,10 @@ export class KeyCreateWizardComponent implements OnInit {
       this.availableKmsProviders = [];
       this.defaultKmsProvider = 'db';
       this.configForm.patchValue({ kmsProvider: 'db' });
-      this.snackBar.open('Failed to load KMS providers. Falling back to db.', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        `${asSentence(getApiErrorMessage(error, 'Failed to load KMS providers'))} Falling back to db.`
+      );
     } finally {
       this.isLoadingKmsProviders = false;
     }
@@ -251,6 +256,15 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   get hasRegistrarConfig(): boolean {
     return this.registrarConfig !== null;
+  }
+
+  /** Reading the registrar configuration and enrolling through it need registrar:manage. */
+  get canUseRegistrar(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
+  }
+
+  isAccessSourceAvailable(source: AccessSourceSelection): boolean {
+    return source !== 'registrar' || this.canUseRegistrar;
   }
 
   get selectedUsage(): KeyUsageSelection | null {
@@ -340,6 +354,16 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   onAccessSourceNext(): void {
     if (this.selectedAccessSource === 'registrar') {
+      if (!this.canUseRegistrar) {
+        this.snackBar.open(
+          'Enrolling through the registrar needs the registrar:manage role',
+          'Close',
+          {
+            duration: 5000,
+          }
+        );
+        return;
+      }
       if (!this.hasRegistrarConfig) {
         // Config not yet set - user can go to registrar page via UI link
         // but we don't force navigation automatically
@@ -431,7 +455,7 @@ export class KeyCreateWizardComponent implements OnInit {
           // settings. The client cannot enroll an existing key, so say how to retry.
           this.snackBar
             .open(
-              `Key created without a registrar certificate: ${message}. Fix the Registrar Config, then delete this key and create it again, or enroll it with POST /api/registrar/access-certificate and its keyId.`,
+              `Key created without a registrar certificate: ${asSentence(message)} Fix the Registrar Config, then delete this key and create it again, or enroll it with POST /api/registrar/access-certificate and its keyId.`,
               'Go to Registrar',
               { duration: 12000 }
             )
@@ -449,7 +473,7 @@ export class KeyCreateWizardComponent implements OnInit {
       this.router.navigate(['/keys', result.id]);
     } catch (error) {
       console.error('Error creating key chain:', error);
-      this.snackBar.open('Failed to create key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to create key chain'));
     } finally {
       this.isSubmitting = false;
     }

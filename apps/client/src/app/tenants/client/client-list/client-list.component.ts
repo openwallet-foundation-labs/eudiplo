@@ -22,6 +22,8 @@ import { JwtService } from '../../../services/jwt.service';
 import { canManageRoles } from '../../../services/role-grants';
 import { getApiErrorMessage } from '../../../utils/error-message';
 import { clientDeleteConfirmation } from '../client-delete-confirmation';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-client-list',
@@ -36,6 +38,7 @@ import { clientDeleteConfirmation } from '../client-delete-confirmation';
     MatTooltipModule,
     MatDialogModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
   ],
   templateUrl: './client-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -46,6 +49,8 @@ export class ClientListComponent implements OnInit {
 
   clients: ClientEntity[] = [];
   loading = false;
+  /** Set when the list could not be loaded, so it is not shown as empty. */
+  loadError = '';
   hasPermission = false;
 
   displayedColumns: (keyof ClientEntity | 'actions')[] = [
@@ -77,17 +82,18 @@ export class ClientListComponent implements OnInit {
     if (this.loadedClients) {
       this.clients = this.loadedClients;
     } else {
-      this.loadClients();
+      void this.loadClients();
     }
   }
 
   async loadClients(): Promise<void> {
     this.loading = true;
+    this.loadError = '';
     try {
       this.clients = await clientControllerGetClients<true>().then((res) => res.data);
     } catch (error) {
       console.error('Error loading clients:', error);
-      this.snackBar.open('Failed to load clients', 'Close', { duration: 3000 });
+      this.loadError = getApiErrorMessage(error, 'Failed to load clients');
     } finally {
       this.loading = false;
     }
@@ -105,9 +111,7 @@ export class ClientListComponent implements OnInit {
       await clientControllerDeleteClient({ path: { id: client.clientId } });
     } catch (error) {
       console.error('Error deleting client:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete client'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete client'));
       return;
     }
 
@@ -153,9 +157,7 @@ export class ClientListComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error rotating secret:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to rotate client secret'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to rotate client secret'));
     }
   }
 }

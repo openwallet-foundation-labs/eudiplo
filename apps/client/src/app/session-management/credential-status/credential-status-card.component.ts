@@ -29,9 +29,10 @@ import {
 } from './credential-status-dialog.component';
 
 /**
- * Shows the status of the credentials issued in a session and lets the user
- * revoke, suspend or reinstate them per credential configuration. Renders
- * nothing while the session holds no credential with a status.
+ * Shows the status of the credentials issued in a session and, with
+ * `canChange`, lets the user revoke, suspend or reinstate them per credential
+ * configuration. Renders nothing while the session holds no credential with a
+ * status.
  */
 @Component({
   selector: 'app-credential-status-card',
@@ -45,6 +46,8 @@ export class CredentialStatusCardComponent implements OnChanges {
   @Input({ required: true }) sessionId!: string;
   /** The session's status; the credential status is read again when it changes. */
   @Input() sessionStatus?: string;
+  /** Whether the caller may change the status (credentials:status or issuance:manage). */
+  @Input() canChange = false;
 
   private readonly sessions = inject(SessionManagementService);
   private readonly dialog = inject(MatDialog);
@@ -71,6 +74,14 @@ export class CredentialStatusCardComponent implements OnChanges {
       this.groups = [];
     }
     this.changeDetector.markForCheck();
+  }
+
+  /** A change the lists allow, which the caller's roles do not. */
+  get changeNeedsRole(): boolean {
+    return (
+      !this.canChange &&
+      this.groups.some((group) => group.canRevoke || group.canSuspend || group.canReinstate)
+    );
   }
 
   entryTooltip(group: CredentialStatusGroup): string {

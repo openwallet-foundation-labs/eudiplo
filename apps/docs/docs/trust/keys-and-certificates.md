@@ -4,7 +4,7 @@ title: Keys and Certificates
 
 A key chain is a signing key together with its certificate chain. Each tenant needs one per purpose: an access key chain to sign presentation requests, an attestation key chain to sign credentials, and optionally status list and trust list key chains. Create them in the Web Client under **Cryptographic Assets → Keys → Create Key**, or with the API below; where the private keys live is set by the [KMS provider](../operate/kms.md).
 
-**Prerequisites:** the `issuance:manage` or `presentation:manage` role.
+**Prerequisites:** the `issuance:manage`, `presentation:manage` or `keys:manage` role.
 
 ## Usage types
 
@@ -15,7 +15,7 @@ A key chain is a signing key together with its certificate chain. Each tenant ne
 | `statusList`  | Status lists for [revocation](../issuance/revocation.md)                                       | Status List Signing               |
 | `trustList`   | [Trust lists](trust-lists.md) you publish                                                      | Trust List Signing                |
 
-`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself; it is not listed with the other key chains.
+`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself. It is not listed with the other key chains, and the key chain endpoints do not change it: updating, rotating, deleting or exporting its ID answers `404`, and an import with its ID answers `409`. Configuration bundles leave it out and skip a document with its ID ([Config Bundle Format](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
 
 ## Key chain types
 
@@ -23,8 +23,8 @@ A key chain is a signing key together with its certificate chain. Each tenant ne
 | ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Standalone        | `POST /api/key-chain` with `"type": "standalone"`                    | Self-signed; subject is the tenant name, DNS name the host of `PUBLIC_URL`                                     | New key with a new self-signed certificate     |
 | Internal chain    | `POST /api/key-chain` with `"type": "internalChain"`                 | EUDIPLO creates a root CA (valid 10 years) and a leaf certificate signed by it                                | New leaf key signed by the same root           |
-| Imported key      | `POST /api/key-chain/import` without `rotationPolicy`, or with rotation enabled and a `crt` of one self-signed certificate that is not a CA | Your chain from `crt` (leaf first), or a self-signed certificate if `crt` is omitted                           | New key with a self-signed certificate (see warning below) |
-| External CA chain | `POST /api/key-chain/import` with `"rotationPolicy": {"enabled": true}` and any other `crt` or none | `key` is your CA key and the last `crt` entry its CA certificate, or a self-signed CA certificate EUDIPLO creates if `crt` is omitted; EUDIPLO generates leaf keys signed by it | New leaf key signed by your CA                 |
+| Imported key      | `POST /api/key-chain/import` with `"type": "standalone"`             | Your chain from `crt` (leaf first), or a self-signed certificate valid 365 days if `crt` is omitted                           | New key with a self-signed certificate (see warning below) |
+| External CA chain | `POST /api/key-chain/import` with `"type": "internalChain"`          | `key` is your CA key and the last `crt` entry its CA certificate, or a self-signed CA certificate EUDIPLO creates if `crt` is omitted; EUDIPLO generates leaf keys signed by it | New leaf key signed by your CA                 |
 
 In the Web Client, attestation keys offer **Create Key Chain** (internal chain), **Standalone Key** and **External CA Chain**; access keys offer **Self-Signed Certificate**, **Registrar Enrollment** ([Registrar](registrar.md)) and **External Certificate** (import). The wizard accepts pasted PEM values and PEM, CRT, CER or DER files and checks that key and certificate match.
 
@@ -62,9 +62,11 @@ Import material issued by your own PKI or an ecosystem operator with `POST /api/
 }
 ```
 
-The first certificate must contain the public key of the imported private key. For an **external CA chain**, add `"rotationPolicy": { "enabled": true, "intervalDays": 30, "certValidityDays": 365 }` and pass the CA key and a chain whose last certificate is the CA certificate (`CA=true`, matching the key). EUDIPLO then creates and rotates the signing leaf itself; `intervalDays` defaults to 90. A `crt` of one self-signed certificate that is not a CA, as in the export of a standalone key chain with rotation, makes it an imported key that rotates instead (see the table above).
+For an imported key, the first certificate must contain the public key of the imported private key. For an **external CA chain**, add `"type": "internalChain"` and pass the CA key and a chain whose last certificate is the CA certificate (`CA=true`, matching the key); the certificates before it are not used. EUDIPLO then creates the signing leaf itself, and rotates it with `"rotationPolicy": { "enabled": true, "intervalDays": 30, "certValidityDays": 365 }`. With rotation enabled, a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365; without rotation, no intervals are stored.
 
-To provision key chains as files, put the same JSON into `config/<tenant>/key-chains/`; see [Configuration as Code](../operate/configuration-as-code.md). `GET /api/key-chain/{id}/export` returns a key chain in this format and needs `tenant:admin` or `tenants:manage`. For the `db` provider it contains the private key, for an internal chain the root CA key and certificate but not the signing key: import that file with `"rotationPolicy": { "enabled": true }` to keep the root as CA of a new signing key, because without rotation the root CA key itself becomes the signing key. For an external KMS it contains only the public key, because the private key never leaves the KMS, so that file cannot be imported again.
+Without `type`, as in files written before 10.0, the import decides from `rotationPolicy`: with rotation enabled it is an external CA chain, unless `crt` is one self-signed certificate that is not a CA (the export of a standalone key chain); otherwise it is an imported key.
+
+To provision key chains as files, put the same JSON into `config/<tenant>/key-chains/`; see [Configuration as Code](../operate/configuration-as-code.md). `GET /api/key-chain/{id}/export` returns a key chain in this format, with its `type`, and needs `tenant:admin` or `tenants:manage`. For an internal or external CA chain it contains the CA key and certificate but not the signing key, so its import keeps the CA and creates a new signing key, as a rotation does. For the `db` provider the export contains the private key; for an external KMS only the public key, because the private key never leaves the KMS, so that file cannot be imported again. For 9.x exports, see the [10.0 upgrade guide](../upgrade/9.x-to-10.0.md#configuration-files). A startup import does not apply an unchanged file again and so renews no certificate ([details](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
 
 ## Rotate keys
 

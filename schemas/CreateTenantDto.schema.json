@@ -32,7 +32,11 @@
           "clients:manage",
           "users:manage",
           "registrar:manage",
-          "tenant:admin"
+          "tenant:admin",
+          "audit:read",
+          "sessions:read",
+          "credentials:status",
+          "keys:manage"
         ]
       }
     },

@@ -8,13 +8,15 @@ Configuration files name their format in `$schema`, for example `https://eudiplo
 
 ## Format versions
 
-Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1 and `CredentialConfig` v2 in 10.0:
+Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1, `CredentialConfig` v2, `KeyChain` v2 and `Client` v2 in 10.0:
 
 | Resource | Version | Change |
 | --- | --- | --- |
 | `IssuanceConfig` | v2 | Optional `offerLifetimeSeconds`. A v1 file is a valid v2 file. |
 | `IssuanceConfig` | v3 | Optional `verifierKeyPem` (PEM public key) in `walletProviderTrustLists` entries. A v2 file is a valid v3 file. |
 | `CredentialConfig` | v2 | `x509` as `frameworkType` of `schemaMeta.trustedAuthorities` entries. A v1 file is a valid v2 file. |
+| `KeyChain` | v2 | Optional `type` (`standalone`, `internalChain`). A v1 file is a valid v2 file; a bare key chain file with `type` is read as v2 (`bareFileVersion`). |
+| `Client` | v2 | The roles `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1 file is a valid v2 file. |
 | `PresentationConfig` | v2 | `registration_cert.body.provided_attestations` is replaced by the registrar's `provides_attestations` (string array). The v1 → v2 step drops the old field with a warning. |
 | `PresentationConfig` | v3 | DCQL claim `values` accept integers and booleans besides strings and must be non-empty. A v2 file is a valid v3 file unless it has an empty `values` array. |
 | All other resources | v1 | |
@@ -47,7 +49,7 @@ Bump the version whenever the accepted content of a resource changes, including 
     pnpm --filter @eudiplo/website build
     ```
 
-7. Commit schema, snapshot, generated files, tests and documentation together, and describe the change in the [upgrade guide](../upgrade/index.md) of the next major: files exported by the new release cannot be imported into older ones.
+7. Commit schema, snapshot, generated files, tests and documentation together, and describe the change in the [upgrade guide](../upgrade/index.md) of the next major: files exported by the new release cannot be imported into older ones. A new `KeyChain` version also changes the hash stored for each applied document, so the next `upsert` or `replace` import applies every file-managed key chain once more, with new signing keys for CA keys; say so in that guide too.
 
 `schemas:snapshot` without a resource name checks and snapshots every current resource. Running `schemas:snapshot` alone is not enough: `schemas:check-contract` fails when a DTO changed but the version was not bumped.
 

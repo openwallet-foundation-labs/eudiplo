@@ -76,7 +76,7 @@ export interface SessionRepository {
     ): Promise<boolean>;
     /** Internal flow correlation only; never use an untrusted management request ID. */
     findByIdForInternalFlow(id: string): Promise<SessionData | null>;
-    /** Wallet nonce first, then legacy session-ID fallback for existing wallet URLs. */
+    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
     findForWalletRequest(nonce: string): Promise<SessionData | null>;
     findIso18013Session(id: string): Promise<SessionData | null>;
     /** Session holding this code hash (only the hash of a code is stored). */

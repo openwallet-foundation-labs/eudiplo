@@ -132,6 +132,34 @@
   color: var(--eudiplo-danger);
 }
 
+.kept-session {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kept-session-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  p {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  mat-spinner {
+    flex: none;
+  }
+}
+
+.kept-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .full-width {
   width: 100%;
 }

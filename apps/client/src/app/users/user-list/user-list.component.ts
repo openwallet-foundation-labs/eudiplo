@@ -16,6 +16,8 @@ import {
 import { JwtService } from '../../services/jwt.service';
 import { canManageRoles } from '../../services/role-grants';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../common/load-error.component';
 
 @Component({
   selector: 'app-user-list',
@@ -28,6 +30,7 @@ import { getApiErrorMessage } from '../../utils/error-message';
     FlexLayoutModule,
     MatChipsModule,
     MatTooltipModule,
+    LoadErrorComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-list.component.html',
@@ -35,6 +38,8 @@ import { getApiErrorMessage } from '../../utils/error-message';
 export class UserListComponent implements OnInit {
   users: ManagedUserDto[] = [];
   loading = false;
+  /** Set when the list could not be loaded, so it is not shown as empty. */
+  loadError = '';
   isUnavailable = false;
   unavailableMessage = '';
   displayedColumns: (keyof ManagedUserDto | 'actions')[] = [
@@ -66,6 +71,7 @@ export class UserListComponent implements OnInit {
 
   async loadUsers(): Promise<void> {
     this.loading = true;
+    this.loadError = '';
     this.isUnavailable = false;
     this.unavailableMessage = '';
 
@@ -80,7 +86,7 @@ export class UserListComponent implements OnInit {
         this.users = [];
       } else {
         console.error('Error loading users:', error);
-        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
+        this.loadError = getApiErrorMessage(error, 'Failed to load users');
       }
     } finally {
       this.loading = false;
@@ -151,7 +157,7 @@ export class UserListComponent implements OnInit {
   }
 
   async deleteUser(user: ManagedUserDto): Promise<void> {
-    if (!user.id || !confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+    if (!user.id || !confirm(`Delete user "${user.username}"? This cannot be undone.`)) {
       return;
     }
 
@@ -161,9 +167,7 @@ export class UserListComponent implements OnInit {
       this.snackBar.open('User deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting user:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete user'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete user'));
     }
   }
 }

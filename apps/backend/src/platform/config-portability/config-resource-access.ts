@@ -16,7 +16,7 @@ const CONFIG_RESOURCE_MANAGE_ROLES: Record<
     Tenant: [Role.Issuances, Role.Presentations],
     Client: [Role.Clients],
     KmsConfig: [],
-    KeyChain: [Role.Issuances, Role.Presentations],
+    KeyChain: [Role.Issuances, Role.Presentations, Role.Keys],
     RegistrarConfig: [Role.Registrar],
     IssuanceConfig: [Role.Issuances],
     CredentialConfig: [Role.Issuances],

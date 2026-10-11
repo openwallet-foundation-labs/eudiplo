@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { OAuth2Client } from '@badgateway/oauth2-client';
+import { OAuth2Client, OAuth2HttpError } from '@badgateway/oauth2-client';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
+import { Subject } from 'rxjs';
 import { client } from '@eudiplo/sdk-core';
 import type { Client } from '@eudiplo/sdk-core/api/client/index';
 import { environment } from '../../environments/environment';
@@ -15,18 +16,60 @@ export function defaultApiUrl(runtimeApiUrl?: string, buildApiUrl?: string): str
   return runtimeApiUrl || buildApiUrl || 'http://localhost:3000';
 }
 
+/** Statuses with which a token endpoint refuses client credentials (RFC 6749, section 5.2). */
+const rejectedCredentialStatuses = new Set([400, 401]);
+/** Delay before retrying a failed refresh; it doubles after each failure up to the maximum. */
+const refreshRetryMinMs = 5_000;
+const refreshRetryMaxMs = 60_000;
+
+/** OAuth settings stored for a reload; the client secret is stored separately. */
+interface StoredOAuthConfig {
+  server?: string;
+  clientId?: string;
+  baseUrl?: string;
+  tokenEndpoint?: string;
+}
+
+/**
+ * True when the token endpoint answered 400 or 401, the statuses with which it
+ * refuses client credentials, for example after the client was deleted or its
+ * secret rotated. The response body is not checked. Any other failure, such as no
+ * response, a 5xx or a proxy's 404 while the backend restarts, is retried.
+ */
+function isCredentialRejection(error: unknown): boolean {
+  return error instanceof OAuth2HttpError && rejectedCredentialStatuses.has(error.httpCode);
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private _localAccessToken = '';
-  oauth2Client!: OAuth2Client;
+  private oauth2Client?: OAuth2Client;
   private _localIsAuthenticated = false;
   private tokenExpirationTime?: number;
   private baseUrl?: string;
   client!: Client;
   private refreshTimerId?: ReturnType<typeof setTimeout>;
   private refreshInProgress?: Promise<void> | null = null;
+  /** The current credentials got a token, so a refresh that fails for another reason than rejection keeps the session. */
+  private sessionStarted = false;
+  private refreshRetries = 0;
+  /** Changes when the credentials change or the session ends; a refresh started before is ignored. */
+  private refreshGeneration = 0;
+  private readonly renewed = new Subject<void>();
+  /** Emits after each new token, for example when a kept session resumes after an outage. */
+  readonly tokenRenewed$ = this.renewed.asObservable();
+  private readonly ended = new Subject<void>();
+  /**
+   * Emits when the client forgets its credentials: on logout, when the token
+   * endpoint rejects them, and when the first token request of a sign-in fails.
+   */
+  readonly sessionEnded$ = this.ended.asObservable();
+  /** The token endpoint rejected the credentials of this session. */
+  private credentialsRejected = false;
+  /** A started session whose credentials the token endpoint rejected, until the login page reports it. */
+  private rejectedSession?: { clientId: string; baseUrl?: string };
 
   constructor(
     private readonly httpClient: HttpClient,
@@ -37,6 +80,11 @@ export class ApiService {
     this.setClient(defaultApiUrl(runtimeEnv.env?.apiUrl, environment.api?.baseUrl));
     // Then try to load stored config (may override the default)
     this.loadTokenFromStorage();
+  }
+
+  /** True after the token endpoint rejected the credentials, for example of a deleted client. */
+  areCredentialsRejected(): boolean {
+    return this.credentialsRejected;
   }
 
   /** Returns the access token, preferring the OIDC token in OIDC mode. */
@@ -104,6 +152,11 @@ export class ApiService {
     issuerUrl?: string,
     tokenEndpoint?: string
   ) {
+    // New credentials start a new session, even if discovery fails: the previous
+    // session stops renewing, and a failure of the first token request ends the new one.
+    this.resetRefresh();
+    this.credentialsRejected = false;
+    this.rejectedSession = undefined;
     const discovery = tokenEndpoint ? undefined : await this.fetchDiscovery(baseUrl);
     const oidcUrl = issuerUrl ?? discovery?.issuer;
     const resolvedTokenEndpoint = tokenEndpoint ?? discovery?.token_endpoint;
@@ -175,7 +228,11 @@ export class ApiService {
   /**
    * Refreshes the access token for the registrar using client credentials.
    * This method is called periodically to ensure the access token is valid.
-   * NOTE: This will fail if client secret is not available (after page reload)
+   *
+   * When the token endpoint rejects the credentials, the session ends and the
+   * stored settings are removed. Any other failure of a started session, such as
+   * the backend being down, keeps the token (and `isAuthenticated`) until it
+   * expires, keeps the stored settings for a reload, and retries with a backoff.
    */
   async refreshAccessToken(): Promise<void> {
     // Prevent concurrent refresh attempts
@@ -183,50 +240,109 @@ export class ApiService {
       return this.refreshInProgress;
     }
 
-    this.refreshInProgress = (async () => {
-      try {
-        // Ensure oauth2Client exists, otherwise try to rehydrate from storage
-        if (!this.oauth2Client?.settings.clientSecret) {
-          const storedSecret = localStorage.getItem('oauth_client_secret');
-          const oauthConfig = this.getOAuthConfiguration();
-          if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {
-            this.oauth2Client = new OAuth2Client({
-              discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
-              tokenEndpoint: this.getStoredTokenEndpoint(oauthConfig),
-              clientId: oauthConfig.clientId,
-              clientSecret: storedSecret,
-            });
-          } else {
-            throw new Error('OAuth2 client not properly configured. Please log in again.');
-          }
-        }
-
-        const token = await this.oauth2Client.clientCredentials();
-        this._localAccessToken = token.accessToken;
-        this.isAuthenticated = true;
-
-        const expirationTime = token.expiresAt as number;
-        this.tokenExpirationTime = expirationTime;
-
-        // Save token to storage (without client secret)
-        const storedOAuthConfig = localStorage.getItem('oauth_config');
-        if (storedOAuthConfig) {
-          this.saveTokenToStorage(token.accessToken, expirationTime, JSON.parse(storedOAuthConfig));
-        }
-
-        // Schedule next refresh only if we have valid credentials
-        this.scheduleTokenRefresh(expirationTime);
-      } catch (error) {
-        console.error('Failed to refresh access token:', error);
-        this.isAuthenticated = false;
-        this.clearTokenFromStorage();
-        throw error;
-      } finally {
+    const refresh = this.requestToken().finally(() => {
+      if (this.refreshInProgress === refresh) {
         this.refreshInProgress = null;
       }
-    })();
+    });
+    this.refreshInProgress = refresh;
+    return refresh;
+  }
 
-    return this.refreshInProgress;
+  /** One token request; its outcome is ignored when the credentials changed or the session ended meanwhile. */
+  private async requestToken(): Promise<void> {
+    const generation = this.refreshGeneration;
+    try {
+      const token = await this.clientForRefresh().clientCredentials();
+      if (generation !== this.refreshGeneration) {
+        return;
+      }
+      this._localAccessToken = token.accessToken;
+      this.isAuthenticated = true;
+      this.sessionStarted = true;
+      this.refreshRetries = 0;
+
+      const expirationTime = token.expiresAt as number;
+      this.tokenExpirationTime = expirationTime;
+
+      // Save token to storage (without client secret)
+      const storedOAuthConfig = localStorage.getItem('oauth_config');
+      if (storedOAuthConfig) {
+        this.saveTokenToStorage(token.accessToken, expirationTime, JSON.parse(storedOAuthConfig));
+      }
+
+      // Schedule next refresh only if we have valid credentials
+      this.scheduleTokenRefresh(expirationTime);
+      this.renewed.next();
+    } catch (error) {
+      if (generation !== this.refreshGeneration) {
+        throw error;
+      }
+      const rejected = isCredentialRejection(error);
+      if (this.keepsCredentials() && !rejected) {
+        const delay = this.scheduleRefreshRetry();
+        console.warn(`Failed to refresh access token, retrying in ${delay / 1000} s:`, error);
+      } else {
+        console.error('Failed to refresh access token:', error);
+        // Before forgetCredentials announces the end, so listeners see why it ended.
+        this.credentialsRejected = rejected;
+        const clientId = this.oauth2Client?.settings.clientId;
+        if (rejected && this.sessionStarted && clientId) {
+          this.rejectedSession = { clientId, baseUrl: this.baseUrl };
+        }
+        this.forgetCredentials();
+      }
+      throw error;
+    }
+  }
+
+  /** The client holding the secret, rebuilt from storage when only the stored settings are left. */
+  private clientForRefresh(): OAuth2Client {
+    if (this.oauth2Client?.settings.clientSecret) {
+      return this.oauth2Client;
+    }
+    const storedSecret = localStorage.getItem('oauth_client_secret');
+    const restored = storedSecret
+      ? this.clientFromStoredConfig(this.getOAuthConfiguration(), storedSecret)
+      : undefined;
+    if (!restored) {
+      throw new Error('OAuth2 client not properly configured. Please log in again.');
+    }
+    this.oauth2Client = restored;
+    return restored;
+  }
+
+  /**
+   * True while a started session cannot renew its token for another reason than
+   * rejected credentials, for example because the backend is down, and retries.
+   */
+  isReconnecting(): boolean {
+    return this.refreshRetries > 0;
+  }
+
+  /**
+   * True when a session has no valid token but keeps its credentials and renews
+   * itself, for example after a reload while the backend was down. The login page
+   * waits for it instead of asking for credentials again.
+   */
+  hasKeptSession(): boolean {
+    return this.keepsCredentials() && !this.getAuthenticationStatus();
+  }
+
+  /**
+   * Returns the session whose credentials the token endpoint rejected, once, so
+   * the login page can say why it ended even when it opens afterwards, for
+   * example after a logout from the expired notice. A new sign-in clears it.
+   */
+  takeRejectedSession(): { clientId: string; baseUrl?: string } | undefined {
+    const session = this.rejectedSession;
+    this.rejectedSession = undefined;
+    return session;
+  }
+
+  /** A started session keeps its credentials through failures other than rejection, and retries. */
+  private keepsCredentials(): boolean {
+    return this.sessionStarted && !!this.oauth2Client?.settings.clientSecret;
   }
 
   /**
@@ -316,7 +432,7 @@ export class ApiService {
 
   /**
    * Checks if automatic token refresh is available
-   * Returns false if client secret is not stored (after page reload)
+   * Returns false without a client secret, for example after the credentials were rejected
    */
   canRefreshToken(): boolean {
     if (this.oidcService.mode === 'oidc') {
@@ -346,12 +462,7 @@ export class ApiService {
   /**
    * Gets the current OAuth configuration for display purposes
    */
-  getOAuthConfiguration(): {
-    server?: string;
-    clientId?: string;
-    baseUrl?: string;
-    tokenEndpoint?: string;
-  } | null {
+  getOAuthConfiguration(): StoredOAuthConfig | null {
     const storedConfig = localStorage.getItem('oauth_config');
     if (storedConfig) {
       try {
@@ -363,37 +474,45 @@ export class ApiService {
     return null;
   }
 
-  private getStoredTokenEndpoint(oauthConfig: {
-    baseUrl?: string;
-    tokenEndpoint?: string;
-  }): string | undefined {
-    return (
-      oauthConfig.tokenEndpoint ??
-      (oauthConfig.baseUrl ? `${oauthConfig.baseUrl}/api/oauth2/token` : undefined)
-    );
+  /**
+   * Builds the OAuth2 client for stored settings, or undefined when they are incomplete.
+   * It gets the stored token endpoint, or the backend's default for settings stored
+   * without one: without an endpoint it would run discovery, and the library keeps
+   * a failed discovery for good, so no later refresh could succeed.
+   */
+  private clientFromStoredConfig(
+    oauthConfig: StoredOAuthConfig | null,
+    clientSecret: string
+  ): OAuth2Client | undefined {
+    if (!oauthConfig?.server || !oauthConfig.clientId) {
+      return undefined;
+    }
+    return new OAuth2Client({
+      discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
+      tokenEndpoint:
+        oauthConfig.tokenEndpoint ??
+        (oauthConfig.baseUrl ? `${oauthConfig.baseUrl}/api/oauth2/token` : undefined),
+      clientId: oauthConfig.clientId,
+      clientSecret,
+    });
   }
 
   /**
    * Logs out the user by clearing the access token
    */
   logout(): void {
-    // Clear any scheduled refresh first.
-    if (this.refreshTimerId) {
-      clearTimeout(this.refreshTimerId);
-      this.refreshTimerId = undefined;
-    }
-
     if (this.oidcService.mode === 'oidc') {
+      this.resetRefresh();
       this.oidcService.logout();
       return;
     }
 
+    this.forgetCredentials();
+    this.credentialsRejected = false;
+    this.oauth2Client = undefined;
     this._localAccessToken = '';
-    this.isAuthenticated = false;
     this.tokenExpirationTime = undefined;
     this.baseUrl = undefined;
-    this.clearTokenFromStorage();
-    localStorage.removeItem('oauth_client_secret');
   }
 
   /**
@@ -415,17 +534,11 @@ export class ApiService {
           this._localAccessToken = storedToken;
           this.tokenExpirationTime = expirationTime;
           this.isAuthenticated = true;
+          this.sessionStarted = true;
 
           // Restore OAuth client configuration
           const oauthConfig = JSON.parse(storedOAuthConfig);
-
-          if (oauthConfig.server && oauthConfig.clientId) {
-            this.oauth2Client = new OAuth2Client({
-              discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
-              clientId: oauthConfig.clientId,
-              clientSecret: storedSecret || '',
-            });
-          }
+          this.oauth2Client = this.clientFromStoredConfig(oauthConfig, storedSecret || '');
 
           // Set up the client with the stored base URL
           if (oauthConfig.baseUrl) {
@@ -438,30 +551,22 @@ export class ApiService {
           // Token expired - try to refresh automatically if we have credentials
           if (storedSecret) {
             const oauthConfig = JSON.parse(storedOAuthConfig);
-            if (oauthConfig.server && oauthConfig.clientId) {
+            const restored = this.clientFromStoredConfig(oauthConfig, storedSecret);
+            if (restored) {
               console.log('Token expired on app refresh, attempting automatic renewal...');
 
               // Restore OAuth client configuration for refresh
-              this.oauth2Client = new OAuth2Client({
-                discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
-                tokenEndpoint: oauthConfig.baseUrl
-                  ? `${oauthConfig.baseUrl}/api/oauth2/token`
-                  : undefined,
-                clientId: oauthConfig.clientId,
-                clientSecret: storedSecret,
-              });
+              this.oauth2Client = restored;
+              this.sessionStarted = true;
 
               // Set up the client with the stored base URL
               if (oauthConfig.baseUrl) {
                 this.setClient(oauthConfig.baseUrl);
               }
 
-              // Attempt to refresh the token automatically
-              this.refreshAccessToken().catch((error) => {
-                console.warn('Failed to auto-refresh expired token:', error);
-                this.clearTokenFromStorage();
-                localStorage.removeItem('oauth_client_secret');
-              });
+              // Rejected credentials end the session; any other failure keeps it and retries.
+              // refreshAccessToken logs the failure.
+              this.refreshAccessToken().catch(() => undefined);
 
               return; // Don't clear storage yet, let refresh attempt complete
             }
@@ -502,6 +607,60 @@ export class ApiService {
   }
 
   /**
+   * Ends the local session, on logout or after the token endpoint rejected the
+   * credentials, and forgets the credentials so they are neither sent again nor
+   * reused after a reload. The client ID stays on display and the access token
+   * stays usable until it expires; logout clears both.
+   */
+  private forgetCredentials(): void {
+    this.resetRefresh();
+    this.isAuthenticated = false;
+    if (this.oauth2Client) {
+      this.oauth2Client = new OAuth2Client({
+        ...this.oauth2Client.settings,
+        clientSecret: undefined,
+      });
+    }
+    this.clearTokenFromStorage();
+    localStorage.removeItem('oauth_client_secret');
+    this.ended.next();
+  }
+
+  /** Stops refreshing for the current credentials, including a refresh still in flight. */
+  private resetRefresh(): void {
+    this.refreshGeneration++;
+    this.refreshInProgress = null;
+    this.clearRefreshTimer();
+    this.sessionStarted = false;
+    this.refreshRetries = 0;
+  }
+
+  /** Schedules the next attempt after a failed refresh, 5 s and then doubling up to a minute, and returns the delay. */
+  private scheduleRefreshRetry(): number {
+    const delay = Math.min(refreshRetryMaxMs, refreshRetryMinMs * 2 ** this.refreshRetries);
+    this.refreshRetries++;
+    this.setRefreshTimer(delay);
+    return delay;
+  }
+
+  /** Runs a refresh after the delay, replacing any refresh scheduled before. */
+  private setRefreshTimer(delayMs: number): void {
+    this.clearRefreshTimer();
+    this.refreshTimerId = setTimeout(() => {
+      this.refreshTimerId = undefined;
+      // refreshAccessToken logs the failure.
+      this.refreshAccessToken().catch(() => undefined);
+    }, delayMs);
+  }
+
+  private clearRefreshTimer(): void {
+    if (this.refreshTimerId) {
+      clearTimeout(this.refreshTimerId);
+      this.refreshTimerId = undefined;
+    }
+  }
+
+  /**
    * Schedules token refresh before expiration
    * NOTE: Will not schedule if client secret is not available
    */
@@ -531,25 +690,11 @@ export class ApiService {
 
     if (timeUntilRefresh > 0) {
       console.log(`Token refresh scheduled in ${Math.floor(timeUntilRefresh / 60000)} minutes`);
-      if (this.refreshTimerId) {
-        clearTimeout(this.refreshTimerId);
-      }
-      this.refreshTimerId = setTimeout(() => {
-        this.refreshTimerId = undefined;
-        this.refreshAccessToken().catch((e) => console.warn('Scheduled refresh failed', e));
-      }, timeUntilRefresh);
+      this.setRefreshTimer(timeUntilRefresh);
     } else {
       // Token is very close to expiration, refresh immediately
       console.log('Token close to expiration, refreshing immediately');
-      if (this.refreshTimerId) {
-        clearTimeout(this.refreshTimerId);
-      }
-      this.refreshTimerId = setTimeout(() => {
-        this.refreshTimerId = undefined;
-        this.refreshAccessToken().catch((e) =>
-          console.warn('Immediate scheduled refresh failed', e)
-        );
-      }, 1000);
+      this.setRefreshTimer(1000);
     }
   }
 }

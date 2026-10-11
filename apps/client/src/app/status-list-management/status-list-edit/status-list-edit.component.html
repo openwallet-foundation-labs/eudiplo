@@ -165,10 +165,20 @@
                 }
               </mat-select>
               <mat-icon matSuffix>badge</mat-icon>
-              <mat-hint>
-                Bind this list exclusively to a credential configuration, or leave as shared
-              </mat-hint>
+              @if (loadState.credentialConfigs === 'failed') {
+                <mat-hint>Could not load credential configurations.</mat-hint>
+              } @else {
+                <mat-hint>
+                  Bind this list exclusively to a credential configuration, or leave as shared
+                </mat-hint>
+              }
             </mat-form-field>
+            @if (loadState.credentialConfigs === 'failed') {
+              <button mat-button type="button" (click)="retrySource('credentialConfigs')">
+                <mat-icon>refresh</mat-icon>
+                Retry loading credential configurations
+              </button>
+            }
 
             <mat-form-field appearance="outline">
               <mat-label>Key Chain</mat-label>
@@ -181,10 +191,22 @@
                 }
               </mat-select>
               <mat-icon matSuffix>key</mat-icon>
-              <mat-hint>Pin a specific key chain for signing, or use the tenant's default</mat-hint>
+              @if (loadState.keyChains === 'failed') {
+                <mat-hint>Could not load key chains.</mat-hint>
+              } @else {
+                <mat-hint
+                  >Pin a specific key chain for signing, or use the tenant's default</mat-hint
+                >
+              }
             </mat-form-field>
+            @if (loadState.keyChains === 'failed') {
+              <button mat-button type="button" (click)="retrySource('keyChains')">
+                <mat-icon>refresh</mat-icon>
+                Retry loading key chains
+              </button>
+            }
 
-            @if (keyChains.length === 0) {
+            @if (loadState.keyChains === 'loaded' && keyChains.length === 0) {
               <div class="info-box">
                 <mat-icon>info</mat-icon>
                 <span>

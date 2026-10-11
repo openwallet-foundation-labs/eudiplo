@@ -99,9 +99,9 @@ curl -X POST https://eudiplo.example.com/api/key-chain \
   }'
 ```
 
-`usageType` is one of `access`, `attestation`, `trustList`, `statusList` and
-`encrypt`; `type` is `standalone` or `internalChain`. Certificates, rotation and
-key import are covered in [Keys and certificates](../trust/keys-and-certificates.md).
+`usageType` is one of the [usage types](../trust/keys-and-certificates.md#usage-types)
+of a signing key chain; `type` is `standalone` or `internalChain`. Certificates,
+rotation and key import are covered in [Keys and certificates](../trust/keys-and-certificates.md).
 A key chain stays with its provider; to move it, create a new key chain in the
 target provider and switch the configurations that reference it.
 

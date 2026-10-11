@@ -47,7 +47,7 @@ A pre-authorized code is also only valid until the session's creation time plus 
 A presentation session has two identifiers, because the QR code is visible to anyone near the screen:
 
 - The **session ID** is for your backend: the management API, webhooks and the event stream use it. Whoever has it can read the result.
-- The **`walletNonce`** is for the wallet: it appears in `request_uri`, `response_uri` and as `state`. Seeing the QR code reveals only the `walletNonce`, not the session ID.
+- The **`walletNonce`** is for the wallet: it appears in `request_uri`, `response_uri` and as `state`. Seeing the QR code reveals only the `walletNonce`, not the session ID. The OID4VP endpoints do not accept the session ID in its place.
 
 Two more values bind the response to the request:
 

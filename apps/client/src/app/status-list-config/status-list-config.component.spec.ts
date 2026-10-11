@@ -304,4 +304,21 @@ describe('StatusListConfigComponent', () => {
     expect(fixture.componentInstance.configForm.value.capacity).toBe(10000);
     expect(button(element, 'Reset to Defaults').disabled).toBe(false);
   });
+
+  it("shows the backend's reason when saving is rejected", async () => {
+    responses['PUT /api/status-list-config'] = {
+      status: 409,
+      body: {
+        statusCode: 409,
+        error: 'Conflict',
+        message:
+          "Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI.",
+      },
+    };
+    const element = await render();
+
+    expect(await click(element, 'Save Configuration')).toBe(
+      "Failed to save configuration: Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI."
+    );
+  });
 });

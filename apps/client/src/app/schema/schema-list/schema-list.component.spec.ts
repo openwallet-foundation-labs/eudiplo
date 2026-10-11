@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describeListStates } from '../../common/base-async-list.testing';
 import { JwtService } from '../../services/jwt.service';
 import { SchemaService } from '../schema.service';
 import { SchemaListComponent } from './schema-list.component';
@@ -61,7 +62,7 @@ describe('SchemaListComponent', () => {
     });
   });
 
-  it('shows why the schemas could not be loaded instead of an empty list', async () => {
+  it('links the registrar configuration and hides the counts when the schemas cannot be loaded', async () => {
     listMine.mockRejectedValueOnce({
       statusCode: 400,
       message: 'Registrar is not configured for this tenant',
@@ -73,12 +74,10 @@ describe('SchemaListComponent', () => {
     expect(alert?.textContent).toContain(
       'Failed to load schemas: Registrar is not configured for this tenant'
     );
-    expect(text(fixture)).not.toContain('No schemas published');
     expect(text(fixture)).not.toContain('0 schema entries');
-
-    (alert?.querySelector('button') as HTMLButtonElement).click();
-    await vi.waitFor(() => expect(fixture.componentInstance.loadError).toBe(''));
-    expect(listMine).toHaveBeenCalledTimes(2);
+    expect(
+      fixture.nativeElement.querySelector('app-load-error a[href="/registrar"]')?.textContent
+    ).toContain('Registrar configuration');
   });
 
   it('shows a failed registrar sign-in with its reason', async () => {
@@ -113,5 +112,20 @@ describe('SchemaListComponent', () => {
       '1.1.0-rc.1',
       '1.0.0',
     ]);
+  });
+});
+
+describe('SchemaListComponent states', () => {
+  describeListStates({
+    component: SchemaListComponent,
+    service: SchemaService,
+    fetchMethod: 'listMine',
+    item: { id: 'schema-1', version: '1.0.0', issuer: 'Acme', updatedAt: '2026-10-01T00:00:00Z' },
+    loading: 'Loading schemas',
+    empty: 'No schemas published yet.',
+    create: 'Create Schema',
+    createButton: 'Create schema',
+    failure: 'Failed to load schemas',
+    providers: [{ provide: JwtService, useValue: { hasRole: () => true } }],
   });
 });

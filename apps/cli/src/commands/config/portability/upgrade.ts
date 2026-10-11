@@ -24,6 +24,7 @@ import {
     ConfigBundleCodec,
 } from "@eudiplo/config-format/config-bundle.js";
 import {
+    bareFileVersion,
     CONFIG_FORMATS,
     CONFIG_RESOURCE_KINDS,
     type ConfigResourceKind,
@@ -148,7 +149,11 @@ function wrapBare(kind: ConfigResourceKind, input: any, path: string): unknown {
         singleton[kind] ?? spec.id ?? spec.clientId ?? basename(path, ".json"),
     );
     if (!singleton[kind]) spec[kind === "Client" ? "clientId" : "id"] = id;
-    return { $schema: schemaUrl(kind, 1), metadata: { generation: 1 }, spec };
+    return {
+        $schema: schemaUrl(kind, bareFileVersion(kind, input)),
+        metadata: { generation: 1 },
+        spec,
+    };
 }
 async function folderFiles(path: string): Promise<string[]> {
     const files: string[] = [];

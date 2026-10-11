@@ -12,19 +12,11 @@
       <mat-spinner diameter="48"></mat-spinner>
     </div>
   } @else if (loadError) {
-    <mat-card appearance="outlined" class="load-error">
-      <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
-        <mat-icon>error</mat-icon>
-        <div fxFlex role="alert">
-          <strong>{{ loadError }}</strong>
-          <p>The settings can only be changed after they have been loaded.</p>
-        </div>
-        <button mat-stroked-button type="button" (click)="loadConfig()">
-          <mat-icon>refresh</mat-icon>
-          Retry
-        </button>
-      </mat-card-content>
-    </mat-card>
+    <app-load-error
+      [message]="loadError"
+      hint="The settings can only be changed after they have been loaded."
+      (retry)="loadConfig()"
+    />
   } @else {
     <mat-card>
       <mat-card-header>
@@ -184,19 +176,24 @@
       </mat-card-content>
 
       <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button
-          mat-button
-          color="warn"
-          (click)="onReset()"
-          [disabled]="isSaving || !hasStoredOverride"
-          appConfigManaged
-          managedKind="Tenant"
-          managedResourceId="tenant"
-          matTooltip="Reset to global defaults"
-        >
-          <mat-icon>restart_alt</mat-icon>
-          Reset to Defaults
-        </button>
+        <div class="reset-action">
+          <button
+            mat-button
+            color="warn"
+            (click)="onReset()"
+            [disabled]="isSaving || !hasStoredOverride"
+            appConfigManaged
+            managedKind="Tenant"
+            managedResourceId="tenant"
+            matTooltip="Reset to global defaults"
+          >
+            <mat-icon>restart_alt</mat-icon>
+            Reset to Defaults
+          </button>
+          @if (!hasStoredOverride) {
+            <span class="reset-hint">This tenant already follows the global defaults.</span>
+          }
+        </div>
         <button
           mat-flat-button
           color="primary"

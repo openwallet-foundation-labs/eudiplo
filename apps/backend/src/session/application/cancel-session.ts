@@ -56,7 +56,7 @@ interface CancellationRequestMeta {
 export interface CancelSessionCommand {
     tenantId: string;
     sessionId: string;
-    /** The only session type the caller may access, see `sessionScope`. */
+    /** The only session type the caller may change, see `sessionChangeScope`. */
     scope?: SessionType;
     /** Why the offer was cancelled, stored in the logs and sent to the webhook. */
     reason?: string;

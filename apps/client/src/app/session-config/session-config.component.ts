@@ -22,7 +22,9 @@ import { SessionConfigService, SessionCleanupMode, cleanupModes } from './sessio
 import { SessionStorageConfig, UpdateSessionConfigDto } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { LoadErrorComponent } from '../common/load-error.component';
 import { getApiErrorMessage } from '../utils/error-message';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 /** The backend accepts whole seconds only. */
 function wholeNumber(control: AbstractControl): ValidationErrors | null {
@@ -48,6 +50,7 @@ function wholeNumber(control: AbstractControl): ValidationErrors | null {
     FlexLayoutModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './session-config.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -118,9 +121,7 @@ export class SessionConfigComponent implements OnInit {
     try {
       this.currentConfig = await this.sessionConfigService.updateConfig(update);
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save configuration'));
       return;
     } finally {
       this.isSaving = false;
@@ -140,9 +141,7 @@ export class SessionConfigComponent implements OnInit {
     try {
       await this.sessionConfigService.resetConfig();
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to reset configuration'));
       return;
     } finally {
       this.isSaving = false;

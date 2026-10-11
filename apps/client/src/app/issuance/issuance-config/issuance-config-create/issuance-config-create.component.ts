@@ -39,6 +39,8 @@ import { PresentationManagementService } from '../../../presentation/presentatio
 import { RegistrarService } from '../../../registrar/registrar.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -438,10 +440,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.snackBar.open('Loaded privacy policy and support URI from registrar defaults', 'Close', {
         duration: 2500,
       });
-    } catch {
-      this.snackBar.open('Failed to load registrar defaults', 'Close', {
-        duration: 3000,
-      });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getHttpErrorMessage(error, 'Failed to load registrar defaults')
+      );
     }
   }
 
@@ -484,8 +487,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.guidedMode =
         !config.display?.length || this.route.snapshot.queryParamMap?.get('setup') === 'true';
       if (!this.displays.length) this.addDisplay();
-    } catch {
-      this.loadError = 'Could not load issuer settings. Retry before making changes.';
+    } catch (error) {
+      this.loadError = `${asSentence(getApiErrorMessage(error, 'Could not load issuer settings'))} Retry before making changes.`;
     } finally {
       this.loadingConfig = false;
     }
@@ -895,10 +898,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
           this.snackBar.open(`Configuration saved successfully`, 'Close', { duration: 3000 });
           this.router.navigate(['../'], { relativeTo: this.route });
         },
-        (error: string) => {
-          this.snackBar.open(`Failed to save configuration: ${error}`, 'Close', {
-            duration: 3000,
-          });
+        (error: unknown) => {
+          openErrorSnackBar(
+            this.snackBar,
+            getApiErrorMessage(error, 'Failed to save configuration', { allIssues: true })
+          );
         }
       )
       .finally(() => {

@@ -1,4 +1,5 @@
 import {
+    bareFileVersion,
     isConfigDocument,
     migrateDocument,
     normalizeDocument,
@@ -33,8 +34,8 @@ export class ConfigMigrationService {
         }
     }
 
-    detectLegacyVersion(_kind: ConfigResourceKind, _spec: Spec): number {
-        return 1;
+    detectLegacyVersion(kind: ConfigResourceKind, spec: Spec): number {
+        return bareFileVersion(kind, spec);
     }
 
     wrapLegacy(

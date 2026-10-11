@@ -47,7 +47,13 @@
     </button>
   </div>
 
-  @if (displayItems.length === 0) {
+  @if (isLoading && displayItems.length === 0) {
+    <div class="loading-state" fxLayout="row" fxLayoutAlign="center center">
+      <mat-spinner diameter="40" aria-label="Loading keys"></mat-spinner>
+    </div>
+  } @else if (loadError) {
+    <app-load-error [message]="loadError" (retry)="loadAllKeys()" />
+  } @else if (displayItems.length === 0) {
     <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
       <mat-icon class="empty-icon">vpn_key</mat-icon>
       <h3>No keys configured</h3>

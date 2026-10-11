@@ -17,6 +17,8 @@ import {
   SessionStatusCountsDto,
 } from '@eudiplo/sdk-core';
 import { JwtService } from '../services/jwt.service';
+import { SESSION_READER_ROLES } from '../session-management/session-roles';
+import { KEY_CHAIN_ROLES } from '../key-management/key-chain.service';
 import { apiErrorDetail, groupUnreachable, hasHttpStatus } from '../utils/error-message';
 import { lastDays, lastHours } from '../utils/local-day';
 
@@ -210,7 +212,7 @@ export class DashboardService {
       promiseKeys.push('trustLists');
     }
 
-    // Sessions require issuance:offer OR presentation:request
+    // Sessions require issuance:offer, presentation:request or sessions:read
     if (this.canViewSessions) {
       const allStats = sessionControllerGetSessionStats();
       promises.push(allStats);
@@ -241,7 +243,7 @@ export class DashboardService {
       promiseKeys.push('window');
     }
 
-    // KMS health requires issuance:manage OR presentation:manage, like key chains
+    // KMS health requires the roles of key chains
     if (this.canManageKeyChains) {
       promises.push(keyChainControllerGetProvidersHealth());
       promiseKeys.push('kmsHealth');
@@ -294,9 +296,8 @@ export class DashboardService {
   }
 
   // Role-based visibility helpers
-  // Key chains require issuance:manage OR presentation:manage
   get canManageKeyChains(): boolean {
-    return this.jwtService.hasRole(['issuance:manage', 'presentation:manage']);
+    return this.jwtService.hasRole(KEY_CHAIN_ROLES);
   }
 
   get canManageIssuance(): boolean {
@@ -320,7 +321,7 @@ export class DashboardService {
   }
 
   get canViewSessions(): boolean {
-    return this.canOfferIssuance || this.jwtService.hasRole('presentation:request');
+    return this.jwtService.hasRole(SESSION_READER_ROLES);
   }
 
   get canReadPresentationConfigs(): boolean {

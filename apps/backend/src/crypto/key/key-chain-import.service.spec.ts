@@ -1,7 +1,9 @@
 import { webcrypto } from "node:crypto";
+import { ConflictException } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { exportPKCS8, generateKeyPair } from "jose";
 import { describe, expect, it, vi } from "vitest";
+import { KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainImportService } from "./key-chain-import.service.js";
 
 describe("key replacement preparation", () => {
@@ -12,7 +14,9 @@ describe("key replacement preparation", () => {
                 KeyChainImportService.prototype,
             ) as any;
             service.keyChainRepository = {
-                existsBy: vi.fn().mockResolvedValue(true),
+                findOne: vi
+                    .fn()
+                    .mockResolvedValue({ id: "key", usage: KeyUsage.Sign }),
                 save: vi.fn(),
                 delete: vi.fn(),
             };
@@ -51,6 +55,40 @@ describe("key replacement preparation", () => {
             expect(service.keyChainRepository.delete).not.toHaveBeenCalled();
         },
     );
+});
+
+describe("system-owned key chains", () => {
+    it("refuses to replace the tenant's encryption key chain", async () => {
+        const service = Object.create(KeyChainImportService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: vi
+                .fn()
+                .mockResolvedValue({ id: "key", usage: KeyUsage.Encrypt }),
+            save: vi.fn(),
+        };
+        service.tenantRepository = {
+            findOneByOrFail: async () => ({ name: "Tenant" }),
+        };
+        service.getHostname = () => "issuer.example";
+        const adapter = { type: "db", importKey: vi.fn() };
+        service.kmsRegistry = { resolve: () => adapter };
+
+        await expect(
+            service.importKeyChain("tenant", {
+                id: "key",
+                key: { kty: "EC" },
+                usageType: "encrypt",
+            }),
+        ).rejects.toThrow(ConflictException);
+
+        expect(service.keyChainRepository.findOne).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { tenantId: "tenant", id: "key" },
+            }),
+        );
+        expect(adapter.importKey).not.toHaveBeenCalled();
+        expect(service.keyChainRepository.save).not.toHaveBeenCalled();
+    });
 });
 
 describe("PEM private key imports", () => {
@@ -121,7 +159,7 @@ describe("imports with rotation enabled", () => {
         const service = Object.create(KeyChainImportService.prototype) as any;
         service.logger = { log: vi.fn() };
         service.keyChainRepository = {
-            existsBy: vi.fn().mockResolvedValue(false),
+            findOne: vi.fn().mockResolvedValue(null),
             save: vi.fn(),
         };
         service.tenantRepository = {
@@ -138,7 +176,7 @@ describe("imports with rotation enabled", () => {
                 }),
             }),
         };
-        service.importKeyChainWithRotation = vi.fn().mockResolvedValue("key");
+        service.importInternalChain = vi.fn().mockResolvedValue("key");
         return service;
     }
 
@@ -159,7 +197,7 @@ describe("imports with rotation enabled", () => {
                 rotationPolicy,
             });
 
-            expect(service.importKeyChainWithRotation).not.toHaveBeenCalled();
+            expect(service.importInternalChain).not.toHaveBeenCalled();
             expect(service.keyChainRepository.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     activeJwk: expect.objectContaining({ d: key.d }),
@@ -189,7 +227,7 @@ describe("imports with rotation enabled", () => {
             rotationPolicy: { enabled: true },
         });
 
-        expect(service.importKeyChainWithRotation).toHaveBeenCalled();
+        expect(service.importInternalChain).toHaveBeenCalled();
         expect(service.keyChainRepository.save).not.toHaveBeenCalled();
     });
 
@@ -210,11 +248,133 @@ describe("imports with rotation enabled", () => {
         expect(service.keyChainRepository.save).not.toHaveBeenCalled();
     });
 
+    describe("with type", () => {
+        /** A service that runs the internal chain import with a fake leaf. */
+        function internalChainService() {
+            const service = serviceFor();
+            delete service.importInternalChain;
+            const adapter = service.kmsRegistry.resolve();
+            adapter.generateKey = vi.fn(async ({ kid }) => ({
+                ref: { privateJwk: { kid }, publicJwk: { kid } },
+            }));
+            service.kmsRegistry = { resolve: () => adapter };
+            service.certBuilder = {
+                createCaSignedCert: vi.fn(async ({ caCertPem }) => ({
+                    chain: ["leaf", caCertPem],
+                })),
+            };
+            return service;
+        }
+
+        it.each([
+            [undefined, false, null, null],
+            [{ enabled: false }, false, null, null],
+            [{ enabled: true, intervalDays: 30 }, true, 30, 365],
+        ])(
+            "imports internalChain as a CA key with rotation %o",
+            async (rotationPolicy, enabled, intervalDays, certValidityDays) => {
+                const service = internalChainService();
+                const { key, pem } = await keyWithCertificate({ ca: true });
+
+                await service.importKeyChain("tenant", {
+                    id: "key",
+                    key,
+                    usageType: "attestation",
+                    type: "internalChain",
+                    crt: [pem],
+                    rotationPolicy,
+                });
+
+                expect(service.keyChainRepository.save).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        rootJwk: expect.objectContaining({ d: key.d }),
+                        rootCertificate: pem,
+                        activeCertificate: `leaf\n${pem}`,
+                        rotationEnabled: enabled,
+                        rotationIntervalDays: intervalDays,
+                        certValidityDays,
+                    }),
+                );
+            },
+        );
+
+        it("gives the leaf of an internal chain without rotation the certificate validity it names", async () => {
+            const service = internalChainService();
+            const { key, pem } = await keyWithCertificate({ ca: true });
+            const day = 24 * 60 * 60 * 1000;
+            const start = Date.now();
+
+            await service.importKeyChain("tenant", {
+                id: "key",
+                key,
+                usageType: "attestation",
+                type: "internalChain",
+                crt: [pem],
+                rotationPolicy: { enabled: false, certValidityDays: 30 },
+            });
+
+            const { notAfter } =
+                service.certBuilder.createCaSignedCert.mock.calls[0][0];
+            expect(notAfter.getTime()).toBeGreaterThanOrEqual(start + 30 * day);
+            expect(notAfter.getTime()).toBeLessThanOrEqual(
+                Date.now() + 30 * day,
+            );
+            // Only the policy of a rotating key chain is stored.
+            expect(service.keyChainRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    rotationEnabled: false,
+                    certValidityDays: null,
+                }),
+            );
+        });
+
+        it("rejects internalChain with a certificate that is not a CA", async () => {
+            const service = internalChainService();
+            const { key, pem } = await keyWithCertificate({ ca: false });
+
+            await expect(
+                service.importKeyChain("tenant", {
+                    id: "key",
+                    key,
+                    usageType: "attestation",
+                    type: "internalChain",
+                    crt: [pem],
+                }),
+            ).rejects.toThrow(/must be a CA/);
+            expect(service.keyChainRepository.save).not.toHaveBeenCalled();
+        });
+
+        it("keeps a standalone key with a CA certificate as its signing key", async () => {
+            const service = serviceFor();
+            const { key, pem } = await keyWithCertificate({ ca: true });
+
+            await service.importKeyChain("tenant", {
+                id: "key",
+                key,
+                usageType: "attestation",
+                type: "standalone",
+                crt: [pem],
+                rotationPolicy: { enabled: true, intervalDays: 30 },
+            });
+
+            expect(service.importInternalChain).not.toHaveBeenCalled();
+            expect(service.keyChainRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    activeJwk: expect.objectContaining({ d: key.d }),
+                    activeCertificate: pem,
+                    rootJwk: null,
+                    rotationEnabled: true,
+                    rotationIntervalDays: 30,
+                }),
+            );
+        });
+    });
+
     describe("certificates that are not a standalone one", () => {
         /** Runs the CA path, which rejects a certificate that is not a CA. */
         async function expectCaPathRejects(key: object, crt: string[]) {
             const service = serviceFor();
-            delete service.importKeyChainWithRotation;
+            delete service.importInternalChain;
 
             await expect(
                 service.importKeyChain("tenant", {
@@ -224,7 +384,7 @@ describe("imports with rotation enabled", () => {
                     crt,
                     rotationPolicy: { enabled: true },
                 }),
-            ).rejects.toThrow(/Invalid rotation root certificate/);
+            ).rejects.toThrow(/Invalid root CA certificate/);
             expect(service.keyChainRepository.save).not.toHaveBeenCalled();
         }
 

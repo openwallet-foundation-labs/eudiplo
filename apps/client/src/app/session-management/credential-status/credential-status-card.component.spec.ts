@@ -24,10 +24,11 @@ describe('CredentialStatusCardComponent', () => {
     bits: 1,
   };
 
-  async function render(entries: CredentialStatusDto[]): Promise<HTMLElement> {
+  async function render(entries: CredentialStatusDto[], canChange = true): Promise<HTMLElement> {
     sessions.getCredentialStatus.mockResolvedValue(entries);
     fixture = TestBed.createComponent(CredentialStatusCardComponent);
     fixture.componentRef.setInput('sessionId', 'session-1');
+    fixture.componentRef.setInput('canChange', canChange);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -67,6 +68,14 @@ describe('CredentialStatusCardComponent', () => {
 
     expect(element.textContent).toContain('1 valid');
     expect(buttons(element).map((text) => text.replace(/^\w+\s+/, ''))).toEqual(['Revoke']);
+  });
+
+  it('shows the status without changes to a caller that may only read it', async () => {
+    const element = await render([valid], false);
+
+    expect(element.textContent).toContain('1 valid');
+    expect(buttons(element)).toEqual([]);
+    expect(element.textContent).toContain('needs the credentials:status or issuance:manage role');
   });
 
   it('revokes the credentials of a configuration after confirmation and reads the status again', async () => {

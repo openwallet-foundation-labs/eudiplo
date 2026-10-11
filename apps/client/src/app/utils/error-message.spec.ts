@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
 
 import {
+  asSentence,
   getApiErrorMessage,
   getHttpErrorMessage,
   getValidationIssues,
@@ -98,7 +99,7 @@ describe('getHttpErrorMessage', () => {
         ]),
         'Failed to save'
       )
-    ).toBe('Failed to save: Validation failed (oidcUrl: Invalid URL; 1 more)');
+    ).toBe('Failed to save: Validation failed (oidcUrl: Invalid URL; display.0.name: Required)');
   });
 
   it("falls back to Angular's message, which names the status", () => {
@@ -164,6 +165,40 @@ describe('getApiErrorMessage', () => {
     expect(getApiErrorMessage(new TypeError(message), 'Failed to delete client')).toBe(expected);
   });
 
+  it('shows only the title of an HTML error page', () => {
+    expect(
+      getApiErrorMessage(
+        '<html><head><title>413 Request Entity Too Large</title></head><body><h1>413</h1></body></html>',
+        'Upload failed'
+      )
+    ).toBe('Upload failed: 413 Request Entity Too Large');
+    expect(getApiErrorMessage('<html><body>Bad Gateway</body></html>', 'Failed to load keys')).toBe(
+      'Failed to load keys'
+    );
+  });
+
+  it('shows a plain-text error body', () => {
+    expect(getApiErrorMessage('Bad Gateway', 'Failed to load keys')).toBe(
+      'Failed to load keys: Bad Gateway'
+    );
+  });
+
+  it('shows the message of a 409 the SDK throws', () => {
+    expect(
+      getApiErrorMessage(
+        {
+          statusCode: 409,
+          error: 'Conflict',
+          message:
+            "Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI.",
+        },
+        'Failed to save configuration'
+      )
+    ).toBe(
+      "Failed to save configuration: Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI."
+    );
+  });
+
   it('names the field of the first validation issue', () => {
     const error = {
       statusCode: 400,
@@ -175,7 +210,35 @@ describe('getApiErrorMessage', () => {
     };
 
     expect(getApiErrorMessage(error, 'Failed to publish')).toBe(
-      'Failed to publish: Validation failed (config.tags.0: Invalid option; 1 more)'
+      'Failed to publish: Validation failed (config.tags.0: Invalid option; config.category: Invalid option)'
+    );
+  });
+
+  it('names exactly three issues without counting more', () => {
+    const errors = ['a', 'b', 'c'].map((path) => ({ path: [path], message: 'Required' }));
+
+    expect(getApiErrorMessage({ message: 'Validation failed', errors }, 'Failed to save')).toBe(
+      'Failed to save: Validation failed (a: Required; b: Required; c: Required)'
+    );
+  });
+
+  it('names every issue for a form that shows none at a field', () => {
+    const errors = ['a', 'b', 'c', 'd'].map((path) => ({ path: [path], message: 'Required' }));
+
+    expect(
+      getApiErrorMessage({ message: 'Validation failed', errors }, 'Failed to save', {
+        allIssues: true,
+      })
+    ).toBe(
+      'Failed to save: Validation failed (a: Required; b: Required; c: Required; d: Required)'
+    );
+  });
+
+  it('names three issues and counts the rest', () => {
+    const errors = ['a', 'b', 'c', 'd', 'e'].map((path) => ({ path: [path], message: 'Required' }));
+
+    expect(getApiErrorMessage({ message: 'Validation failed', errors }, 'Failed to save')).toBe(
+      'Failed to save: Validation failed (a: Required; b: Required; c: Required; 2 more)'
     );
   });
 
@@ -207,6 +270,15 @@ describe('getApiErrorMessage', () => {
         'Failed to load'
       )
     ).toBe('Failed to parse (config: Required)');
+  });
+});
+
+describe('asSentence', () => {
+  it('ends the message with one period', () => {
+    expect(asSentence('Could not load trust lists: Use a tenant-bound account.')).toBe(
+      'Could not load trust lists: Use a tenant-bound account.'
+    );
+    expect(asSentence('Could not load trust lists')).toBe('Could not load trust lists.');
   });
 });
 

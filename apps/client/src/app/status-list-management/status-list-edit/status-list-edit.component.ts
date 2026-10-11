@@ -14,16 +14,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import {
-  StatusListResponseDto,
-  CredentialConfig,
-  KeyChainResponseDto,
-  credentialConfigControllerGetConfigs,
-  keyChainControllerGetAll,
-} from '@eudiplo/sdk-core';
+import { StatusListResponseDto, CredentialConfig, KeyChainResponseDto } from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
+import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import { KeyChainService } from '../../key-management/key-chain.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { LabelledFailure, getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { SourceLoadState, loadSource, reportSourceFailures } from '../../common/load-source';
+
+/** The sources of the options of the form's selects. */
+type StatusListEditSource = 'credentialConfigs' | 'keyChains';
 
 @Component({
   selector: 'app-status-list-edit',
@@ -65,6 +67,12 @@ export class StatusListEditComponent implements OnInit {
   /** Available key chains with statusList or attestation usage */
   keyChains: KeyChainResponseDto[] = [];
 
+  /** Load state of each select's options, so a failed load is not shown as "none exist". */
+  readonly loadState: Record<StatusListEditSource, SourceLoadState> = {
+    credentialConfigs: 'loading',
+    keyChains: 'loading',
+  };
+
   /** Available bits per status options */
   bitsOptions = [1, 2, 4, 8] as const;
 
@@ -80,7 +88,9 @@ export class StatusListEditComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar,
-    private readonly statusListService: StatusListManagementService
+    private readonly statusListService: StatusListManagementService,
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly keyChainService: KeyChainService
   ) {}
 
   ngOnInit(): void {
@@ -94,28 +104,48 @@ export class StatusListEditComponent implements OnInit {
       capacity: new FormControl(null),
     });
 
-    this.loadData();
+    void this.loadData();
   }
 
+  /** Loaders of the options of each select; a source that failed is loaded again on its own. */
+  private readonly sources: Record<
+    StatusListEditSource,
+    () => Promise<LabelledFailure | undefined>
+  > = {
+    credentialConfigs: () =>
+      loadSource(this.loadState, 'credentialConfigs', 'credential configurations', async () => {
+        this.credentialConfigs = await this.credentialConfigService.loadConfigurations();
+      }),
+    keyChains: () =>
+      loadSource(this.loadState, 'keyChains', 'key chains', async () => {
+        this.keyChains = (await this.keyChainService.getAll()).filter(
+          (kc: KeyChainResponseDto) =>
+            kc.usageType === 'statusList' || kc.usageType === 'attestation'
+        );
+      }),
+  };
+
+  /** Loads the options of one select again, keeping what the user entered. */
+  async retrySource(source: StatusListEditSource): Promise<void> {
+    reportSourceFailures(this.snackBar, [await this.sources[source]()]);
+  }
+
+  /**
+   * Loads the options of both selects independently, so one that fails leaves
+   * the other usable; failed sources are named in a snackbar and under their select.
+   */
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const [configsResponse, keyChainResponse] = await Promise.all([
-        credentialConfigControllerGetConfigs(),
-        keyChainControllerGetAll({}),
+      const failures = await Promise.all([
+        this.sources.credentialConfigs(),
+        this.sources.keyChains(),
       ]);
-
-      this.credentialConfigs = configsResponse.data || [];
-      this.keyChains = (keyChainResponse.data || []).filter(
-        (kc: KeyChainResponseDto) => kc.usageType === 'statusList' || kc.usageType === 'attestation'
-      );
+      reportSourceFailures(this.snackBar, failures);
 
       if (this.listId) {
         await this.loadStatusList();
       }
-    } catch (error) {
-      console.error('Failed to load data:', error);
-      this.snackBar.open('Failed to load data', 'Close', { duration: 5000 });
     } finally {
       this.isLoading = false;
     }
@@ -132,7 +162,7 @@ export class StatusListEditComponent implements OnInit {
       });
     } catch (error) {
       console.error('Failed to load status list:', error);
-      this.snackBar.open('Failed to load status list', 'Close', { duration: 5000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load status list'));
       this.router.navigate(['/status-lists']);
     }
   }
@@ -219,7 +249,7 @@ export class StatusListEditComponent implements OnInit {
       this.router.navigate(['/status-lists']);
     } catch (error) {
       console.error('Error saving status list:', error);
-      this.snackBar.open('Failed to save status list', 'Close', { duration: 5000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save status list'));
     } finally {
       this.isSaving = false;
     }

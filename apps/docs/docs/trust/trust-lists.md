@@ -54,6 +54,8 @@ EUDIPLO publishes the signed JWT at `GET /issuers/{tenantId}/trust-list/{id}` wi
 | Version history            | `GET /api/trust-list/{id}/versions`, `GET /api/trust-list/{id}/versions/{versionId}`             |
 | List, read, export, delete | `GET /api/trust-list`, `GET /api/trust-list/{id}`, `GET /api/trust-list/{id}/export`, `DELETE /api/trust-list/{id}` |
 
+`DELETE` does not check whether configurations still use the list. Before deleting, open the list in the Web Client: its page shows the credential configurations (with `issuance:manage`) and the presentation configurations (with `presentation:manage` or `presentation:request`) that reference it. It does not show `walletProviderTrustLists` of the issuance configuration; check those as described in [Wallet and Key Attestation](attestation.md#1-provide-wallet-provider-trust-lists).
+
 To manage lists as files, put the same JSON into `config/<tenant>/trust-lists/` ([Configuration as Code](../operate/configuration-as-code.md)). `GET /api/trust-list/{id}/export` returns a list in this format.
 
 ### Validity and renewal

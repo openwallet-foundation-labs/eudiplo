@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import type { z } from "zod";
 import { CreateClientSchema } from "../../auth/client/schemas/client.schema.js";
 import { UpdateTenantSchema } from "../../auth/tenant/schemas/create-tenant.schema.js";
+import { KEY_CHAIN_TYPES } from "../../crypto/key/domain/key-chain-import-type.js";
 import { KeyChainImportSchema } from "../../crypto/key/schemas/key-chain.schema.js";
 import { KmsConfigSchema } from "../../crypto/key/schemas/kms-config.schema.js";
 import { KeyUsageType } from "../../crypto/key/types/key-usage-type.js";
@@ -25,6 +26,7 @@ import type {
 import {
     internalChainProblems,
     isInternalChainWithPrivateKeys,
+    keySourceKeyChainType,
 } from "./key-chain-document.js";
 
 @Injectable()
@@ -126,12 +128,20 @@ export class ConfigDocumentValidationService {
         if (
             source?.type === "regenerate" &&
             source.keyChainType !== undefined &&
-            !["standalone", "internalChain"].includes(source.keyChainType)
+            !KEY_CHAIN_TYPES.includes(source.keyChainType)
         ) {
             issue(
                 "INVALID_KEY_CHAIN_TYPE",
                 "/spec/keySource/keyChainType",
                 "keyChainType must be standalone or internalChain.",
+            );
+        }
+        const sourceType = keySourceKeyChainType(spec);
+        if (spec.type !== undefined && sourceType && spec.type !== sourceType) {
+            issue(
+                "KEY_CHAIN_TYPE_MISMATCH",
+                "/spec/type",
+                `type '${spec.type}' contradicts the key source, which describes a ${sourceType} key chain.`,
             );
         }
         if (

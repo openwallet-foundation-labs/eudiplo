@@ -21,6 +21,7 @@ import { RoleLockNoticeComponent } from '../../../common/role-lock-notice.compon
 import { getApiErrorMessage } from '../../../utils/error-message';
 import { ApiService } from '../../../core';
 import { clientDeleteConfirmation } from '../client-delete-confirmation';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
 
 @Component({
   selector: 'app-client-show',
@@ -69,9 +70,7 @@ export class ClientShowComponent implements OnInit {
     clientControllerGetClient({ path: { id: clientId } }).then(
       (client) => (this.client = client.data),
       (err) => {
-        this.snackBar.open(getApiErrorMessage(err, 'Failed to load client'), 'Close', {
-          duration: 5000,
-        });
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(err, 'Failed to load client'));
         this.router.navigate(['..'], { relativeTo: this.route });
       }
     );
@@ -93,9 +92,7 @@ export class ClientShowComponent implements OnInit {
     } catch (error) {
       this.deleting = false;
       console.error('Error deleting client:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete client'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete client'));
       return;
     }
 

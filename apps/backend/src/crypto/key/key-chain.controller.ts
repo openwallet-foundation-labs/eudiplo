@@ -46,7 +46,7 @@ const TENANT_ADMIN_REQUIRED =
  * - Rotation policy and previous keys (for grace period)
  */
 @ApiTags("Key Chain")
-@Secured([Role.Issuances, Role.Presentations])
+@Secured([Role.Issuances, Role.Presentations, Role.Keys])
 @Controller("key-chain")
 export class KeyChainController {
     constructor(
@@ -260,6 +260,11 @@ export class KeyChainController {
         status: 201,
         description: "Key chain imported successfully",
         type: KeyChainIdResponseDto,
+    })
+    @ApiResponse({
+        status: 409,
+        description:
+            "The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.",
     })
     async import(
         @Token() token: TokenPayload,

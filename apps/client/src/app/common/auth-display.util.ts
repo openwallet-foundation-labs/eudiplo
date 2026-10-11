@@ -1,3 +1,5 @@
+import type { FormGroup } from '@angular/forms';
+
 export function getApiKeyAuthType(auth?: { type?: string }): string {
   return auth?.type === 'apiKey' ? 'API Key' : 'None';
 }
@@ -42,4 +44,27 @@ export function getApiKeyHeaderName(auth?: {
   }
 
   return null;
+}
+
+/** The auth form control for a request path the backend names in a validation issue. */
+export function authControlPath(path: string): string {
+  const controls: Record<string, string> = {
+    auth: 'authType',
+    'auth.type': 'authType',
+    'auth.config.headerName': 'authHeaderName',
+    'auth.config.value': 'authHeaderValue',
+  };
+  return controls[path] ?? path;
+}
+
+/**
+ * Clears the backend's issues of the header fields when the auth type changes,
+ * so a field that is hidden now does not keep Save disabled.
+ */
+export function clearAuthFieldIssuesOnTypeChange(form: FormGroup): void {
+  form.get('authType')!.valueChanges.subscribe(() => {
+    for (const name of ['authHeaderName', 'authHeaderValue']) {
+      form.get(name)?.updateValueAndValidity();
+    }
+  });
 }

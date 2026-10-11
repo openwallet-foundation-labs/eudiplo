@@ -7,7 +7,9 @@
   }
 </div>
 
-@if (!loading) {
+@if (loadError) {
+  <app-load-error [message]="loadError" (retry)="loadClients()" />
+} @else if (!loading) {
   <table mat-table [dataSource]="clients" class="mat-elevation-z8">
     <ng-container matColumnDef="clientId">
       <th mat-header-cell *matHeaderCellDef>Client ID</th>

@@ -514,6 +514,33 @@ describe("key chain replacement", () => {
             certValidityDays: 60,
         });
     });
+    it.each([
+        [{ type: "internalChain" }, "internalChain"],
+        [{ type: "standalone", activeCertificate: "leaf" }, "standalone"],
+        [{ activeCertificate: "leaf" }, "internalChain"],
+        [
+            {
+                keySource: { type: "regenerate", keyChainType: "standalone" },
+                activeCertificate: "leaf",
+            },
+            "standalone",
+        ],
+    ])("regenerates %o as %s", async (spec, type) => {
+        const service = setup();
+        service.keyChainService.regenerate = vi.fn();
+
+        await service.applyKeyChain(
+            "tenant",
+            keyChain({ keySource: { type: "regenerate" }, ...spec }),
+        );
+
+        expect(service.keyChainService.regenerate).toHaveBeenCalledWith(
+            "tenant",
+            "key",
+            expect.objectContaining({ type }),
+        );
+    });
+
     it("clears the description an imported private key leaves out", async () => {
         const service = setup();
         const { jwk } = await keyWithCertificate();

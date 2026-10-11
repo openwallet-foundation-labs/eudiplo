@@ -9,7 +9,11 @@
         <p class="eyebrow">EUDIPLO Console</p>
         <h1 class="brand-title">Sign in</h1>
         <p class="brand-subtitle">
-          Choose single sign-on or authenticate with a client ID and secret.
+          @if (keptSession()) {
+            Your previous session continues as soon as the backend answers.
+          } @else {
+            Choose single sign-on or authenticate with a client ID and secret.
+          }
         </p>
         @if (isDevelopmentMode) {
           <span class="dev-indicator"
@@ -20,12 +24,39 @@
     </div>
 
     <mat-card-content>
-      @if (loginForm) {
+      @if (keptSession(); as session) {
+        <div class="kept-session">
+          <div class="kept-session-status">
+            <mat-spinner diameter="24" aria-hidden="true"></mat-spinner>
+            <p>
+              <output>
+                Resuming the session of <strong>{{ session.clientId }}</strong> at
+                {{ session.baseUrl }}. This page keeps trying until the session is renewed, then
+                continues.
+              </output>
+            </p>
+          </div>
+          <div class="kept-session-actions">
+            <button
+              matButton="filled"
+              type="button"
+              (click)="retryKeptSession()"
+              [disabled]="retryingKeptSession()"
+            >
+              Try again now
+            </button>
+            <button matButton type="button" (click)="discardKeptSession()">
+              Sign out and use other credentials
+            </button>
+          </div>
+        </div>
+      } @else if (loginForm) {
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <!-- API URL Field -->
           <mat-form-field>
             <mat-label>EUDIPLO Instance</mat-label>
             <input
+              #apiUrlInput
               matInput
               formControlName="apiUrl"
               placeholder="https://your-api.com"

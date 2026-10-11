@@ -21,7 +21,7 @@ function openNav(page: Page, item: string) {
   return page.locator('mat-sidenav').getByText(item, { exact: true }).click();
 }
 
-// Icon buttons have no accessible name; the cookbook names them by their tooltip.
+// The cookbook names icon buttons by their tooltip, as the recipe does; not all have an accessible name.
 // Material switches update aria-checked after the click, so specs click them and
 // then assert the state instead of using check().
 function iconButton(page: Page, tooltip: string) {
@@ -132,6 +132,8 @@ test('issue and verify cookbook', async ({ page }) => {
 
   await test.step('chapter 2, step 4: define the membership credential', async () => {
     await openNav(page, 'Credential Types');
+    // The new tenant has none yet, so the list offers to create the first one.
+    await expect(page.getByText('No credential configurations yet.')).toBeVisible();
     await iconButton(page, 'Create New Credential Configuration').click();
 
     // Basics

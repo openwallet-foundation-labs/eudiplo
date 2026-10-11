@@ -1,4 +1,5 @@
 import {
+  inject,
   ChangeDetectorRef,
   Component,
   ViewChild,
@@ -37,6 +38,7 @@ import { IssuanceConfigService } from '../issuance-config/issuance-config.servic
 import { AttributeProviderService } from '../attribute-provider/attribute-provider.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
+import { JwtService } from '../../services/jwt.service';
 import { FormlyFieldConfig, FormlyFieldProps, FormlyModule } from '@ngx-formly/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -46,6 +48,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { CommonModule } from '@angular/common';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 /**
  * Custom validator to check that array has at least one element
@@ -211,6 +214,13 @@ export class IssuanceOfferComponent implements OnInit {
       const apForm = this.externalAsWebhooks.get(id);
       return apForm?.get('attributeProviderId')?.value; // Attribute provider must be set
     });
+  }
+
+  private readonly jwtService = inject(JwtService);
+
+  /** Creating credential configurations needs `issuance:manage`. */
+  get canManageCredentialConfigs(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
   }
 
   constructor(
@@ -821,10 +831,12 @@ export class IssuanceOfferComponent implements OnInit {
       // Redirect to session details page with QR code and polling enabled
       this.router.navigate(['/session-management', offerResult!.session]);
     } catch (error: unknown) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to generate offer'), 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to generate offer'),
+        'Close',
+        { panelClass: ['error-snackbar'] }
+      );
     } finally {
       this.generatingOffer = false;
     }

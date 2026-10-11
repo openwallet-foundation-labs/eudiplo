@@ -34,6 +34,11 @@ import {
 } from "./application/cancel-session.js";
 import { SessionStore } from "./application/session-store.js";
 import type { SessionData } from "./domain/session-data.js";
+import { typeOfSession } from "./domain/session-list.js";
+import {
+    BEARER_FIELDS,
+    readOnlySessionView,
+} from "./domain/session-read-view.js";
 import { CancelSessionDto } from "./dto/cancel-session.dto.js";
 import { PaginatedSessionResponseDto } from "./dto/paginated-session-response.dto.js";
 import { SessionLogEntryResponseDto } from "./dto/session-log-entry-response.dto.js";
@@ -43,10 +48,24 @@ import { SessionStatsResponseDto } from "./dto/session-stats-response.dto.js";
 import { Session } from "./entities/session.entity.js";
 import { SessionLogStoreService } from "./logging/session-log-store.service.js";
 import { SessionConfigService } from "./session-config.service.js";
-import { sessionScope } from "./session-scope.js";
+import {
+    credentialStatusScope,
+    readOnlySessionTypes,
+    sessionChangeScope,
+    sessionReadScope,
+} from "./session-scope.js";
+
+/** How the session reads treat a client with only `sessions:read` for a type. */
+const READ_ONLY_NOTE =
+    "A client that reads sessions of a type through `sessions:read` but cannot cancel or delete them (that needs `issuance:offer` or `presentation:request`, and `issuance:offer` or `issuance:manage` for issuance sessions, `presentation:request` or `presentation:manage` for presentation sessions) does not get the sessions of that type that a wallet can still redeem or answer (open status, not consumed): they are left out of the list and answer 404, since their ID is enough to redeem or answer them.";
+
+/** The fields `readOnlySessionView` leaves out, for the OpenAPI description. */
+const OMITTED_FIELDS = [...BEARER_FIELDS, "credentialPayload.tx_code"]
+    .map((field) => "`" + field + "`")
+    .join(", ");
 
 @ApiTags("Session")
-@Secured([Role.IssuanceOffer, Role.PresentationRequest])
+@Secured([Role.IssuanceOffer, Role.PresentationRequest, Role.SessionsRead])
 @Controller("session")
 export class SessionController {
     constructor(
@@ -60,7 +79,10 @@ export class SessionController {
     /**
      * Retrieves a paginated list of sessions with optional filters.
      */
-    @ApiOperation({ summary: "Get sessions (paginated)" })
+    @ApiOperation({
+        summary: "Get sessions (paginated)",
+        description: READ_ONLY_NOTE,
+    })
     @ApiResponse({ status: 200, type: PaginatedSessionResponseDto })
     @Get()
     getAllSessions(
@@ -69,8 +91,8 @@ export class SessionController {
     ): Promise<PaginatedSessionResponseDto> {
         return this.sessions.listForTenant(
             token.entity!.id,
-            query,
-            sessionScope(token),
+            { ...query, hideOpen: readOnlySessionTypes(token) },
+            sessionReadScope(token),
         );
     }
 
@@ -90,7 +112,11 @@ export class SessionController {
     ): Promise<SessionStatsResponseDto> {
         const tenantId = token.entity!.id;
         const [stats, retention] = await Promise.all([
-            this.sessions.statsForTenant(tenantId, sessionScope(token), query),
+            this.sessions.statsForTenant(
+                tenantId,
+                sessionReadScope(token),
+                query,
+            ),
             this.sessionConfig.getEffectiveConfig(tenantId),
         ]);
         return { ...stats, retention };
@@ -101,22 +127,31 @@ export class SessionController {
      * @param id - The identifier of the session.
      */
     @ApiParam({ name: "id", description: "The session ID", type: String })
+    @ApiOperation({
+        summary: "Get a session",
+        description: `${READ_ONLY_NOTE} It gets the other sessions of that type without ${OMITTED_FIELDS}.`,
+    })
     @ApiResponse({ status: 200, type: Session })
     @Get(":id")
     async getSession(
         @Param("id") id: string,
         @Token() token: TokenPayload,
     ): Promise<SessionData> {
+        const session = await this.sessions.getForReader(
+            token.entity!.id,
+            id,
+            sessionReadScope(token),
+            readOnlySessionTypes(token),
+        );
         // API keys of the webhooks the session calls are write-only.
-        return redactSecrets(
-            await this.sessions.getForTenant(
-                token.entity!.id,
-                id,
-                sessionScope(token),
-            ),
+        const redacted = redactSecrets(
+            session,
             "parsedWebhook.auth.config.value",
             "credentialPayload.credentialClaims.*.webhook.auth.config.value",
         );
+        return readOnlySessionTypes(token).includes(typeOfSession(session))
+            ? readOnlySessionView(redacted)
+            : redacted;
     }
 
     /**
@@ -126,6 +161,8 @@ export class SessionController {
      * @returns
      */
     @Delete(":id")
+    // sessions:read only reads sessions.
+    @Secured([Role.IssuanceOffer, Role.PresentationRequest])
     @ApiResponse({ status: 204, description: "Session deleted" })
     @HttpCode(204)
     deleteSession(
@@ -135,7 +172,7 @@ export class SessionController {
         return this.sessions.deleteForTenant(
             user.entity!.id,
             id,
-            sessionScope(user),
+            sessionChangeScope(user),
         );
     }
 
@@ -144,6 +181,7 @@ export class SessionController {
      * @param id - The session ID.
      */
     @Post(":id/cancel")
+    @Secured([Role.IssuanceOffer, Role.PresentationRequest])
     @ApiParam({ name: "id", description: "The session ID", type: String })
     @ApiOperation({
         summary: "Cancel a pending offer",
@@ -169,7 +207,7 @@ export class SessionController {
             await this.cancelSession.execute({
                 tenantId: token.entity!.id,
                 sessionId: id,
-                scope: sessionScope(token),
+                scope: sessionChangeScope(token),
                 reason: body.reason,
                 actor: resolveAuditActor(token),
                 requestMeta,
@@ -194,10 +232,11 @@ export class SessionController {
         @Param("id") id: string,
         @Token() token: TokenPayload,
     ): Promise<SessionLogEntryResponseDto[]> {
-        await this.sessions.getForTenant(
+        await this.sessions.getForReader(
             token.entity!.id,
             id,
-            sessionScope(token),
+            sessionReadScope(token),
+            readOnlySessionTypes(token),
         );
         return this.logStoreService.findBySessionId(id);
     }
@@ -208,7 +247,12 @@ export class SessionController {
      */
     @Get(":id/credential-status")
     // Credential status is issuer data, like changing it with POST /revoke.
-    @Secured([Role.IssuanceOffer, Role.Issuances])
+    @Secured([
+        Role.IssuanceOffer,
+        Role.Issuances,
+        Role.CredentialStatus,
+        Role.SessionsRead,
+    ])
     @ApiParam({ name: "id", description: "The session ID", type: String })
     @ApiOperation({
         summary: "Get the status of the credentials issued in a session",
@@ -221,10 +265,11 @@ export class SessionController {
         @Param("id") id: string,
         @Token() token: TokenPayload,
     ): Promise<CredentialStatusDto[]> {
-        await this.sessions.getForTenant(
+        await this.sessions.getForReader(
             token.entity!.id,
             id,
-            sessionScope(token),
+            credentialStatusScope(token),
+            readOnlySessionTypes(token),
         );
         return this.statusListService.getSessionStatus(token.entity!.id, id);
     }
@@ -235,15 +280,20 @@ export class SessionController {
      * @returns
      */
     @Post("revoke")
-    // Changing credential status is an issuer action; verifier-only clients
-    // (presentation:request) may not call it.
-    @Secured([Role.IssuanceOffer, Role.Issuances])
+    // Changing credential status is an issuer action of its own; clients that
+    // only create offers (issuance:offer) or requests may not call it.
+    @Secured([Role.CredentialStatus, Role.Issuances])
     @ApiOperation({
         summary: "Change the status of the credentials issued in a session",
         description:
             "Revokes (1), suspends (2) or reinstates (0) all credentials issued in the session, optionally only those of one credential configuration. Revocation is final.",
     })
     @ApiResponse({ status: 204, description: "Status updated" })
+    @ApiResponse({
+        status: 403,
+        description:
+            "The token has neither credentials:status nor issuance:manage",
+    })
     @ApiResponse({
         status: 400,
         description: "The status does not fit the status list's bits per entry",
