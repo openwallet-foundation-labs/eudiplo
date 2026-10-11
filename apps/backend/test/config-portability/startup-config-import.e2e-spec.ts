@@ -29,8 +29,12 @@ import { ConfigBundleApplyService } from "../../src/platform/config-portability/
 import { ConfigBundleArchiveService } from "../../src/platform/config-portability/config-bundle-archive.service.js";
 import { ConfigFolderBundleService } from "../../src/platform/config-portability/config-folder-bundle.service.js";
 import { ConfigOwnershipService } from "../../src/platform/config-portability/config-ownership.service.js";
-import type { ConfigImportPlan } from "../../src/platform/config-portability/config-resource.types.js";
+import type {
+    ConfigBundle,
+    ConfigImportPlan,
+} from "../../src/platform/config-portability/config-resource.types.js";
 import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
+import { RegistrarConfigEntity } from "../../src/registrar/entities/registrar-config.entity.js";
 
 describe("startup configuration reconciliation", () => {
     let app: INestApplication;
@@ -667,7 +671,123 @@ describe("startup configuration reconciliation", () => {
             folder.planReattach("haip", "WebhookEndpoint", "missing"),
         ).rejects.toThrow("is not defined in the config folder");
     });
+
+    it("applies a registrar configuration without contacting the registrar and removes omitted optional fields", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const registrars = dataSource.getRepository(RegistrarConfigEntity);
+        // Unresolvable hosts: a credential check would fail the apply with 503.
+        const spec = {
+            registrarUrl: "https://registrar.example.invalid/api",
+            oidcUrl: "https://auth.example.invalid/realms/registrar",
+            clientId: "client",
+            username: "user",
+            password: "password",
+        };
+        const defaults = { privacy_policy: "https://rp.example/privacy" };
+        const registrarItem = (plan: ConfigImportPlan) =>
+            plan.items.find((item) => item.kind === "RegistrarConfig");
+
+        try {
+            const full = registrarBundle({
+                ...spec,
+                clientSecret: "client-secret",
+                registrationCertificateDefaults: defaults,
+            });
+            expect(
+                registrarItem(await service.plan("demo", full, "upsert"))
+                    ?.action,
+            ).toBe("create");
+            await apply.apply("demo", full, "upsert");
+            expect(
+                await registrars.findOneByOrFail({ tenantId: "demo" }),
+            ).toMatchObject({
+                registrarUrl: spec.registrarUrl,
+                clientSecret: "client-secret",
+                registrationCertificateDefaults: defaults,
+            });
+            expect(
+                registrarItem(await service.plan("demo", full, "upsert"))
+                    ?.action,
+            ).toBe("unchanged");
+
+            const minimal = registrarBundle(spec);
+            const replacement = registrarItem(
+                await service.plan("demo", minimal, "upsert"),
+            );
+            expect(replacement?.action).toBe("update");
+            expect(replacement?.changes?.map((change) => change.path)).toEqual([
+                "/spec/clientSecret",
+                "/spec/registrationCertificateDefaults/privacy_policy",
+            ]);
+            await apply.apply("demo", minimal, "upsert");
+            expect(
+                await registrars.findOneByOrFail({ tenantId: "demo" }),
+            ).toMatchObject({
+                clientSecret: null,
+                registrationCertificateDefaults: null,
+            });
+            expect(
+                registrarItem(await service.plan("demo", minimal, "upsert"))
+                    ?.action,
+            ).toBe("unchanged");
+
+            const exported = await service.exportBundle("demo");
+            expect(
+                exported.manifest.requirements
+                    .filter(
+                        (requirement) =>
+                            requirement.resource?.kind === "RegistrarConfig",
+                    )
+                    .map((requirement) => requirement.path),
+            ).toEqual(["/spec/password"]);
+        } finally {
+            await registrars.delete({ tenantId: "demo" });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "RegistrarConfig",
+                });
+        }
+    });
 });
+
+function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
+    const document = {
+        $schema: schemaUrl("RegistrarConfig"),
+        metadata: { generation: 1 },
+        spec,
+    };
+    return {
+        manifest: {
+            format: "eudiplo.config-bundle",
+            formatVersion: 2,
+            sourceVersion: "registrar-import",
+            exportedAt: new Date(0).toISOString(),
+            tenant: "demo",
+            resources: [
+                {
+                    kind: "RegistrarConfig",
+                    id: "registrar",
+                    $schema: document.$schema,
+                    path: "registrar.json",
+                    sha256: createHash("sha256")
+                        .update(JSON.stringify(document))
+                        .digest("hex"),
+                    ownership: "unmanaged",
+                    generation: 1,
+                },
+            ],
+            assets: [],
+            requirements: [],
+            warnings: [],
+        },
+        documents: [document],
+        assets: [],
+    } as ConfigBundle;
+}
 
 function restoreEnvironment(key: string, value: string | undefined): void {
     if (value === undefined) {
