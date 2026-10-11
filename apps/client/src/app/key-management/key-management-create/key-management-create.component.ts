@@ -18,6 +18,8 @@ import { KeyChainService } from '../key-chain.service';
 import { KeyChainResponseDto, KeyChainUpdateDto, RotationPolicyUpdateDto } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-key-management-create',
@@ -89,7 +91,7 @@ export class KeyManagementCreateComponent implements OnInit {
       });
     } catch (error) {
       console.error('Error loading key chain:', error);
-      this.snackBar.open('Failed to load key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load key chain'));
       this.router.navigate(['../'], { relativeTo: this.route });
     } finally {
       this.isLoading = false;
@@ -119,9 +121,7 @@ export class KeyManagementCreateComponent implements OnInit {
       this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
       console.error('Error updating key chain:', error);
-      this.snackBar.open('Failed to update key chain', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to update key chain'));
     }
   }
 

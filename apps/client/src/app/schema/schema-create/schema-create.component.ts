@@ -37,8 +37,9 @@ import {
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
 import { getApiErrorMessage } from '../../utils/error-message';
-import { SourceLoadState, loadSource, sourceFailuresMessage } from '../load-source';
+import { SourceLoadState, loadSource, reportSourceFailures } from '../../common/load-source';
 import { SEMVER_REGEX } from '../schema-version';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-schema-create',
@@ -346,10 +347,7 @@ export class SchemaCreateComponent implements OnInit {
       }),
     ]);
 
-    const message = sourceFailuresMessage(failures);
-    if (message) {
-      this.snackBar.open(message, 'Close', { duration: 10000 });
-    }
+    reportSourceFailures(this.snackBar, failures);
   }
 
   /**
@@ -457,9 +455,7 @@ export class SchemaCreateComponent implements OnInit {
       }
     } catch (error) {
       console.error('Failed to submit schema metadata:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to submit schema'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to submit schema'));
     } finally {
       this.loading = false;
     }

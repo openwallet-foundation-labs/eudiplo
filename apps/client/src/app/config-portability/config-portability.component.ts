@@ -29,6 +29,7 @@ import {
   ConfigPortabilityService,
   ConfigResourceMetadata,
 } from './config-portability.service';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 @Component({
   selector: 'app-config-portability',
@@ -134,9 +135,7 @@ export class ConfigPortabilityComponent implements OnInit {
       this.bundle = undefined;
       this.bundleArchive = undefined;
       this.bundleFileName = '';
-      this.snackBar.open(getApiErrorMessage(error, 'Could not read bundle'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Could not read bundle'));
     } finally {
       input.value = '';
     }
@@ -321,10 +320,9 @@ export class ConfigPortabilityComponent implements OnInit {
           ({ label, error }) => `${label}: ${apiErrorDetail(error) ?? 'failed'}`,
           (labels) => labels
         );
-        this.snackBar.open(
-          unreachable && other.length === 0 ? unreachable : `${summary}. Failed: ${reasons}`,
-          'Close',
-          { duration: 8000 }
+        openErrorSnackBar(
+          this.snackBar,
+          unreachable && other.length === 0 ? unreachable : `${summary}. Failed: ${reasons}`
         );
       } else {
         this.snackBar.open(`Detached ${succeeded} resource(s)`, 'Close', { duration: 3000 });
@@ -353,9 +351,10 @@ export class ConfigPortabilityComponent implements OnInit {
     try {
       this.operations = await this.portability.listOperations();
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Could not load operation history'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Could not load operation history')
+      );
     }
   }
 
@@ -367,9 +366,10 @@ export class ConfigPortabilityComponent implements OnInit {
         if (!validKeys.has(key)) this.selected.delete(key);
       }
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Could not load resource ownership'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Could not load resource ownership')
+      );
     }
   }
 
@@ -389,7 +389,7 @@ export class ConfigPortabilityComponent implements OnInit {
           operationId: report.operationId,
           generatedSecrets: report.generatedSecrets,
         };
-      this.snackBar.open(getApiErrorMessage(error, fallback), 'Close', { duration: 6000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, fallback));
     } finally {
       this.busy = false;
       if (this.canApply) await this.refreshOperations();

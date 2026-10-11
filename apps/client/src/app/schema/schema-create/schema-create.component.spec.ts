@@ -9,6 +9,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
 import { SchemaCreateComponent } from './schema-create.component';
+import { errorSnackBarDuration } from '../../utils/error-snackbar';
+
+/** The arguments of an error snackbar with this text. */
+const errorSnackBar = (text: string) =>
+  [text, 'Close', { duration: errorSnackBarDuration(text) }] as const;
 
 describe('SchemaCreateComponent', () => {
   let component: SchemaCreateComponent;
@@ -71,9 +76,9 @@ describe('SchemaCreateComponent', () => {
     await component.submit();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to submit schema: config.rulebookURI is required when publishing new schema metadata',
-      'Close',
-      { duration: 5000 }
+      ...errorSnackBar(
+        'Failed to submit schema: config.rulebookURI is required when publishing new schema metadata'
+      )
     );
     expect(component.loading).toBe(false);
   });
@@ -153,9 +158,9 @@ describe('SchemaCreateComponent loading its sources', () => {
       vocabularies: 'failed',
     });
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load the registrar vocabulary: Registrar is not configured for this tenant',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load the registrar vocabulary: Registrar is not configured for this tenant'
+      )
     );
   });
 
@@ -173,9 +178,9 @@ describe('SchemaCreateComponent loading its sources', () => {
       vocabularies: 'loaded',
     });
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load credential configs: Forbidden resource; Failed to load trust lists: Forbidden resource',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load credential configs: Forbidden resource; Failed to load trust lists: Forbidden resource'
+      )
     );
   });
 
@@ -188,10 +193,10 @@ describe('SchemaCreateComponent loading its sources', () => {
     await createComponent().loadData();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load the registrar vocabulary: ' +
-        'Failed to authenticate with registrar: the OIDC provider could not be reached',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load the registrar vocabulary: ' +
+          'Failed to authenticate with registrar: the OIDC provider could not be reached'
+      )
     );
   });
 
@@ -207,10 +212,10 @@ describe('SchemaCreateComponent loading its sources', () => {
     await createComponent().loadData();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load credential configs, trust lists, and the registrar vocabulary: ' +
-        'the backend could not be reached. Check the connection and try again.',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load credential configs, trust lists, and the registrar vocabulary: ' +
+          'the backend could not be reached. Check the connection and try again.'
+      )
     );
   });
 
@@ -222,11 +227,11 @@ describe('SchemaCreateComponent loading its sources', () => {
     await createComponent().loadData();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load trust lists: Forbidden resource; ' +
-        'Failed to load credential configs and the registrar vocabulary: ' +
-        'the backend could not be reached. Check the connection and try again.',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load trust lists: Forbidden resource; ' +
+          'Failed to load credential configs and the registrar vocabulary: ' +
+          'the backend could not be reached. Check the connection and try again.'
+      )
     );
   });
 

@@ -26,6 +26,7 @@ import { Role, roles } from '../../services/jwt.service';
 import { SecretDialogComponent } from '../client/secret-dialog/secret-dialog.component';
 import { ApiService } from '../../core';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-tenant-create',
@@ -88,8 +89,8 @@ export class TenantCreateComponent implements OnInit {
       // Disable ID field in edit mode
       this.tenantForm.get('id')?.disable();
       this.tenantForm.markAsPristine();
-    } catch {
-      this.snackBar.open('Failed to load tenant', 'Close', { duration: 3000 });
+    } catch (error) {
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load tenant'));
       this.router.navigate(['../'], { relativeTo: this.route });
     }
   }
@@ -158,10 +159,9 @@ export class TenantCreateComponent implements OnInit {
         }
       }
     } catch (error) {
-      this.snackBar.open(
-        getApiErrorMessage(error, `Failed to ${this.isEditMode ? 'update' : 'create'} tenant`),
-        'Close',
-        { duration: 5000 }
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, `Failed to ${this.isEditMode ? 'update' : 'create'} tenant`)
       );
     } finally {
       this.isSubmitting = false;

@@ -432,4 +432,8 @@
       </mat-tab>
     </mat-tab-group>
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="loadConfig()" />
+} @else {
+  <p><output>Loading issuer settings…</output></p>
 }

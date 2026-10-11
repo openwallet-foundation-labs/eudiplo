@@ -13,10 +13,19 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { AttributeProviderService } from '../attribute-provider.service';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
-import { buildAuthConfig, toAuthFormValue } from '../../../common/auth-display.util';
+import {
+  authControlPath,
+  buildAuthConfig,
+  clearAuthFieldIssuesOnTypeChange,
+  toAuthFormValue,
+} from '../../../common/auth-display.util';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 import { webhookSchema } from '../../../utils/schemas';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { fieldErrorMessage, showIssuesAtFields } from '../../../utils/form-errors';
 
 @Component({
   selector: 'app-attribute-provider-create',
@@ -35,6 +44,7 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './attribute-provider-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -43,6 +53,12 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
 export class AttributeProviderCreateComponent implements OnInit {
   form: FormGroup;
   create = true;
+  /** While a save runs, so a second click does not send it again. */
+  saving = false;
+  /** While the attribute provider to edit loads; saving before would overwrite it with a blank form. */
+  loading = false;
+  /** Set when the attribute provider to edit could not be loaded; the form stays hidden. */
+  loadError = '';
 
   constructor(
     private readonly attributeProviderService: AttributeProviderService,
@@ -60,13 +76,27 @@ export class AttributeProviderCreateComponent implements OnInit {
       authHeaderName: new FormControl(''),
       authHeaderValue: new FormControl(''),
     });
+    clearAuthFieldIssuesOnTypeChange(this.form);
   }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.create = false;
-      this.attributeProviderService.getById(id).then(
+      this.load(id);
+    }
+  }
+
+  retryLoad(): void {
+    this.load(this.route.snapshot.paramMap.get('id')!);
+  }
+
+  private load(id: string): void {
+    this.loading = true;
+    this.loadError = '';
+    this.attributeProviderService
+      .getById(id)
+      .then(
         (provider) => {
           const authFormValue = toAuthFormValue(provider.auth as any);
           this.form.patchValue({
@@ -79,15 +109,16 @@ export class AttributeProviderCreateComponent implements OnInit {
           this.form.get('id')?.disable();
         },
         (error) => {
-          this.snackBar.open('Failed to load attribute provider', 'Close', { duration: 3000 });
           console.error('Load error:', error);
+          this.loadError = getApiErrorMessage(error, 'Failed to load attribute provider');
         }
-      );
-    }
+      )
+      .finally(() => (this.loading = false));
   }
 
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.saving || this.loading || this.loadError) return;
+    this.saving = true;
 
     const formValue = this.form.getRawValue();
     const auth = buildAuthConfig({
@@ -112,9 +143,18 @@ export class AttributeProviderCreateComponent implements OnInit {
           this.router.navigate(['../'], { relativeTo: this.route });
         })
         .catch((error) => {
-          this.snackBar.open('Failed to create attribute provider', 'Close', { duration: 3000 });
+          openErrorSnackBar(
+            this.snackBar,
+            showIssuesAtFields(
+              this.form,
+              error,
+              'Failed to create attribute provider',
+              authControlPath
+            )
+          );
           console.error('Create error:', error);
-        });
+        })
+        .finally(() => (this.saving = false));
     } else {
       const id = this.route.snapshot.paramMap.get('id')!;
       this.attributeProviderService
@@ -131,10 +171,24 @@ export class AttributeProviderCreateComponent implements OnInit {
           this.router.navigate(['../../', id], { relativeTo: this.route });
         })
         .catch((error) => {
-          this.snackBar.open('Failed to update attribute provider', 'Close', { duration: 3000 });
+          openErrorSnackBar(
+            this.snackBar,
+            showIssuesAtFields(
+              this.form,
+              error,
+              'Failed to update attribute provider',
+              authControlPath
+            )
+          );
           console.error('Update error:', error);
-        });
+        })
+        .finally(() => (this.saving = false));
     }
+  }
+
+  /** Message under a field: the backend's issue, else the local validator's message. */
+  fieldError(name: string, localMessage = ''): string {
+    return fieldErrorMessage(this.form.get(name), localMessage);
   }
 
   viewAsJson(): void {

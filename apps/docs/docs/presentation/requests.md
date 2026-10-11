@@ -104,7 +104,7 @@ With `response_type: "dc-api"` the browser asks the wallet through `navigator.cr
     });
     ```
 
-    EUDIPLO verifies the presentation and answers `200` with `{}` or `{ "redirect_uri": "..." }`. Your backend receives the result by webhook, SSE or polling as in the other flows. If the body also contains `"sendResponse": true` and no redirect is configured, the answer contains the verified credentials.
+    EUDIPLO verifies the presentation and answers `200` with `{}` or `{ "redirect_uri": "..." }`. A presentation that fails verification is answered with `400`; see [What the wallet or browser receives](../reference/session-outcome.md#what-the-wallet-or-browser-receives). Your backend receives the result by webhook, SSE or polling as in the other flows. If the body also contains `"sendResponse": true` and no redirect is configured, the answer contains the verified credentials.
 
 `@eudiplo/sdk-core` wraps these steps. `isDcApiAvailable()` checks for browser support, and `verifyWithDcApi()` creates the request, calls the wallet and posts the response:
 

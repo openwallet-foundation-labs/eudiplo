@@ -15,6 +15,9 @@ import {
   type RegistrationCertStatus,
 } from '../../../utils/registration-cert-status';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { LoadErrorComponent } from '../../../common/load-error.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-presentation-list',
@@ -27,6 +30,8 @@ import { ConfigOwnershipDirective } from '../../../config-portability/config-own
     FlexLayoutModule,
     MatTooltipModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './presentation-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -35,6 +40,8 @@ import { ConfigOwnershipDirective } from '../../../config-portability/config-own
 export class PresentationListComponent implements OnInit {
   configurations: PresentationConfig[] = [];
   loading = false;
+  /** Set when the list could not be loaded, so it is not shown as empty. */
+  loadError = '';
 
   displayedColumns: (keyof PresentationConfig | 'actions' | 'registrationCert')[] = [
     'id',
@@ -55,11 +62,12 @@ export class PresentationListComponent implements OnInit {
 
   async loadConfigurations(): Promise<void> {
     this.loading = true;
+    this.loadError = '';
     try {
       this.configurations = await this.presentationService.loadConfigurations();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      this.snackBar.open('Failed to load configurations', 'Close', { duration: 3000 });
+      console.error('Error loading configurations:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load presentation configurations');
     } finally {
       this.loading = false;
     }

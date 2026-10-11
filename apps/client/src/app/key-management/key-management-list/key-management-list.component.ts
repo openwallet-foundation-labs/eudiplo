@@ -8,11 +8,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainResponseDto } from '@eudiplo/sdk-core';
 import { KeyChainService } from '../key-chain.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
+import { LoadErrorComponent } from '../../common/load-error.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 type KeyUsageType = 'attestation' | 'statusList' | 'access' | 'trustList';
 
@@ -42,9 +46,11 @@ interface KeyDisplayItem {
     MatSelectModule,
     MatTableModule,
     MatChipsModule,
+    MatProgressSpinnerModule,
     RouterModule,
     FlexLayoutModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
   ],
   templateUrl: './key-management-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -52,6 +58,9 @@ interface KeyDisplayItem {
 })
 export class KeyManagementListComponent implements OnInit {
   displayItems: KeyDisplayItem[] = [];
+  isLoading = true;
+  /** Set when the keys could not be loaded, so the page does not claim there are none. */
+  loadError = '';
   filteredItems: KeyDisplayItem[] = [];
   displayedColumns: string[] = [
     'usage',
@@ -104,7 +113,9 @@ export class KeyManagementListComponent implements OnInit {
     this.loadAllKeys();
   }
 
-  private async loadAllKeys(): Promise<void> {
+  async loadAllKeys(): Promise<void> {
+    this.isLoading = true;
+    this.loadError = '';
     try {
       const keyChains = await this.keyChainService.getAll();
 
@@ -115,7 +126,9 @@ export class KeyManagementListComponent implements OnInit {
       this.applyFilters();
     } catch (error) {
       console.error('Error loading keys:', error);
-      this.snackBar.open('Failed to load keys', 'Dismiss', { duration: 5000 });
+      this.loadError = getApiErrorMessage(error, 'Failed to load keys');
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -196,7 +209,11 @@ export class KeyManagementListComponent implements OnInit {
       await this.loadAllKeys();
     } catch (error) {
       console.error('Error deleting key chain:', error);
-      this.snackBar.open('Failed to delete key chain', 'Dismiss', { duration: 5000 });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to delete key chain'),
+        'Dismiss'
+      );
     }
   }
 
@@ -214,7 +231,11 @@ export class KeyManagementListComponent implements OnInit {
       await this.loadAllKeys();
     } catch (error) {
       console.error('Error rotating key chain:', error);
-      this.snackBar.open('Failed to rotate key chain', 'Dismiss', { duration: 5000 });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to rotate key chain'),
+        'Dismiss'
+      );
     }
   }
 }

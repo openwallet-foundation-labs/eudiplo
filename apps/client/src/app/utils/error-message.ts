@@ -2,7 +2,14 @@
 export function apiErrorDetail(error: unknown): string | undefined {
   const firstString = (value: unknown): string | undefined => {
     if (!value) return undefined;
-    if (typeof value === 'string' && value.trim()) return value;
+    if (typeof value === 'string') {
+      const text = value.trim();
+      // The SDK throws a body that is not JSON as text; of a proxy's HTML error
+      // page only the title says something, such as "502 Bad Gateway".
+      return text.startsWith('<')
+        ? /<title>([^<]+)<\/title>/i.exec(text)?.[1].trim()
+        : text || undefined;
+    }
 
     if (Array.isArray(value)) {
       for (const item of value) {
@@ -36,17 +43,23 @@ export function apiErrorDetail(error: unknown): string | undefined {
 
 /**
  * Message for a failed SDK call: the backend's message prefixed with
- * `fallback`, plus the first validation issue; a hint when the backend could
- * not be reached; else `fallback`. A backend message that starts with
- * "Failed to" already says what failed and is returned without the prefix.
+ * `fallback`, plus the validation issues; a hint when the backend could not
+ * be reached; else `fallback`. A backend message that starts with "Failed to"
+ * already says what failed and is returned without the prefix. `allIssues`
+ * names every validation issue, for a form that shows none of them at a
+ * field; otherwise the first three are named.
  */
-export function getApiErrorMessage(error: unknown, fallback: string): string {
+export function getApiErrorMessage(
+  error: unknown,
+  fallback: string,
+  { allIssues = false }: { allIssues?: boolean } = {}
+): string {
   if (isNetworkError(error)) {
     return unreachableMessage(fallback);
   }
 
   const extracted = apiErrorDetail(error);
-  const issue = firstValidationIssue(error);
+  const issue = validationIssueSummary(error, allIssues ? Infinity : SHOWN_ISSUES);
   if (!extracted) {
     return issue ? `${fallback}: ${issue}` : fallback;
   }
@@ -60,16 +73,30 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * The first issue of a `400 Validation failed` response as `path: message`,
- * so the user sees which field was rejected.
+ * The message as a sentence, for text that goes on after it, so a backend
+ * message that already ends with a period does not get a second one.
  */
-function firstValidationIssue(error: unknown): string | undefined {
+export function asSentence(message: string): string {
+  return `${message.replace(/\.+$/, '')}.`;
+}
+
+/** How many issues of a `400 Validation failed` response the message names. */
+const SHOWN_ISSUES = 3;
+
+/**
+ * The issues of a `400 Validation failed` response as `path: message`, the
+ * first {@link SHOWN_ISSUES} of them, so the user sees which fields were rejected.
+ */
+function validationIssueSummary(error: unknown, limit: number): string | undefined {
   const issues = getValidationIssues(error);
   if (issues.length === 0) return undefined;
 
-  const [{ path, message }] = issues;
-  const first = path ? `${path}: ${message}` : message;
-  return issues.length > 1 ? `${first}; ${issues.length - 1} more` : first;
+  const shown = issues
+    .slice(0, limit)
+    .map(({ path, message }) => (path ? `${path}: ${message}` : message))
+    .join('; ');
+  const hidden = issues.length - limit;
+  return hidden > 0 ? `${shown}; ${hidden} more` : shown;
 }
 
 /** True when the SDK error is the backend's error body with this HTTP status. */

@@ -16,7 +16,9 @@ import { StatusListConfigService, bitsOptions } from './status-list-config.servi
 import { StatusListConfig } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { LoadErrorComponent } from '../common/load-error.component';
 import { getApiErrorMessage } from '../utils/error-message';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 @Component({
   selector: 'app-status-list-config',
@@ -36,6 +38,7 @@ import { getApiErrorMessage } from '../utils/error-message';
     FlexLayoutModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './status-list-config.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -45,6 +48,8 @@ export class StatusListConfigComponent implements OnInit {
   configForm: FormGroup;
   isLoading = true;
   isSaving = false;
+  /** Set when the stored settings could not be loaded; the form stays hidden until a retry. */
+  loadError = '';
   currentConfig: StatusListConfig | null = null;
 
   bitsOptions = bitsOptions;
@@ -68,8 +73,9 @@ export class StatusListConfigComponent implements OnInit {
     this.loadConfig();
   }
 
-  private async loadConfig(): Promise<void> {
+  async loadConfig(): Promise<void> {
     this.isLoading = true;
+    this.loadError = '';
     try {
       this.currentConfig = await this.statusListConfigService.getConfig();
       this.configForm.patchValue({
@@ -80,19 +86,20 @@ export class StatusListConfigComponent implements OnInit {
         enableAggregation: this.currentConfig?.enableAggregation ?? true,
       });
     } catch (error) {
-      this.snackBar.open(
-        getApiErrorMessage(error, 'Failed to load status list configuration'),
-        'Close',
-        { duration: 5000 }
-      );
       console.error('Load error:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load status list configuration');
     } finally {
       this.isLoading = false;
     }
   }
 
+  /** Whether the tenant stores any setting, so Reset has something to remove. */
+  get hasStoredOverride(): boolean {
+    return Object.values(this.currentConfig ?? {}).some((value) => value != null);
+  }
+
   async onSave(): Promise<void> {
-    if (this.configForm.invalid) {
+    if (this.configForm.invalid || this.loadError) {
       return;
     }
 
@@ -111,15 +118,17 @@ export class StatusListConfigComponent implements OnInit {
         duration: 3000,
       });
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save configuration'));
     } finally {
       this.isSaving = false;
     }
   }
 
   async onReset(): Promise<void> {
+    if (!this.hasStoredOverride || !confirm(this.resetConfirmation())) {
+      return;
+    }
+
     this.isSaving = true;
     try {
       await this.statusListConfigService.resetConfig();
@@ -135,12 +144,33 @@ export class StatusListConfigComponent implements OnInit {
         duration: 3000,
       });
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to reset configuration'));
     } finally {
       this.isSaving = false;
     }
+  }
+
+  private resetConfirmation(): string {
+    const labels: Record<keyof StatusListConfig, string> = {
+      capacity: 'the capacity',
+      bits: 'the bits per entry',
+      ttl: 'the TTL',
+      immediateUpdate: 'the update mode',
+      enableAggregation: 'the aggregation setting',
+    };
+    const removed = (Object.keys(labels) as (keyof StatusListConfig)[])
+      .filter((key) => this.currentConfig?.[key] != null)
+      .map((key) => labels[key]);
+    const list =
+      removed.length > 1
+        ? `${removed.slice(0, -1).join(', ')} and ${removed[removed.length - 1]}`
+        : removed[0];
+    return (
+      `Reset the status list settings to the global defaults of this instance? ` +
+      `This removes ${list} stored for this tenant. All status lists then follow STATUS_TTL, ` +
+      `STATUS_IMMEDIATE_UPDATE and STATUS_ENABLE_AGGREGATION; status lists created afterwards ` +
+      `use STATUS_CAPACITY and STATUS_BITS.`
+    );
   }
 
   formatCapacity(capacity?: number | null): string {

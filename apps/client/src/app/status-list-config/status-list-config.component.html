@@ -20,14 +20,20 @@
     <div fxLayout="row" fxLayoutAlign="center center" class="loading-container">
       <mat-spinner diameter="48"></mat-spinner>
     </div>
+  } @else if (loadError) {
+    <app-load-error
+      [message]="loadError"
+      hint="The settings can only be changed after they have been loaded."
+      (retry)="loadConfig()"
+    />
   } @else {
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>list_alt</mat-icon>
         <mat-card-title>Status List Settings</mat-card-title>
         <mat-card-subtitle>
-          Configure how credential status is tracked. Changes only affect newly created status
-          lists.
+          Configure how credential status is tracked. Capacity and bits apply to status lists
+          created afterwards; TTL, update mode and aggregation apply to all status lists.
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -303,19 +309,24 @@
       </mat-card-content>
 
       <mat-card-actions fxLayout="row" fxLayoutAlign="space-between center">
-        <button
-          mat-button
-          color="warn"
-          (click)="onReset()"
-          [disabled]="isSaving"
-          appConfigManaged
-          managedKind="Tenant"
-          managedResourceId="tenant"
-          matTooltip="Reset to global defaults"
-        >
-          <mat-icon>restart_alt</mat-icon>
-          Reset to Defaults
-        </button>
+        <div class="reset-action">
+          <button
+            mat-button
+            color="warn"
+            (click)="onReset()"
+            [disabled]="isSaving || !hasStoredOverride"
+            appConfigManaged
+            managedKind="Tenant"
+            managedResourceId="tenant"
+            matTooltip="Reset to global defaults"
+          >
+            <mat-icon>restart_alt</mat-icon>
+            Reset to Defaults
+          </button>
+          @if (!hasStoredOverride) {
+            <span class="reset-hint">This tenant already follows the global defaults.</span>
+          }
+        </div>
         <button
           mat-raised-button
           color="primary"
@@ -338,8 +349,9 @@
     <div class="info-banner">
       <mat-icon>warning</mat-icon>
       <span>
-        <strong>Note:</strong> Changes to status list configuration only affect newly created status
-        lists. Existing status lists retain their original configuration.
+        <strong>Note:</strong> Capacity and bits are fixed when a status list is created, so a
+        change applies to status lists created afterwards. TTL, update mode and aggregation apply to
+        all status lists of this tenant.
       </span>
     </div>
   }

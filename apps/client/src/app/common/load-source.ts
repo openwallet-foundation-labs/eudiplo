@@ -1,11 +1,14 @@
+import type { MatSnackBar } from '@angular/material/snack-bar';
+
 import { LabelledFailure, getApiErrorMessage, joinFailures } from '../utils/error-message';
+import { openErrorSnackBar } from '../utils/error-snackbar';
 
 /** Load state of one data source of a page, so an empty select is not mistaken for "none exist". */
 export type SourceLoadState = 'loading' | 'loaded' | 'failed';
 
 /**
  * Runs the loader of one source, named by `label`, and records its state in
- * `state`; returns the failure, for {@link sourceFailuresMessage}.
+ * `state`; returns the failure, for {@link reportSourceFailures}.
  */
 export async function loadSource<K extends string>(
   state: Record<K, SourceLoadState>,
@@ -30,7 +33,7 @@ export async function loadSource<K extends string>(
  * the sources the backend did not answer share one message, so its hint
  * appears once.
  */
-export function sourceFailuresMessage(results: (LabelledFailure | undefined)[]): string {
+function sourceFailuresMessage(results: (LabelledFailure | undefined)[]): string {
   const failures = results.filter((result) => result !== undefined);
   return joinFailures(
     failures,
@@ -42,4 +45,15 @@ export function sourceFailuresMessage(results: (LabelledFailure | undefined)[]):
     },
     (labels) => `Failed to load ${labels}`
   );
+}
+
+/** Names every source that failed to load in one snackbar, if any did. */
+export function reportSourceFailures(
+  snackBar: MatSnackBar,
+  results: (LabelledFailure | undefined)[]
+): void {
+  const message = sourceFailuresMessage(results);
+  if (message) {
+    openErrorSnackBar(snackBar, message);
+  }
 }

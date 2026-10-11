@@ -27,6 +27,8 @@ Sign in at `http://localhost:4200` with the backend URL and a client id and secr
 
 Use the generated functions of `@eudiplo/sdk-core` (for example `tenantControllerGetTenant`); do not call `HttpClient` with hand-written URLs. `core/api.service.ts` configures the SDK client with the instance URL and the access token.
 
+Show the backend's reason when a request fails. The SDK throws the parsed response body, not an `Error`, so build the message with `getApiErrorMessage(error, 'Failed to …')` from `utils/error-message.ts` (`getHttpErrorMessage` for an `HttpClient` call) and open it with `openErrorSnackBar` from `utils/error-snackbar.ts`, which keeps a long message on screen long enough to read. In a form, `showIssuesAtFields` from `utils/form-errors.ts` puts the issues of a `400 Validation failed` response under their fields. A page that loads several sources reports the failed ones in one snackbar with `reportSourceFailures` from `common/load-source.ts`, which names the requests the backend did not answer once. When a page cannot load its data, show `<app-load-error>` from `common/load-error.component.ts` with its Retry instead of an empty list or a form with default values; a list based on `BaseAsyncListComponent` names its `loadFailedMessage` and shows the `loadError` it sets.
+
 When you add or change a backend endpoint, regenerate the SDK with the backend running and rebuild it:
 
 ```bash
@@ -44,8 +46,8 @@ apps/client/src/
 │   ├── core/                # API service (SDK setup), OIDC service, auth interceptor
 │   ├── services/            # environment, theme, version check, frontend config, session expiry warning, Grafana links, JWT helpers
 │   ├── guards/              # auth.guard.ts, roles.guard.ts
-│   ├── common/              # shared base list component and small utilities
-│   ├── utils/               # reusable UI: editor, image field, webhook config, schema validation
+│   ├── common/              # shared base list component, load error card, source loading, small utilities
+│   ├── utils/               # reusable UI: editor, image field, webhook config, schema validation; error messages
 │   ├── login/, dashboard/, settings/
 │   ├── issuance/            # credential configs, issuance config, offers, attribute providers
 │   ├── presentation/        # presentation configs and requests

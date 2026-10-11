@@ -184,6 +184,7 @@ describe('SessionConfigComponent', () => {
     expect(globalDefaultOption().getAttribute('aria-disabled')).toBe('false');
     // Nothing is stored, so there is nothing to reset.
     expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expect(element.textContent).toContain('This tenant already follows the global defaults.');
     pickCleanupMode('Anonymize');
     pickCleanupMode('Use global default');
     expect(fixture.componentInstance.configForm.value.cleanupMode).toBeNull();
@@ -260,6 +261,7 @@ describe('SessionConfigComponent', () => {
       'Global default (SESSION_CLEANUP_MODE of this instance)'
     );
     expect(button(element, 'Reset to Defaults').disabled).toBe(true);
+    expect(element.textContent).toContain('This tenant already follows the global defaults.');
 
     fixture.componentInstance.configForm.patchValue({ ttlSeconds: 3600 });
     fixture.detectChanges();
