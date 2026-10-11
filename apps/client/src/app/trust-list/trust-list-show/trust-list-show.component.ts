@@ -17,7 +17,6 @@ import {
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
-  trustListControllerExportTrustList,
   trustListControllerGetTrustList,
   trustListControllerGetTrustListVersions,
 } from '@eudiplo/sdk-core';
@@ -32,6 +31,7 @@ import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { TrustListService } from '../trust-list.service';
 import {
   credentialConfigReferencesTrustList,
   presentationConfigReferencesTrustList,
@@ -110,6 +110,7 @@ export class TrustListShowComponent implements OnInit {
   private readonly presentationService = inject(PresentationManagementService);
   private readonly frontendConfigService = inject(FrontendConfigService);
   private readonly jwtService = inject(JwtService);
+  private readonly trustListService = inject(TrustListService);
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
@@ -324,18 +325,16 @@ export class TrustListShowComponent implements OnInit {
   /**
    * Downloads the current configuration as a JSON file.
    */
-  async download() {
-    const config = await trustListControllerExportTrustList({ path: { id: this.id } }).then(
-      (res) => res.data
-    );
-    const dataStr =
-      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `trustlist-${this.id}-config.json`);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
+  async download(): Promise<void> {
+    try {
+      await this.trustListService.downloadConfig(this.id);
+      this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
+    } catch (error) {
+      console.error('Error downloading config:', error);
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
+    }
   }
 }

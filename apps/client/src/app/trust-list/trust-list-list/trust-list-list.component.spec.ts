@@ -43,44 +43,28 @@ describe('TrustListListComponent', () => {
   });
 
   it('downloads the configuration of the clicked trust list', async () => {
-    const exportConfig = vi.fn().mockResolvedValue({ id: 'membership-issuers' });
-    const element = await render({ getAll: async () => [trustList], exportConfig });
+    const downloadConfig = vi.fn().mockResolvedValue(undefined);
+    const element = await render({ getAll: async () => [trustList], downloadConfig });
+    // The component's own MatSnackBarModule provides its instance, not the root injector.
     const open = vi.spyOn(MatSnackBar.prototype, 'open');
-    const click = vi
-      .spyOn(HTMLAnchorElement.prototype, 'click')
-      .mockImplementation(() => undefined);
-    // jsdom has no object URLs; keep the file the page hands to the browser.
-    const { createObjectURL, revokeObjectURL } = URL;
-    const files: Blob[] = [];
-    URL.createObjectURL = (blob: Blob) => (files.push(blob), 'blob:trust-list');
-    URL.revokeObjectURL = () => undefined;
 
-    try {
-      element
-        .querySelector<HTMLButtonElement>('button[mattooltip="Download configuration"]')
-        ?.click();
+    element
+      .querySelector<HTMLButtonElement>('button[mattooltip="Download configuration"]')
+      ?.click();
 
-      await vi.waitFor(() =>
-        expect(open).toHaveBeenCalledWith('Trust list configuration downloaded', 'Close', {
-          duration: 3000,
-        })
-      );
-    } finally {
-      Object.assign(URL, { createObjectURL, revokeObjectURL });
-    }
-    expect(exportConfig).toHaveBeenCalledWith('membership-issuers');
-    const anchor = click.mock.contexts[0] as HTMLAnchorElement;
-    expect(anchor.download).toBe('trustlist-membership-issuers-config.json');
-    expect(files).toHaveLength(1);
-    expect(JSON.parse(await files[0].text())).toEqual({ id: 'membership-issuers' });
+    await vi.waitFor(() =>
+      expect(open).toHaveBeenCalledWith('Trust list configuration downloaded', 'Close', {
+        duration: 3000,
+      })
+    );
+    expect(downloadConfig).toHaveBeenCalledWith('membership-issuers');
   });
 
   it('says why a configuration could not be downloaded', async () => {
-    const exportConfig = vi
+    const downloadConfig = vi
       .fn()
       .mockRejectedValue({ statusCode: 404, message: 'Trust list membership-issuers not found' });
-    const element = await render({ getAll: async () => [trustList], exportConfig });
-    // The component's own MatSnackBarModule provides its instance, not the root injector.
+    const element = await render({ getAll: async () => [trustList], downloadConfig });
     const open = vi.spyOn(MatSnackBar.prototype, 'open');
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
@@ -95,7 +79,7 @@ describe('TrustListListComponent', () => {
         expect.objectContaining({ duration: expect.any(Number) })
       )
     );
-    expect(exportConfig).toHaveBeenCalledWith('membership-issuers');
+    expect(downloadConfig).toHaveBeenCalledWith('membership-issuers');
   });
 
   describeListStates({
