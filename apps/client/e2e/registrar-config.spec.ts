@@ -10,6 +10,8 @@ import { loginWithClientCredentials } from './support/login';
 // registrar credentials at the token endpoint of the OIDC realm before it
 // saves them, so a stub realm runs in the test process. The registrar itself
 // is not called. Each test gets its own tenant with the registrar:manage role.
+// The access key wizard's registrar enrollment is tested here too, as it
+// needs the same tenant and realm.
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -20,8 +22,10 @@ const password = 'registrar-password';
 
 let realms: Server;
 let realmsOrigin: string;
+/** Realms that refuse the account, as after a password change at the registrar. */
+const lockedRealms = new Set<string>();
 
-/** URL of a stub OIDC realm; every realm accepts the same account. */
+/** URL of a stub OIDC realm; every realm that is not locked accepts the same account. */
 function realmUrl(name: string): string {
   return `${realmsOrigin}/realms/${name}`;
 }
@@ -47,6 +51,7 @@ function stubRealms(request: IncomingMessage, response: ServerResponse): void {
     request.on('end', () => {
       const form = new URLSearchParams(body);
       const valid =
+        !lockedRealms.has(realm) &&
         form.get('grant_type') === 'password' &&
         form.get('username') === username &&
         form.get('password') === password;
@@ -92,8 +97,8 @@ interface Tenant {
   call(method: string, path: string, body?: unknown): Promise<Response>;
 }
 
-/** A new tenant whose admin client may manage the registrar configuration. */
-async function createTenant(): Promise<Tenant> {
+/** A new tenant whose admin client may manage the registrar configuration and these roles. */
+async function createTenant(extraRoles: string[] = []): Promise<Tenant> {
   const root = await accessToken(
     resolvedE2EConfig.rootClientId!,
     resolvedE2EConfig.rootClientSecret!
@@ -104,7 +109,7 @@ async function createTenant(): Promise<Tenant> {
     body: JSON.stringify({
       id: `registrar-e2e-${randomBytes(4).toString('hex')}`,
       name: 'Registrar E2E',
-      roles: ['registrar:manage'],
+      roles: ['registrar:manage', ...extraRoles],
     }),
   });
   expect(response.status).toBe(201);
@@ -302,4 +307,44 @@ test('deletes the configuration', async ({ page }) => {
   );
   await expect(page.getByRole('button', { name: 'Save Configuration' })).toBeVisible();
   expect((await tenant.call('GET', '/api/registrar/config')).status).toBe(404);
+});
+
+test('deletes the new access key when the registrar refuses its enrollment', async ({ page }) => {
+  const tenant = await createTenant(['keys:manage']);
+  // Saved while the realm accepts the account, refused when the key is enrolled.
+  const realm = `locked-${randomBytes(4).toString('hex')}`;
+  await storeConfig(tenant, { oidcUrl: realmUrl(realm) });
+  lockedRealms.add(realm);
+  const description = `Refused enrollment ${randomBytes(4).toString('hex')}`;
+  await signIn(page, tenant);
+
+  // A radio's name includes its description, and the hint of Access
+  // Certificate names registrar enrollment, so the names are anchored.
+  await page.goto('/keys/create');
+  await page.getByRole('radio', { name: /^Access Certificate/ }).check();
+  await page.getByRole('button', { name: /^Next/ }).click();
+  await page.getByRole('radio', { name: /^Registrar Enrollment/ }).check();
+  await expect(
+    page.getByText('Registrar configured. Its credentials are checked when you enroll.')
+  ).toBeVisible();
+  await page.getByRole('button', { name: /^Enroll Certificate/ }).click();
+  await page.getByRole('textbox', { name: 'Description' }).fill(description);
+  const createAndEnroll = page.getByRole('button', { name: 'Create & Enroll' });
+  await createAndEnroll.click();
+
+  const refusal = page.getByRole('alert').filter({
+    hasText:
+      /Failed to authenticate with registrar: the OIDC provider answered with HTTP 401.* The new key was deleted\. Check the registrar configuration and try again\./,
+  });
+  await expect(refusal).toBeVisible();
+  await expect(refusal).toBeFocused();
+  await expect(page).toHaveURL(/\/keys\/create$/);
+  await expect(createAndEnroll).toBeEnabled();
+  const keyChains = await (await tenant.call('GET', '/api/key-chain')).json();
+  expect(keyChains.map((keyChain: { description?: string }) => keyChain.description)).not.toContain(
+    description
+  );
+
+  await refusal.getByRole('link', { name: 'Go to Registrar' }).click();
+  await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
 });
