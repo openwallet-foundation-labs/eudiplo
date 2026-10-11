@@ -47,6 +47,7 @@ import type {
 import {
     appliedKmsProvider,
     appliedRotationPolicy,
+    keyChainAppliedAsIs,
     keyChainSettingsSpec,
 } from "./key-chain-document.js";
 
@@ -558,10 +559,21 @@ export class ConfigBundleService {
                     issue.severity === "error" ||
                     issue.severity === "required-input",
             );
-            const comparison =
-                exists && mode !== "create" && !blocked && !skipDiverged
-                    ? await this.compareDocument(tenantId, result.document)
-                    : undefined;
+            let comparison:
+                | { unchanged: boolean; changes: ConfigChange[] }
+                | undefined;
+            if (exists && mode !== "create" && !blocked && !skipDiverged) {
+                // Reattach restores the folder version, so it always compares.
+                comparison =
+                    !options.reattach &&
+                    keyChainAppliedAsIs(
+                        result.document,
+                        metadata,
+                        ownershipSource,
+                    )
+                        ? { unchanged: true, changes: [] }
+                        : await this.compareDocument(tenantId, result.document);
+            }
             const metadataChanged =
                 metadata.ownership !== "file-managed" ||
                 metadata.source !== ownershipSource ||
