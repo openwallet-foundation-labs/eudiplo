@@ -348,3 +348,61 @@ test('deletes the new access key when the registrar refuses its enrollment', asy
   await refusal.getByRole('link', { name: 'Go to Registrar' }).click();
   await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
 });
+
+/** A new self-signed standalone access key chain of the tenant. */
+async function createAccessKey(tenant: Tenant): Promise<string> {
+  const response = await tenant.call('POST', '/api/key-chain', {
+    usageType: 'access',
+    type: 'standalone',
+    description: `Access key ${randomBytes(4).toString('hex')}`,
+  });
+  expect(response.status).toBe(201);
+  return (await response.json()).id;
+}
+
+test('enrolls an existing access key from its page and reports a refusal', async ({ page }) => {
+  const tenant = await createTenant(['keys:manage']);
+  // Saved while the realm accepts the account, refused when the key is enrolled.
+  const realm = `locked-${randomBytes(4).toString('hex')}`;
+  await storeConfig(tenant, { oidcUrl: realmUrl(realm) });
+  lockedRealms.add(realm);
+  const keyId = await createAccessKey(tenant);
+  await signIn(page, tenant);
+
+  await page.goto(`/keys/${keyId}`);
+  await expect(page.getByText('This is a self-signed standalone key.')).toBeVisible();
+  const enroll = page.getByRole('button', { name: 'Enroll with Registrar' });
+  // Clicks are held back while the key's config ownership is looked up.
+  await expect(enroll).not.toHaveAttribute('aria-busy', 'true');
+  await enroll.click();
+
+  await expect(
+    page.getByText(
+      /Failed to authenticate with registrar: the OIDC provider answered with HTTP 401/
+    )
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Go to Registrar' }).click();
+  await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
+  // A refused enrollment keeps the key as it was.
+  expect((await tenant.call('GET', `/api/key-chain/${keyId}`)).status).toBe(200);
+});
+
+test('links to the registrar configuration instead of the enrollment without one', async ({
+  page,
+}) => {
+  const tenant = await createTenant(['keys:manage']);
+  const keyId = await createAccessKey(tenant);
+  await signIn(page, tenant);
+
+  // The action stays hidden while the configuration is read, so wait for the answer.
+  const configRead = page.waitForResponse(
+    (response) =>
+      response.url().endsWith('/api/registrar/config') && response.request().method() === 'GET'
+  );
+  await page.goto(`/keys/${keyId}`);
+  expect((await configRead).status()).toBe(404);
+  await expect(page.getByRole('button', { name: 'Copy PEM' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Enroll with Registrar' })).toHaveCount(0);
+  await page.getByRole('link', { name: 'Configure the registrar to enroll this key' }).click();
+  await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
+});
