@@ -164,6 +164,7 @@ describe("OpenAPI contract", () => {
             expect(getOperation(document, path, "get").security).toEqual([
                 { oauth2: ["issuance:offer"] },
                 { oauth2: ["presentation:request"] },
+                { oauth2: ["sessions:read"] },
             ]);
         }
         // A handler's roles replace the controller's instead of adding to them.
@@ -173,6 +174,20 @@ describe("OpenAPI contract", () => {
         ).toEqual([
             { oauth2: ["issuance:offer"] },
             { oauth2: ["issuance:manage"] },
+            { oauth2: ["credentials:status"] },
+            { oauth2: ["sessions:read"] },
+        ]);
+        expect(
+            getOperation(document, "/api/session/revoke", "post").security,
+        ).toEqual([
+            { oauth2: ["credentials:status"] },
+            { oauth2: ["issuance:manage"] },
+        ]);
+        expect(
+            getOperation(document, "/api/session/{id}", "delete").security,
+        ).toEqual([
+            { oauth2: ["issuance:offer"] },
+            { oauth2: ["presentation:request"] },
         ]);
         // match "all": one requirement object with every role.
         for (const path of [

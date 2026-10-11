@@ -134,7 +134,7 @@
         </app-nav-section>
 
         <!-- Administration Section -->
-        @if (hasRole(['tenants:manage', 'clients:manage', 'users:manage'])) {
+        @if (hasRole(['tenants:manage', 'clients:manage', 'users:manage', 'audit:read'])) {
           <app-nav-section
             section="administration"
             icon="admin_panel_settings"
@@ -179,7 +179,7 @@
               </a>
             }
 
-            @if (hasRole('clients:manage')) {
+            @if (hasRole(['clients:manage', 'audit:read'])) {
               <a
                 mat-list-item
                 [routerLink]="['/admin/activity-logs']"
@@ -195,7 +195,7 @@
         }
 
         <!-- Cryptographic Assets Section: issuers publish trust lists, verifiers accept issuers from them -->
-        @if (hasRole(['presentation:manage', 'issuance:manage'])) {
+        @if (hasRole(keyChainRoles)) {
           <app-nav-section section="crypto" icon="key" label="Cryptographic Assets">
             <a
               mat-list-item
@@ -208,16 +208,18 @@
               <span matListItemTitle>Keys</span>
             </a>
 
-            <a
-              mat-list-item
-              [routerLink]="['/trust-list']"
-              routerLinkActive="active-link"
-              ariaCurrentWhenActive="page"
-              (click)="closeSidenavOnMobile()"
-            >
-              <mat-icon matListItemIcon>checklist</mat-icon>
-              <span matListItemTitle>Trust Lists</span>
-            </a>
+            @if (hasRole(['issuance:manage', 'presentation:manage'])) {
+              <a
+                mat-list-item
+                [routerLink]="['/trust-list']"
+                routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
+                (click)="closeSidenavOnMobile()"
+              >
+                <mat-icon matListItemIcon>checklist</mat-icon>
+                <span matListItemTitle>Trust Lists</span>
+              </a>
+            }
 
             <a
               mat-list-item
@@ -377,10 +379,11 @@
             'issuance:offer',
             'issuance:manage',
             'presentation:manage',
+            'sessions:read',
           ])
         ) {
           <app-nav-section section="sessions" icon="monitoring" label="Sessions">
-            @if (hasRole(['presentation:request', 'issuance:offer'])) {
+            @if (hasRole(['presentation:request', 'issuance:offer', 'sessions:read'])) {
               <a
                 mat-list-item
                 [routerLink]="['/session-management']"

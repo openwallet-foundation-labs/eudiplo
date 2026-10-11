@@ -5,11 +5,11 @@
 export enum Role {
     // to manage verifier resources: presentation configurations, trust lists, key chains, webhook endpoints and session settings
     Presentations = "presentation:manage",
-    // to create presentation requests, read presentation configurations and read or delete presentation sessions
+    // to create presentation requests, read presentation configurations and read, cancel or delete presentation sessions
     PresentationRequest = "presentation:request",
-    // to manage issuer resources: credential and issuance configurations, attribute providers, status lists and their settings, trust lists, key chains, webhook endpoints and session settings, and, together with registrar:manage, to publish schema metadata at the registrar
+    // to manage issuer resources: credential and issuance configurations, attribute providers, status lists and their settings, trust lists, key chains, webhook endpoints and session settings, to revoke, suspend or reinstate issued credentials, and, together with registrar:manage, to publish schema metadata at the registrar
     Issuances = "issuance:manage",
-    // to create credential offers, complete or fail deferred issuance, revoke or suspend credentials, and read or delete issuance sessions
+    // to create credential offers, complete or fail deferred issuance, read, cancel or delete issuance sessions and read the status of their credentials
     IssuanceOffer = "issuance:offer",
     // to manage the tenant's API clients with the roles the caller may grant, and read its audit log
     Clients = "clients:manage",
@@ -21,6 +21,14 @@ export enum Role {
     TenantAdmin = "tenant:admin",
     // to manage the registrar configuration, enroll access certificates, and list, update, deprecate and delete schema metadata at the registrar; publishing it also needs issuance:manage
     Registrar = "registrar:manage",
+    // to read the tenant's audit log
+    AuditRead = "audit:read",
+    // to read the tenant's issuance and presentation sessions, their logs, events and statistics and the status of issued credentials, without creating, cancelling or deleting them
+    SessionsRead = "sessions:read",
+    // to revoke, suspend or reinstate the credentials issued in a session and read their status
+    CredentialStatus = "credentials:status",
+    // to create, import, rotate, change and delete key chains and read them and the KMS providers; key export and KMS provider settings need tenant:admin or tenants:manage
+    Keys = "keys:manage",
 }
 
 /**
@@ -36,6 +44,10 @@ export const allRoles = [
     Role.Users,
     Role.Registrar,
     Role.TenantAdmin,
+    Role.AuditRead,
+    Role.SessionsRead,
+    Role.CredentialStatus,
+    Role.Keys,
 ];
 
 /**

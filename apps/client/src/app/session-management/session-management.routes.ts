@@ -1,15 +1,13 @@
 import type { Routes } from '@angular/router';
 import { RoleGuard } from '../guards/roles.guard';
 import { getRole } from '../services/jwt.service';
-
-// The roles the backend session list and session endpoints accept.
-const sessionViewerRoles = [getRole('issuance:offer'), getRole('presentation:request')];
+import { SESSION_READER_ROLES } from './session-roles';
 
 export const sessionManagementRoutes: Routes = [
   {
     path: '',
     canActivate: [RoleGuard],
-    data: { role: sessionViewerRoles },
+    data: { role: SESSION_READER_ROLES },
     loadComponent: () =>
       import('./session-management-list/session-management-list.component').then(
         (m) => m.SessionManagementListComponent
@@ -25,7 +23,7 @@ export const sessionManagementRoutes: Routes = [
   {
     path: ':id',
     canActivate: [RoleGuard],
-    data: { role: sessionViewerRoles },
+    data: { role: SESSION_READER_ROLES },
     loadComponent: () =>
       import('./session-management-show/session-management-show.component').then(
         (m) => m.SessionManagementShowComponent

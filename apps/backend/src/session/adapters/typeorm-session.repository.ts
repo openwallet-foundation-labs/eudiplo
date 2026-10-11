@@ -160,11 +160,10 @@ export class TypeOrmSessionRepository implements SessionRepository {
     findByIdForInternalFlow(id: string) {
         return this.findSession({ id });
     }
-    async findForWalletRequest(walletNonce: string) {
-        return (
-            (await this.findSession({ walletNonce })) ??
-            this.findSession({ id: walletNonce })
-        );
+    findForWalletRequest(walletNonce: string) {
+        // Never by session ID: it is no secret. Issuance offers carry it, the
+        // management API lists it and ISO 18013-7 pages post with it.
+        return this.findSession({ walletNonce });
     }
     findIso18013Session(id: string) {
         return this.findSession({ id, dcApiProtocol: "iso-18013-7" });
@@ -390,6 +389,14 @@ export class TypeOrmSessionRepository implements SessionRepository {
         }
         if (query.q)
             qb.andWhere(this.matchesSearch(parseSessionSearch(query.q)));
+        for (const type of query.hideOpen ?? []) {
+            // `NOT s.consumed` instead of a boolean parameter, which
+            // better-sqlite3 cannot bind.
+            qb.andWhere(
+                `NOT (s.requestId IS ${type === "issuance" ? "" : "NOT "}NULL AND NOT s.consumed AND s.status IN (:...openStatuses))`,
+                { openStatuses: [...OPEN_SESSION_STATUSES] },
+            );
+        }
         return qb;
     }
 

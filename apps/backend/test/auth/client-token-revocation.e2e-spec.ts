@@ -174,14 +174,14 @@ describe("Client token revocation (e2e)", () => {
             request(ctx.app.getHttpServer())
                 .get("/client")
                 .set("Authorization", `Bearer ${adminToken}`);
-        await listClients().expect(200);
+        expect((await listClients()).status).toBe(200);
 
         await request(ctx.app.getHttpServer())
             .delete("/tenant/token-revocation-deleted")
             .set("Authorization", `Bearer ${rootToken}`)
             .expect(204);
 
-        await listClients().expect(401);
+        expect((await listClients()).status).toBe(401);
     });
 
     test("a token is rejected once its client ID belongs to another tenant", async () => {

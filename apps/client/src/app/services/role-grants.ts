@@ -6,21 +6,26 @@ import { RoleDto } from '@eudiplo/sdk-core';
  * backend will accept. The backend has the final say.
  */
 
-// Extend RoleDto to include registrar:manage which may not be in the SDK yet
-export type Role =
-  RoleDto['role'] | 'registrar:manage' | 'tenant:admin' | 'tenants:manage' | 'users:manage';
+export type Role = RoleDto['role'];
 
-export const roles: Role[] = [
-  'clients:manage',
-  'issuance:manage',
-  'issuance:offer',
-  'presentation:manage',
-  'presentation:request',
-  'registrar:manage',
-  'tenant:admin',
-  'tenants:manage',
-  'users:manage',
-];
+// A record, so the build fails when the SDK knows a role that is missing here.
+const roleSet: Record<Role, true> = {
+  'audit:read': true,
+  'clients:manage': true,
+  'credentials:status': true,
+  'issuance:manage': true,
+  'issuance:offer': true,
+  'keys:manage': true,
+  'presentation:manage': true,
+  'presentation:request': true,
+  'registrar:manage': true,
+  'sessions:read': true,
+  'tenant:admin': true,
+  'tenants:manage': true,
+  'users:manage': true,
+};
+
+export const roles = Object.keys(roleSet) as Role[];
 
 /** Roles that only a caller with `tenants:manage` can grant. */
 const reservedRoles: ReadonlySet<Role> = new Set<Role>(['tenants:manage', 'tenant:admin']);

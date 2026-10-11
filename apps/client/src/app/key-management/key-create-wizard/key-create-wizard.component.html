@@ -160,10 +160,17 @@
               <mat-card
                 class="option-card"
                 [class.selected]="selectedAccessSource === option.value"
-                (click)="accessSourceForm.get('accessSource')?.setValue(option.value)"
+                (click)="
+                  isAccessSourceAvailable(option.value) &&
+                    accessSourceForm.get('accessSource')?.setValue(option.value)
+                "
               >
                 <mat-card-content fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
-                  <mat-radio-button [value]="option.value" class="option-radio">
+                  <mat-radio-button
+                    [value]="option.value"
+                    [disabled]="!isAccessSourceAvailable(option.value)"
+                    class="option-radio"
+                  >
                     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
                       <mat-icon class="option-icon">{{ option.icon }}</mat-icon>
                       <div fxLayout="column">
@@ -172,7 +179,12 @@
                         <span class="option-hint">{{ option.hint }}</span>
                         @if (option.value === 'registrar') {
                           <div class="registrar-status">
-                            @if (isCheckingRegistrar) {
+                            @if (!canUseRegistrar) {
+                              <mat-icon class="status-warning">lock</mat-icon>
+                              <span class="status-warning">
+                                Enrolling through the registrar needs the registrar:manage role.
+                              </span>
+                            } @else if (isCheckingRegistrar) {
                               <mat-spinner diameter="16"></mat-spinner>
                               <span>Checking registrar configuration...</span>
                             } @else if (hasRegistrarConfig) {

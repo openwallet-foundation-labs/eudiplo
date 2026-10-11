@@ -35,3 +35,34 @@ describe('Trust list route', () => {
     expect(guard.openSnackBar).toHaveBeenCalledWith('Access denied', 'Close', { duration: 3000 });
   });
 });
+
+describe('Configuration routes', () => {
+  let guard: ReturnType<typeof roleGuardHarness>;
+
+  beforeEach(() => {
+    guard = roleGuardHarness();
+  });
+
+  function canOpen(path: string, roles: Role[]): boolean {
+    const route = routes.find((r) => r.path === path)!;
+    expect(route.canActivate).toEqual([AuthGuard, RoleGuard]);
+    return guard.canOpen(route, roles);
+  }
+
+  // Matches the backend's @Secured roles and the nav entries in app.component.html.
+  it.each<[string, Role[], Role[]]>([
+    ['issuance-config', ['issuance:manage'], ['presentation:manage', 'issuance:offer']],
+    ['credential-config', ['issuance:manage'], ['presentation:manage', 'issuance:offer']],
+    ['presentation-config', ['presentation:manage'], ['issuance:manage', 'presentation:request']],
+    ['webhook-endpoints', ['issuance:manage'], ['issuance:offer', 'presentation:request']],
+    ['webhook-endpoints', ['presentation:manage'], ['issuance:offer', 'presentation:request']],
+    ['keys', ['issuance:manage'], ['issuance:offer', 'presentation:request']],
+    ['keys', ['presentation:manage'], ['issuance:offer', 'presentation:request']],
+    ['kms', ['issuance:manage'], ['issuance:offer', 'presentation:request']],
+    ['kms', ['presentation:manage'], ['issuance:offer', 'presentation:request']],
+  ])('opens %s for %j and denies %j', (path, allowed, denied) => {
+    expect(canOpen(path, allowed)).toBe(true);
+    expect(canOpen(path, denied)).toBe(false);
+    expect(guard.navigate).toHaveBeenCalledWith(['/']);
+  });
+});

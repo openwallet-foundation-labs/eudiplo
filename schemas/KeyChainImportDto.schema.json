@@ -68,6 +68,14 @@
       ],
       "description": "Key usage category for the imported key chain."
     },
+    "type": {
+      "description": "Key chain type. `standalone`: `key` is the signing key and `crt` its chain, leaf first. `internalChain`: `key` is a CA key and the last `crt` entry its CA certificate (created if `crt` is omitted); the import generates a new signing key with a certificate issued by it. Without `type`, `key` is a CA key only if `rotationPolicy.enabled` is true and `crt` is not a single self-signed certificate that is not a CA.",
+      "type": "string",
+      "enum": [
+        "standalone",
+        "internalChain"
+      ]
+    },
     "crt": {
       "description": "Optional certificate chain values in PEM or base64 DER.",
       "type": "array",

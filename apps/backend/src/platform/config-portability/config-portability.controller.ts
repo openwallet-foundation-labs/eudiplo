@@ -324,6 +324,7 @@ export class ConfigPortabilityController {
         Role.Presentations,
         Role.Clients,
         Role.Registrar,
+        Role.Keys,
     ])
     @ApiOperation({
         summary: "List the configuration ownership of one resource kind",

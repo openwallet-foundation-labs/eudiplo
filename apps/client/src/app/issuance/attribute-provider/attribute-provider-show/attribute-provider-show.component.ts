@@ -14,6 +14,9 @@ import { downloadJsonFile } from '../../../common/download-json.util';
 import { AttributeProviderService } from '../attribute-provider.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-attribute-provider-show',
@@ -28,6 +31,7 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './attribute-provider-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -35,6 +39,8 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
 })
 export class AttributeProviderShowComponent implements OnInit {
   provider: AttributeProviderEntity | undefined;
+  /** Set when the page's data could not be loaded, so the page is not left blank. */
+  loadError = '';
 
   constructor(
     private readonly attributeProviderService: AttributeProviderService,
@@ -44,13 +50,18 @@ export class AttributeProviderShowComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.loadError = '';
       this.attributeProviderService.getById(id).then(
         (provider) => (this.provider = provider),
         (error) => {
-          this.snackBar.open('Failed to load attribute provider', 'Close', { duration: 3000 });
           console.error('Load error:', error);
+          this.loadError = getApiErrorMessage(error, 'Failed to load attribute provider');
         }
       );
     }
@@ -67,7 +78,12 @@ export class AttributeProviderShowComponent implements OnInit {
   }
 
   deleteProvider(): void {
-    if (this.provider && confirm('Are you sure you want to delete this attribute provider?')) {
+    if (
+      this.provider &&
+      confirm(
+        `Delete attribute provider "${this.provider.name || this.provider.id}"? This cannot be undone.`
+      )
+    ) {
       this.attributeProviderService
         .delete(this.provider.id)
         .then(() => {
@@ -77,7 +93,10 @@ export class AttributeProviderShowComponent implements OnInit {
           this.router.navigate(['../'], { relativeTo: this.route });
         })
         .catch((error) => {
-          this.snackBar.open('Failed to delete attribute provider', 'Close', { duration: 3000 });
+          openErrorSnackBar(
+            this.snackBar,
+            getApiErrorMessage(error, 'Failed to delete attribute provider')
+          );
           console.error('Delete error:', error);
         });
     }

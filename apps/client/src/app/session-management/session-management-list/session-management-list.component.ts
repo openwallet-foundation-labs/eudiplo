@@ -48,6 +48,11 @@ import {
   SessionManagementService,
   SessionQueryParams,
 } from '../session-management.service';
+import { maySessionChange, SESSION_CHANGER_ROLES } from '../session-roles';
+import { JwtService } from '../../services/jwt.service';
+import { LoadErrorComponent } from '../../common/load-error.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 // Define the SessionStatus type
 export type SessionStatus = 'active' | 'fetched' | 'completed' | 'expired' | 'failed' | 'cancelled';
@@ -127,6 +132,7 @@ function endOfDay(date: Date): Date {
     FlexLayoutModule,
     ReactiveFormsModule,
     MatPaginatorModule,
+    LoadErrorComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './session-management-list.component.html',
@@ -159,6 +165,8 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   initialSort: { active: string; direction: SortDirection } = { active: '', direction: '' };
   pageSizeOptions = [10, 25, 50, 100];
   isLoadingResults = true;
+  /** Set when the sessions could not be loaded, so the page does not claim there are none. */
+  loadError = '';
 
   displayedColumns: (keyof Session | 'select' | 'type' | 'actions')[] = [
     'select',
@@ -204,9 +212,14 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   private readonly sessionManagementService = inject(SessionManagementService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly jwtService = inject(JwtService);
   private readonly refresh$ = new Subject<void>();
 
   ngOnInit(): void {
+    // sessions:read alone reads sessions but cancels and deletes none.
+    if (!this.jwtService.hasRole(SESSION_CHANGER_ROLES)) {
+      this.displayedColumns = this.displayedColumns.filter((column) => column !== 'select');
+    }
     this.restoreFilters(this.route.snapshot.queryParamMap);
     this.restoreTableState(this.route.snapshot.queryParams);
     void this.loadConfigOptions();
@@ -230,10 +243,20 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
+          this.loadError = '';
           const query = this.buildQuery();
           this.storeInUrl(query);
           return from(this.sessionManagementService.getAllSessions(query)).pipe(
-            catchError(() => observableOf(null))
+            catchError((error: unknown) => {
+              console.error('Error loading sessions:', error);
+              this.loadError = getApiErrorMessage(error, 'Failed to load sessions');
+              // Rows of an earlier query no longer match what the filters ask for,
+              // and bulk actions must not act on rows the user no longer sees.
+              this.dataSource.data = [];
+              this.totalItems = 0;
+              this.selection.clear();
+              return observableOf(null);
+            })
           );
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -429,11 +452,38 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
     }));
   }
 
+  readonly canOfferIssuance = this.jwtService.hasRole('issuance:offer');
+  readonly canRequestPresentation = this.jwtService.hasRole('presentation:request');
+  readonly readOnlyRowHint = 'Your roles let you read this session but not cancel or delete it';
+  /**
+   * Like the backend, sessions:read lists the sessions a wallet can still use
+   * only for the types the caller creates or manages.
+   */
+  readonly hidesOpenSessions =
+    this.jwtService.hasRole('sessions:read') &&
+    !(
+      maySessionChange((roles) => this.jwtService.hasRole(roles), { requestId: undefined }) &&
+      maySessionChange((roles) => this.jwtService.hasRole(roles), { requestId: 'presentation' })
+    );
+
+  /** Whether the caller may cancel and delete this session, not only read it. */
+  canChange(session: Session): boolean {
+    return maySessionChange((roles) => this.jwtService.hasRole(roles), session);
+  }
+
+  /** Rows of the page the caller may cancel and delete. */
+  private get changeableRows(): Session[] {
+    return this.dataSource.data.filter((session) => this.canChange(session));
+  }
+
+  get hasChangeableRows(): boolean {
+    return this.changeableRows.length > 0;
+  }
+
   // Selection methods
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+    const numRows = this.changeableRows.length;
+    return numRows > 0 && this.selection.selected.length === numRows;
   }
 
   masterToggle() {
@@ -442,42 +492,54 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.selection.select(...this.dataSource.data);
+    this.selection.select(...this.changeableRows);
   }
 
   checkboxLabel(row?: Session): string {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
+    if (!this.canChange(row)) {
+      return `row ${row.id}: ${this.readOnlyRowHint}`;
+    }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id}`;
   }
 
   async deleteSelectedSessions() {
-    if (this.selection.selected.length === 0) {
+    const sessions = [...this.selection.selected];
+    const count = sessions.length;
+    if (
+      count === 0 ||
+      !confirm(
+        `Delete ${count} ${count === 1 ? 'session' : 'sessions'}? Credentials issued in them ` +
+          'keep their status. This cannot be undone.'
+      )
+    ) {
       return;
     }
 
-    const selectedSessions = [...this.selection.selected]; // Create a copy
-    const selectedCount = selectedSessions.length;
-
     this.deletingSelected = true;
     try {
-      // Delete each selected session
-      const deletePromises = selectedSessions.map((session) =>
-        this.sessionManagementService.deleteSession(session.id)
+      const outcomes = await Promise.allSettled(
+        sessions.map((session) => this.sessionManagementService.deleteSession(session.id))
       );
-
-      await Promise.all(deletePromises);
-
-      // Clear selection and refresh the list
+      const rejected = outcomes.filter(
+        (outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected'
+      );
+      if (rejected.length) {
+        console.error('Error deleting sessions:', rejected);
+        openErrorSnackBar(
+          this.snackBar,
+          `Deleted ${count - rejected.length} of ${count} sessions; ` +
+            getApiErrorMessage(rejected[0].reason, `${rejected.length} failed`)
+        );
+      } else {
+        this.snackBar.open(`Deleted ${count} ${count === 1 ? 'session' : 'sessions'}`, 'Close', {
+          duration: 3000,
+        });
+      }
       this.selection.clear();
-      await this.refreshSessions();
-
-      // You can add a snackbar notification here if you have it set up
-      console.log(`Successfully deleted ${selectedCount} sessions`);
-    } catch (error) {
-      console.error('Error deleting sessions:', error);
-      // You can add error notification here
+      this.refreshSessions();
     } finally {
       this.deletingSelected = false;
     }
@@ -519,18 +581,25 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
         (outcome): outcome is PromiseRejectedResult => outcome.status === 'rejected'
       );
       const conflicts = rejected.filter((outcome) => isCancelConflict(outcome.reason)).length;
-      const errors = rejected.length - conflicts;
-      this.snackBar.open(
-        rejected.length
-          ? [
-              `Cancelled ${sessions.length - rejected.length} of ${sessions.length} sessions`,
-              ...(conflicts ? [`${conflicts} no longer pending`] : []),
-              ...(errors ? [`${errors} failed`] : []),
-            ].join('; ')
-          : `Cancelled ${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'}`,
-        'Close',
-        { duration: 4000 }
-      );
+      const errors = rejected.filter((outcome) => !isCancelConflict(outcome.reason));
+      if (rejected.length) {
+        openErrorSnackBar(
+          this.snackBar,
+          [
+            `Cancelled ${sessions.length - rejected.length} of ${sessions.length} sessions`,
+            ...(conflicts ? [`${conflicts} no longer pending`] : []),
+            ...(errors.length
+              ? [getApiErrorMessage(errors[0].reason, `${errors.length} failed`)]
+              : []),
+          ].join('; ')
+        );
+      } else {
+        this.snackBar.open(
+          `Cancelled ${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'}`,
+          'Close',
+          { duration: 4000 }
+        );
+      }
       this.selection.clear();
       await this.refreshSessions();
     } finally {

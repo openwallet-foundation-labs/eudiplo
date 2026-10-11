@@ -31,6 +31,9 @@ import { hasHttpStatus } from '../utils/error-message';
  */
 export const KEY_ADMIN_ROLES: Role[] = ['tenant:admin', 'tenants:manage'];
 
+/** Roles that list, create, rotate and delete key chains and read the KMS providers. */
+export const KEY_CHAIN_ROLES: Role[] = ['issuance:manage', 'presentation:manage', 'keys:manage'];
+
 /** Message shown when the backend rejects a key administration request. */
 export const KEY_ADMIN_FORBIDDEN_MESSAGE =
   'This action requires the tenant:admin or tenants:manage role';

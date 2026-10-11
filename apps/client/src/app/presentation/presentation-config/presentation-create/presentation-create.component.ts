@@ -52,6 +52,9 @@ import {
   trustSummary,
 } from '../dcql-query-editor/simple-dcql';
 import { schemaFormValidator } from '../../../utils/schema-form-validator';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-presentation-create',
@@ -78,6 +81,7 @@ import { schemaFormValidator } from '../../../utils/schema-form-validator';
     CredentialIdsComponent,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './presentation-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -118,6 +122,10 @@ export class PresentationCreateComponent implements OnInit {
   public showSettingsErrors = false;
   public validationMessage = '';
   public saving = false;
+  /** While the configuration to edit or copy loads; saving before would overwrite it. */
+  loadingConfig = false;
+  /** Set when the configuration to edit or copy could not be loaded; the form stays hidden. */
+  loadError = '';
   public keyChainsLoaded = false;
   readonly stepDescriptions = [
     'Name your reusable request',
@@ -210,9 +218,7 @@ export class PresentationCreateComponent implements OnInit {
       },
       (error) => {
         console.error('Failed to load key chains:', error);
-        this.snackBar.open('Failed to load key chains', 'Close', {
-          duration: 3000,
-        });
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load key chains'));
       }
     );
 
@@ -221,19 +227,30 @@ export class PresentationCreateComponent implements OnInit {
       (res) => (this.webhookEndpoints = (res.data || []) as WebhookEndpointEntity[]),
       (error) => {
         console.error('Failed to load webhook endpoints:', error);
-        this.snackBar.open('Failed to load webhook endpoints', 'Close', {
-          duration: 3000,
-        });
+        openErrorSnackBar(
+          this.snackBar,
+          getApiErrorMessage(error, 'Failed to load webhook endpoints')
+        );
       }
     );
 
     if (this.route.snapshot.params['id']) {
       // Check if this is a copy operation
       this.copyMode = this.route.snapshot.url.some((segment) => segment.path === 'copy');
+      // An edit page stays one while it loads, also when the load fails.
+      this.create = this.copyMode;
+      this.loadConfigForEdit();
+    }
+  }
 
-      this.presentationService
-        .getPresentationById(this.route.snapshot.params['id'])
-        .then((config) => {
+  /** Loads the configuration to edit or copy; on failure the form stays hidden behind a retry. */
+  loadConfigForEdit(): void {
+    this.loadingConfig = true;
+    this.loadError = '';
+    this.presentationService
+      .getPresentationById(this.route.snapshot.params['id'])
+      .then(
+        (config) => {
           if (!config) {
             this.snackBar.open('Presentation not found', 'Close', {
               duration: 3000,
@@ -279,8 +296,13 @@ export class PresentationCreateComponent implements OnInit {
             this.form.get('id')?.disable();
             this.create = false;
           }
-        });
-    }
+        },
+        (error) => {
+          console.error('Error loading presentation configuration:', error);
+          this.loadError = getApiErrorMessage(error, 'Failed to load presentation configuration');
+        }
+      )
+      .finally(() => (this.loadingConfig = false));
   }
 
   get queryControl(): FormControl {
@@ -324,6 +346,7 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   submitPresentation(): void {
+    if (this.loadingConfig || this.loadError) return;
     if (this.guided && this.activeStep < 3) {
       this.nextStep();
       return;
@@ -566,7 +589,11 @@ export class PresentationCreateComponent implements OnInit {
               duration: 3000,
             });
           },
-          (err: any) => this.snackBar.open(err.message, 'Close')
+          (err: unknown) =>
+            openErrorSnackBar(
+              this.snackBar,
+              getApiErrorMessage(err, 'Failed to create presentation', { allIssues: true })
+            )
         )
         .finally(() => (this.saving = false));
     } else {
@@ -581,8 +608,11 @@ export class PresentationCreateComponent implements OnInit {
               duration: 3000,
             });
           },
-          (err: any) => {
-            this.snackBar.open(err.message, 'Close');
+          (err: unknown) => {
+            openErrorSnackBar(
+              this.snackBar,
+              getApiErrorMessage(err, 'Failed to update presentation', { allIssues: true })
+            );
           }
         )
         .finally(() => (this.saving = false));
@@ -948,9 +978,10 @@ export class PresentationCreateComponent implements OnInit {
       })
       .catch((err) => {
         console.error('Failed to reissue registration certificate', err);
-        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
-          duration: 4000,
-        });
+        openErrorSnackBar(
+          this.snackBar,
+          getApiErrorMessage(err, 'Failed to reissue registration certificate')
+        );
       })
       .finally(() => {
         this.reissuing = false;

@@ -27,7 +27,7 @@ Expiry is enforced when a wallet uses the session: a presentation request or res
 | `outcome`          | Structured result, see below. Set on `completed` and `failed`.                                                                                                                              |
 | `failureCode`      | Stable code of a classified failure, see [failure codes](#failure-codes). Absent for other failures.                                                                                        |
 | `errorReason`      | Short, display-safe description of the failure.                                                                                                                                             |
-| `responseCode`     | One-time code of a completed OpenID4VP or ISO 18013-7 presentation; compare it with the `response_code` of a [same-device redirect](../presentation/receive-results.md#same-device-redirect). |
+| `responseCode`     | One-time code of a completed OpenID4VP or ISO 18013-7 presentation; compare it with the `response_code` of a [same-device redirect](../presentation/receive-results.md#same-device-redirect). Left out for callers that read the session only through `sessions:read`. |
 | `consumedAt`       | When the presentation completed.                                                                                                                                                            |
 | `expiresAt`        | When the request expires (presentation configuration `lifeTime`, default 300 seconds).                                                                                                      |
 | `transaction_data` | The [transaction data](../presentation/transaction-data.md) sent with the request.                                                                                                          |
@@ -101,7 +101,7 @@ Some failures have no code; `failureCode` and `outcome.error` are absent and `er
 
 ### What the wallet or browser receives
 
-An OpenID4VP response that fails verification is answered with `400`; with a configured redirect the body contains `redirect_uri` with `error=invalid_request` and the message as `error_description`. An ISO 18013-7 response that fails verification is answered with `400` and the code:
+An OpenID4VP response that fails verification is answered with `400` and an error body with `statusCode`, `timestamp` and `path` but no `message`; the session status says why. With a configured redirect the body also contains `redirect_uri` with `error=invalid_request` and the message as `error_description`. An ISO 18013-7 response that fails verification is answered with `400` and the code:
 
 ```json
 {

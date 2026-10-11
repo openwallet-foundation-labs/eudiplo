@@ -21,7 +21,10 @@ import { Subscription } from 'rxjs';
 import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { LoadErrorComponent } from '../../common/load-error.component';
 import { JwtService } from '../../services/jwt.service';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-key-management-show',
@@ -37,6 +40,7 @@ import { JwtService } from '../../services/jwt.service';
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './key-management-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -44,6 +48,9 @@ import { JwtService } from '../../services/jwt.service';
 })
 export class KeyManagementShowComponent implements OnInit, OnDestroy {
   keyChain?: KeyChainResponseDto;
+  /** Set when the key chain could not be loaded, instead of loading forever. */
+  loadError = '';
+  private requestedId = '';
 
   private routeSubscription?: Subscription;
 
@@ -70,14 +77,20 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
   }
 
   private async loadKey(id: string): Promise<void> {
+    this.requestedId = id;
     this.keyChain = undefined;
+    this.loadError = '';
 
     try {
       this.keyChain = await this.keyChainService.getById(id);
     } catch (error) {
-      this.snackBar.open('Failed to load key chain', 'Close', { duration: 3000 });
       console.error('Load error:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load key chain');
     }
+  }
+
+  retryLoad(): void {
+    void this.loadKey(this.requestedId);
   }
 
   get keyId(): string {
@@ -168,7 +181,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
       this.snackBar.open('Key chain deleted successfully', 'Close', { duration: 3000 });
       this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
-      this.snackBar.open('Failed to delete key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete key chain'));
       console.error('Delete error:', error);
     }
   }
@@ -185,7 +198,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
       this.snackBar.open('Key chain rotated successfully', 'Close', { duration: 3000 });
       await this.loadKey(this.keyChain.id);
     } catch (error) {
-      this.snackBar.open('Failed to rotate key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to rotate key chain'));
       console.error('Rotate error:', error);
     }
   }
@@ -245,7 +258,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
         this.showExportForbidden();
         return;
       }
-      this.snackBar.open('Failed to export key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to export key chain'));
       console.error('Export error:', error);
     }
   }

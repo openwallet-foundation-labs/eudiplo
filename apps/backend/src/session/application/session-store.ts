@@ -1,10 +1,11 @@
 import type { SessionData, SessionUpdate } from "../domain/session-data.js";
-import type {
-    SessionListQuery,
-    SessionPage,
-    SessionType,
+import {
+    type SessionListQuery,
+    type SessionPage,
+    type SessionType,
+    typeOfSession,
 } from "../domain/session-list.js";
-import { SessionStatus } from "../domain/session-state.js";
+import { isOpenForWallet, SessionStatus } from "../domain/session-state.js";
 import {
     MAX_FAILURE_CODES,
     type SessionStats,
@@ -69,6 +70,26 @@ export class SessionStore {
         );
     }
 
+    /**
+     * A session for a management read: within `scope`, and missing when it is
+     * of a type in `hideOpen` and still open for a wallet, like the list with
+     * the same `hideOpen`.
+     */
+    async getForReader(
+        tenantId: string,
+        sessionId: string,
+        scope?: SessionType,
+        hideOpen: readonly SessionType[] = [],
+    ): Promise<SessionData> {
+        const session = await this.getForTenant(tenantId, sessionId, scope);
+        if (
+            hideOpen.includes(typeOfSession(session)) &&
+            isOpenForWallet(session)
+        )
+            throw new SessionNotFound();
+        return session;
+    }
+
     getByAuthorizationCode(
         tenantId: string,
         codeHash: string | undefined,
@@ -93,7 +114,7 @@ export class SessionStore {
         );
     }
 
-    /** Wallet nonce first, then the legacy session-ID fallback. */
+    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
     getForWalletRequest(nonce: string): Promise<SessionData> {
         return this.lookup(nonce, (value) =>
             this.sessions.findForWalletRequest(value),

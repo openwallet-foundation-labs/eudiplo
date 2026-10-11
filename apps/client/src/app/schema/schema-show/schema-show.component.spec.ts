@@ -7,6 +7,11 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { JwtService } from '../../services/jwt.service';
 import { SchemaService } from '../schema.service';
 import { SchemaShowComponent } from './schema-show.component';
+import { errorSnackBarDuration } from '../../utils/error-snackbar';
+
+/** The arguments of an error snackbar with this text. */
+const errorSnackBar = (text: string) =>
+  [text, 'Close', { duration: errorSnackBarDuration(text) }] as const;
 
 const catalogId = 'https://registrar.example/schema-metadata/schema-1';
 
@@ -164,9 +169,9 @@ describe('SchemaShowComponent publishing a new version', () => {
     expect(schemaService['deprecateVersion']).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to publish new version: Validation failed (config.tags.0: Invalid option)',
-      'Close',
-      { duration: 6000 }
+      ...errorSnackBar(
+        'Failed to publish new version: Validation failed (config.tags.0: Invalid option)'
+      )
     );
     expect(component.publishing).toBe(false);
   });
@@ -194,9 +199,7 @@ describe('SchemaShowComponent publishing a new version', () => {
     await component.saveMetadata();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to update metadata: Validation failed (category: Invalid option)',
-      'Close',
-      { duration: 6000 }
+      ...errorSnackBar('Failed to update metadata: Validation failed (category: Invalid option)')
     );
   });
 
@@ -550,9 +553,7 @@ describe('SchemaShowComponent loading', () => {
     expect(component.metadataForm.controls.displayName.enabled).toBe(true);
     expect(component.relatedCredentialConfigs.map((c) => c.id)).toEqual(['pid']);
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load the registrar vocabulary: Registrar unreachable',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar('Failed to load the registrar vocabulary: Registrar unreachable')
     );
   });
 
@@ -565,10 +566,10 @@ describe('SchemaShowComponent loading', () => {
 
     expect(component.item?.id).toBe('schema-1');
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load credential configs and the registrar vocabulary: ' +
-        'the backend could not be reached. Check the connection and try again.',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar(
+        'Failed to load credential configs and the registrar vocabulary: ' +
+          'the backend could not be reached. Check the connection and try again.'
+      )
     );
   });
 
@@ -613,9 +614,7 @@ describe('SchemaShowComponent loading', () => {
       'Publishing needs the credential configs, which could not be loaded.'
     );
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load credential configs: Internal server error',
-      'Close',
-      { duration: 10000 }
+      ...errorSnackBar('Failed to load credential configs: Internal server error')
     );
 
     openSnackBar.mockClear();
@@ -772,12 +771,10 @@ describe('SchemaShowComponent loading', () => {
     await component.copyJwt();
     await component.downloadExport();
 
-    expect(openSnackBar).toHaveBeenCalledWith('Failed to copy JWT: Not Found', 'Close', {
-      duration: 6000,
-    });
-    expect(openSnackBar).toHaveBeenCalledWith('Failed to download JWT: Not Found', 'Close', {
-      duration: 6000,
-    });
+    expect(openSnackBar).toHaveBeenCalledWith(...errorSnackBar('Failed to copy JWT: Not Found'));
+    expect(openSnackBar).toHaveBeenCalledWith(
+      ...errorSnackBar('Failed to download JWT: Not Found')
+    );
   });
 
   it('neither lists credential configs nor opens Publish without issuance:manage', async () => {
@@ -863,9 +860,7 @@ describe('SchemaShowComponent deleting and deprecating', () => {
     await component.delete();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to delete version 1.0.0: Forbidden resource',
-      'Close',
-      { duration: 6000 }
+      ...errorSnackBar('Failed to delete version 1.0.0: Forbidden resource')
     );
     expect(navigate).not.toHaveBeenCalled();
   });
@@ -973,9 +968,7 @@ describe('SchemaShowComponent deleting and deprecating', () => {
     await component.deprecate();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to deprecate version 1.0.0: Registrar unreachable',
-      'Close',
-      { duration: 6000 }
+      ...errorSnackBar('Failed to deprecate version 1.0.0: Registrar unreachable')
     );
     expect(component.item?.deprecated).toBeUndefined();
   });

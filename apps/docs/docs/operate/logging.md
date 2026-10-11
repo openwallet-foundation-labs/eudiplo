@@ -68,8 +68,8 @@ LOG_SESSION_STORE=errors
 
 `LOG_SESSION_STORE` has no effect without `LOG_ENABLE_SESSION_LOGGER=true`.
 Read the entries with `GET /api/session/:id/logs` (role `issuance:offer` for
-issuance sessions, `presentation:request` for presentation sessions) or in the
-**Logs** tab of a session in the web client.
+issuance sessions, `presentation:request` for presentation sessions,
+`sessions:read` for both) or in the **Logs** tab of a session in the web client.
 They are deleted with their session ([session retention](database.md#session-retention)).
 `verbose` stores personal data and much more volume; use it for debugging only.
 
@@ -94,7 +94,8 @@ servers appear as `[REDACTED]`, and a changed secret is still listed among the
 changed fields. Not audited: key chains, trust lists, API clients and users (including
 role changes and secret rotation), KMS provider and registrar configuration,
 and session retention settings. Read the audit log with
-`GET /api/admin/audit-logs` (role `clients:manage`) or in the web client. The
+`GET /api/admin/audit-logs` (role `audit:read` or `clients:manage`) or under
+**Administration → Activity Logs** in the web client. The
 audit log is kept forever unless you limit it; a daily job at 03:00 applies:
 
 ```env

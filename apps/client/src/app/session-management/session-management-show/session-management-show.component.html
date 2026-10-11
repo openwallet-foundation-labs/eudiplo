@@ -136,95 +136,108 @@
       </mat-card-content>
     </mat-card>
 
-    @if (canManageCredentialStatus()) {
+    @if (canReadCredentialStatus()) {
       <app-credential-status-card
         [sessionId]="session.id"
         [sessionStatus]="getSessionStatusValue(session)"
+        [canChange]="canChangeCredentialStatus()"
       />
     }
 
-    <!-- QR Code Section -->
-    <mat-card class="qr-card">
-      <mat-card-header>
-        <mat-card-title>
-          @if (session.useDcApi) {
-            <mat-icon>api</mat-icon>
-            @if (isIssuanceSession()) {
-              Issuance Offer
-            } @else {
-              Presentation Request
-            }
-          } @else {
-            <mat-icon>qr_code</mat-icon>
-            @if (isIssuanceSession()) {
-              Issuance Offer QR Code
-            } @else {
-              Presentation Request QR Code
-            }
-          }
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        @if (session.useDcApi) {
-          <!-- Show only DC API button when useDcApi is enabled -->
-          <div class="dc-api-section" fxLayout="row" fxLayoutAlign="center center">
-            <button mat-flat-button color="primary" (click)="getDcApiCall()">
+    <!-- QR Code Section: the backend returns the offer or request only to the session's side -->
+    @if (canSeeOffer()) {
+      <mat-card class="qr-card">
+        <mat-card-header>
+          <mat-card-title>
+            @if (session.useDcApi) {
               <mat-icon>api</mat-icon>
-              DC API
-            </button>
-          </div>
-        } @else if (getOfferUri()) {
-          <!-- Show QR code and URI when useDcApi is not enabled -->
-          <div class="qr-section">
-            <!-- Offer URI -->
-            <div class="info-item">
-              <strong>Offer URI:</strong>
-              <div class="value-with-copy">
-                <span class="uri-value">
-                  <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
-                </span>
-                <button
-                  matIconButton
-                  (click)="copyToClipboard(getOfferUri()!)"
-                  matTooltip="Copy offer URI"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <!-- QR Code Display -->
-            @if (qrCodeDataUrl) {
-              <div class="qr-container">
-                <img [src]="qrCodeDataUrl" alt="QR Code for offer" class="qr-image" />
-              </div>
-            } @else if (generatingQR) {
-              <div class="qr-placeholder">
-                <mat-spinner diameter="40"></mat-spinner>
-                <p>Generating QR code...</p>
-              </div>
-            } @else {
-              <div class="qr-placeholder">
-                <mat-icon>qr_code</mat-icon>
-                <p>Click refresh to generate QR code</p>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="no-uri-message">
-            <mat-icon>info</mat-icon>
-            <p>
-              No offer URI available for this session available anymore,
-              @if (session.status === 'fetched' || session.status === 'completed') {
-                credential already fetched
+              @if (isIssuanceSession()) {
+                Issuance Offer
               } @else {
-                session {{ session.status }}
+                Presentation Request
               }
-            </p>
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
+            } @else {
+              <mat-icon>qr_code</mat-icon>
+              @if (isIssuanceSession()) {
+                Issuance Offer QR Code
+              } @else {
+                Presentation Request QR Code
+              }
+            }
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (session.useDcApi) {
+            <!-- Show only DC API button when useDcApi is enabled -->
+            <div class="dc-api-section" fxLayout="row" fxLayoutAlign="center center">
+              <button mat-flat-button color="primary" (click)="getDcApiCall()">
+                <mat-icon>api</mat-icon>
+                DC API
+              </button>
+            </div>
+          } @else if (getOfferUri()) {
+            <!-- Show QR code and URI when useDcApi is not enabled -->
+            <div class="qr-section">
+              <!-- Offer URI -->
+              <div class="info-item">
+                <strong>Offer URI:</strong>
+                <div class="value-with-copy">
+                  <span class="uri-value">
+                    <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
+                  </span>
+                  <button
+                    matIconButton
+                    (click)="copyToClipboard(getOfferUri()!)"
+                    matTooltip="Copy offer URI"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- QR Code Display -->
+              @if (qrCodeDataUrl) {
+                <div class="qr-container">
+                  <img [src]="qrCodeDataUrl" alt="QR Code for offer" class="qr-image" />
+                </div>
+              } @else if (generatingQR) {
+                <div class="qr-placeholder">
+                  <mat-spinner diameter="40"></mat-spinner>
+                  <p>Generating QR code...</p>
+                </div>
+              } @else {
+                <div class="qr-placeholder">
+                  <mat-icon>qr_code</mat-icon>
+                  <p>Click refresh to generate QR code</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-uri-message">
+              <mat-icon>info</mat-icon>
+              <p>
+                No offer URI available for this session available anymore,
+                @if (session.status === 'fetched' || session.status === 'completed') {
+                  credential already fetched
+                } @else {
+                  session {{ session.status }}
+                }
+              </p>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <p class="role-hint">
+        The {{ isIssuanceSession() ? 'offer' : 'request' }} link and its QR code are shown only to
+        clients with
+        {{
+          isIssuanceSession()
+            ? 'issuance:offer or issuance:manage'
+            : 'presentation:request or presentation:manage'
+        }}.
+      </p>
+    }
 
     <!-- Detailed information in tabs -->
     <mat-tab-group>

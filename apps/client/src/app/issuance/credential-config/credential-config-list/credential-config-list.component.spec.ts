@@ -1,29 +1,24 @@
-import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import type { CredentialConfig } from '@eudiplo/sdk-core';
+import { describeListStates } from '../../../common/base-async-list.testing';
 import { CredentialConfigService } from '../credential-config.service';
 import { JwtService } from '../../../services/jwt.service';
 
 import { CredentialConfigListComponent } from './credential-config-list.component';
 
 describe('CredentialConfigListComponent', () => {
-  let component: CredentialConfigListComponent;
-  let fixture: ComponentFixture<CredentialConfigListComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CredentialConfigListComponent],
-      providers: [provideRouter([])],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(CredentialConfigListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describeListStates({
+    component: CredentialConfigListComponent,
+    service: CredentialConfigService,
+    fetchMethod: 'loadConfigurations',
+    item: { id: 'pid', config: { format: 'dc+sd-jwt', display: [] } },
+    loading: 'Loading credential configurations',
+    empty: 'No credential configurations yet.',
+    create: 'Create Credential Configuration',
+    createButton: 'Create New Credential Configuration',
+    failure: 'Failed to load credential configurations',
   });
 });
 

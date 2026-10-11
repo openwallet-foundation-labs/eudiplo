@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { clientControllerGetClients } from '@eudiplo/sdk-core';
+import { ApiRefusalService } from './api-refusal.service';
 import { ApiService, defaultApiUrl } from './api.service';
 import { OidcService } from './oidc.service';
 
@@ -72,7 +74,7 @@ describe('ApiService token refresh', () => {
   const tokenEndpoint = `${backend}/api/oauth2/token`;
   /** Differs from the fallback built from the base URL, so tests see which one is used. */
   const storedTokenEndpoint = 'http://auth.test/token';
-  const oidcStub = { mode: 'local' as const };
+  const oidcStub: { mode: 'local' | 'oidc' } = { mode: 'local' };
   const fetchMock = vi.fn<typeof fetch>();
   let store: Map<string, string>;
 
@@ -141,6 +143,7 @@ describe('ApiService token refresh', () => {
   }
 
   beforeEach(() => {
+    oidcStub.mode = 'local';
     store = stubLocalStorage();
     fetchMock.mockReset();
     vi.stubGlobal('fetch', fetchMock);
@@ -199,11 +202,13 @@ describe('ApiService token refresh', () => {
     await vi.advanceTimersByTimeAsync(5 * 60_000);
     expect(service.getAuthenticationStatus()).toBe(false);
     expect(service.isReconnecting()).toBe(true);
+    expect(service.hasKeptSession()).toBe(true);
     expect(store.has('oauth_config')).toBe(true);
     expect(store.get('oauth_client_secret')).toBe('secret');
 
     answerAlways(() => tokenResponse('second'));
     await vi.advanceTimersByTimeAsync(60_000);
+    expect(service.hasKeptSession()).toBe(false);
     expect(service.getAuthenticationStatus()).toBe(true);
     expect(store.get('access_token')).toBe('second');
   });
@@ -245,12 +250,20 @@ describe('ApiService token refresh', () => {
     'ends the session and stops sending the credentials when the token endpoint answers %s',
     async (_, rejection) => {
       const service = await signIn();
+      // The waiting login page takes the rejection while sessionEnded$ emits.
+      const ended = vi.fn(() => service.takeRejectedSession());
+      service.sessionEnded$.subscribe(ended);
 
       fetchMock.mockResolvedValueOnce(rejection());
       await runScheduledRefresh();
 
+      expect(ended).toHaveBeenCalledOnce();
+      expect(ended).toHaveReturnedWith({ clientId: 'client', baseUrl: backend });
+      // Reported once.
+      expect(service.takeRejectedSession()).toBeUndefined();
       expect(service.getAuthenticationStatus()).toBe(false);
       expect(service.isReconnecting()).toBe(false);
+      expect(service.hasKeptSession()).toBe(false);
       expect(service.canRefreshToken()).toBe(false);
       expect([...store.keys()]).toEqual([]);
       // The token stays usable until it expires, and the menu still names the client.
@@ -275,6 +288,46 @@ describe('ApiService token refresh', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('does not report a rejected first sign-in, which the login form reports itself', async () => {
+    const service = TestBed.inject(ApiService);
+    fetchMock.mockResolvedValueOnce(backendRejection());
+    await service.loginWithClientCredentials('client', 'wrong', backend, backend, tokenEndpoint);
+
+    await expect(service.refreshAccessToken()).rejects.toThrow();
+
+    expect(service.takeRejectedSession()).toBeUndefined();
+    expect([...store.keys()]).toEqual([]);
+  });
+
+  it('keeps a rejection to report through the logout of the expired notice', async () => {
+    const service = await signIn();
+    fetchMock.mockResolvedValueOnce(backendRejection());
+    await runScheduledRefresh();
+
+    service.logout();
+
+    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
+  });
+
+  it('stops renewing the previous session when a new sign-in starts, even if discovery fails', async () => {
+    const service = await signIn();
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+    await vi.advanceTimersByTimeAsync(60 * 60_000);
+    expect(service.hasKeptSession()).toBe(true);
+    const requests = fetchMock.mock.calls.length;
+    vi.spyOn(service, 'fetchDiscovery').mockRejectedValue(new Error('Discovery failed'));
+
+    await expect(service.loginWithClientCredentials('other', 'secret', backend)).rejects.toThrow(
+      'Discovery failed'
+    );
+    answerAlways(() => tokenResponse('previous'));
+    await vi.advanceTimersByTimeAsync(10 * 60_000);
+
+    expect(service.isReconnecting()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(requests);
+  });
+
   it('does not keep or retry credentials whose first token request fails', async () => {
     const service = TestBed.inject(ApiService);
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
@@ -292,9 +345,12 @@ describe('ApiService token refresh', () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 
     const service = TestBed.inject(ApiService);
+    // The login page waits for it from the start, before the first attempt fails.
+    expect(service.hasKeptSession()).toBe(true);
     await vi.advanceTimersByTimeAsync(0);
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.hasKeptSession()).toBe(true);
     expect(store.has('oauth_config')).toBe(true);
     expect(store.get('oauth_client_secret')).toBe('secret');
 
@@ -314,6 +370,7 @@ describe('ApiService token refresh', () => {
     await vi.advanceTimersByTimeAsync(10 * 60_000);
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
     expect([...store.keys()]).toEqual([]);
     expect(fetchMock).toHaveBeenCalledOnce();
   });
@@ -406,13 +463,168 @@ describe('ApiService token refresh', () => {
     const pending = service.refreshAccessToken();
     await vi.advanceTimersByTimeAsync(0);
 
+    const ended = vi.fn();
+    service.sessionEnded$.subscribe(ended);
     service.logout();
+    expect(ended).toHaveBeenCalledOnce();
     answerPending(tokenResponse('late'));
     await pending;
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
     expect(service.accessToken).toBe('');
     expect([...store.keys()]).toEqual([]);
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  describe('ApiRefusalService', () => {
+    /** Lets the handling of a refusal finish in the background. */
+    const settle = () => vi.advanceTimersByTimeAsync(0);
+
+    async function signedInWithRefusals() {
+      const service = await signIn();
+      return { service, refusals: TestBed.inject(ApiRefusalService) };
+    }
+
+    it('ends the access once when the backend refuses the token and the client is rejected', async () => {
+      const { service, refusals } = await signedInWithRefusals();
+      const revoked = vi.fn();
+      refusals.accessRevoked$.subscribe(revoked);
+      fetchMock.mockResolvedValueOnce(backendRejection());
+
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+
+      expect(refusals.isAccessRevoked()).toBe(true);
+      expect(service.areCredentialsRejected()).toBe(true);
+      expect(revoked).toHaveBeenCalledOnce();
+      // Sign-in and one renewal; the second refusal sends no token request.
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('forgets rejected credentials on a new sign-in and on logout', async () => {
+      const { service, refusals } = await signedInWithRefusals();
+      fetchMock.mockResolvedValueOnce(backendRejection());
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+
+      fetchMock.mockResolvedValueOnce(tokenResponse('other'));
+      await service.loginWithClientCredentials('other', 'secret', backend, backend, tokenEndpoint);
+      await service.refreshAccessToken();
+      expect(service.areCredentialsRejected()).toBe(false);
+      expect(refusals.isAccessRevoked()).toBe(false);
+
+      fetchMock.mockResolvedValueOnce(backendRejection());
+      await service.refreshAccessToken().catch(() => undefined);
+      expect(service.areCredentialsRejected()).toBe(true);
+      service.logout();
+      expect(service.areCredentialsRejected()).toBe(false);
+    });
+
+    it('renews a refused token once and ends the access when the new one is refused too', async () => {
+      const { service, refusals } = await signedInWithRefusals();
+      fetchMock.mockResolvedValueOnce(tokenResponse('second'));
+
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+      expect(service.accessToken).toBe('second');
+      expect(refusals.isAccessRevoked()).toBe(false);
+
+      refusals.handleApiResponse(401, 'second');
+      await settle();
+      expect(refusals.isAccessRevoked()).toBe(true);
+      expect(service.areCredentialsRejected()).toBe(false);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('ends the access of a session that cannot renew its token without a token request', async () => {
+      storeSession(10 * 60_000);
+      store.delete('oauth_client_secret');
+      const refusals = TestBed.inject(ApiRefusalService);
+
+      refusals.handleApiResponse(401, 'stored');
+      await settle();
+
+      expect(refusals.isAccessRevoked()).toBe(true);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('sends one token request for refusals that arrive together', async () => {
+      const { refusals } = await signedInWithRefusals();
+      const revoked = vi.fn();
+      refusals.accessRevoked$.subscribe(revoked);
+      const answer = holdNextRequest();
+
+      refusals.handleApiResponse(401, 'first');
+      refusals.handleApiResponse(401, 'first');
+      refusals.handleApiResponse(403, 'first');
+      answer(backendRejection());
+      await settle();
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(revoked).toHaveBeenCalledOnce();
+    });
+
+    it('keeps the session when the token endpoint cannot be reached after a refusal', async () => {
+      const { service, refusals } = await signedInWithRefusals();
+      fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+
+      expect(refusals.isAccessRevoked()).toBe(false);
+      expect(service.isReconnecting()).toBe(true);
+    });
+
+    it('ignores other answers, refusals of a replaced token and OIDC sessions', async () => {
+      const { refusals } = await signedInWithRefusals();
+
+      for (const status of [200, 400, 404, 500]) refusals.handleApiResponse(status, 'first');
+      refusals.handleApiResponse(401, 'older');
+      refusals.handleApiResponse(403, 'older');
+      oidcStub.mode = 'oidc';
+      refusals.handleApiResponse(401, 'first');
+      await settle();
+
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    it('renews the token after a 403 at most once a minute', async () => {
+      const { service, refusals } = await signedInWithRefusals();
+      const renewed = vi.fn();
+      service.tokenRenewed$.subscribe(renewed);
+      answerAlways(() => tokenResponse('next'));
+
+      refusals.handleApiResponse(403, 'first');
+      await settle();
+      refusals.handleApiResponse(403, 'next');
+      await settle();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(renewed).toHaveBeenCalledOnce();
+
+      await vi.advanceTimersByTimeAsync(61_000);
+      refusals.handleApiResponse(403, 'next');
+      await settle();
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+    });
+
+    it('watches the answers of SDK calls until it is destroyed', async () => {
+      const { refusals } = await signedInWithRefusals();
+      const refused = () =>
+        clientControllerGetClients({
+          fetch: () => Promise.resolve(new Response(null, { status: 401 })),
+          throwOnError: false,
+        });
+      const handle = vi.spyOn(refusals, 'handleApiResponse').mockImplementation(() => undefined);
+
+      await refused();
+      expect(handle).toHaveBeenCalledWith(401, 'first');
+
+      refusals.ngOnDestroy();
+      await refused();
+      expect(handle).toHaveBeenCalledOnce();
+    });
   });
 });

@@ -41,9 +41,9 @@ rejects versions newer than its own.
 | Kind                 | `<File>`                      | Current version | Singleton |
 | -------------------- | ----------------------------- | --------------- | --------- |
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
-| `Client`             | `ClientConfigFile`            | 1               |           |
+| `Client`             | `ClientConfigFile`            | 2               |           |
 | `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
-| `KeyChain`           | `KeyChainConfigFile`          | 1               |           |
+| `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
@@ -76,6 +76,23 @@ read v3 files.
 `frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
 certificate in `value`. A v1 document is migrated unchanged; 9.x cannot read v2
 files.
+
+**KeyChain v2** came with EUDIPLO 10.0. It adds the optional `type`
+(`standalone` or `internalChain`), which exports write. For a `private-jwk` key
+source without `activeJwk` it says whether `jwk` is the signing key or a CA key
+under which the import creates a new signing key, as `type` does for
+[`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate).
+For `regenerate` it is the type of the new key chain, like
+`keySource.keyChainType`; without either, a document with `activeCertificate`
+becomes an internal chain. For the other key sources, and for a `regenerate`
+key source with both, it must match the key chain they describe, or the plan
+reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
+9.x cannot read v2 files. A bare key chain file with `type`, as
+`GET /api/key-chain/{id}/export` writes it, is read as v2.
+
+**Client v2** came with EUDIPLO 10.0 as well. It accepts the roles
+`audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1
+document is migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 
@@ -152,10 +169,10 @@ A `private-jwk` key source takes one of two forms:
 - With only `jwk`, the document is imported like
   [`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate)
   and accepts only that request's fields. To restore an exported internal
-  chain from its root CA key, remove `activeCertificate` and set
-  `rotationPolicy` to `{ "enabled": true }`, optionally with intervals:
-  EUDIPLO keeps the root and creates a new signing key under it (an external
-  CA chain). Without rotation, the root CA key itself becomes the signing key.
+  chain, put its root CA key from `GET /api/key-chain/{id}/export` into `jwk`,
+  remove `activeCertificate` and keep `"type": "internalChain"`: EUDIPLO keeps
+  the root CA certificate and creates a new signing key under it. Without
+  `type` and rotation, the root CA key itself becomes the signing key.
 - With `activeJwk` as well, it stores an internal chain as given, in the
   database: `jwk` is the root CA key and `crt` holds exactly its certificate,
   `activeJwk` is the signing key and `activeCertificate` its certificate,
@@ -188,18 +205,21 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | ----------- | ------------------------------------------------------------------------------------------- |
 | `create`    | The resource will be created                                                                |
 | `update`    | The resource will change; the plan lists redacted field changes                            |
-| `unchanged` | Already matches; only ownership metadata may be updated                                     |
+| `unchanged` | Already matches, or a key chain document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), or in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
 
-A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the description and rotation policy:
+A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the type, description and rotation policy:
 
+- The plan lists `type` as the import creates it, also for a document without `type` ([KeyChain v2](#resource-types-and-versions)).
 - A `description` it leaves out is removed.
 - Without `rotationPolicy`, rotation is disabled.
 - A rotation value it leaves out or sets to `null` is not set. Exception: a `private-jwk` key source without `activeJwk` is imported like `POST /api/key-chain/import`, so with rotation enabled a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365, and with rotation disabled no intervals are stored.
 
 The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
+
+A `KeyChain` document that is identical to the one last applied from the same source (the same config folder, or bundles whose manifest names the same tenant) plans `unchanged` while the key chain is `file-managed`, without comparing it with the stored key chain: importers add key IDs, EUDIPLO creates the signing key of a CA key, and rotation or registrar enrollment replace keys and certificates later. These changes stay, so certificates EUDIPLO created during the import are only renewed by rotation. Reattaching always applies the folder version. To apply an unchanged document again, for example to regenerate a key, raise `metadata.generation`; in a bundle, also update the document's `sha256` in `manifest.json`.
 
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in
@@ -235,12 +255,13 @@ Exports, imports, detach and reattach actions are recorded in the tenant audit l
 `GET /api/config-bundles/resources/:kind` also accepts the roles that change
 resources of that kind, so screens can lock file-managed resources for them:
 
-| Kind                                                                    | Also readable with                       |
-| ----------------------------------------------------------------------- | ---------------------------------------- |
-| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage` |
-| `KeyChain`, `WebhookEndpoint`, `TrustList`                              | `issuance:manage`, `presentation:manage` |
-| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                        |
-| `PresentationConfig`                                                    | `presentation:manage`                    |
-| `Client`                                                                | `clients:manage`                         |
-| `RegistrarConfig`                                                       | `registrar:manage`                       |
-| `KmsConfig`                                                             | no other role                            |
+| Kind                                                                    | Also readable with                                      |
+| ----------------------------------------------------------------------- | ------------------------------------------------------- |
+| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage`                |
+| `KeyChain`                                                              | `issuance:manage`, `presentation:manage`, `keys:manage` |
+| `WebhookEndpoint`, `TrustList`                                          | `issuance:manage`, `presentation:manage`                |
+| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                                       |
+| `PresentationConfig`                                                    | `presentation:manage`                                   |
+| `Client`                                                                | `clients:manage`                                        |
+| `RegistrarConfig`                                                       | `registrar:manage`                                      |
+| `KmsConfig`                                                             | no other role                                           |

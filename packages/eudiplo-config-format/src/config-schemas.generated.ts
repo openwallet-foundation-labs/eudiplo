@@ -4610,6 +4610,143 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
   },
   {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://eudiplo.dev/schemas/v2/ClientConfigFile.schema.json",
+    "title": "ClientConfigFile",
+    "type": "object",
+    "properties": {
+      "$schema": {
+        "type": "string",
+        "const": "https://eudiplo.dev/schemas/v2/ClientConfigFile.schema.json"
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Monotonically increasing configuration generation."
+          },
+          "ownership": {
+            "type": "string",
+            "enum": [
+              "unmanaged",
+              "file-managed"
+            ],
+            "description": "Requested ownership recorded when the document is applied."
+          }
+        },
+        "additionalProperties": false
+      },
+      "spec": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/CreateClientDto"
+          },
+          {
+            "type": "object",
+            "required": [
+              "clientId"
+            ],
+            "properties": {
+              "clientId": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "required": [
+      "$schema",
+      "spec"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "CreateClientDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "description": "Unique client identifier."
+          },
+          "secret": {
+            "description": "Optional client secret for confidential clients.",
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "description": "Optional human-readable client description.",
+            "type": "string",
+            "minLength": 1
+          },
+          "roles": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "presentation:manage",
+                "presentation:request",
+                "issuance:manage",
+                "issuance:offer",
+                "clients:manage",
+                "users:manage",
+                "tenants:manage",
+                "tenant:admin",
+                "registrar:manage",
+                "audit:read",
+                "sessions:read",
+                "credentials:status",
+                "keys:manage"
+              ]
+            },
+            "description": "Roles assigned to the client. At least one role is required."
+          },
+          "allowedPresentationConfigs": {
+            "description": "Optional allow-list of presentation config ids this client can use.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allowedIssuanceConfigs": {
+            "description": "Optional allow-list of issuance config ids this client can use.",
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "clientId",
+          "roles"
+        ],
+        "additionalProperties": false,
+        "title": "CreateClientDto"
+      }
+    }
+  },
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://eudiplo.dev/schemas/v2/CredentialConfigFile.schema.json",
     "title": "CredentialConfigFile",
     "type": "object",
@@ -6078,6 +6215,373 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
         "title": "IssuanceConfig"
       }
     }
+  },
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://eudiplo.dev/schemas/v2/KeyChainConfigFile.schema.json",
+    "title": "KeyChainConfigFile",
+    "type": "object",
+    "properties": {
+      "$schema": {
+        "type": "string",
+        "const": "https://eudiplo.dev/schemas/v2/KeyChainConfigFile.schema.json"
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "ownership": {
+            "type": "string",
+            "enum": [
+              "unmanaged",
+              "file-managed"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "spec": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "usageType": {
+            "type": "string",
+            "enum": [
+              "access",
+              "attestation",
+              "trustList",
+              "statusList",
+              "encrypt"
+            ]
+          },
+          "type": {
+            "description": "Key chain type. For a `private-jwk` key source without `activeJwk`, `standalone` makes `jwk` the signing key and `crt` its chain, leaf first; `internalChain` makes `jwk` a CA key and the last `crt` entry its CA certificate (created if `crt` is omitted), and the import generates a new signing key with a certificate issued by it. Without `type`, `jwk` is a CA key only if `rotationPolicy.enabled` is true and `crt` is not a single self-signed certificate that is not a CA. For `regenerate`, it is the type of the new key chain and must equal `keySource.keyChainType` if both are set. For the other key sources, it must match the key chain they describe.",
+            "type": "string",
+            "enum": [
+              "standalone",
+              "internalChain"
+            ]
+          },
+          "keySource": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "private-jwk"
+                  },
+                  "jwk": {
+                    "type": "object",
+                    "properties": {
+                      "kty": {
+                        "type": "string",
+                        "description": "Key type (for example EC)."
+                      },
+                      "x": {
+                        "type": "string",
+                        "description": "Elliptic curve public x coordinate."
+                      },
+                      "y": {
+                        "type": "string",
+                        "description": "Elliptic curve public y coordinate."
+                      },
+                      "crv": {
+                        "type": "string",
+                        "description": "Elliptic curve name."
+                      },
+                      "d": {
+                        "type": "string",
+                        "description": "Private key value."
+                      },
+                      "alg": {
+                        "description": "Optional algorithm hint.",
+                        "type": "string"
+                      },
+                      "kid": {
+                        "description": "Optional key identifier.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kty",
+                      "x",
+                      "y",
+                      "crv",
+                      "d"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "activeJwk": {
+                    "type": "object",
+                    "properties": {
+                      "kty": {
+                        "type": "string",
+                        "description": "Key type (for example EC)."
+                      },
+                      "x": {
+                        "type": "string",
+                        "description": "Elliptic curve public x coordinate."
+                      },
+                      "y": {
+                        "type": "string",
+                        "description": "Elliptic curve public y coordinate."
+                      },
+                      "crv": {
+                        "type": "string",
+                        "description": "Elliptic curve name."
+                      },
+                      "d": {
+                        "type": "string",
+                        "description": "Private key value."
+                      },
+                      "alg": {
+                        "description": "Optional algorithm hint.",
+                        "type": "string"
+                      },
+                      "kid": {
+                        "description": "Optional key identifier.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kty",
+                      "x",
+                      "y",
+                      "crv",
+                      "d"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "type",
+                  "jwk"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "external-reference"
+                  },
+                  "provider": {
+                    "type": "string"
+                  },
+                  "externalKeyId": {
+                    "type": "string"
+                  },
+                  "publicJwk": {
+                    "type": "object",
+                    "properties": {
+                      "kty": {
+                        "type": "string"
+                      },
+                      "x": {
+                        "type": "string"
+                      },
+                      "y": {
+                        "type": "string"
+                      },
+                      "crv": {
+                        "type": "string"
+                      },
+                      "alg": {
+                        "type": "string"
+                      },
+                      "kid": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kty",
+                      "x",
+                      "y",
+                      "crv"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "activeExternalKeyId": {
+                    "type": "string"
+                  },
+                  "activePublicJwk": {
+                    "type": "object",
+                    "properties": {
+                      "kty": {
+                        "type": "string"
+                      },
+                      "x": {
+                        "type": "string"
+                      },
+                      "y": {
+                        "type": "string"
+                      },
+                      "crv": {
+                        "type": "string"
+                      },
+                      "alg": {
+                        "type": "string"
+                      },
+                      "kid": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kty",
+                      "x",
+                      "y",
+                      "crv"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "type",
+                  "provider",
+                  "externalKeyId",
+                  "publicJwk"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "required"
+                  },
+                  "publicJwk": {
+                    "type": "object",
+                    "properties": {
+                      "kty": {
+                        "type": "string"
+                      },
+                      "x": {
+                        "type": "string"
+                      },
+                      "y": {
+                        "type": "string"
+                      },
+                      "crv": {
+                        "type": "string"
+                      },
+                      "alg": {
+                        "type": "string"
+                      },
+                      "kid": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kty",
+                      "x",
+                      "y",
+                      "crv"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "regenerate"
+                  },
+                  "keyChainType": {
+                    "type": "string",
+                    "enum": [
+                      "standalone",
+                      "internalChain"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "crt": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activeCertificate": {
+            "description": "Active certificate for an internal key chain.",
+            "type": "string"
+          },
+          "kmsProvider": {
+            "type": "string"
+          },
+          "rotationPolicy": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "intervalDays": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 3650
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "certValidityDays": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 3650
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "enabled"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "usageType",
+          "keySource"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "$schema",
+      "metadata",
+      "spec"
+    ],
+    "additionalProperties": false
   },
   {
     "$schema": "https://json-schema.org/draft/2020-12/schema",

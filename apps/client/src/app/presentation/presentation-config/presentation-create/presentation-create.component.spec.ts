@@ -256,4 +256,23 @@ describe('Presentation configuration flow', () => {
       expect.objectContaining({ id: 'existing-copy', dcql_query: query })
     );
   });
+
+  it('stays an edit page and shows why when the configuration to edit cannot be loaded', async () => {
+    route.snapshot.params = { id: 'age-check' };
+    route.snapshot.url = [{ path: 'age-check' }, { path: 'edit' }];
+    service.getPresentationById.mockRejectedValue({ statusCode: 404, message: 'Not found' });
+
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(component.loadingConfig).toBe(false));
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(component.create).toBe(false);
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Failed to load presentation configuration: Not found'
+    );
+    expect(element.querySelector('form')).toBeNull();
+    component.submitPresentation();
+    expect(service.createConfiguration).not.toHaveBeenCalled();
+  });
 });

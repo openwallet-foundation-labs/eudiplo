@@ -41,7 +41,7 @@ The token endpoint accepts the client credentials in the form body or as HTTP Ba
 
 ## Step 1: Create a least-privilege API client
 
-The backend only creates offers and requests, so it gets only `issuance:offer` and `presentation:request`, limited to the two configurations of this recipe:
+The backend only creates offers and requests, so it gets only `issuance:offer` and `presentation:request`, limited to the two configurations of this recipe. A backend that also revokes or suspends credentials needs `credentials:status` as well:
 
 ```bash
 curl -s -X POST "$EUDIPLO/api/client" \

@@ -20,6 +20,9 @@ import { downloadJsonFile } from '../../../common/download-json.util';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
 import { JwtService } from '../../../services/jwt.service';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 interface ClaimFieldRow {
   key: string;
@@ -55,6 +58,7 @@ interface SchemaPathInfo {
     ClipboardModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './credential-config-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -62,6 +66,8 @@ interface SchemaPathInfo {
 })
 export class CredentialConfigShowComponent implements OnInit {
   config: CredentialConfig | undefined;
+  /** Set when the page's data could not be loaded, so the page is not left blank. */
+  loadError = '';
   statusListId: string | undefined;
 
   constructor(
@@ -194,9 +200,10 @@ export class CredentialConfigShowComponent implements OnInit {
     this.loadConfig();
   }
 
-  private loadConfig(): void {
+  loadConfig(): void {
     const configId = this.route.snapshot.paramMap.get('id');
     if (configId) {
+      this.loadError = '';
       this.credentialConfigService.getConfig(configId).then(
         (config) => {
           this.config = config;
@@ -205,10 +212,8 @@ export class CredentialConfigShowComponent implements OnInit {
           }
         },
         (error) => {
-          this.snackBar.open('Failed to load config', 'Close', {
-            duration: 3000,
-          });
           console.error('Load error:', error);
+          this.loadError = getApiErrorMessage(error, 'Failed to load credential configuration');
         }
       );
     }
@@ -227,7 +232,10 @@ export class CredentialConfigShowComponent implements OnInit {
   }
 
   deleteConfig() {
-    if (this.config && confirm('Are you sure you want to delete this configuration?')) {
+    if (
+      this.config &&
+      confirm(`Delete credential configuration "${this.config.id}"? This cannot be undone.`)
+    ) {
       this.credentialConfigService
         .deleteConfiguration(this.config.id)
         .then(() => {
@@ -237,9 +245,10 @@ export class CredentialConfigShowComponent implements OnInit {
           this.router.navigate(['../'], { relativeTo: this.route });
         })
         .catch((error) => {
-          this.snackBar.open('Failed to delete configuration', 'Close', {
-            duration: 3000,
-          });
+          openErrorSnackBar(
+            this.snackBar,
+            getApiErrorMessage(error, 'Failed to delete configuration')
+          );
           console.error('Delete error:', error);
         });
     }
@@ -269,9 +278,7 @@ export class CredentialConfigShowComponent implements OnInit {
         });
       })
       .catch((error) => {
-        this.snackBar.open('Failed to remove schema link', 'Close', {
-          duration: 3000,
-        });
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to remove schema link'));
         console.error('Unlink schema error:', error);
       });
   }

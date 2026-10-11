@@ -6,6 +6,7 @@ import {
     readdirSync,
     readFileSync,
     rmSync,
+    writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -24,6 +25,7 @@ import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
 import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
+import { KeyChainService } from "../../src/crypto/key/key-chain.service.js";
 import { IssuanceConfig } from "../../src/issuer/configuration/issuance/entities/issuance-config.entity.js";
 import { StatusListEntity } from "../../src/issuer/status-list/entities/status-list.entity.js";
 import { ConfigBundleService } from "../../src/platform/config-portability/config-bundle.service.js";
@@ -580,7 +582,13 @@ describe("startup configuration reconciliation", () => {
         await repository.save(stored);
         const ownership = app.get(ConfigOwnershipService);
         const before = await ownership.get("haip", "StatusList", resource.id);
-        // Apply only matching resources: explicit key regeneration remains a write.
+        // The startup import applied these key chains from this folder.
+        const keyChains = plan.items.filter((item) => item.kind === "KeyChain");
+        expect(keyChains.length).toBeGreaterThan(0);
+        expect(keyChains.map(({ id, action }) => ({ id, action }))).toEqual(
+            keyChains.map(({ id }) => ({ id, action: "unchanged" })),
+        );
+        // Apply only matching resources.
         const identities = new Set(
             plan.items
                 .filter((item) => item.action === "unchanged")
@@ -1021,6 +1029,257 @@ describe("startup configuration reconciliation", () => {
         }
     });
 
+    it("imports a private CA key with type internalChain as an internal chain without rotation", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Key chain CA", true);
+        const document = {
+            id: "imported-internal-chain",
+            usageType: "attestation",
+            kmsProvider: "db",
+            type: "internalChain",
+            keySource: { type: "private-jwk", jwk: ca.jwk },
+            crt: [ca.certificate],
+        };
+
+        try {
+            await apply.apply("demo", keyChainBundle(document), "upsert");
+            const stored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id: document.id,
+            });
+            expect(stored.hasInternalCa()).toBe(true);
+            expect(stored).toMatchObject({
+                rootJwk: expect.objectContaining({ d: ca.jwk.d }),
+                rootCertificate: ca.certificate,
+                rotationEnabled: false,
+            });
+            expect(stored.activeJwk.d).not.toBe(ca.jwk.d);
+
+            // The plan compares the type the import creates with the stored one.
+            const changes = (
+                await service.plan("demo", keyChainBundle(document), "upsert")
+            ).items.find((item) => item.kind === "KeyChain")?.changes;
+            expect(changes?.map(({ path }) => path)).not.toContain(
+                "/spec/type",
+            );
+            // Without type and rotation, the import makes the CA key the
+            // signing key, as in exports before key chain format v2.
+            const { type: _, ...untyped } = document;
+            const withoutType = (
+                await service.plan("demo", keyChainBundle(untyped), "upsert")
+            ).items.find((item) => item.kind === "KeyChain")?.changes;
+            expect(withoutType).toContainEqual(
+                expect.objectContaining({
+                    path: "/spec/type",
+                    before: "internalChain",
+                    after: "standalone",
+                }),
+            );
+        } finally {
+            await keyChains.delete({ tenantId: "demo", id: document.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: document.id,
+                });
+        }
+    });
+
+    it("imports a bare key chain export with type from a config folder as KeyChain v2", async () => {
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Key chain CA", true);
+        const id = "bare-internal-chain";
+        const folder = join(runtimeFolder, "bare-key-chain-export");
+        mkdirSync(join(folder, "key-chains"), { recursive: true });
+        // The form of GET /api/key-chain/{id}/export.
+        writeFileSync(
+            join(folder, "key-chains", `${id}.json`),
+            JSON.stringify({
+                id,
+                usageType: "attestation",
+                type: "internalChain",
+                key: ca.jwk,
+                crt: [ca.certificate],
+            }),
+        );
+
+        try {
+            const bundle = app
+                .get(ConfigFolderBundleService)
+                .buildBundle("demo", folder);
+            expect(bundle.documents[0].$schema).toBe(schemaUrl("KeyChain", 2));
+            await apply.apply("demo", bundle, "upsert");
+
+            const stored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id,
+            });
+            expect(stored.hasInternalCa()).toBe(true);
+            expect(stored.rootCertificate).toBe(ca.certificate);
+        } finally {
+            rmSync(folder, { recursive: true, force: true });
+            await keyChains.delete({ tenantId: "demo", id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "KeyChain", resourceId: id });
+        }
+    });
+
+    it("keeps the keys of a key chain whose document did not change since it was applied", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const keyChainService = app.get(KeyChainService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Unchanged CA", true);
+        // EUDIPLO creates the signing key of a CA key on every import.
+        const externalCa = {
+            id: "unchanged-external-ca",
+            usageType: "attestation",
+            kmsProvider: "db",
+            keySource: { type: "private-jwk", jwk: ca.jwk },
+            crt: [ca.certificate],
+            rotationPolicy: { enabled: true, intervalDays: 30 },
+        };
+        const regenerated = {
+            id: "unchanged-regenerated",
+            usageType: "attestation",
+            keySource: { type: "regenerate", keyChainType: "standalone" },
+        };
+        const signingKey = async (id: string) =>
+            (await keyChains.findOneByOrFail({ tenantId: "demo", id }))
+                .activeJwk.x;
+        const planned = async (bundle: ConfigBundle, source?: string) => {
+            const item = (
+                await service.plan("demo", bundle, "upsert", source)
+            ).items.find((candidate) => candidate.kind === "KeyChain");
+            return { action: item?.action, changes: item?.changes };
+        };
+
+        try {
+            const bundle = keyChainBundle(externalCa);
+            await apply.apply("demo", bundle, "upsert");
+            const imported = await signingKey(externalCa.id);
+            expect(await planned(bundle)).toEqual({
+                action: "unchanged",
+                changes: [],
+            });
+            await apply.apply("demo", bundle, "upsert");
+            expect(await signingKey(externalCa.id)).toBe(imported);
+
+            // A rotation since the import is kept.
+            await keyChainService.rotate("demo", externalCa.id);
+            const rotated = await signingKey(externalCa.id);
+            expect(rotated).not.toBe(imported);
+            expect((await planned(bundle)).action).toBe("unchanged");
+            await apply.apply("demo", bundle, "upsert");
+            expect(await signingKey(externalCa.id)).toBe(rotated);
+
+            // Another source, or a raised generation, compares the stored keys.
+            expect((await planned(bundle, "bundle:other")).action).toBe(
+                "update",
+            );
+            const raised = keyChainBundle(externalCa, 2);
+            expect((await planned(raised)).action).toBe("update");
+            await apply.apply("demo", raised, "upsert");
+            expect(await signingKey(externalCa.id)).not.toBe(rotated);
+
+            // regenerate creates new key material once per document.
+            const regenerate = keyChainBundle(regenerated);
+            await apply.apply("demo", regenerate, "upsert");
+            const generated = await signingKey(regenerated.id);
+            expect((await planned(regenerate)).action).toBe("unchanged");
+            await apply.apply("demo", regenerate, "upsert");
+            expect(await signingKey(regenerated.id)).toBe(generated);
+        } finally {
+            for (const id of [externalCa.id, regenerated.id]) {
+                await keyChains.delete({ tenantId: "demo", id });
+                await dataSource
+                    .getRepository(ConfigResourceMetadataEntity)
+                    .delete({
+                        tenantId: "demo",
+                        kind: "KeyChain",
+                        resourceId: id,
+                    });
+            }
+        }
+    });
+
+    it("keeps the keys of an unchanged key chain file across startup imports and resets them on reattach", async () => {
+        const folder = app.get(ConfigFolderBundleService);
+        const keyChainService = app.get(KeyChainService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Folder CA", true);
+        const id = "folder-external-ca";
+        const file = join(
+            runtimeFolder,
+            "config",
+            "demo",
+            "key-chains",
+            `${id}.json`,
+        );
+        writeFileSync(
+            file,
+            JSON.stringify({
+                $schema: schemaUrl("KeyChain"),
+                metadata: { generation: 1 },
+                spec: {
+                    id,
+                    usageType: "attestation",
+                    kmsProvider: "db",
+                    keySource: { type: "private-jwk", jwk: ca.jwk },
+                    crt: [ca.certificate],
+                    rotationPolicy: { enabled: true, intervalDays: 30 },
+                },
+            }),
+        );
+        const signingKey = async () =>
+            (await keyChains.findOneByOrFail({ tenantId: "demo", id }))
+                .activeJwk.x;
+
+        try {
+            await folder.applyTenantFolder("demo", "upsert");
+            const imported = await signingKey();
+            await folder.applyTenantFolder("demo", "upsert");
+            expect(await signingKey()).toBe(imported);
+
+            // Reattach resets a rotated key chain to the file version.
+            await keyChainService.rotate("demo", id);
+            const rotated = await signingKey();
+            const reattach = await folder.planReattach("demo", "KeyChain", id);
+            expect(
+                reattach.items.find((item) => item.kind === "KeyChain")?.action,
+            ).toBe("update");
+            await folder.reattach(
+                "demo",
+                "KeyChain",
+                id,
+                reattach.planFingerprint!,
+            );
+            const restored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id,
+            });
+            expect(restored.rootJwk?.x).toBe(ca.jwk.x);
+            expect(restored.rootCertificate).toBe(ca.certificate);
+            expect(restored.activeJwk.x).not.toBe(rotated);
+        } finally {
+            rmSync(file, { force: true });
+            await keyChains.delete({ tenantId: "demo", id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "KeyChain", resourceId: id });
+        }
+    });
+
     it("imports a registrar configuration whose hosts do not resolve yet", async () => {
         const apply = app.get(ConfigBundleApplyService);
         const registrars = app
@@ -1153,6 +1412,17 @@ describe("startup configuration reconciliation", () => {
                 keyChainItem(await service.plan("demo", bundle, "upsert"))
                     ?.action,
             ).toBe("unchanged");
+            // Another source compares the stored key chain with the document.
+            expect(
+                keyChainItem(
+                    await service.plan(
+                        "demo",
+                        bundle,
+                        "upsert",
+                        "bundle:other",
+                    ),
+                )?.action,
+            ).toBe("unchanged");
 
             // The plan, not the apply, reports a certificate of the other key.
             const swapped = keyChainItem(
@@ -1196,12 +1466,16 @@ function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
     );
 }
 
-function keyChainBundle(spec: Record<string, unknown>): ConfigBundle {
+function keyChainBundle(
+    spec: Record<string, unknown>,
+    generation = 1,
+): ConfigBundle {
     return documentBundle(
         "KeyChain",
         String(spec.id),
         `key-chains/${spec.id}.json`,
         spec,
+        generation,
     );
 }
 
@@ -1210,10 +1484,11 @@ function documentBundle(
     id: string,
     path: string,
     spec: Record<string, unknown>,
+    generation = 1,
 ): ConfigBundle {
     const document = {
         $schema: schemaUrl(kind),
-        metadata: { generation: 1 },
+        metadata: { generation },
         spec,
     };
     return {
@@ -1233,7 +1508,7 @@ function documentBundle(
                         .update(JSON.stringify(document))
                         .digest("hex"),
                     ownership: "unmanaged",
-                    generation: 1,
+                    generation,
                 },
             ],
             assets: [],

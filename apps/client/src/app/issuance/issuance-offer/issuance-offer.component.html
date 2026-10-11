@@ -92,7 +92,11 @@
                 @if (credentialConfigs.length === 0) {
                   <span>
                     No credential configurations available.
-                    <a routerLink="/credential-config/create">Create one</a> to get started.
+                    @if (canManageCredentialConfigs) {
+                      <a routerLink="/credential-config/create">Create one</a> to get started.
+                    } @else {
+                      Ask an administrator with issuance:manage to create one.
+                    }
                   </span>
                 } @else if (isIaeFlow) {
                   <span>

@@ -54,13 +54,8 @@ export class SessionManagementService {
    * Get sessions with pagination and optional filters
    */
   async getAllSessions(params: SessionQueryParams = {}): Promise<PaginatedSessionResponseDto> {
-    try {
-      const response = await sessionControllerGetAllSessions({ query: params });
-      return response.data as PaginatedSessionResponseDto;
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-      throw new Error('Failed to load sessions', { cause: error });
-    }
+    const response = await sessionControllerGetAllSessions({ query: params });
+    return response.data as PaginatedSessionResponseDto;
   }
 
   /**
@@ -105,14 +100,9 @@ export class SessionManagementService {
    * status; use {@link updateCredentialStatus} to revoke them.
    */
   async deleteSession(sessionId: string): Promise<void> {
-    try {
-      await sessionControllerDeleteSession({
-        path: { id: sessionId },
-      });
-    } catch (error) {
-      console.error('Error deleting session:', error);
-      throw new Error(`Failed to delete session ${sessionId}`, { cause: error });
-    }
+    await sessionControllerDeleteSession({
+      path: { id: sessionId },
+    });
   }
 
   /**

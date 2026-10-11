@@ -3,26 +3,37 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>Sessions</h2>
     <div fxLayout="row" fxLayoutGap="16px">
-      <button
-        mat-raised-button
-        color="primary"
-        [routerLink]="['/offer/issuance']"
-        matTooltip="Create New Session"
-      >
-        <mat-icon>add</mat-icon>
-        Issuance Offer
-      </button>
-      <button
-        mat-raised-button
-        color="primary"
-        [routerLink]="['/offer/presentation']"
-        matTooltip="Create New Session"
-      >
-        <mat-icon>add</mat-icon>
-        Presentation Request
-      </button>
+      @if (canOfferIssuance) {
+        <button
+          mat-raised-button
+          color="primary"
+          [routerLink]="['/offer/issuance']"
+          matTooltip="Create New Session"
+        >
+          <mat-icon>add</mat-icon>
+          Issuance Offer
+        </button>
+      }
+      @if (canRequestPresentation) {
+        <button
+          mat-raised-button
+          color="primary"
+          [routerLink]="['/offer/presentation']"
+          matTooltip="Create New Session"
+        >
+          <mat-icon>add</mat-icon>
+          Presentation Request
+        </button>
+      }
     </div>
   </div>
+
+  @if (hidesOpenSessions) {
+    <p class="role-hint">
+      Offers and requests that a wallet can still use are listed only for the session types you
+      create or manage. The dashboard counts include them.
+    </p>
+  }
 
   <form [formGroup]="filters" fxLayout="column" fxLayoutGap="8px" class="filters">
     <mat-form-field appearance="outline" class="search-field">
@@ -240,6 +251,7 @@
             (change)="$event ? masterToggle() : null"
             [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()"
+            [disabled]="!hasChangeableRows"
             [aria-label]="checkboxLabel()"
           >
           </mat-checkbox>
@@ -249,6 +261,9 @@
             (click)="$event.stopPropagation()"
             (change)="$event ? selection.toggle(session) : null"
             [checked]="selection.isSelected(session)"
+            [disabled]="!canChange(session)"
+            disabledInteractive
+            [matTooltip]="canChange(session) ? '' : readOnlyRowHint"
             [aria-label]="checkboxLabel(session)"
           >
           </mat-checkbox>
@@ -330,14 +345,19 @@
     ></mat-paginator>
   </div>
 
-  @if (dataSource.data.length === 0) {
+  @if (loadError) {
+    <app-load-error [message]="loadError" (retry)="refreshSessions()" />
+  } @else if (dataSource.data.length === 0 && !isLoadingResults) {
     <div fxLayout="column" fxLayoutAlign="center center" class="empty-state">
       <mat-icon>inbox</mat-icon>
       <p>No sessions found</p>
       <p class="subtitle">
         @if (hasActiveFilters()) {
-          Try adjusting your filters or create your first session to get started
-        } @else {
+          Try adjusting your filters
+          @if (canOfferIssuance || canRequestPresentation) {
+            or create your first session to get started
+          }
+        } @else if (canOfferIssuance || canRequestPresentation) {
           Create your first session to get started
         }
       </p>

@@ -22,6 +22,7 @@ import { type RoleOption, roleChoices } from '../../services/role-grants';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { RoleLockNoticeComponent } from '../../common/role-lock-notice.component';
 import { UserTemporaryPasswordDialogComponent } from '../user-temporary-password-dialog/user-temporary-password-dialog.component';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-user-create',
@@ -136,10 +137,9 @@ export class UserCreateComponent implements OnInit {
         }
       }
     } catch (error) {
-      this.snackBar.open(
-        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} user`),
-        'Close',
-        { duration: 5000 }
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} user`)
       );
     } finally {
       this.isSubmitting = false;

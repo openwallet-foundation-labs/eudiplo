@@ -57,6 +57,35 @@ describe("ConfigMigrationService", () => {
         });
     });
 
+    it("reads a bare key chain with type as KeyChain v2", () => {
+        const jwk = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        const spec = { usageType: "attestation", key: jwk };
+
+        const withType = service.wrapLegacy(
+            "KeyChain",
+            { ...spec, type: "internalChain" },
+            "issuer",
+        );
+        const withoutType = service.wrapLegacy("KeyChain", spec, "issuer");
+
+        expect(withType.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/KeyChainConfigFile.schema.json",
+        );
+        expect(withoutType.$schema).toBe(
+            "https://eudiplo.dev/schemas/v1/KeyChainConfigFile.schema.json",
+        );
+        const result = service.upgrade(withType);
+        expect(result.issues).toEqual([]);
+        expect(service.unwrapForLegacyImporter(result.document)).toMatchObject({
+            type: "internalChain",
+            key: jwk,
+        });
+        expect(service.upgrade(withoutType)).toMatchObject({
+            issues: [],
+            migrations: ["key-chain-v2-type"],
+        });
+    });
+
     it("rejects configuration newer than this runtime", () => {
         expect(() =>
             service.upgrade({
