@@ -114,7 +114,7 @@ export class SessionStore {
         );
     }
 
-    /** Wallet nonce first, then the legacy session-ID fallback. */
+    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
     getForWalletRequest(nonce: string): Promise<SessionData> {
         return this.lookup(nonce, (value) =>
             this.sessions.findForWalletRequest(value),

@@ -332,7 +332,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             ).resolves.toBe(false);
         });
 
-        it("preserves wallet nonce precedence, legacy ID fallback, and ISO protocol restriction", async () => {
+        it("finds wallet requests only by wallet nonce, and ISO sessions only by protocol", async () => {
             const nonceMatch = randomUUID();
             await adapter.create({
                 id: nonceMatch,
@@ -343,9 +343,19 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 { id: nonceMatch },
             );
             await adapter.deleteForTenant("tenant-b", nonceMatch);
-            expect(await adapter.findForWalletRequest(sessionId)).toMatchObject(
-                { id: sessionId },
-            );
+            // The session ID finds nothing, whatever the session's type.
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                requestId: "age-check",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: "iso-18013-7",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: null,
+            });
             expect(await adapter.findForWalletRequest(randomUUID())).toBeNull();
             expect(await adapter.findIso18013Session(sessionId)).toBeNull();
             await adapter.updateForTenant("tenant-a", sessionId, {

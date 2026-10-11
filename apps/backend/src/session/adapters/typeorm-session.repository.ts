@@ -160,11 +160,10 @@ export class TypeOrmSessionRepository implements SessionRepository {
     findByIdForInternalFlow(id: string) {
         return this.findSession({ id });
     }
-    async findForWalletRequest(walletNonce: string) {
-        return (
-            (await this.findSession({ walletNonce })) ??
-            this.findSession({ id: walletNonce })
-        );
+    findForWalletRequest(walletNonce: string) {
+        // Never by session ID: it is no secret. Issuance offers carry it, the
+        // management API lists it and ISO 18013-7 pages post with it.
+        return this.findSession({ walletNonce });
     }
     findIso18013Session(id: string) {
         return this.findSession({ id, dcApiProtocol: "iso-18013-7" });

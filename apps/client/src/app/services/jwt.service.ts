@@ -75,7 +75,12 @@ export class JwtService {
    * Roles of the signed-in caller, from `roles` or Keycloak's `realm_access.roles`.
    */
   getRoles(): string[] {
-    const jwt = this.decodeToken(this.apiService.accessToken);
+    return this.rolesOf(this.apiService.accessToken);
+  }
+
+  /** Roles of a token, from `roles` or Keycloak's `realm_access.roles`. */
+  rolesOf(token: string): string[] {
+    const jwt = this.decodeToken(token);
     return jwt?.roles ?? jwt?.realm_access?.roles ?? [];
   }
 

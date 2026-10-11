@@ -63,12 +63,37 @@ export function useTenantClient(
 
   test.afterAll(async ({ request }) => {
     if (!hasAuthCredentials) return;
-    const headers = { Authorization: `Bearer ${await tenantToken(request)}` };
-    await writeConfig(
-      () => request.delete(`${resolvedE2EConfig.apiBaseUrl}/api/client/${clientId}`, { headers }),
-      `delete ${clientId}`
-    );
+    await deleteTenantClient(request, clientId);
   });
 
   return { clientId, clientSecret };
+}
+
+/** Deletes an API client of the tenant, as the tenant's admin. Unknown clients are fine. */
+export async function deleteTenantClient(
+  request: APIRequestContext,
+  clientId: string
+): Promise<void> {
+  const headers = { Authorization: `Bearer ${await tenantToken(request)}` };
+  await writeConfig(
+    () => request.delete(`${resolvedE2EConfig.apiBaseUrl}/api/client/${clientId}`, { headers }),
+    `delete ${clientId}`
+  );
+}
+
+/** Replaces the roles of an API client of the tenant, as the tenant's admin. */
+export async function setTenantClientRoles(
+  request: APIRequestContext,
+  clientId: string,
+  roles: string[]
+): Promise<void> {
+  const headers = { Authorization: `Bearer ${await tenantToken(request)}` };
+  await writeConfig(
+    () =>
+      request.patch(`${resolvedE2EConfig.apiBaseUrl}/api/client/${clientId}`, {
+        headers,
+        data: { roles },
+      }),
+    `update ${clientId}`
+  );
 }

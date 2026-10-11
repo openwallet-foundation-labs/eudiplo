@@ -27,6 +27,7 @@ import {
     PresentationTestContext,
     preparePresentation,
     setupPresentationTestApp,
+    walletNonceOf,
 } from "../utils.js";
 
 describe("Presentation - SD-JWT Credential", () => {
@@ -445,12 +446,12 @@ describe("Presentation - SD-JWT Credential", () => {
         // Simulate wallet sending an error response instead of a VP token
         // Per OID4VP spec section 6.2, wallets can return OAuth 2.0 error responses
         const errorResponse = await request(app.getHttpServer())
-            .post(`/presentations/${sessionId}/oid4vp`)
+            .post(`/presentations/${walletNonceOf(res.body.uri)}/oid4vp`)
             .trustLocalhost()
             .send({
                 error: "access_denied",
                 error_description: "User cancelled the presentation request",
-                state: sessionId,
+                state: walletNonceOf(res.body.uri),
             })
             .expect(200); // OID4VP 1.0 §8.2: processed error responses get 200
 

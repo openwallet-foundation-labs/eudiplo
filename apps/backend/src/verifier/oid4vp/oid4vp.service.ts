@@ -160,8 +160,7 @@ export class Oid4vpService {
     /**
      * Resolves a session from a wallet-facing nonce.
      * Per OID4VP spec Section 13.3, wallet-facing URLs use a separate walletNonce
-     * instead of the session ID. Falls back to session ID lookup for backward
-     * compatibility with sessions created before the walletNonce migration.
+     * instead of the session ID, which is never accepted in its place.
      */
     private async resolveSessionByNonce(nonce: string) {
         return this.sessionStore.getForWalletRequest(nonce);

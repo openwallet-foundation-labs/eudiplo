@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import "reflect-metadata";
 import { INestApplication } from "@nestjs/common";
 import {
@@ -166,25 +167,47 @@ describe("Presentation - Direct Post Security (Section 13.3)", () => {
 
     // ─── Session ID cannot be used on wallet-facing endpoints ──────────
 
-    test("using session ID on the wallet-facing request endpoint fails", async () => {
+    test("using session ID on the wallet-facing endpoints fails and changes nothing", async () => {
         const res = await createPresentationRequest(app, authToken, {
             response_type: ResponseType.URI,
             requestId: "pid-no-hook",
         });
 
         const sessionId: string = res.body.session;
-
-        // Attempting to use the session ID on the wallet-facing endpoint should fail
-        // because resolveSessionByNonce looks up by walletNonce first,
-        // and falls back to session.id — but the requestObject is only cached
-        // under the session's walletNonce path.
-        // The session should still be resolvable via session ID fallback,
-        // but this tests that the URL was built with walletNonce.
         const uri: string = res.body.uri;
         const requestUriParam = new URLSearchParams(uri).get("request_uri")!;
-
-        // Verify the request_uri does NOT contain the session ID
         expect(requestUriParam).not.toContain(`/presentations/${sessionId}/`);
+
+        // The session ID is no secret: the management API lists it.
+        const unknown = randomUUID();
+        const request_ = (id: string) =>
+            request(app.getHttpServer())
+                .get(`/presentations/${id}/oid4vp/request`)
+                .trustLocalhost();
+        const answer = (id: string) =>
+            request(app.getHttpServer())
+                .post(`/presentations/${id}/oid4vp`)
+                .trustLocalhost()
+                .send({ error: "access_denied", state: id });
+        const [byId, byUnknown] = await Promise.all([
+            request_(sessionId),
+            request_(unknown),
+        ]);
+        expect(byId.status).not.toBe(200);
+        expect(byId.status).toBe(byUnknown.status);
+        const [answerById, answerByUnknown] = [
+            await answer(sessionId),
+            await answer(unknown),
+        ];
+        expect(answerById.status).not.toBe(200);
+        expect(answerById.status).toBe(answerByUnknown.status);
+
+        const session = await request(app.getHttpServer())
+            .get(`/session/${sessionId}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(session.body.status).toBe("active");
     });
 
     // ─── Frontend polling uses session ID ──────────────────────────────
