@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { schemaUrl } from "@eudiplo/config-format/config-format.js";
 import { ConfigService } from "@nestjs/config";
 import { describe, expect, it, vi } from "vitest";
+import { importedRotationIntervals } from "../../crypto/key/key-chain-import-rotation.js";
 import { ConfigImportService } from "../config-import/config-import.service.js";
 import { ConfigImportOrchestratorService } from "../config-import/config-import-orchestrator.service.js";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
@@ -57,6 +58,15 @@ describe("ConfigFolderBundleService", () => {
             ]),
         );
         expect(bundle.manifest.resources).toHaveLength(bundle.documents.length);
+        // Startups do not renew the certificates the import creates, so the
+        // demo key chains must rotate before they expire.
+        for (const document of bundle.documents) {
+            const policy = (document.spec as any).rotationPolicy;
+            if (!policy?.enabled) continue;
+            const { intervalDays, certValidityDays } =
+                importedRotationIntervals(policy);
+            expect(intervalDays).toBeLessThan(certValidityDays);
+        }
     });
 
     it("applies a tenant folder with a stable ownership source", async () => {

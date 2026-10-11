@@ -87,7 +87,7 @@ TS11 is still a draft. Fields, endpoints and screens can change.
 1. Create the credential type in **Credential Issuance → Credential Types** and the trust list of your issuers in **Trust Lists**.
 2. Open **Registrar → Schema → Create** and fill in **Version** (semantic version, for example `1.0.0`), **Rulebook URI**, **Attestation LoS**, **Binding Type** and **Name**; category and tags are optional. Alternatively, choose **Create schema for this configuration** on the credential type: it is preselected in the next step and linked to the new schema metadata ID.
 3. Under **Schema URIs**, select the credential types the schema covers. If you select exactly one, its `schemaMeta` is linked to the new schema metadata ID.
-4. Under **Trusted Authorities**, select trust lists or add root certificates (PEM or base64 DER).
+4. Under **Trusted Authorities**, select trust lists or add root certificates (PEM or base64 DER). Each root certificate field takes one certificate; a certificate chain is rejected. For a selected trust list, EUDIPLO sends the registrar the active certificate of its key chain. After that key chain rotates, save the trust list, which signs it with the new key, and then publish a new version.
 5. Choose **Submit**. EUDIPLO uploads the schemas and the rulebook, the registrar signs the result.
 
 EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default, at most 5 MiB and three redirects per file, and 10 seconds without data per request.

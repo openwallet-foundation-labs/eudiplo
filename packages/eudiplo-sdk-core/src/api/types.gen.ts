@@ -1672,7 +1672,7 @@ export type SchemaUriEntry = {
 
 export type TrustAuthorityEntry = {
     /**
-     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+     * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
      */
     trustListId?: string;
     /**
@@ -1680,7 +1680,7 @@ export type TrustAuthorityEntry = {
      */
     frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
     /**
-     * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+     * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
      */
     value?: string;
     /**
@@ -1740,11 +1740,11 @@ export type SchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -1752,7 +1752,7 @@ export type SchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -4975,11 +4975,11 @@ export type PublishSchemaMetaConfig = {
         };
     }>;
     /**
-     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
      */
     trustedAuthorities?: Array<{
         /**
-         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
          */
         trustListId?: string;
         /**
@@ -4987,7 +4987,7 @@ export type PublishSchemaMetaConfig = {
          */
         frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
         /**
-         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
          */
         value?: string;
         /**
@@ -5084,11 +5084,11 @@ export type SignSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5096,7 +5096,7 @@ export type SignSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
@@ -5178,11 +5178,11 @@ export type SignVersionSchemaMetaConfigDto = {
             };
         }>;
         /**
-         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+         * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).
          */
         trustedAuthorities?: Array<{
             /**
-             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+             * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.
              */
             trustListId?: string;
             /**
@@ -5190,7 +5190,7 @@ export type SignVersionSchemaMetaConfigDto = {
              */
             frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
             /**
-             * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+             * Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.
              */
             value?: string;
             /**
