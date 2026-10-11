@@ -38,9 +38,11 @@ import { CancelSessionDto } from "./dto/cancel-session.dto.js";
 import { PaginatedSessionResponseDto } from "./dto/paginated-session-response.dto.js";
 import { SessionLogEntryResponseDto } from "./dto/session-log-entry-response.dto.js";
 import { SessionQueryDto } from "./dto/session-query.dto.js";
+import { SessionStatsQueryDto } from "./dto/session-stats-query.dto.js";
 import { SessionStatsResponseDto } from "./dto/session-stats-response.dto.js";
 import { Session } from "./entities/session.entity.js";
 import { SessionLogStoreService } from "./logging/session-log-store.service.js";
+import { SessionConfigService } from "./session-config.service.js";
 import { sessionScope } from "./session-scope.js";
 
 @ApiTags("Session")
@@ -52,6 +54,7 @@ export class SessionController {
         private readonly statusListService: StatusListService,
         private readonly logStoreService: SessionLogStoreService,
         private readonly cancelSession: CancelSession,
+        private readonly sessionConfig: SessionConfigService,
     ) {}
 
     /**
@@ -77,17 +80,20 @@ export class SessionController {
     @ApiOperation({
         summary: "Get session counts per type and status",
         description:
-            "Counts all stored sessions of the tenant, not one page. Only the session types the caller may read are included.",
+            "Counts all stored sessions of the tenant, not one page, optionally only those created in a time range. Only the session types the caller may read are included.",
     })
     @ApiResponse({ status: 200, type: SessionStatsResponseDto })
     @Get("stats")
-    getSessionStats(
+    async getSessionStats(
         @Token() token: TokenPayload,
+        @Query() query: SessionStatsQueryDto,
     ): Promise<SessionStatsResponseDto> {
-        return this.sessions.statsForTenant(
-            token.entity!.id,
-            sessionScope(token),
-        );
+        const tenantId = token.entity!.id;
+        const [stats, retention] = await Promise.all([
+            this.sessions.statsForTenant(tenantId, sessionScope(token), query),
+            this.sessionConfig.getEffectiveConfig(tenantId),
+        ]);
+        return { ...stats, retention };
     }
 
     /**

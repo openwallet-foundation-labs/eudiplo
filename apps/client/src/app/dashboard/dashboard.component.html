@@ -2,10 +2,7 @@
   <!-- Dashboard Header -->
   <div class="welcome-header" fxLayout="row" fxLayoutAlign="space-between center" fxFill>
     <div class="dashboard-heading">
-      <div class="heading-row">
-        <h1>Dashboard</h1>
-        <span class="focus-badge">{{ focusLabel }}</span>
-      </div>
+      <h1>Dashboard</h1>
       <p class="subtitle" [class.needs-attention]="dashboardService.hasWarnings">
         {{ readinessTitle }}
       </p>
@@ -63,38 +60,19 @@
       <mat-card-header>
         <mat-icon mat-card-avatar>tune</mat-icon>
         <mat-card-title>Customize dashboard</mat-card-title>
-        <mat-card-subtitle>Choose a focus, then fine-tune the visible sections</mat-card-subtitle>
+        <mat-card-subtitle>Choose the sections to show</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="customization-grid">
-          <section aria-labelledby="dashboard-focus-heading">
-            <h3 id="dashboard-focus-heading">Dashboard focus</h3>
-            <div class="focus-options">
-              @for (option of focusOptions; track option.value) {
-                <button
-                  type="button"
-                  class="focus-option"
-                  [class.selected]="preferences.focus === option.value"
-                  [disabled]="!option.available"
-                  [attr.aria-pressed]="preferences.focus === option.value"
-                  (click)="setFocus(option.value)"
-                >
-                  <mat-icon>{{ option.icon }}</mat-icon>
-                  <span>
-                    <strong>{{ option.label }}</strong>
-                    <small>{{ option.description }}</small>
-                  </span>
-                  @if (preferences.focus === option.value) {
-                    <mat-icon class="selected-icon">check_circle</mat-icon>
-                  }
-                </button>
-              }
-            </div>
-          </section>
-
-          <section aria-labelledby="visible-sections-heading">
-            <h3 id="visible-sections-heading">Visible sections</h3>
+        <div class="customization-sections">
+          <section aria-label="Visible sections">
             <div class="section-toggles">
+              <mat-checkbox
+                [checked]="isSectionVisible('activity')"
+                [disabled]="!dashboardService.canViewSessions"
+                (change)="setSectionVisibility('activity', $event.checked)"
+              >
+                Sessions by outcome
+              </mat-checkbox>
               <mat-checkbox
                 [checked]="isSectionVisible('recentActivity')"
                 [disabled]="!dashboardService.canViewSessions"
@@ -111,15 +89,12 @@
               </mat-checkbox>
               <mat-checkbox
                 [checked]="isSectionVisible('quickActions')"
+                [disabled]="
+                  !(dashboardService.canOfferIssuance || jwtService.hasRole('presentation:request'))
+                "
                 (change)="setSectionVisibility('quickActions', $event.checked)"
               >
                 Quick actions
-              </mat-checkbox>
-              <mat-checkbox
-                [checked]="isSectionVisible('resources')"
-                (change)="setSectionVisibility('resources', $event.checked)"
-              >
-                Documentation & resources
               </mat-checkbox>
             </div>
             <p class="fixed-sections-note">
@@ -132,7 +107,7 @@
       <mat-card-actions align="end">
         <button mat-button type="button" (click)="resetDashboard()">
           <mat-icon>restart_alt</mat-icon>
-          Reset to default
+          Show all sections
         </button>
         <button mat-flat-button type="button" color="primary" (click)="customizePanelOpen = false">
           Done
@@ -417,10 +392,15 @@
     </mat-card>
   }
 
-  <!-- Stats Cards -->
+  <!-- Key figures -->
   <div class="stats-grid">
-    @for (card of statCards; track card.source) {
-      <a class="stat-card-link" [routerLink]="card.route">
+    @for (card of statCards; track card.label) {
+      <a
+        class="stat-card-link"
+        [routerLink]="card.route"
+        [queryParams]="card.queryParams"
+        [matTooltip]="card.hint ?? ''"
+      >
         <mat-card class="stat-card">
           <mat-card-content fxLayout="column" fxLayoutAlign="center center">
             <mat-icon [class]="'stat-icon ' + card.iconClass">{{ card.icon }}</mat-icon>
@@ -435,13 +415,96 @@
             </span>
             <span class="stat-label">{{ card.label }}</span>
             @if (dashboardService.hasFailed(card.source)) {
-              <span class="stat-note">Could not be loaded</span>
+              <span class="stat-note failed">Could not be loaded</span>
+            } @else if (card.note && dashboardService.isLoaded(card.source)) {
+              <span class="stat-note">{{ card.note }}</span>
             }
           </mat-card-content>
         </mat-card>
       </a>
     }
   </div>
+
+  <!-- Session activity of the last days -->
+  @if (dashboardService.canViewSessions && isSectionVisible('activity')) {
+    <mat-card class="activity-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>bar_chart</mat-icon>
+        <mat-card-title>Sessions by outcome</mat-card-title>
+        <mat-card-subtitle>
+          Sessions created in the last {{ dashboardService.activity?.label ?? '…' }}, by outcome
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="activity-content">
+        <div class="activity-chart-slot">
+          @if (retentionNote; as note) {
+            <p class="retention-note"><mat-icon>info</mat-icon> {{ note }}</p>
+          }
+          @if (dashboardService.isLoaded('activity') && dashboardService.activity; as activity) {
+            <app-activity-chart
+              [buckets]="dashboardService.activityBuckets"
+              [unit]="activity.unit"
+              [windowLabel]="activity.label"
+            />
+          } @else if (dashboardService.hasFailed('activity')) {
+            <p class="card-state"><mat-icon>error_outline</mat-icon> Could not be loaded</p>
+          } @else {
+            <p class="card-state">
+              <mat-spinner diameter="20" aria-label="Loading session activity"></mat-spinner>
+              Loading…
+            </p>
+          }
+        </div>
+        <section class="failure-codes" aria-labelledby="failure-codes-heading">
+          <h3 id="failure-codes-heading">Top failure reasons</h3>
+          @if (dashboardService.hasFailed('window')) {
+            <p class="card-state"><mat-icon>error_outline</mat-icon> Could not be loaded</p>
+          } @else if (!dashboardService.isLoaded('window')) {
+            <p class="card-state">Loading…</p>
+          } @else if (dashboardService.topFailureCodes.length > 0) {
+            <ol>
+              @for (failure of dashboardService.topFailureCodes; track failure.code) {
+                <li>
+                  <a
+                    routerLink="/session-management"
+                    [queryParams]="failureCodeParams(failure.code)"
+                    [matTooltip]="failure.code"
+                    [attr.aria-label]="
+                      failure.code +
+                      ': ' +
+                      failure.count +
+                      (failure.count === 1 ? ' failed session' : ' failed sessions')
+                    "
+                  >
+                    <code>{{ failure.code }}</code>
+                    <span class="count">{{ failure.count }}</span>
+                  </a>
+                </li>
+              }
+            </ol>
+          } @else {
+            @if (dashboardService.failedInWindow > 0) {
+              <!-- Issuance failures, and some presentation failures, carry no code. -->
+              <p class="no-failures">
+                <mat-icon>info</mat-icon>
+                <span>
+                  {{ dashboardService.failedInWindow }} failed
+                  {{ dashboardService.failedInWindow === 1 ? 'session has' : 'sessions have' }}
+                  no failure code.
+                  <a routerLink="/session-management" [queryParams]="failedParams">Show them</a>
+                </span>
+              </p>
+            } @else {
+              <p class="no-failures">
+                <mat-icon class="ok">check_circle</mat-icon>
+                No failed sessions in the last {{ dashboardService.activity?.label }}
+              </p>
+            }
+          }
+        </section>
+      </mat-card-content>
+    </mat-card>
+  }
 
   @if (dashboardService.hasHealthSignals) {
     <mat-card class="session-breakdown-card health-card">
@@ -482,39 +545,22 @@
                   <mat-icon class="status-expired">event</mat-icon>
                   <span
                     ><strong>Expires:</strong>
+                    {{ dashboardService.accessCertificateExpiresAt | date: 'yyyy-MM-dd' }}
+                    (in {{ dashboardService.accessCertificateDaysUntilExpiry }}
                     {{
-                      dashboardService.accessCertificateExpiresAt | date: 'yyyy-MM-dd HH:mm'
-                    }}</span
+                      dashboardService.accessCertificateDaysUntilExpiry === 1 ? 'day' : 'days'
+                    }})</span
                   >
                 </div>
-                @if (dashboardService.accessCertificateDaysUntilExpiry !== null) {
-                  <div
-                    class="session-stat"
-                    fxLayout="row"
-                    fxLayoutAlign="start center"
-                    fxLayoutGap="8px"
-                  >
-                    <mat-icon class="status-expired">hourglass_top</mat-icon>
-                    <span
-                      ><strong>Days Remaining:</strong>
-                      {{ dashboardService.accessCertificateDaysUntilExpiry }}</span
-                    >
-                  </div>
-                }
               }
-            }
-            @if (dashboardService.canManagePresentation) {
               <div
                 class="session-stat"
                 fxLayout="row"
                 fxLayoutAlign="start center"
                 fxLayoutGap="8px"
               >
-                <mat-icon class="status-fetched">shield</mat-icon>
-                <span
-                  ><strong>Trust Lists:</strong>
-                  {{ loadedValue('trustLists', dashboardService.trustListCount.toString()) }}</span
-                >
+                <mat-icon class="status-fetched">dns</mat-icon>
+                <span><strong>KMS:</strong> {{ loadedValue('kmsHealth', kmsSummary) }}</span>
               </div>
             }
             @if (dashboardService.canManageRegistrar) {
@@ -659,42 +705,90 @@
       </mat-card-header>
       <mat-card-content>
         <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'active' }"
+          >
             <mat-icon class="status-active">hourglass_empty</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionActive }}</strong> Active</span
             >
-          </div>
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'fetched' }"
+          >
             <mat-icon class="status-fetched">download</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionFetched }}</strong> Fetched</span
             >
-          </div>
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'completed' }"
+          >
             <mat-icon class="status-completed">check_circle</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionCompleted }}</strong> Completed</span
             >
-          </div>
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'expired' }"
+          >
             <mat-icon class="status-expired">schedule</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionExpired }}</strong> Expired</span
             >
-          </div>
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'failed' }"
+          >
             <mat-icon class="status-failed">error</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionFailed }}</strong> Failed</span
             >
-          </div>
-          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
+          <a
+            class="session-stat status-link"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+            routerLink="/session-management"
+            [queryParams]="{ status: 'cancelled' }"
+          >
             <mat-icon class="status-cancelled">cancel</mat-icon>
             <span
               ><strong>{{ dashboardService.sessionCancelled }}</strong> Cancelled</span
             >
-          </div>
+            <mat-icon class="status-link-arrow">chevron_right</mat-icon>
+          </a>
         </div>
       </mat-card-content>
       <mat-card-actions>
@@ -706,12 +800,15 @@
   }
 
   <!-- Quick Actions -->
-  @if (isSectionVisible('quickActions')) {
+  @if (
+    isSectionVisible('quickActions') &&
+    (dashboardService.canOfferIssuance || jwtService.hasRole('presentation:request'))
+  ) {
     <mat-card class="quick-actions-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>flash_on</mat-icon>
         <mat-card-title>Quick Actions</mat-card-title>
-        <mat-card-subtitle>Common tasks to get you started</mat-card-subtitle>
+        <mat-card-subtitle>Start an issuance or a presentation request</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="quick-actions" fxLayout="row wrap" fxLayoutGap="12px">
@@ -719,7 +816,6 @@
             <a
               mat-raised-button
               color="primary"
-              [class.focus-first]="preferences.focus === 'issuance'"
               routerLink="/offer/issuance"
               [class.disabled]="!dashboardService.isReadyToIssue"
               [attr.tabindex]="!dashboardService.isReadyToIssue ? -1 : 0"
@@ -736,7 +832,6 @@
             <a
               mat-raised-button
               color="accent"
-              [class.focus-first]="preferences.focus === 'verification'"
               routerLink="/offer/presentation"
               [class.disabled]="!dashboardService.isReadyToVerify"
               [attr.tabindex]="!dashboardService.isReadyToVerify ? -1 : 0"
@@ -747,16 +842,6 @@
               "
             >
               <mat-icon>fact_check</mat-icon> Request Presentation
-            </a>
-          }
-          @if (dashboardService.canManageIssuance) {
-            <a mat-stroked-button routerLink="/credential-config/create">
-              <mat-icon>add_circle</mat-icon> New Credential Config
-            </a>
-          }
-          @if (dashboardService.canManagePresentation) {
-            <a mat-stroked-button routerLink="/presentation-config/create">
-              <mat-icon>playlist_add</mat-icon> New Presentation Config
             </a>
           }
         </div>
@@ -787,43 +872,6 @@
             </span>
           </div>
         }
-      </mat-card-content>
-    </mat-card>
-  }
-
-  <!-- Resources & Documentation -->
-  @if (isSectionVisible('resources')) {
-    <mat-card class="resources-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>menu_book</mat-icon>
-        <mat-card-title>Documentation & Resources</mat-card-title>
-        <mat-card-subtitle>Learn more about EUDIPLO</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="resource-links" fxLayout="row wrap" fxLayoutGap="16px">
-          <a mat-stroked-button href="https://docs.eudiplo.dev/" target="_blank" rel="noopener">
-            <mat-icon>description</mat-icon> Documentation
-          </a>
-          <a
-            mat-stroked-button
-            [href]="currentBaseUrl + '/api-docs'"
-            target="_blank"
-            rel="noopener"
-          >
-            <mat-icon>api</mat-icon> API Reference
-          </a>
-          <a
-            mat-stroked-button
-            href="https://github.com/EUDIPLO/eudiplo"
-            target="_blank"
-            rel="noopener"
-          >
-            <mat-icon>code</mat-icon> GitHub
-          </a>
-          <a mat-stroked-button href="https://discord.gg/58ys8XfXDu" target="_blank" rel="noopener">
-            <mat-icon>forum</mat-icon> Discord Community
-          </a>
-        </div>
       </mat-card-content>
     </mat-card>
   }

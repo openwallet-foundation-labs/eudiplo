@@ -93,3 +93,52 @@ describe('AppComponent session expiry', () => {
     fixture.destroy();
   });
 });
+
+describe('AppComponent help menu', () => {
+  function helpLinks(baseUrl: string | undefined): { text: string; href: string | null }[] {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ApiService,
+          useValue: {
+            accessToken: '',
+            getAuthenticationStatus: () => false,
+            getTokenTimeRemaining: () => 0,
+            canRefreshToken: () => false,
+            getBaseUrl: () => baseUrl,
+            getClientId: () => undefined,
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.componentInstance.shouldShowToolbar = true;
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    (element.querySelector('button[aria-label="Help and resources"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const links = Array.from(document.querySelectorAll('.mat-mdc-menu-panel a'), (link) => ({
+      text: link.querySelector('span')?.textContent?.trim() ?? '',
+      href: link.getAttribute('href'),
+    }));
+    fixture.destroy();
+    return links;
+  }
+
+  it("links the instance's management API reference", () => {
+    expect(helpLinks('https://eudiplo.example')).toContainEqual({
+      text: 'API reference of this instance',
+      href: 'https://eudiplo.example/api/docs',
+    });
+  });
+
+  it('leaves the API reference out while no instance is configured', () => {
+    expect(helpLinks(undefined).map((link) => link.text)).toEqual([
+      'Documentation',
+      'GitHub',
+      'Discord community',
+    ]);
+  });
+});

@@ -30,6 +30,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { fromDay, toDay } from '../../utils/local-day';
 import { Session } from '@eudiplo/sdk-core';
 import { from, merge, of as observableOf, Subject } from 'rxjs';
 import { catchError, debounceTime, map, startWith, switchMap } from 'rxjs/operators';
@@ -97,17 +98,6 @@ interface ConfigOption {
   /** `issuance:<credential config id>` or `presentation:<presentation config id>` */
   value: string;
   label: string;
-}
-
-/** A local calendar day as `yyyy-mm-dd`, the format kept in the URL. */
-function toDay(date: Date): string {
-  const pad = (value: number) => String(value).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-function fromDay(value: string | null): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value ?? '');
-  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : null;
 }
 
 function endOfDay(date: Date): Date {

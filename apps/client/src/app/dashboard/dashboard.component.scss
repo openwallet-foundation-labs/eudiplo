@@ -47,12 +47,6 @@ mat-icon[mat-card-avatar] {
     min-width: 220px;
   }
 
-  .heading-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
   h1 {
     margin: 0;
     font-size: 28px;
@@ -69,17 +63,6 @@ mat-icon[mat-card-avatar] {
       color: var(--eudiplo-warning);
       font-weight: 500;
     }
-  }
-
-  .focus-badge {
-    padding: 4px 9px;
-    border-radius: 999px;
-    background: var(--mat-sys-primary-container);
-    color: var(--mat-sys-on-primary-container);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
 
   .header-actions {
@@ -110,10 +93,7 @@ mat-icon[mat-card-avatar] {
     background: var(--mat-sys-primary-container);
   }
 
-  .customization-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
-    gap: 32px;
+  .customization-sections {
     padding-top: 8px;
   }
 
@@ -122,70 +102,6 @@ mat-icon[mat-card-avatar] {
     color: var(--mat-sys-on-surface);
     font-size: 14px;
     font-weight: 600;
-  }
-
-  .focus-options {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .focus-option {
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr) 20px;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 10px;
-    background: var(--mat-sys-surface);
-    color: var(--mat-sys-on-surface);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-    transition:
-      border-color 0.15s ease,
-      background-color 0.15s ease;
-
-    &:hover:not(:disabled) {
-      background: var(--mat-sys-surface-container-high);
-      border-color: var(--mat-sys-outline);
-    }
-
-    &.selected {
-      background: var(--mat-sys-primary-container);
-      border-color: var(--mat-sys-primary);
-      color: var(--mat-sys-on-primary-container);
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.45;
-    }
-
-    > mat-icon:first-child {
-      color: var(--mat-sys-primary);
-    }
-
-    span {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    small {
-      margin-top: 2px;
-      color: var(--mat-sys-on-surface-variant);
-      font-size: 11px;
-      line-height: 1.3;
-    }
-
-    .selected-icon {
-      width: 20px;
-      height: 20px;
-      color: var(--mat-sys-primary);
-      font-size: 20px;
-    }
   }
 
   .section-toggles {
@@ -363,13 +279,8 @@ mat-icon[mat-card-avatar] {
   display: block;
 
   @media (max-width: 959px) {
-    // 2 cards per row on medium screens
+    // 2 cards per row on medium and small screens
     flex: 0 0 calc(50% - 8px);
-  }
-
-  @media (max-width: 599px) {
-    // 1 card per row on small screens
-    flex: 0 0 100%;
   }
 }
 
@@ -409,8 +320,21 @@ mat-icon[mat-card-avatar] {
       color: var(--eudiplo-warning);
     }
 
-    &.sessions {
+    &.sessions,
+    &.open {
+      color: var(--eudiplo-info);
+    }
+
+    &.success {
       color: var(--eudiplo-success);
+    }
+
+    &.failed {
+      color: var(--eudiplo-danger);
+    }
+
+    &.muted {
+      color: var(--mat-sys-on-surface-variant);
     }
   }
 
@@ -431,8 +355,138 @@ mat-icon[mat-card-avatar] {
 
   .stat-note {
     font-size: 12px;
-    color: var(--mat-sys-error);
+    color: var(--mat-sys-on-surface-variant);
     margin-top: 4px;
+
+    &.failed {
+      color: var(--mat-sys-error);
+    }
+  }
+}
+
+// Session activity of the last days
+.activity-card {
+  width: 100%;
+
+  mat-icon[mat-card-avatar] {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+
+  .card-state {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 24px 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .retention-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 12px;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+
+    mat-icon {
+      flex-shrink: 0;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .activity-content {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+    gap: 32px;
+    padding-top: 8px;
+  }
+
+  .failure-codes {
+    h3 {
+      margin: 0 0 12px;
+      color: var(--mat-sys-on-surface);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    ol {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--mat-sys-surface-container-high);
+      color: var(--mat-sys-on-surface);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--mat-sys-surface-container-highest);
+      }
+    }
+
+    code {
+      overflow: hidden;
+      font-size: 13px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .count {
+      font-weight: 600;
+    }
+
+    .no-failures {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 0;
+      color: var(--mat-sys-on-surface-variant);
+
+      mat-icon {
+        flex-shrink: 0;
+      }
+
+      mat-icon.ok {
+        color: var(--eudiplo-success);
+      }
+
+      a {
+        color: var(--mat-sys-primary);
+      }
+    }
+  }
+}
+
+// Status pills that open the matching sessions
+.session-stat.status-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-highest);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+  }
+
+  .status-link-arrow {
+    opacity: 0.6;
   }
 }
 
@@ -450,6 +504,7 @@ mat-icon[mat-card-avatar] {
 
     .session-stat {
       padding: 8px 16px;
+
       background: var(--mat-sys-surface-container-high);
       border-radius: 20px;
 
@@ -617,10 +672,6 @@ mat-icon[mat-card-avatar] {
   .quick-actions {
     padding: 8px 0;
 
-    .focus-first {
-      order: -1;
-    }
-
     a,
     button {
       margin: 4px;
@@ -658,25 +709,6 @@ mat-icon[mat-card-avatar] {
       &:hover {
         color: var(--mat-sys-primary);
       }
-    }
-  }
-}
-
-// Resources Card
-.resources-card {
-  width: 100%;
-
-  mat-icon[mat-card-avatar] {
-    background: var(--mat-sys-secondary-container);
-    color: var(--mat-sys-on-secondary-container);
-  }
-
-  .resource-links {
-    padding: 8px 0;
-
-    a {
-      margin: 4px;
-      text-decoration: none;
     }
   }
 }
@@ -728,11 +760,8 @@ mat-icon[mat-card-avatar] {
     }
   }
 
-  .customization-card {
-    .customization-grid,
-    .focus-options {
-      grid-template-columns: 1fr;
-    }
+  .activity-card .activity-content {
+    grid-template-columns: 1fr;
   }
 
   .recent-activity-card .activity-row {
@@ -746,26 +775,28 @@ mat-icon[mat-card-avatar] {
   .stat-card {
     min-height: 100px;
 
+    mat-card-content {
+      padding: 16px 8px;
+    }
+
     .stat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      margin-bottom: 8px;
     }
 
     .stat-value {
       font-size: 24px;
     }
+
+    .stat-label {
+      text-align: center;
+    }
   }
 
   .quick-actions {
     button {
-      width: 100%;
-      margin: 4px 0 !important;
-    }
-  }
-
-  .resource-links {
-    a {
       width: 100%;
       margin: 4px 0 !important;
     }

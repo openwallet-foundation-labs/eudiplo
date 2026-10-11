@@ -5,16 +5,20 @@ import {
   sessionControllerGetAllSessions,
   sessionControllerGetSessionStats,
   keyChainControllerGetAll,
+  keyChainControllerGetProvidersHealth,
   issuanceConfigControllerGetIssuanceConfigurations,
   registrarControllerGetConfig,
   trustListControllerGetAllTrustLists,
   KeyChainResponseDto,
+  ProviderHealthResponseDto,
   Session,
   SessionStatsResponseDto,
+  SessionRetentionDto,
   SessionStatusCountsDto,
 } from '@eudiplo/sdk-core';
 import { JwtService } from '../services/jwt.service';
 import { apiErrorDetail, hasHttpStatus } from '../utils/error-message';
+import { lastDays, lastHours } from '../utils/local-day';
 
 type AccessCertificateStatus = 'missing' | 'expired' | 'expiring' | 'healthy';
 
@@ -27,7 +31,10 @@ export type DashboardSource =
   | 'trustLists'
   | 'registrar'
   | 'sessionStats'
-  | 'recentSessions';
+  | 'recentSessions'
+  | 'activity'
+  | 'window'
+  | 'kmsHealth';
 
 const sourceLabels: Record<DashboardSource, string> = {
   keyChains: 'key chains',
@@ -38,7 +45,70 @@ const sourceLabels: Record<DashboardSource, string> = {
   registrar: 'registrar config',
   sessionStats: 'session counts',
   recentSessions: 'recent sessions',
+  activity: 'session activity',
+  window: 'session counts of the activity window',
+  kmsHealth: 'KMS health',
 };
+
+const TOP_FAILURE_CODES = 5;
+/** Requests that start from the result of the session counts request. */
+const DERIVED_FROM_STATS = new Set<DashboardSource>(['activity', 'window']);
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+/** Longest activity window the dashboard shows. */
+const MAX_WINDOW_DAYS = 7;
+
+/**
+ * The time range of the activity chart and the window KPIs. Sessions deleted by
+ * the retention cleanup no longer count, so the window never reaches further back
+ * than the tenant keeps sessions.
+ */
+export interface ActivityWindow {
+  unit: 'day' | 'hour';
+  /** Bucket starts, oldest first; the last bucket is the current day or hour. */
+  starts: Date[];
+  /** For labels, for example "7 days" or "24 hours". */
+  label: string;
+  /** True when retention, not the dashboard's maximum, limits the window. */
+  limitedByRetention: boolean;
+}
+
+/** Daily buckets for at least two days of kept sessions, hourly buckets otherwise. */
+export function activityWindow(retention: SessionRetentionDto, now = new Date()): ActivityWindow {
+  const keepsAll = retention.cleanupMode === 'anonymize';
+  const keptMs = retention.ttlSeconds * 1000;
+  const days = keepsAll ? MAX_WINDOW_DAYS : Math.min(MAX_WINDOW_DAYS, Math.floor(keptMs / DAY_MS));
+  if (days >= 2) {
+    return {
+      unit: 'day',
+      starts: lastDays(days, now),
+      label: `${days} days`,
+      limitedByRetention: days < MAX_WINDOW_DAYS,
+    };
+  }
+  const hours = Math.max(1, Math.min(24, Math.floor(keptMs / HOUR_MS)));
+  return {
+    unit: 'hour',
+    starts: lastHours(hours, now),
+    label: hours === 1 ? 'hour' : `${hours} hours`,
+    limitedByRetention: true,
+  };
+}
+
+/** Session counts of the sessions created in one bucket of the activity window. */
+export interface BucketStats {
+  start: Date;
+  stats: SessionStatsResponseDto;
+}
+
+/** Outcome of the sessions created in one bucket; not completed covers expired, cancelled and open ones. */
+export interface ActivityBucket {
+  start: Date;
+  total: number;
+  completed: number;
+  failed: number;
+  notCompleted: number;
+}
 
 export interface DashboardWarning {
   message: string;
@@ -67,7 +137,7 @@ export class DashboardService {
   credentialConfigs = 0;
   presentationConfigs = 0;
   /** Only holds the session types the user may read. */
-  sessionStats: SessionStatsResponseDto = {};
+  sessionStats: Partial<SessionStatsResponseDto> = {};
   totalKeyChains = 0;
   accessKeyChains = 0;
   /** The access key chain whose certificate needs attention, or the one in use. */
@@ -82,6 +152,16 @@ export class DashboardService {
   hasRegistrarConfig = false;
   hasIssuanceConfig = false;
   recentSessions: Session[] = [];
+  /** The window of the activity chart and the window KPIs, once the retention is known. */
+  activity: ActivityWindow | null = null;
+  /** Session counts per bucket of the activity window, oldest first. */
+  bucketStats: BucketStats[] = [];
+  /**
+   * Session counts of the whole window. The KPIs link to the session list from the
+   * window's first day, since the list filters by day.
+   */
+  windowStats: Partial<SessionStatsResponseDto> = {};
+  kmsProviders: ProviderHealthResponseDto[] = [];
   isLoading = true;
   /** When the last load finished. */
   lastUpdatedAt: Date | null = null;
@@ -132,7 +212,8 @@ export class DashboardService {
 
     // Sessions require issuance:offer OR presentation:request
     if (this.canViewSessions) {
-      promises.push(sessionControllerGetSessionStats());
+      const allStats = sessionControllerGetSessionStats();
+      promises.push(allStats);
       promiseKeys.push('sessionStats');
       promises.push(
         sessionControllerGetAllSessions({
@@ -140,6 +221,30 @@ export class DashboardService {
         })
       );
       promiseKeys.push('recentSessions');
+      // The window depends on the retention that comes with the counts.
+      const window = allStats.then(({ data }) => activityWindow(data.retention));
+      promises.push(
+        window.then(async (activity) => ({
+          data: { activity, buckets: await this.loadBucketStats(activity) },
+        }))
+      );
+      promiseKeys.push('activity');
+      // Carries the window too, so labels and links keep it when a bucket request fails.
+      promises.push(
+        window.then(async (activity) => {
+          const { data } = await sessionControllerGetSessionStats({
+            query: { createdFrom: activity.starts[0].toISOString() },
+          });
+          return { data: { activity, stats: data } };
+        })
+      );
+      promiseKeys.push('window');
+    }
+
+    // KMS health requires issuance:manage OR presentation:manage, like key chains
+    if (this.canManageKeyChains) {
+      promises.push(keyChainControllerGetProvidersHealth());
+      promiseKeys.push('kmsHealth');
     }
 
     if (this.canManageRegistrar) {
@@ -256,6 +361,75 @@ export class DashboardService {
 
   get lastSuccessfulPresentationAt(): string | null {
     return this.sessionStats.presentation?.lastCompletedAt ?? null;
+  }
+
+  /** Sessions still waiting for the wallet, over all days; "pending" in the session list. */
+  get pendingSessions(): number {
+    return this.sessionActive + this.sessionFetched;
+  }
+
+  get activityBuckets(): ActivityBucket[] {
+    return this.bucketStats.map(({ start, stats }) => {
+      const types = [stats.issuance, stats.presentation].filter((type) => !!type);
+      const sum = (read: (type: (typeof types)[number]) => number) =>
+        types.reduce((total, type) => total + read(type), 0);
+      const total = sum((type) => type.total);
+      const completed = sum((type) => type.byStatus.completed);
+      const failed = sum((type) => type.byStatus.failed);
+      return { start, total, completed, failed, notCompleted: total - completed - failed };
+    });
+  }
+
+  /** Sessions created in the current day or hour of the window. */
+  get sessionsInCurrentBucket(): number {
+    return this.activityBuckets.at(-1)?.total ?? 0;
+  }
+
+  private get windowTypes() {
+    return [this.windowStats.issuance, this.windowStats.presentation].filter((type) => !!type);
+  }
+
+  private countInWindow(status: keyof SessionStatusCountsDto): number {
+    return this.windowTypes.reduce((total, type) => total + type.byStatus[status], 0);
+  }
+
+  get sessionsInWindow(): number {
+    return this.windowTypes.reduce((total, type) => total + type.total, 0);
+  }
+
+  get failedInWindow(): number {
+    return this.countInWindow('failed');
+  }
+
+  /** Sessions of the window that reached completed, failed or expired. */
+  get finishedInWindow(): number {
+    return (
+      this.countInWindow('completed') + this.countInWindow('failed') + this.countInWindow('expired')
+    );
+  }
+
+  /** Completed share of the window's finished sessions, or null when none finished. */
+  get successRate(): number | null {
+    const finished = this.finishedInWindow;
+    return finished === 0 ? null : this.countInWindow('completed') / finished;
+  }
+
+  /** The window's most frequent failure codes over both session types. */
+  get topFailureCodes(): { code: string; count: number }[] {
+    const counts = new Map<string, number>();
+    for (const type of this.windowTypes) {
+      for (const { code, count } of type.failureCodes) {
+        counts.set(code, (counts.get(code) ?? 0) + count);
+      }
+    }
+    return [...counts]
+      .map(([code, count]) => ({ code, count }))
+      .sort((left, right) => right.count - left.count || left.code.localeCompare(right.code))
+      .slice(0, TOP_FAILURE_CODES);
+  }
+
+  get unhealthyKmsProviders(): ProviderHealthResponseDto[] {
+    return this.kmsProviders.filter((provider) => !provider.ok);
   }
 
   /** At least one health signal of the operational health card applies to the user. */
@@ -408,6 +582,8 @@ export class DashboardService {
   get warnings(): DashboardWarning[] {
     const warnings: DashboardWarning[] = [];
     for (const [source, reason] of this.failedSources) {
+      // Activity and window build on the session counts; their failure is the same one.
+      if (DERIVED_FROM_STATS.has(source) && this.hasFailed('sessionStats')) continue;
       const detail = apiErrorDetail(reason);
       warnings.push({
         message: detail
@@ -420,6 +596,13 @@ export class DashboardService {
     const certificateWarning = this.accessCertificateWarning;
     if (certificateWarning) {
       warnings.push(certificateWarning);
+    }
+
+    for (const provider of this.unhealthyKmsProviders) {
+      warnings.push({
+        message: `KMS provider ${provider.providerId} is not reachable${provider.error ? `: ${provider.error}` : '.'}`,
+        action: { label: 'Open KMS Providers', route: ['/kms'] },
+      });
     }
 
     if (this.canManagePresentation && this.isLoaded('trustLists') && !this.hasTrustList) {
@@ -478,6 +661,28 @@ export class DashboardService {
     this.presentationConfigs = 0;
     this.hasIssuanceConfig = false;
     this.recentSessions = [];
+    this.activity = null;
+    this.bucketStats = [];
+    this.windowStats = {};
+    this.kmsProviders = [];
+  }
+
+  /** One stats request per bucket, so day boundaries follow the browser's time zone. */
+  private loadBucketStats(activity: ActivityWindow): Promise<BucketStats[]> {
+    return Promise.all(
+      activity.starts.map(async (start) => {
+        const next = new Date(start);
+        if (activity.unit === 'day') next.setDate(next.getDate() + 1);
+        else next.setHours(next.getHours() + 1);
+        const { data } = await sessionControllerGetSessionStats({
+          query: {
+            createdFrom: start.toISOString(),
+            createdTo: new Date(next.getTime() - 1).toISOString(),
+          },
+        });
+        return { start, stats: data };
+      })
+    );
   }
 
   private apply(source: DashboardSource, data: any): void {
@@ -493,6 +698,17 @@ export class DashboardService {
         break;
       case 'recentSessions':
         this.recentSessions = data.items;
+        break;
+      case 'activity':
+        this.activity = data.activity;
+        this.bucketStats = data.buckets;
+        break;
+      case 'window':
+        this.activity = data.activity;
+        this.windowStats = data.stats;
+        break;
+      case 'kmsHealth':
+        this.kmsProviders = data;
         break;
       case 'keyChains':
         this.totalKeyChains = data.filter(

@@ -3,7 +3,7 @@ import { client } from '@eudiplo/sdk-core';
 import { vi } from 'vitest';
 
 import { JwtService } from '../services/jwt.service';
-import { DashboardService } from './dashboard.service';
+import { activityWindow, DashboardService } from './dashboard.service';
 
 const statusCounts = (counts: Record<string, number> = {}) => ({
   active: 0,
@@ -32,6 +32,9 @@ const issuanceSetUp = {
   '/api/issuer/config': { id: 'config' },
 };
 
+/** Sessions kept long enough for a full week of activity. */
+const twoWeeks = { ttlSeconds: 14 * 86_400, cleanupMode: 'full' };
+
 describe('DashboardService', () => {
   let roles: string[];
   let responses: Record<string, unknown>;
@@ -43,8 +46,12 @@ describe('DashboardService', () => {
   const messages = () => service.warnings.map((warning) => warning.message);
 
   beforeEach(() => {
+    // Day and hour boundaries must not move while a test runs.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 9, 11, 15, 30));
     roles = [];
-    responses = {};
+    // Every key chain manager also loads the KMS health; answer it unless a test overrides it.
+    responses = { '/api/key-chain/providers/health': [] };
     failures = {};
     requests = [];
     client.setConfig({
@@ -52,7 +59,11 @@ describe('DashboardService', () => {
       fetch: vi.fn<typeof fetch>(async (input) => {
         const url = new URL(input instanceof Request ? input.url : String(input));
         requests.push(url.pathname + url.search);
-        const body = responses[url.pathname];
+        let body = responses[url.pathname];
+        // Stats always report the retention; tests that do not care keep two weeks.
+        if (url.pathname === '/api/session/stats' && body && !('retention' in (body as object))) {
+          body = { ...(body as object), retention: twoWeeks };
+        }
         const status = body === undefined ? (failures[url.pathname] ?? 404) : 200;
         return new Response(JSON.stringify(status === 200 ? body : { statusCode: status }), {
           status,
@@ -76,6 +87,7 @@ describe('DashboardService', () => {
 
   afterEach(() => {
     client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+    vi.useRealTimers();
   });
 
   it('counts sessions of every status and page from the stats endpoint', async () => {
@@ -85,11 +97,13 @@ describe('DashboardService', () => {
       issuance: {
         total: 30,
         byStatus: statusCounts({ active: 20, cancelled: 10 }),
+        failureCodes: [],
         lastCompletedAt: null,
       },
       presentation: {
         total: 5,
         byStatus: statusCounts({ completed: 5 }),
+        failureCodes: [],
         lastCompletedAt: '2026-10-10T08:00:00.000Z',
       },
     };
@@ -118,13 +132,19 @@ describe('DashboardService', () => {
   it('raises no access certificate warning for users who cannot read key chains', async () => {
     roles = ['issuance:offer'];
     responses['/api/session/stats'] = {
-      issuance: { total: 1, byStatus: statusCounts({ active: 1 }), lastCompletedAt: null },
+      issuance: {
+        total: 1,
+        byStatus: statusCounts({ active: 1 }),
+        failureCodes: [],
+        lastCompletedAt: null,
+      },
     };
     responses['/api/session'] = { items: [], total: 1, page: 1, pageSize: 5, totalPages: 1 };
 
     await service.getCounters();
 
     expect(requests).not.toContain('/api/key-chain');
+    expect(requests).not.toContain('/api/key-chain/providers/health');
     expect(service.warnings).toEqual([]);
     expect(service.hasHealthSignals).toBe(true);
   });
@@ -139,6 +159,8 @@ describe('DashboardService', () => {
     expect(service.hasFailed('sessionStats')).toBe(true);
     expect(service.isLoaded('sessionStats')).toBe(false);
     expect(service.hasFailed('recentSessions')).toBe(true);
+    // The activity builds on the session counts, so its failure is not reported twice.
+    expect(service.hasFailed('activity')).toBe(true);
     expect(service.warnings).toEqual([
       { message: 'Could not load session counts.', retry: true },
       { message: 'Could not load recent sessions.', retry: true },
@@ -448,5 +470,196 @@ describe('DashboardService', () => {
     expect(service.hasFailed('keyChains')).toBe(true);
     expect(service.isLoaded('credentials')).toBe(true);
     expect(service.isLoading).toBe(false);
+  });
+
+  it.each([
+    ['anonymized sessions', 3_600, 'anonymize', 'day', 7, '7 days', false],
+    ['two weeks', 14 * 86_400, 'full', 'day', 7, '7 days', false],
+    ['three days', 3 * 86_400, 'full', 'day', 3, '3 days', true],
+    ['two days', 2 * 86_400, 'full', 'day', 2, '2 days', true],
+    ['just under two days', 2 * 86_400 - 1, 'full', 'hour', 24, '24 hours', true],
+    ['a day', 86_400, 'full', 'hour', 24, '24 hours', true],
+    ['two hours', 7_200, 'full', 'hour', 2, '2 hours', true],
+    ['a minute', 60, 'full', 'hour', 1, 'hour', true],
+  ] as const)(
+    'fits the activity window to sessions kept for %s',
+    (_, ttlSeconds, cleanupMode, unit, buckets, label, limitedByRetention) => {
+      const window = activityWindow({ ttlSeconds, cleanupMode });
+
+      expect(window).toMatchObject({ unit, label, limitedByRetention });
+      expect(window.starts).toHaveLength(buckets);
+      expect(window.starts.at(-1)).toEqual(
+        unit === 'day' ? new Date(2026, 9, 11) : new Date(2026, 9, 11, 15)
+      );
+    }
+  );
+
+  describe('session activity', () => {
+    /** createdFrom and createdTo of every stats request, in request order. */
+    let ranges: [string | null, string | null][];
+    let bucketBodies: Map<string, object>;
+    let windowBody: object;
+    let allTime: object;
+
+    const counts = (
+      type: 'issuance' | 'presentation',
+      byStatus: Record<string, number>,
+      failureCodes: object[] = []
+    ) => ({
+      [type]: {
+        total: Object.values(byStatus).reduce((sum, count) => sum + count, 0),
+        byStatus: statusCounts(byStatus),
+        failureCodes,
+        lastCompletedAt: null,
+      },
+    });
+
+    beforeEach(() => {
+      roles = ['issuance:offer', 'presentation:request'];
+      responses['/api/verifier/config'] = [];
+      responses['/api/session'] = { items: [], total: 0, page: 1, pageSize: 5, totalPages: 0 };
+      ranges = [];
+      bucketBodies = new Map();
+      windowBody = {};
+      allTime = { ...counts('presentation', { active: 2, fetched: 1 }), retention: twoWeeks };
+      const fetchImpl = client.getConfig().fetch!;
+      client.setConfig({
+        fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+          const url = new URL(input instanceof Request ? input.url : String(input));
+          if (url.pathname !== '/api/session/stats') return fetchImpl(input, init);
+          const from = url.searchParams.get('createdFrom');
+          const to = url.searchParams.get('createdTo');
+          ranges.push([from, to]);
+          const body = !from ? allTime : to ? (bucketBodies.get(from) ?? {}) : windowBody;
+          return new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        },
+      });
+    });
+
+    it('asks for each day of the week, back to back, and the whole week once', async () => {
+      await service.getCounters();
+
+      const buckets = ranges.filter(([, to]) => to !== null);
+      expect(buckets).toHaveLength(7);
+      expect(buckets[0][0]).toBe(new Date(2026, 9, 5).toISOString());
+      buckets.forEach(([, to], index) => {
+        const next = buckets[index + 1]?.[0] ?? new Date(2026, 9, 12).toISOString();
+        expect(new Date(to!).getTime()).toBe(new Date(next).getTime() - 1);
+      });
+      expect(ranges).toContainEqual([new Date(2026, 9, 5).toISOString(), null]);
+      expect(service.activity?.label).toBe('7 days');
+    });
+
+    it('uses hours when sessions are deleted after a day', async () => {
+      allTime = { ...allTime, retention: { ttlSeconds: 86_400, cleanupMode: 'full' } };
+
+      await service.getCounters();
+
+      const buckets = ranges.filter(([, to]) => to !== null);
+      expect(buckets).toHaveLength(24);
+      expect(buckets.at(-1)).toEqual([
+        new Date(2026, 9, 11, 15).toISOString(),
+        new Date(2026, 9, 11, 15, 59, 59, 999).toISOString(),
+      ]);
+      expect(service.activity).toMatchObject({ unit: 'hour', label: '24 hours' });
+    });
+
+    it('takes the KPIs from the whole window and the chart from the buckets', async () => {
+      const today = new Date(2026, 9, 11).toISOString();
+      bucketBodies.set(today, counts('presentation', { completed: 3, failed: 1, active: 1 }));
+      windowBody = {
+        ...counts('presentation', { completed: 6, failed: 3, expired: 1, active: 2 }, [
+          { code: 'invalid_proof', count: 2 },
+          { code: 'access_denied', count: 1 },
+          { code: 'b_code', count: 1 },
+          { code: 'c_code', count: 1 },
+          { code: 'd_code', count: 1 },
+        ]),
+        ...counts('issuance', { failed: 1 }, [{ code: 'access_denied', count: 1 }]),
+      };
+
+      await service.getCounters();
+
+      expect(service.sessionsInWindow).toBe(13);
+      expect(service.failedInWindow).toBe(4);
+      expect(service.finishedInWindow).toBe(11);
+      expect(service.successRate).toBeCloseTo(6 / 11);
+      // The same code of both types adds up; five codes at most.
+      expect(service.topFailureCodes).toEqual([
+        { code: 'access_denied', count: 2 },
+        { code: 'invalid_proof', count: 2 },
+        { code: 'b_code', count: 1 },
+        { code: 'c_code', count: 1 },
+        { code: 'd_code', count: 1 },
+      ]);
+      expect(service.sessionsInCurrentBucket).toBe(5);
+      expect(service.activityBuckets.at(-1)).toMatchObject({
+        total: 5,
+        completed: 3,
+        failed: 1,
+        notCompleted: 1,
+      });
+      expect(service.activityBuckets.slice(0, 6).map((bucket) => bucket.total)).toEqual([
+        0, 0, 0, 0, 0, 0,
+      ]);
+      // Pending sessions count over everything that is stored.
+      expect(service.pendingSessions).toBe(3);
+    });
+
+    it('keeps the window for labels and links when a bucket request fails', async () => {
+      const fetchImpl = client.getConfig().fetch!;
+      client.setConfig({
+        fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+          const url = new URL(input instanceof Request ? input.url : String(input));
+          return url.searchParams.has('createdTo')
+            ? new Response(JSON.stringify({ statusCode: 503 }), {
+                status: 503,
+                headers: { 'Content-Type': 'application/json' },
+              })
+            : fetchImpl(input, init);
+        },
+      });
+
+      await service.getCounters();
+
+      expect(service.hasFailed('activity')).toBe(true);
+      expect(service.isLoaded('window')).toBe(true);
+      expect(service.activity?.label).toBe('7 days');
+      expect(service.warnings.map((warning) => warning.message)).toEqual([
+        'Could not load session activity.',
+      ]);
+    });
+
+    it('reports no success rate while no session of the window finished', async () => {
+      windowBody = counts('presentation', { active: 2 });
+
+      await service.getCounters();
+
+      expect(service.finishedInWindow).toBe(0);
+      expect(service.successRate).toBeNull();
+    });
+  });
+
+  it('warns about an unreachable KMS provider', async () => {
+    roles = ['issuance:manage'];
+    Object.assign(responses, issuanceSetUp, {
+      '/api/key-chain/providers/health': [
+        { providerId: 'db', type: 'db', ok: true },
+        { providerId: 'vault', type: 'vault', ok: false, error: 'connection refused' },
+      ],
+    });
+
+    await service.getCounters();
+
+    expect(service.unhealthyKmsProviders.map((provider) => provider.providerId)).toEqual(['vault']);
+    expect(service.warnings).toEqual([
+      {
+        message: 'KMS provider vault is not reachable: connection refused',
+        action: { label: 'Open KMS Providers', route: ['/kms'] },
+      },
+    ]);
   });
 });
