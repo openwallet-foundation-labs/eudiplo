@@ -38,84 +38,105 @@ export function appliedKmsProvider(spec: Spec): string | undefined {
 
 /** What applying an internal chain with private keys would reject or drop. */
 export function internalChainProblems(spec: Spec): InternalChainProblem[] {
-    const problems: InternalChainProblem[] = [];
-    const problem = (code: string, path: string, message: string) =>
-        problems.push({ code, path, message });
-    if (spec.kmsProvider !== undefined && spec.kmsProvider !== "db") {
-        problem(
-            "INVALID_KMS_PROVIDER",
-            "/spec/kmsProvider",
-            "An internal chain with private keys is stored in the database. Omit kmsProvider or set it to db.",
-        );
-    }
     const rootKey = privateKey(spec.keySource?.jwk);
-    if (!rootKey) {
-        problem(
-            "INVALID_PRIVATE_KEY",
-            "/spec/keySource/jwk",
-            "keySource.jwk is not a valid private key.",
-        );
-    }
     const activeKey = privateKey(spec.keySource?.activeJwk);
-    if (!activeKey) {
-        problem(
-            "INVALID_PRIVATE_KEY",
-            "/spec/keySource/activeJwk",
-            "keySource.activeJwk is not a valid private key.",
-        );
+    const problems: Array<InternalChainProblem | undefined> = [
+        spec.kmsProvider === undefined || spec.kmsProvider === "db"
+            ? undefined
+            : {
+                  code: "INVALID_KMS_PROVIDER",
+                  path: "/spec/kmsProvider",
+                  message:
+                      "An internal chain with private keys is stored in the database. Omit kmsProvider or set it to db.",
+              },
+        rootKey
+            ? undefined
+            : {
+                  code: "INVALID_PRIVATE_KEY",
+                  path: "/spec/keySource/jwk",
+                  message: "keySource.jwk is not a valid private key.",
+              },
+        activeKey
+            ? undefined
+            : {
+                  code: "INVALID_PRIVATE_KEY",
+                  path: "/spec/keySource/activeJwk",
+                  message: "keySource.activeJwk is not a valid private key.",
+              },
+        rootCertificateProblem(spec.crt, rootKey),
+        activeCertificateProblem(spec.activeCertificate, activeKey),
+    ];
+    return problems.filter((problem) => problem !== undefined);
+}
+
+function rootCertificateProblem(
+    crt: unknown,
+    rootKey: KeyObject | undefined,
+): InternalChainProblem | undefined {
+    if (!Array.isArray(crt) || crt.length !== 1) {
+        return {
+            code: "ROOT_CERTIFICATE_REQUIRED",
+            path: "/spec/crt",
+            message:
+                "crt must contain exactly one certificate: the root CA certificate of keySource.jwk.",
+        };
     }
-    if (!Array.isArray(spec.crt) || spec.crt.length !== 1) {
-        problem(
-            "ROOT_CERTIFICATE_REQUIRED",
-            "/spec/crt",
-            "crt must contain exactly one certificate: the root CA certificate of keySource.jwk.",
-        );
-    } else {
-        const root = certificate(spec.crt[0]);
-        if (!root) {
-            problem(
-                "INVALID_CERTIFICATE",
-                "/spec/crt/0",
-                "The root CA certificate is not a PEM certificate.",
-            );
-        } else if (!root.ca) {
-            // Rotation signs new signing certificates with the root.
-            problem(
-                "ROOT_CERTIFICATE_NOT_CA",
-                "/spec/crt/0",
+    const root = certificate(crt[0]);
+    if (!root) {
+        return {
+            code: "INVALID_CERTIFICATE",
+            path: "/spec/crt/0",
+            message: "The root CA certificate is not a PEM certificate.",
+        };
+    }
+    // Rotation signs new signing certificates with the root.
+    if (!root.ca) {
+        return {
+            code: "ROOT_CERTIFICATE_NOT_CA",
+            path: "/spec/crt/0",
+            message:
                 "The root certificate must be a CA certificate (basicConstraints CA=true).",
-            );
-        } else if (rootKey && !belongsTo(root, rootKey)) {
-            problem(
-                "CERTIFICATE_KEY_MISMATCH",
-                "/spec/crt/0",
+        };
+    }
+    if (rootKey && !belongsTo(root, rootKey)) {
+        return {
+            code: "CERTIFICATE_KEY_MISMATCH",
+            path: "/spec/crt/0",
+            message:
                 "The root CA certificate does not belong to keySource.jwk.",
-            );
-        }
+        };
     }
-    if (!spec.activeCertificate) {
-        problem(
-            "ACTIVE_CERTIFICATE_REQUIRED",
-            "/spec/activeCertificate",
-            "activeCertificate is required with keySource.activeJwk.",
-        );
-    } else {
-        const active = certificate(spec.activeCertificate);
-        if (!active) {
-            problem(
-                "INVALID_CERTIFICATE",
-                "/spec/activeCertificate",
-                "activeCertificate does not start with a PEM certificate.",
-            );
-        } else if (activeKey && !belongsTo(active, activeKey)) {
-            problem(
-                "CERTIFICATE_KEY_MISMATCH",
-                "/spec/activeCertificate",
+    return undefined;
+}
+
+function activeCertificateProblem(
+    activeCertificate: unknown,
+    activeKey: KeyObject | undefined,
+): InternalChainProblem | undefined {
+    if (!activeCertificate) {
+        return {
+            code: "ACTIVE_CERTIFICATE_REQUIRED",
+            path: "/spec/activeCertificate",
+            message: "activeCertificate is required with keySource.activeJwk.",
+        };
+    }
+    const active = certificate(activeCertificate);
+    if (!active) {
+        return {
+            code: "INVALID_CERTIFICATE",
+            path: "/spec/activeCertificate",
+            message: "activeCertificate does not start with a PEM certificate.",
+        };
+    }
+    if (activeKey && !belongsTo(active, activeKey)) {
+        return {
+            code: "CERTIFICATE_KEY_MISMATCH",
+            path: "/spec/activeCertificate",
+            message:
                 "The first certificate in activeCertificate does not belong to keySource.activeJwk.",
-            );
-        }
+        };
     }
-    return problems;
+    return undefined;
 }
 
 function privateKey(jwk: unknown): KeyObject | undefined {
