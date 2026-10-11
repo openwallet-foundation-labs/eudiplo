@@ -31,7 +31,7 @@ describe('AppComponent', () => {
 });
 
 describe('AppComponent navigation', () => {
-  function menuItems(roles: Role[]): string[] {
+  function renderNav(roles: Role[]): HTMLElement {
     TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
@@ -48,9 +48,12 @@ describe('AppComponent navigation', () => {
     });
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function menuItems(roles: Role[]): string[] {
     return Array.from(
-      element.querySelectorAll('mat-sidenav [matListItemTitle]'),
+      renderNav(roles).querySelectorAll('mat-sidenav [matListItemTitle]'),
       (item) => item.textContent?.trim() ?? ''
     );
   }
@@ -61,6 +64,29 @@ describe('AppComponent navigation', () => {
     ['issuance and verification', ['issuance:manage', 'presentation:manage']],
   ])('lists Webhook Endpoints once for %s admins', (_, roles) => {
     expect(menuItems(roles).filter((item) => item === 'Webhook Endpoints')).toHaveLength(1);
+  });
+
+  // Matches the route guard in session-management.routes.ts and the backend session controllers.
+  it.each<[Role[], string[]]>([
+    [['issuance:manage'], ['Session Settings']],
+    [['presentation:manage'], ['Session Settings']],
+    [['issuance:offer'], ['All Sessions']],
+    [
+      ['presentation:request', 'presentation:manage'],
+      ['All Sessions', 'Session Settings'],
+    ],
+  ])('lists the session entries for %j', (roles, entries) => {
+    expect(
+      menuItems(roles).filter((item) => ['All Sessions', 'Session Settings'].includes(item))
+    ).toEqual(entries);
+  });
+
+  it.each<[Role[], boolean]>([
+    [['presentation:manage'], true],
+    [['clients:manage'], false],
+  ])('shows the Sessions header for %j: %s', (roles, shown) => {
+    const header = renderNav(roles).querySelector('button[aria-controls="nav-section-sessions"]');
+    expect(header !== null).toBe(shown);
   });
 
   it('hides Webhook Endpoints from clients that cannot manage them', () => {
