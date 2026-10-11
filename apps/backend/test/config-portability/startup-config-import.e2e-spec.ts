@@ -29,8 +29,12 @@ import { ConfigBundleApplyService } from "../../src/platform/config-portability/
 import { ConfigBundleArchiveService } from "../../src/platform/config-portability/config-bundle-archive.service.js";
 import { ConfigFolderBundleService } from "../../src/platform/config-portability/config-folder-bundle.service.js";
 import { ConfigOwnershipService } from "../../src/platform/config-portability/config-ownership.service.js";
-import type { ConfigImportPlan } from "../../src/platform/config-portability/config-resource.types.js";
+import type {
+    ConfigBundle,
+    ConfigImportPlan,
+} from "../../src/platform/config-portability/config-resource.types.js";
 import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
+import { RegistrarConfigEntity } from "../../src/registrar/entities/registrar-config.entity.js";
 
 describe("startup configuration reconciliation", () => {
     let app: INestApplication;
@@ -171,6 +175,104 @@ describe("startup configuration reconciliation", () => {
             .expect((response) => {
                 expect(response.body.message).toContain("tenant:manage");
             });
+    });
+
+    it("exports resources created without a description as a bundle that passes its own schema validation", async () => {
+        const appConfig = app.get(ConfigService);
+        const bootstrap = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: appConfig.getOrThrow<string>("AUTH_CLIENT_ID"),
+                client_secret:
+                    appConfig.getOrThrow<string>("AUTH_CLIENT_SECRET"),
+            })
+            .expect(201);
+        const tenantId = "export-without-description";
+        const tenant = await request(app.getHttpServer())
+            .post("/tenant")
+            .set("Authorization", `Bearer ${bootstrap.body.access_token}`)
+            .send({
+                id: tenantId,
+                name: "Export without description",
+                roles: ["tenant:admin", "issuance:manage"],
+            })
+            .expect(201);
+        const token = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: tenant.body.client.clientId,
+                client_secret: tenant.body.client.clientSecret,
+            })
+            .expect(201);
+        const authorization = `Bearer ${token.body.access_token}`;
+        await request(app.getHttpServer())
+            .post("/client")
+            .set("Authorization", authorization)
+            .send({ clientId: "no-description", roles: ["issuance:offer"] })
+            .expect(201);
+        const issuerKeyChain = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", authorization)
+            .send({ usageType: "attestation", type: "standalone" })
+            .expect(201);
+        const signerKeyChain = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", authorization)
+            .send({ usageType: "trustList", type: "standalone" })
+            .expect(201);
+        const trustList = await request(app.getHttpServer())
+            .post("/trust-list")
+            .set("Authorization", authorization)
+            .send({
+                keyChainId: signerKeyChain.body.id,
+                entities: [
+                    {
+                        type: "internal",
+                        issuerKeyChainId: issuerKeyChain.body.id,
+                        revocationKeyChainId: issuerKeyChain.body.id,
+                        info: { name: "Issuer" },
+                    },
+                ],
+            })
+            .expect(201);
+        const created = new Set([
+            "Tenant/tenant",
+            "Client/no-description",
+            `KeyChain/${issuerKeyChain.body.id}`,
+            `KeyChain/${signerKeyChain.body.id}`,
+            `TrustList/${trustList.body.id}`,
+        ]);
+
+        const service = app.get(ConfigBundleService);
+        const bundle = await service.exportBundle(tenantId);
+        const exported = bundle.documents.filter((document) =>
+            created.has(
+                `${normalizeDocument(document).kind}/${resourceId(document)}`,
+            ),
+        );
+        expect(exported).toHaveLength(created.size);
+        for (const document of exported) {
+            expect(document.spec).not.toHaveProperty("description");
+        }
+        const plan = await service.plan(tenantId, bundle, "upsert");
+        expect(
+            plan.issues.filter(
+                (issue) => issue.code === "CONFIG_SCHEMA_VALIDATION_FAILED",
+            ),
+            JSON.stringify(plan.issues, null, 2),
+        ).toEqual([]);
+        // Client and key chains are blocked on their secret and private key
+        // requirements, so only these two reach the comparison.
+        expect(
+            plan.items
+                .filter((item) => ["Tenant", "TrustList"].includes(item.kind))
+                .map(({ kind, action }) => ({ kind, action })),
+        ).toEqual([
+            { kind: "Tenant", action: "unchanged" },
+            { kind: "TrustList", action: "unchanged" },
+        ]);
     });
 
     it("imports the demo folder through the versioned plan/apply pipeline", async () => {
@@ -667,7 +769,123 @@ describe("startup configuration reconciliation", () => {
             folder.planReattach("haip", "WebhookEndpoint", "missing"),
         ).rejects.toThrow("is not defined in the config folder");
     });
+
+    it("applies a registrar configuration without contacting the registrar and removes omitted optional fields", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const registrars = dataSource.getRepository(RegistrarConfigEntity);
+        // Unresolvable hosts: a credential check would fail the apply with 503.
+        const spec = {
+            registrarUrl: "https://registrar.example.invalid/api",
+            oidcUrl: "https://auth.example.invalid/realms/registrar",
+            clientId: "client",
+            username: "user",
+            password: "password",
+        };
+        const defaults = { privacy_policy: "https://rp.example/privacy" };
+        const registrarItem = (plan: ConfigImportPlan) =>
+            plan.items.find((item) => item.kind === "RegistrarConfig");
+
+        try {
+            const full = registrarBundle({
+                ...spec,
+                clientSecret: "client-secret",
+                registrationCertificateDefaults: defaults,
+            });
+            expect(
+                registrarItem(await service.plan("demo", full, "upsert"))
+                    ?.action,
+            ).toBe("create");
+            await apply.apply("demo", full, "upsert");
+            expect(
+                await registrars.findOneByOrFail({ tenantId: "demo" }),
+            ).toMatchObject({
+                registrarUrl: spec.registrarUrl,
+                clientSecret: "client-secret",
+                registrationCertificateDefaults: defaults,
+            });
+            expect(
+                registrarItem(await service.plan("demo", full, "upsert"))
+                    ?.action,
+            ).toBe("unchanged");
+
+            const minimal = registrarBundle(spec);
+            const replacement = registrarItem(
+                await service.plan("demo", minimal, "upsert"),
+            );
+            expect(replacement?.action).toBe("update");
+            expect(replacement?.changes?.map((change) => change.path)).toEqual([
+                "/spec/clientSecret",
+                "/spec/registrationCertificateDefaults/privacy_policy",
+            ]);
+            await apply.apply("demo", minimal, "upsert");
+            expect(
+                await registrars.findOneByOrFail({ tenantId: "demo" }),
+            ).toMatchObject({
+                clientSecret: null,
+                registrationCertificateDefaults: null,
+            });
+            expect(
+                registrarItem(await service.plan("demo", minimal, "upsert"))
+                    ?.action,
+            ).toBe("unchanged");
+
+            const exported = await service.exportBundle("demo");
+            expect(
+                exported.manifest.requirements
+                    .filter(
+                        (requirement) =>
+                            requirement.resource?.kind === "RegistrarConfig",
+                    )
+                    .map((requirement) => requirement.path),
+            ).toEqual(["/spec/password"]);
+        } finally {
+            await registrars.delete({ tenantId: "demo" });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "RegistrarConfig",
+                });
+        }
+    });
 });
+
+function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
+    const document = {
+        $schema: schemaUrl("RegistrarConfig"),
+        metadata: { generation: 1 },
+        spec,
+    };
+    return {
+        manifest: {
+            format: "eudiplo.config-bundle",
+            formatVersion: 2,
+            sourceVersion: "registrar-import",
+            exportedAt: new Date(0).toISOString(),
+            tenant: "demo",
+            resources: [
+                {
+                    kind: "RegistrarConfig",
+                    id: "registrar",
+                    $schema: document.$schema,
+                    path: "registrar.json",
+                    sha256: createHash("sha256")
+                        .update(JSON.stringify(document))
+                        .digest("hex"),
+                    ownership: "unmanaged",
+                    generation: 1,
+                },
+            ],
+            assets: [],
+            requirements: [],
+            warnings: [],
+        },
+        documents: [document],
+        assets: [],
+    } as ConfigBundle;
+}
 
 function restoreEnvironment(key: string, value: string | undefined): void {
     if (value === undefined) {

@@ -54,7 +54,7 @@ EUDIPLO publishes the signed JWT at `GET /issuers/{tenantId}/trust-list/{id}` wi
 | Version history            | `GET /api/trust-list/{id}/versions`, `GET /api/trust-list/{id}/versions/{versionId}`             |
 | List, read, export, delete | `GET /api/trust-list`, `GET /api/trust-list/{id}`, `GET /api/trust-list/{id}/export`, `DELETE /api/trust-list/{id}` |
 
-To manage lists as files, put the same JSON into `config/<tenant>/trust-lists/` ([Configuration as Code](../operate/configuration-as-code.md)).
+To manage lists as files, put the same JSON into `config/<tenant>/trust-lists/` ([Configuration as Code](../operate/configuration-as-code.md)). `GET /api/trust-list/{id}/export` returns a list in this format.
 
 ### Validity and renewal
 

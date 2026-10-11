@@ -273,6 +273,36 @@ describe("reviewed plans and replacement failures", () => {
         expect(service.repos.keyChains.delete).not.toHaveBeenCalled();
         expect(service.repos.keyChains.save).not.toHaveBeenCalled();
     });
+    it("replaces a registrar configuration without checking its credentials", async () => {
+        const service = Object.create(
+            ConfigBundleApplyService.prototype,
+        ) as any;
+        service.registrarConfigService = {
+            saveConfig: vi.fn(),
+            replaceConfig: vi.fn(),
+        };
+        const spec = {
+            registrarUrl: "https://registrar.example/api",
+            oidcUrl: "https://auth.example/realms/registrar",
+            clientId: "client",
+            username: "user",
+            password: "password",
+        };
+
+        await service.applyDocument("tenant", {
+            $schema: schemaUrl("RegistrarConfig"),
+            kind: "RegistrarConfig",
+            metadata: {},
+            spec,
+        });
+
+        expect(
+            service.registrarConfigService.replaceConfig,
+        ).toHaveBeenCalledWith("tenant", spec);
+        expect(
+            service.registrarConfigService.saveConfig,
+        ).not.toHaveBeenCalled();
+    });
     it("uploads only assets marked as changed by the plan", async () => {
         const { service, bundle, plan } = setupApply([]);
         bundle.assets = [
