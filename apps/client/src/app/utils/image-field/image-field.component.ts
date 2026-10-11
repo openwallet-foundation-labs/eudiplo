@@ -13,6 +13,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { storageControllerUpload } from '@eudiplo/sdk-core';
 import { MatButtonModule } from '@angular/material/button';
+import { getApiErrorMessage } from '../error-message';
+import { openErrorSnackBar } from '../error-snackbar';
 
 @Component({
   selector: 'app-image-field',
@@ -75,8 +77,8 @@ export class ImageFieldComponent implements OnInit {
         this.field.markAsDirty();
         this.snackBar.open('Logo uploaded!', 'Close', { duration: 2000 });
       })
-      .catch((error: any) => {
-        this.snackBar.open(`Upload failed: ${error.message}`, 'Close', { duration: 3000 });
+      .catch((error: unknown) => {
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Upload failed'));
       });
   }
 }

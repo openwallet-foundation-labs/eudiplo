@@ -1,5 +1,6 @@
 import { FormControl, Validators } from '@angular/forms';
-import { describe, expect, it } from 'vitest';
+import { client } from '@eudiplo/sdk-core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { schemaFormValidator } from '../../../utils/schema-form-validator';
 import { DCQLSchema } from '../../../utils/schemas';
 import { DcqlQueryEditorComponent } from './dcql-query-editor.component';
@@ -156,6 +157,33 @@ describe('DCQL editor shared form state', () => {
     expect(component.control.value.credentials[0].claims[0].path).toEqual(['items', 2]);
     component.setArrayIndex(claim, 1, null);
     expect(component.control.invalid).toBe(true);
+    component.ngOnDestroy();
+  });
+});
+
+describe('DCQL editor managed trust lists', () => {
+  afterEach(() => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it("shows the backend's reason with one period when the trust lists cannot be loaded", async () => {
+    client.setConfig({
+      fetch: vi.fn<typeof fetch>(
+        async () =>
+          new Response(
+            JSON.stringify({ statusCode: 403, message: 'Use a tenant-bound account.' }),
+            { status: 403, headers: { 'Content-Type': 'application/json' } }
+          )
+      ),
+    });
+    const component = editor(query);
+
+    await component.loadTrustLists();
+
+    expect(component.trustListsError).toBe(
+      'Could not load managed trust lists: Use a tenant-bound account. ' +
+        'Existing references are preserved. Retry or add an external reference.'
+    );
     component.ngOnDestroy();
   });
 });

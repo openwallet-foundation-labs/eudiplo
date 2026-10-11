@@ -12,9 +12,11 @@ const config = {
 describe('issuer settings guided setup', () => {
   let component: IssuanceConfigCreateComponent;
   let service: { getConfig: ReturnType<typeof vi.fn>; saveConfiguration: ReturnType<typeof vi.fn> };
+  let snackBar: { open: ReturnType<typeof vi.fn> };
   let setup: string | null;
   beforeEach(() => {
     setup = null;
+    snackBar = { open: vi.fn() };
     service = {
       getConfig: vi.fn().mockResolvedValue(config),
       saveConfiguration: vi.fn().mockResolvedValue({}),
@@ -23,7 +25,7 @@ describe('issuer settings guided setup', () => {
       service as any,
       { navigate: vi.fn() } as any,
       { snapshot: { queryParamMap: { get: () => setup } } } as any,
-      { open: vi.fn() } as any,
+      snackBar as any,
       {} as any,
       new FormBuilder(),
       {} as any,
@@ -70,13 +72,54 @@ describe('issuer settings guided setup', () => {
   });
 
   it('blocks saving on loading failure and supports retry', async () => {
-    service.getConfig.mockRejectedValueOnce(new Error('offline'));
+    service.getConfig.mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' });
     await component.loadConfigForEdit();
-    expect(component.loadError).toContain('Retry');
+    expect(component.loadError).toBe(
+      'Could not load issuer settings: Forbidden resource. Retry before making changes.'
+    );
     component.onSubmit();
     expect(service.saveConfiguration).not.toHaveBeenCalled();
     await component.loadConfigForEdit();
     expect(component.loadError).toBe('');
+  });
+
+  it("shows the backend's reason when saving is rejected", async () => {
+    service.saveConfiguration.mockRejectedValue({
+      statusCode: 409,
+      error: 'Conflict',
+      message:
+        "Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI.",
+    });
+    await component.loadConfigForEdit();
+
+    component.onSubmit();
+
+    await vi.waitFor(() =>
+      expect(snackBar.open.mock.lastCall?.[0]).toBe(
+        "Failed to save configuration: Tenant 'tenant' is file-managed by provisioning. Detach it before changing it through the API or UI."
+      )
+    );
+  });
+
+  it('names every rejected field, since the form shows none of them at a field', async () => {
+    service.saveConfiguration.mockRejectedValue({
+      statusCode: 400,
+      message: 'Validation failed',
+      errors: ['a', 'b', 'c', 'd'].map((path) => ({
+        path: ['display', 0, path],
+        message: 'Invalid',
+      })),
+    });
+    await component.loadConfigForEdit();
+
+    component.onSubmit();
+
+    await vi.waitFor(() =>
+      expect(snackBar.open.mock.lastCall?.[0]).toBe(
+        'Failed to save configuration: Validation failed (display.0.a: Invalid; ' +
+          'display.0.b: Invalid; display.0.c: Invalid; display.0.d: Invalid)'
+      )
+    );
   });
 
   it('opens trust settings for missing prerequisites', async () => {

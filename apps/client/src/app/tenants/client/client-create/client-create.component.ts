@@ -28,6 +28,7 @@ import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component'
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
 import { RoleLockNoticeComponent } from '../../../common/role-lock-notice.component';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
 
 @Component({
   selector: 'app-client-create',
@@ -260,10 +261,9 @@ export class ClientCreateComponent implements OnInit {
         }
       }
     } catch (error) {
-      this.snackBar.open(
-        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} client`),
-        'Close',
-        { duration: 5000 }
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} client`)
       );
     } finally {
       this.isSubmitting = false;

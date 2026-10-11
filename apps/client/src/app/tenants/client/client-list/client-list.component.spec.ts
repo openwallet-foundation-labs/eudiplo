@@ -7,6 +7,7 @@ import { ConfigOwnershipService } from '../../../config-portability/config-owner
 import { ApiService } from '../../../core';
 import { JwtService } from '../../../services/jwt.service';
 import { ClientListComponent } from './client-list.component';
+import { errorSnackBarDuration } from '../../../utils/error-snackbar';
 
 describe('ClientListComponent role limits', () => {
   let fixture: ComponentFixture<ClientListComponent>;
@@ -147,7 +148,7 @@ describe('ClientListComponent delete', () => {
       expect(snackBar.open).toHaveBeenCalledWith(
         'Failed to delete client: Cannot manage client offer',
         'Close',
-        { duration: 5000 }
+        { duration: errorSnackBarDuration('Failed to delete client: Cannot manage client offer') }
       )
     );
     expect(logout).not.toHaveBeenCalled();
@@ -171,5 +172,39 @@ describe('ClientListComponent delete', () => {
     expect(requests).toContain('DELETE /api/client/other');
     expect(reload).toHaveBeenCalled();
     expect(logout).not.toHaveBeenCalled();
+  });
+});
+
+describe('ClientListComponent loading', () => {
+  // The suite above stubs loadClients on the prototype.
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it('says why the clients could not be loaded instead of an empty list', async () => {
+    client.setConfig({
+      fetch: vi.fn<typeof fetch>(
+        async () =>
+          new Response(JSON.stringify({ statusCode: 403, message: 'Forbidden resource' }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' },
+          })
+      ),
+    });
+    const component = new ClientListComponent(
+      { open: vi.fn() } as never,
+      {} as never,
+      { navigate: vi.fn() } as never,
+      {} as never,
+      { getRoles: () => ['clients:manage'] } as never
+    );
+
+    await component.loadClients();
+
+    expect(component.loadError).toBe('Failed to load clients: Forbidden resource');
   });
 });

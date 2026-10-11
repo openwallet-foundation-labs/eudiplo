@@ -12,6 +12,7 @@ import { JwtService } from '../../services/jwt.service';
 import { roleChoices } from '../../services/role-grants';
 import { RoleLockNoticeComponent } from '../../common/role-lock-notice.component';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-user-show',
@@ -54,19 +55,14 @@ export class UserShowComponent implements OnInit {
     userControllerGetUser({ path: { id: userId } }).then(
       (user) => (this.user = user.data),
       (err) => {
-        this.snackBar.open(getApiErrorMessage(err, 'Failed to load user'), 'Close', {
-          duration: 5000,
-        });
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(err, 'Failed to load user'));
         this.router.navigate(['..'], { relativeTo: this.route });
       }
     );
   }
 
   async deleteUser(): Promise<void> {
-    if (
-      !this.user?.id ||
-      !confirm(`Are you sure you want to delete user "${this.user.username}"?`)
-    ) {
+    if (!this.user?.id || !confirm(`Delete user "${this.user.username}"? This cannot be undone.`)) {
       return;
     }
 
@@ -76,9 +72,7 @@ export class UserShowComponent implements OnInit {
       await this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
       console.error('Error deleting user:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete user'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete user'));
     }
   }
 }

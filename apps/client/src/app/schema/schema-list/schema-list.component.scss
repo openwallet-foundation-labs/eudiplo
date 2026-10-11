@@ -20,25 +20,3 @@ table {
 .version-pill:hover {
   background: var(--mat-sys-surface-container-high);
 }
-
-.empty-state {
-  padding: 64px 24px;
-  text-align: center;
-
-  .empty-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    color: var(--mat-sys-outline);
-  }
-
-  h3 {
-    margin: 0;
-    color: var(--mat-sys-on-surface);
-  }
-
-  p {
-    color: var(--mat-sys-on-surface-variant);
-    margin: 0;
-  }
-}

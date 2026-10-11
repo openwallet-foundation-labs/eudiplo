@@ -23,7 +23,8 @@ import { PresentationManagementService } from '../presentation-config/presentati
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { EditorComponent, extractSchema } from '../../utils/editor/editor.component';
 import { transactionDataArraySchema } from '../../utils/schemas';
-import { getApiErrorMessage } from '../../utils/error-message';
+import { asSentence, getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { JwtService } from '../../services/jwt.service';
 
 type PresentationRequestWithClientIdScheme = PresentationRequest & {
@@ -123,10 +124,12 @@ export class PresentationRequestComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error loading configurations:', error);
-      this.snackBar.open('Failed to load presentation configurations', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to load presentation configurations'),
+        'Close',
+        { panelClass: ['error-snackbar'] }
+      );
     } finally {
       this.loading = false;
     }
@@ -157,7 +160,9 @@ export class PresentationRequestComponent implements OnInit {
     } catch (error) {
       console.error('Error checking presentation readiness:', error);
       this.isReadyToGenerate = false;
-      this.readinessError = 'Failed to validate presentation readiness.';
+      this.readinessError = asSentence(
+        getApiErrorMessage(error, 'Failed to validate presentation readiness')
+      );
     } finally {
       this.checkingReadiness = false;
     }
@@ -225,10 +230,7 @@ export class PresentationRequestComponent implements OnInit {
       console.error('Error generating presentation request:', error);
       // The backend names a missing access certificate here.
       const message = getApiErrorMessage(error, 'Failed to generate presentation request');
-      this.snackBar.open(message, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(this.snackBar, message, 'Close', { panelClass: ['error-snackbar'] });
     } finally {
       this.generatingOffer = false;
     }

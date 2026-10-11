@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <div fxLayout="column" fxLayoutGap="4px">
-    <h2>Schema</h2>
+    <h2 #listHeading tabindex="-1">Schema</h2>
     @if (!loading && !loadError) {
       <p>
         {{ schemaMetadataCount }}
@@ -35,27 +35,19 @@
 </div>
 
 @if (loading) {
-  <p><output>Loading schemas…</output></p>
+  <div class="list-state">
+    <mat-spinner diameter="40" aria-label="Loading schemas"></mat-spinner>
+  </div>
 } @else if (loadError) {
-  <mat-card appearance="outlined" role="alert">
-    <mat-card-content>
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-        <mat-icon color="warn">error</mat-icon>
-        <span>{{ loadError }}</span>
-      </div>
-    </mat-card-content>
-    <mat-card-actions align="end">
-      <a mat-button routerLink="/registrar">Registrar configuration</a>
-      <button mat-stroked-button type="button" (click)="loadItems()">Retry</button>
-    </mat-card-actions>
-  </mat-card>
+  <app-load-error [message]="loadError" (retry)="loadItems()">
+    <a mat-button routerLink="/registrar">Registrar configuration</a>
+  </app-load-error>
 } @else if (groupedItems.length === 0) {
-  <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+  <div class="list-state">
     <mat-icon class="empty-icon">schema</mat-icon>
-    <h3>No schemas published</h3>
-    <p>Create a schema for a credential type to list it here.</p>
+    <p>No schemas published yet. Create one for a credential type to list it here.</p>
     @if (canCreate) {
-      <a mat-flat-button color="primary" [routerLink]="['create']">
+      <a mat-flat-button [routerLink]="['create']">
         <mat-icon>add</mat-icon>
         Create Schema
       </a>

@@ -345,7 +345,9 @@
     ></mat-paginator>
   </div>
 
-  @if (dataSource.data.length === 0) {
+  @if (loadError) {
+    <app-load-error [message]="loadError" (retry)="refreshSessions()" />
+  } @else if (dataSource.data.length === 0 && !isLoadingResults) {
     <div fxLayout="column" fxLayoutAlign="center center" class="empty-state">
       <mat-icon>inbox</mat-icon>
       <p>No sessions found</p>

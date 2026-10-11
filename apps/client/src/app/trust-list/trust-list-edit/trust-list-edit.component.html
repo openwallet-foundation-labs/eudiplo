@@ -45,9 +45,7 @@
               />
               <mat-icon matSuffix>fingerprint</mat-icon>
               <mat-hint>Unique identifier for this trust list</mat-hint>
-              @if (form.get('id')?.hasError('required') && form.get('id')?.touched) {
-                <mat-error>ID is required</mat-error>
-              }
+              <mat-error>{{ fieldError('id', 'ID is required') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -58,6 +56,7 @@
                 placeholder="e.g., PID Trust List for authorized issuers"
               />
               <mat-icon matSuffix>description</mat-icon>
+              <mat-error>{{ fieldError('description') }}</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -76,6 +75,7 @@
               </mat-select>
               <mat-icon matSuffix>key</mat-icon>
               <mat-hint>Key chain used to sign the trust list JWT</mat-hint>
+              <mat-error>{{ fieldError('keyChainId') }}</mat-error>
             </mat-form-field>
           </div>
         </mat-card-content>
@@ -139,7 +139,10 @@
           <!-- Entity List -->
           <mat-accordion formArrayName="entities">
             @for (entity of entitiesArray.controls; track $index; let i = $index) {
-              <mat-expansion-panel [expanded]="i === entitiesArray.length - 1" [formGroupName]="i">
+              <mat-expansion-panel
+                [expanded]="i === entitiesArray.length - 1 || rejectedEntities.has(entity)"
+                [formGroupName]="i"
+              >
                 <mat-expansion-panel-header>
                   <mat-panel-title>
                     @if (getEntityType(i) === 'internal') {
@@ -166,6 +169,7 @@
                       <mat-option value="attestation-provider">Credential provider</mat-option>
                       <mat-option value="wallet-provider">Wallet provider</mat-option>
                     </mat-select>
+                    <mat-error>{{ fieldError('entities.' + i + '.providerType') }}</mat-error>
                   </mat-form-field>
                   @if (getEntityType(i) === 'internal') {
                     <!-- Internal Entity Form - Key Chain Selection -->
@@ -184,6 +188,7 @@
                       </mat-select>
                       <mat-icon matSuffix>key</mat-icon>
                       <mat-hint>Key chain used for credential signing</mat-hint>
+                      <mat-error>{{ fieldError('entities.' + i + '.issuerKeyChainId') }}</mat-error>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">
@@ -201,6 +206,9 @@
                       </mat-select>
                       <mat-icon matSuffix>gpp_maybe</mat-icon>
                       <mat-hint>Key chain used for status list signing</mat-hint>
+                      <mat-error>{{
+                        fieldError('entities.' + i + '.revocationKeyChainId')
+                      }}</mat-error>
                     </mat-form-field>
 
                     <mat-divider></mat-divider>
@@ -217,11 +225,13 @@
                         placeholder="e.g., Example Issuer GmbH"
                       />
                       <mat-icon matSuffix>business</mat-icon>
+                      <mat-error>{{ fieldError('entities.' + i + '.infoName') }}</mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" fxFlex="120px">
                       <mat-label>Language</mat-label>
                       <input matInput formControlName="infoLang" placeholder="e.g., en" />
                       <mat-icon matSuffix>language</mat-icon>
+                      <mat-error>{{ fieldError('entities.' + i + '.infoLang') }}</mat-error>
                     </mat-form-field>
                   </div>
 
@@ -233,6 +243,7 @@
                       placeholder="e.g., https://issuer.example.com"
                     />
                     <mat-icon matSuffix>link</mat-icon>
+                    <mat-error>{{ fieldError('entities.' + i + '.infoUri') }}</mat-error>
                   </mat-form-field>
 
                   <div fxLayout="row" fxLayoutGap="16px">
@@ -240,11 +251,13 @@
                       <mat-label>Country</mat-label>
                       <input matInput formControlName="infoCountry" placeholder="e.g., DE" />
                       <mat-icon matSuffix>flag</mat-icon>
+                      <mat-error>{{ fieldError('entities.' + i + '.infoCountry') }}</mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" fxFlex>
                       <mat-label>Locality</mat-label>
                       <input matInput formControlName="infoLocality" placeholder="e.g., BERLIN" />
                       <mat-icon matSuffix>location_city</mat-icon>
+                      <mat-error>{{ fieldError('entities.' + i + '.infoLocality') }}</mat-error>
                     </mat-form-field>
                   </div>
 
@@ -253,6 +266,7 @@
                       <mat-label>Postal Code</mat-label>
                       <input matInput formControlName="infoPostalCode" placeholder="e.g., 10117" />
                       <mat-icon matSuffix>markunread_mailbox</mat-icon>
+                      <mat-error>{{ fieldError('entities.' + i + '.infoPostalCode') }}</mat-error>
                     </mat-form-field>
                     <mat-form-field appearance="outline" fxFlex>
                       <mat-label>Street Address</mat-label>
@@ -262,6 +276,9 @@
                         placeholder="e.g., Unter den Linden 1"
                       />
                       <mat-icon matSuffix>home</mat-icon>
+                      <mat-error>{{
+                        fieldError('entities.' + i + '.infoStreetAddress')
+                      }}</mat-error>
                     </mat-form-field>
                   </div>
 
@@ -273,6 +290,7 @@
                       placeholder="e.g., https://issuer.example.com/contact"
                     />
                     <mat-icon matSuffix>contact_mail</mat-icon>
+                    <mat-error>{{ fieldError('entities.' + i + '.infoContactUri') }}</mat-error>
                   </mat-form-field>
 
                   @if (getEntityType(i) === 'external') {
@@ -287,6 +305,9 @@
                           formControlName="issuerCertPem"
                           [editorOptions]="editorOptionsPem"
                         ></app-editor>
+                        @if (fieldError('entities.' + i + '.issuerCertPem'); as message) {
+                          <p class="editor-error" role="alert">{{ message }}</p>
+                        }
                       </div>
 
                       <div>
@@ -295,6 +316,9 @@
                           formControlName="revocationCertPem"
                           [editorOptions]="editorOptionsPem"
                         ></app-editor>
+                        @if (fieldError('entities.' + i + '.revocationCertPem'); as message) {
+                          <p class="editor-error" role="alert">{{ message }}</p>
+                        }
                       </div>
                     </div>
                   }
@@ -319,7 +343,7 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="form.invalid || entitiesArray.length === 0"
+          [disabled]="form.invalid || entitiesArray.length === 0 || saving"
           appConfigManaged
           managedKind="TrustList"
           [managedResourceId]="trustListId || ''"

@@ -307,6 +307,10 @@
       </mat-card>
     }
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="retryLoad()">
+    <a mat-button [routerLink]="['../']">Back to keys</a>
+  </app-load-error>
 } @else {
   <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px" class="loading">
     <mat-icon class="empty-icon">vpn_key</mat-icon>

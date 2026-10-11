@@ -1,6 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  type AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +32,9 @@ import {
 import { EditorComponent } from '../../utils/editor/editor.component';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { fieldErrorMessage, showIssuesAtFields } from '../../utils/form-errors';
 
 /** Common info fields for both internal and external entities */
 interface EntityInfoForm {
@@ -81,6 +91,10 @@ export class TrustListEditComponent implements OnInit {
   trustListId?: string | null;
   trustList?: TrustList;
   form!: FormGroup;
+  /** While a save runs, so a second click does not send it again. */
+  saving = false;
+  /** Entities with a field the backend rejected; their panels open and stay open. */
+  readonly rejectedEntities = new Set<AbstractControl>();
 
   /** Available key chains for selection */
   availableKeyChains: KeyChainResponseDto[] = [];
@@ -143,9 +157,7 @@ export class TrustListEditComponent implements OnInit {
       );
     } catch (error) {
       console.error('Failed to load key chains:', error);
-      this.snackBar.open('Failed to load key chains', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load key chains'));
     }
   }
 
@@ -173,9 +185,7 @@ export class TrustListEditComponent implements OnInit {
       }
     } catch (error) {
       console.error('Failed to load trust list:', error);
-      this.snackBar.open('Failed to load trust list', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load trust list'));
       this.router.navigate(['/trust-list']);
     }
   }
@@ -406,6 +416,7 @@ export class TrustListEditComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
+    if (this.saving) return;
     if (this.form.invalid) {
       this.snackBar.open('Please fill in all required fields', 'Close', {
         duration: 3000,
@@ -461,6 +472,7 @@ export class TrustListEditComponent implements OnInit {
       entities,
     };
 
+    this.saving = true;
     try {
       if (this.trustListId) {
         // Update existing trust list
@@ -486,12 +498,36 @@ export class TrustListEditComponent implements OnInit {
       );
 
       this.router.navigate(['/trust-list']);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to save trust list:', error);
-      const message = error?.response?.data?.message || 'Failed to save trust list';
-      this.snackBar.open(message, 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        showIssuesAtFields(this.form, error, 'Failed to save trust list', trustListControlPath)
+      );
+      for (const entity of this.entitiesArray.controls as FormGroup[]) {
+        if (Object.values(entity.controls).some((control) => control.hasError('server'))) {
+          this.rejectedEntities.add(entity);
+        }
+      }
+    } finally {
+      this.saving = false;
     }
   }
+
+  /** Message under a field: the backend's issue, else the local validator's message. */
+  fieldError(path: string, localMessage = ''): string {
+    return fieldErrorMessage(this.form.get(path), localMessage);
+  }
+}
+
+/**
+ * The form control for a request path: the form flattens an entity's `info`
+ * into `info*` fields and does not show an entity's `type`.
+ */
+function trustListControlPath(path: string): string | null {
+  if (/^entities\.\d+\.type$/.test(path)) return null;
+  return path.replace(
+    /^(entities\.\d+\.)info\.(\w)(\w*)$/,
+    (_, entity: string, first: string, rest: string) => `${entity}info${first.toUpperCase()}${rest}`
+  );
 }

@@ -15,7 +15,12 @@
         <mat-icon>{{ guided ? 'tune' : 'format_list_numbered' }}</mat-icon>
         {{ guided ? 'Switch to editor' : 'Use guided setup' }}
       </button>
-      <button mat-button type="button" (click)="viewAsJson()">
+      <button
+        mat-button
+        type="button"
+        (click)="viewAsJson()"
+        [disabled]="loadingConfig || !!loadError"
+      >
         <mat-icon>code</mat-icon>JSON View
       </button>
       <a
@@ -27,603 +32,625 @@
       >
     </div>
   </header>
-  @if (guided) {
-    <p class="flow-hint" aria-live="polite">
-      Step {{ activeStep + 1 }} of 4 · {{ stepDescriptions[activeStep] }}
-    </p>
-  }
-  <form [formGroup]="form" (ngSubmit)="submitPresentation()">
-    <mat-tab-group
-      [selectedIndex]="activeStep"
-      (selectedIndexChange)="activeStep = $event"
-      [preserveContent]="true"
-      animationDuration="0ms"
+  @if (loadError) {
+    <app-load-error
+      [message]="loadError"
+      hint="The presentation configuration can only be changed after it has been loaded."
+      (retry)="loadConfigForEdit()"
     >
-      <mat-tab label="1. Name">
-        <section class="form-section">
-          <h3>Name this presentation</h3>
-          <p>
-            Give this reusable request a name so you can find it when creating a presentation
-            session.
-          </p>
-          <div class="field-stack">
-            <!-- ID Field -->
-            <mat-form-field>
-              <mat-label>ID</mat-label>
-              <input matInput formControlName="id" placeholder="Enter unique identifier" />
-              @if (form.controls['id'].hasError('required')) {
-                <mat-error> ID is required </mat-error>
-              }
-            </mat-form-field>
-
-            <!-- Description Field -->
-            <mat-form-field>
-              <mat-label>Description</mat-label>
-              <input matInput formControlName="description" placeholder="Enter description" />
-              @if (form.controls['description'].hasError('required')) {
-                <mat-error> Description is required </mat-error>
-              }
-            </mat-form-field>
-          </div>
-        </section>
-      </mat-tab>
-      <mat-tab label="2. Credentials" [disabled]="guided && furthestStep < 1">
-        <section class="form-section">
-          <h3>Which credentials and claims do you need?</h3>
-          <p>
-            Start from an issuer to select available claims, browse a schema, or define a credential
-            manually below.
-          </p>
-          <div class="editor-actions import-actions">
-            <button mat-stroked-button type="button" (click)="importFromIssuer()">
-              <mat-icon>cloud_download</mat-icon>Import from Issuer
-            </button>
-            <button mat-stroked-button type="button" (click)="importFromSchemaMetadata()">
-              <mat-icon>schema</mat-icon>Import from Schema
-            </button>
-            <!-- Predefined Configs Menu -->
-            @if (create) {
-              <button
-                type="button"
-                mat-stroked-button
-                [matMenuTriggerFor]="templatesMenu"
-                matTooltip="Load predefined configuration"
-              >
-                <mat-icon>template_add</mat-icon>
-                Templates
-              </button>
-              <mat-menu #templatesMenu="matMenu">
-                @for (template of predefinedConfigs; track template.name) {
-                  <div>
-                    <button type="button" mat-menu-item (click)="loadPredefinedConfig(template)">
-                      <mat-icon>{{ template.icon }}</mat-icon>
-                      <div fxLayout="column" fxLayoutAlign="start start">
-                        <span>{{ template.name }}</span>
-                        <small class="menu-description">{{ template.description }}</small>
-                      </div>
-                    </button>
-                    <button type="button" mat-menu-item (click)="previewPredefinedConfig(template)">
-                      <mat-icon>visibility</mat-icon>
-                      <span>Preview {{ template.name }}</span>
-                    </button>
-                    @if (!$last) {
-                      <mat-divider></mat-divider>
-                    }
-                  </div>
-                }
-              </mat-menu>
-            }
-          </div>
-          <app-dcql-query-editor [control]="queryControl" />
-        </section>
-      </mat-tab>
-      <mat-tab label="3. Settings" [disabled]="guided && furthestStep < 2">
-        <section class="form-section">
-          <h3>Review verification settings</h3>
-          <p>Keep the defaults unless your wallet or integration needs a different setup.</p>
-          <dl class="settings-summary">
-            <div>
-              <dt>Request expires after</dt>
-              <dd>{{ form.get('lifeTime')?.value }} seconds</dd>
-            </div>
-            <div>
-              <dt>Credential status checks</dt>
-              <dd>{{ selectedStatusCheckModeLabel }}</dd>
-            </div>
-            <div>
-              <dt>Signing key chain</dt>
-              <dd>
-                {{ form.get('accessKeyChainId')?.value || 'Tenant default access key chain' }}
-              </dd>
-            </div>
-          </dl>
-          @if (accessSetupMessage) {
-            <p class="setup-notice" role="status">
-              {{ accessSetupMessage }} You can save this configuration now and complete key setup
-              before creating a request.
-            </p>
-          }
-          <mat-accordion multi>
-            <mat-expansion-panel [expanded]="showSettingsErrors || hasRequestOverrides">
-              <mat-expansion-panel-header
-                ><mat-panel-title
-                  >Request and verification options</mat-panel-title
-                ></mat-expansion-panel-header
-              >
-              <div class="field-stack">
-                <mat-form-field>
-                  <mat-label>Lifetime of the request</mat-label>
-                  <input matInput formControlName="lifeTime" type="number" placeholder="300" />
-                  @if (form.controls['lifeTime'].hasError('required')) {
-                    <mat-error> Lifetime is required </mat-error>
-                  }
-                  @if (form.controls['lifeTime'].hasError('min')) {
-                    <mat-error> Lifetime must be at least 1 </mat-error>
-                  }
-                  <mat-hint> Lifetime is in seconds </mat-hint>
-                </mat-form-field>
-
-                <mat-form-field>
-                  <mat-label>Status List Check Mode</mat-label>
-                  <mat-select formControlName="statusCheckMode">
-                    <mat-select-trigger>{{ selectedStatusCheckModeLabel }}</mat-select-trigger>
-                    @for (mode of statusCheckModeOptions; track mode.value) {
-                      <mat-option [value]="mode.value">
-                        <div fxLayout="column">
-                          <span
-                            ><strong>{{ mode.label }}</strong></span
-                          >
-                          <span class="option-description">{{ mode.hint }}</span>
-                        </div>
-                      </mat-option>
-                    }
-                  </mat-select>
-                  <mat-icon matSuffix>rule</mat-icon>
-                  <mat-hint>
-                    Controls revocation/status checks during presentation verification for both
-                    SD-JWT and mDOC credentials.
-                  </mat-hint>
-                </mat-form-field>
-
-                <mat-form-field>
-                  <mat-label>Redirect URI (optional)</mat-label>
-                  <input
-                    matInput
-                    formControlName="redirectUri"
-                    placeholder="https://example.com/callback?session={sessionId}"
-                  />
-                  <mat-hint>
-                    User will be redirected here after completing the presentation. Use
-                    <code>{{ '{' }}sessionId{{ '}' }}</code> as placeholder for the session ID.
-                  </mat-hint>
-                </mat-form-field>
-
-                <mat-form-field>
-                  <mat-label>Access Key Chain (optional)</mat-label>
-                  <mat-select formControlName="accessKeyChainId">
-                    <mat-select-trigger>
-                      @if (form.controls['accessKeyChainId'].value; as keyChainId) {
-                        {{ keyChainId }}
-                      } @else {
-                        <em>Use default access key chain</em>
-                      }
-                    </mat-select-trigger>
-                    <mat-option [value]="null">
-                      <em>Use default access key chain</em>
-                    </mat-option>
-                    @for (keyChain of keyChains; track keyChain.id) {
-                      <mat-option [value]="keyChain.id">
-                        <div fxLayout="column">
-                          <span
-                            ><strong>{{ keyChain.id }}</strong></span
-                          >
-                          <span class="option-description">{{
-                            keyChain.description || keyChain.usageType
-                          }}</span>
-                        </div>
-                      </mat-option>
-                    }
-                  </mat-select>
-                  <mat-icon matSuffix>key</mat-icon>
-                  <mat-hint
-                    >Select the access key chain for signing the presentation request</mat-hint
-                  >
-                </mat-form-field>
-              </div>
-            </mat-expansion-panel>
-            <mat-expansion-panel [expanded]="showSettingsErrors || hasRegistrationCertificate">
-              <mat-expansion-panel-header
-                ><mat-panel-title>Registration certificate</mat-panel-title
-                ><mat-panel-description>{{
-                  hasRegistrationCertificate
-                    ? 'Configured'
-                    : 'When required by your wallet ecosystem'
-                }}</mat-panel-description></mat-expansion-panel-header
-              >
-              <div class="field-stack">
-                <h4>Registrar Certificate (optional)</h4>
-                <mat-hint>
-                  Two approaches are supported: (1) import/reuse existing certificate via
-                  <code>jwt</code> or <code>id</code>, or (2) request a new one via
-                  <code>body</code> (including multilingual <code>purpose</code>).
-                </mat-hint>
-
-                @if (!create) {
-                  <div
-                    class="reg-cert-status"
-                    [attr.data-status]="registrationCertStatus"
-                    fxLayout="row"
-                    fxLayoutGap="12px"
-                    fxLayoutAlign="start center"
-                  >
-                    @switch (registrationCertStatus) {
-                      @case ('active') {
-                        <mat-icon color="primary">verified</mat-icon>
-                        <span
-                          ><strong>Active</strong>
-                          @if (registrationCertExpiresIn) {
-                            — expires in {{ registrationCertExpiresIn }}
-                          }
-                          @if (registrationCertCache?.source) {
-                            ({{ registrationCertCache.source }})
-                          }
-                        </span>
-                      }
-                      @case ('expiring') {
-                        <mat-icon color="accent">schedule</mat-icon>
-                        <span
-                          ><strong>Expiring soon</strong> — {{ registrationCertExpiresIn }}
-                          remaining
-                        </span>
-                      }
-                      @case ('expired') {
-                        <mat-icon color="warn">error_outline</mat-icon>
-                        <span><strong>Expired</strong> — reissue required</span>
-                      }
-                      @case ('pending') {
-                        <mat-icon color="accent">refresh</mat-icon>
-                        <span
-                          ><strong>Pending</strong> — will be reissued on save (config
-                          changed)</span
-                        >
-                      }
-                      @case ('none') {
-                        <mat-icon>info</mat-icon>
-                        <span>No registration certificate configured</span>
-                      }
-                    }
-                    <span fxFlex></span>
-                    @if (registrationCertStatus !== 'none') {
-                      <button
-                        mat-stroked-button
-                        type="button"
-                        [disabled]="reissuing"
-                        (click)="reissueRegistrationCert()"
-                      >
-                        <mat-icon>refresh</mat-icon>
-                        {{ reissuing ? 'Reissuing…' : 'Reissue now' }}
-                      </button>
-                    }
-                  </div>
-                }
-                <mat-tab-group
-                  [selectedIndex]="registrationCertTabIndex"
-                  (selectedIndexChange)="registrationCertTabIndex = $event"
-                >
-                  <mat-tab label="Import">
-                    <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
-                      <mat-form-field>
-                        <mat-label>Registration Certificate JWT</mat-label>
-                        <textarea
-                          matInput
-                          formControlName="registrationCertImportJwt"
-                          rows="4"
-                          placeholder="Paste existing registration certificate JWT"
-                        ></textarea>
-                        <mat-hint>
-                          If JWT is provided, EUDIPLO uses it directly without contacting registrar.
-                        </mat-hint>
-                      </mat-form-field>
-
-                      <mat-form-field>
-                        <mat-label>Existing Registrar Certificate ID</mat-label>
-                        <input
-                          matInput
-                          formControlName="registrationCertImportId"
-                          placeholder="existing-registration-cert-id"
-                        />
-                        <mat-hint>
-                          Optional alternative to JWT: reuse an active registrar certificate by ID.
-                        </mat-hint>
-                      </mat-form-field>
-                    </div>
-                  </mat-tab>
-
-                  <mat-tab label="Form Based">
-                    <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
-                      <mat-hint>
-                        Defaults from tenant registrar configuration are prefilled here. You can
-                        override values per presentation config.
-                      </mat-hint>
-
-                      <mat-form-field>
-                        <mat-label>Privacy Policy URL</mat-label>
-                        <input
-                          matInput
-                          formControlName="registrationCertBodyPrivacyPolicy"
-                          placeholder="https://verifier.example/privacy"
-                        />
-                      </mat-form-field>
-
-                      <mat-form-field>
-                        <mat-label>Support URI</mat-label>
-                        <input
-                          matInput
-                          formControlName="registrationCertBodySupportUri"
-                          placeholder="mailto:support@verifier.example"
-                        />
-                      </mat-form-field>
-
-                      <mat-form-field>
-                        <mat-label>Intermediary RP ID (optional)</mat-label>
-                        <input
-                          matInput
-                          formControlName="registrationCertBodyIntermediary"
-                          placeholder="optional-relying-party-id"
-                        />
-                      </mat-form-field>
-
-                      <div fxLayout="row" fxLayoutAlign="space-between center">
-                        <h5>Purposes</h5>
-                        <button mat-button type="button" (click)="addRegistrationCertPurpose()">
-                          <mat-icon>add</mat-icon>
-                          Add Purpose
-                        </button>
-                      </div>
-
-                      <div
-                        formArrayName="registrationCertBodyPurpose"
-                        fxLayout="column"
-                        fxLayoutGap="12px"
-                      >
-                        @for (
-                          purposeCtrl of registrationCertPurposeArray.controls;
-                          let i = $index;
-                          track i
-                        ) {
-                          <div
-                            [formGroup]="asFormGroup(purposeCtrl)"
-                            fxLayout="row"
-                            fxLayoutGap="12px"
-                            fxLayout.lt-md="column"
-                            class="purpose-row"
-                          >
-                            <mat-form-field fxFlex="30">
-                              <mat-label>Language</mat-label>
-                              <mat-select formControlName="lang">
-                                @for (option of purposeLanguageOptions; track option.value) {
-                                  <mat-option [value]="option.value"
-                                    >{{ option.label }} ({{ option.value }})</mat-option
-                                  >
-                                }
-                              </mat-select>
-                            </mat-form-field>
-                            <mat-form-field fxFlex>
-                              <mat-label>Purpose</mat-label>
-                              <input
-                                matInput
-                                formControlName="content"
-                                placeholder="To register a new user"
-                              />
-                            </mat-form-field>
-                            <button
-                              mat-icon-button
-                              color="warn"
-                              type="button"
-                              (click)="removeRegistrationCertPurpose(i)"
-                              matTooltip="Remove purpose"
-                            >
-                              <mat-icon>delete</mat-icon>
-                            </button>
-                          </div>
-                        }
-                      </div>
-
-                      <mat-hint>
-                        Add one or more multilingual purpose statements that explain why user data
-                        is requested.
-                      </mat-hint>
-                    </div>
-                  </mat-tab>
-                </mat-tab-group>
-              </div>
-            </mat-expansion-panel>
-            <mat-expansion-panel [expanded]="showSettingsErrors || hasIntegrationOptions">
-              <mat-expansion-panel-header
-                ><mat-panel-title>Application integration</mat-panel-title
-                ><mat-panel-description
-                  >Webhooks and attachments</mat-panel-description
-                ></mat-expansion-panel-header
-              >
-              <div class="field-stack">
-                <h4>Webhook endpoint</h4>
-                <mat-form-field>
-                  <mat-label>Webhook Endpoint</mat-label>
-                  <mat-select formControlName="webhookEndpointId">
-                    <mat-option value="">None</mat-option>
-                    @for (endpoint of webhookEndpoints; track endpoint.id) {
-                      <mat-option [value]="endpoint.id"
-                        >{{ endpoint.name }} ({{ endpoint.id }})</mat-option
-                      >
-                    }
-                  </mat-select>
-                  <mat-hint>Endpoint that receives presentation lifecycle notifications</mat-hint>
-                </mat-form-field>
-                <h4>Attached credentials</h4>
-                <button mat-button (click)="addAttachment()" type="button">Add Attachment</button>
-                <div formArrayName="attached">
-                  @for (
-                    attachmentCtrl of getFormArray('attached').controls;
-                    let i = $index;
-                    track $index
-                  ) {
-                    <app-credential-ids
-                      [formGroup]="asFormGroup(attachmentCtrl)"
-                      (removeAttachment)="removeAttachment(i)"
-                    ></app-credential-ids>
-                  }
-                </div>
-              </div>
-            </mat-expansion-panel>
-            <mat-expansion-panel
-              [expanded]="showSettingsErrors || !!form.get('transaction_data')?.value"
-            >
-              <mat-expansion-panel-header
-                ><mat-panel-title>Transaction data</mat-panel-title
-                ><mat-panel-description>Advanced</mat-panel-description></mat-expansion-panel-header
-              >
-              <div class="field-stack">
-                <app-editor
-                  formControlName="transaction_data"
-                  [schema]="transactionDataArraySchema"
-                  [errors]="$safeNavigationMigration(form.controls['transaction_data']?.errors)"
-                ></app-editor>
-                <mat-hint>
-                  Transaction data is an array of objects with at least <code>type</code> and
-                  <code>credential_ids</code> properties. Example:
-                  <code
-                    >[{{ '{' }}"type": "payment", "credential_ids": ["pid"], "amount": 100{{
-                      '}'
-                    }}]</code
-                  >
-                </mat-hint>
-              </div>
-            </mat-expansion-panel>
-          </mat-accordion>
-        </section>
-      </mat-tab>
-      <mat-tab label="4. Review" [disabled]="guided && furthestStep < 3">
-        <section class="form-section">
-          <h3>Review your presentation configuration</h3>
-          <dl class="settings-summary">
-            <div>
-              <dt>ID</dt>
-              <dd>{{ form.get('id')?.value }}</dd>
-            </div>
-            <div>
-              <dt>Description</dt>
-              <dd>{{ form.get('description')?.value }}</dd>
-            </div>
-            <div>
-              <dt>Request lifetime</dt>
-              <dd>{{ form.get('lifeTime')?.value }} seconds</dd>
-            </div>
-            <div>
-              <dt>Status checks</dt>
-              <dd>{{ selectedStatusCheckModeLabel }}</dd>
-            </div>
-            <div>
-              <dt>Signing key chain</dt>
-              <dd>
-                {{ form.get('accessKeyChainId')?.value || 'Tenant default access key chain' }}
-              </dd>
-            </div>
-            <div>
-              <dt>Registration certificate</dt>
-              <dd>{{ hasRegistrationCertificate ? 'Configured' : 'Not configured' }}</dd>
-            </div>
-            <div>
-              <dt>Webhook</dt>
-              <dd>{{ form.get('webhookEndpointId')?.value || 'None' }}</dd>
-            </div>
-            <div>
-              <dt>Redirect</dt>
-              <dd>{{ form.get('redirectUri')?.value || 'None' }}</dd>
-            </div>
-            <div>
-              <dt>Attachments</dt>
-              <dd>{{ getFormArray('attached').length }}</dd>
-            </div>
-            <div>
-              <dt>Transaction data</dt>
-              <dd>{{ form.get('transaction_data')?.value ? 'Configured' : 'None' }}</dd>
-            </div>
-          </dl>
-          <h4>Requested credentials</h4>
-          @if (credentialRequirements; as requirements) {
+      <a mat-button [routerLink]="['../../']">Back to the list</a>
+    </app-load-error>
+  } @else if (loadingConfig) {
+    <p><output>Loading presentation configuration…</output></p>
+  } @else {
+    @if (guided) {
+      <p class="flow-hint" aria-live="polite">
+        Step {{ activeStep + 1 }} of 4 · {{ stepDescriptions[activeStep] }}
+      </p>
+    }
+    <form [formGroup]="form" (ngSubmit)="submitPresentation()">
+      <mat-tab-group
+        [selectedIndex]="activeStep"
+        (selectedIndexChange)="activeStep = $event"
+        [preserveContent]="true"
+        animationDuration="0ms"
+      >
+        <mat-tab label="1. Name">
+          <section class="form-section">
+            <h3>Name this presentation</h3>
             <p>
-              Each required group must be satisfied. Any one alternative within a group is
-              sufficient.
+              Give this reusable request a name so you can find it when creating a presentation
+              session.
             </p>
-            @for (requirement of requirements; track $index) {
-              <p>
-                <strong
-                  >Requirement {{ $index + 1 }} ({{
-                    requirement.required ? 'required' : 'optional'
-                  }}):</strong
+            <div class="field-stack">
+              <!-- ID Field -->
+              <mat-form-field>
+                <mat-label>ID</mat-label>
+                <input matInput formControlName="id" placeholder="Enter unique identifier" />
+                @if (form.controls['id'].hasError('required')) {
+                  <mat-error> ID is required </mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Description Field -->
+              <mat-form-field>
+                <mat-label>Description</mat-label>
+                <input matInput formControlName="description" placeholder="Enter description" />
+                @if (form.controls['description'].hasError('required')) {
+                  <mat-error> Description is required </mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </section>
+        </mat-tab>
+        <mat-tab label="2. Credentials" [disabled]="guided && furthestStep < 1">
+          <section class="form-section">
+            <h3>Which credentials and claims do you need?</h3>
+            <p>
+              Start from an issuer to select available claims, browse a schema, or define a
+              credential manually below.
+            </p>
+            <div class="editor-actions import-actions">
+              <button mat-stroked-button type="button" (click)="importFromIssuer()">
+                <mat-icon>cloud_download</mat-icon>Import from Issuer
+              </button>
+              <button mat-stroked-button type="button" (click)="importFromSchemaMetadata()">
+                <mat-icon>schema</mat-icon>Import from Schema
+              </button>
+              <!-- Predefined Configs Menu -->
+              @if (create) {
+                <button
+                  type="button"
+                  mat-stroked-button
+                  [matMenuTriggerFor]="templatesMenu"
+                  matTooltip="Load predefined configuration"
                 >
-                {{ requirement.options.join(' OR ') }}
+                  <mat-icon>template_add</mat-icon>
+                  Templates
+                </button>
+                <mat-menu #templatesMenu="matMenu">
+                  @for (template of predefinedConfigs; track template.name) {
+                    <div>
+                      <button type="button" mat-menu-item (click)="loadPredefinedConfig(template)">
+                        <mat-icon>{{ template.icon }}</mat-icon>
+                        <div fxLayout="column" fxLayoutAlign="start start">
+                          <span>{{ template.name }}</span>
+                          <small class="menu-description">{{ template.description }}</small>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        mat-menu-item
+                        (click)="previewPredefinedConfig(template)"
+                      >
+                        <mat-icon>visibility</mat-icon>
+                        <span>Preview {{ template.name }}</span>
+                      </button>
+                      @if (!$last) {
+                        <mat-divider></mat-divider>
+                      }
+                    </div>
+                  }
+                </mat-menu>
+              }
+            </div>
+            <app-dcql-query-editor [control]="queryControl" />
+          </section>
+        </mat-tab>
+        <mat-tab label="3. Settings" [disabled]="guided && furthestStep < 2">
+          <section class="form-section">
+            <h3>Review verification settings</h3>
+            <p>Keep the defaults unless your wallet or integration needs a different setup.</p>
+            <dl class="settings-summary">
+              <div>
+                <dt>Request expires after</dt>
+                <dd>{{ form.get('lifeTime')?.value }} seconds</dd>
+              </div>
+              <div>
+                <dt>Credential status checks</dt>
+                <dd>{{ selectedStatusCheckModeLabel }}</dd>
+              </div>
+              <div>
+                <dt>Signing key chain</dt>
+                <dd>
+                  {{ form.get('accessKeyChainId')?.value || 'Tenant default access key chain' }}
+                </dd>
+              </div>
+            </dl>
+            @if (accessSetupMessage) {
+              <p class="setup-notice" role="status">
+                {{ accessSetupMessage }} You can save this configuration now and complete key setup
+                before creating a request.
               </p>
             }
-          } @else {
-            <p>All credentials listed below are required.</p>
-          }
-          @for (credential of querySummary; track $index) {
-            <div class="credential-summary">
-              <strong>{{ credential.id }}</strong> · {{ credential.format }}
-              <p>{{ credential.type }}</p>
-              <p>{{ credential.trust }}</p>
-              <ul>
-                @for (claim of credential.claims; track $index) {
-                  <li>{{ claim }}</li>
-                } @empty {
-                  <li>No claim selection specified. Review the query before saving.</li>
-                }
-              </ul>
-            </div>
-          }
-          @if (hasAdvancedQuery) {
-            <p class="setup-notice">
-              This query includes advanced rules. Review the complete DCQL JSON in the Credentials
-              step before saving.
+            <mat-accordion multi>
+              <mat-expansion-panel [expanded]="showSettingsErrors || hasRequestOverrides">
+                <mat-expansion-panel-header
+                  ><mat-panel-title
+                    >Request and verification options</mat-panel-title
+                  ></mat-expansion-panel-header
+                >
+                <div class="field-stack">
+                  <mat-form-field>
+                    <mat-label>Lifetime of the request</mat-label>
+                    <input matInput formControlName="lifeTime" type="number" placeholder="300" />
+                    @if (form.controls['lifeTime'].hasError('required')) {
+                      <mat-error> Lifetime is required </mat-error>
+                    }
+                    @if (form.controls['lifeTime'].hasError('min')) {
+                      <mat-error> Lifetime must be at least 1 </mat-error>
+                    }
+                    <mat-hint> Lifetime is in seconds </mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>Status List Check Mode</mat-label>
+                    <mat-select formControlName="statusCheckMode">
+                      <mat-select-trigger>{{ selectedStatusCheckModeLabel }}</mat-select-trigger>
+                      @for (mode of statusCheckModeOptions; track mode.value) {
+                        <mat-option [value]="mode.value">
+                          <div fxLayout="column">
+                            <span
+                              ><strong>{{ mode.label }}</strong></span
+                            >
+                            <span class="option-description">{{ mode.hint }}</span>
+                          </div>
+                        </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>rule</mat-icon>
+                    <mat-hint>
+                      Controls revocation/status checks during presentation verification for both
+                      SD-JWT and mDOC credentials.
+                    </mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>Redirect URI (optional)</mat-label>
+                    <input
+                      matInput
+                      formControlName="redirectUri"
+                      placeholder="https://example.com/callback?session={sessionId}"
+                    />
+                    <mat-hint>
+                      User will be redirected here after completing the presentation. Use
+                      <code>{{ '{' }}sessionId{{ '}' }}</code> as placeholder for the session ID.
+                    </mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>Access Key Chain (optional)</mat-label>
+                    <mat-select formControlName="accessKeyChainId">
+                      <mat-select-trigger>
+                        @if (form.controls['accessKeyChainId'].value; as keyChainId) {
+                          {{ keyChainId }}
+                        } @else {
+                          <em>Use default access key chain</em>
+                        }
+                      </mat-select-trigger>
+                      <mat-option [value]="null">
+                        <em>Use default access key chain</em>
+                      </mat-option>
+                      @for (keyChain of keyChains; track keyChain.id) {
+                        <mat-option [value]="keyChain.id">
+                          <div fxLayout="column">
+                            <span
+                              ><strong>{{ keyChain.id }}</strong></span
+                            >
+                            <span class="option-description">{{
+                              keyChain.description || keyChain.usageType
+                            }}</span>
+                          </div>
+                        </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>key</mat-icon>
+                    <mat-hint
+                      >Select the access key chain for signing the presentation request</mat-hint
+                    >
+                  </mat-form-field>
+                </div>
+              </mat-expansion-panel>
+              <mat-expansion-panel [expanded]="showSettingsErrors || hasRegistrationCertificate">
+                <mat-expansion-panel-header
+                  ><mat-panel-title>Registration certificate</mat-panel-title
+                  ><mat-panel-description>{{
+                    hasRegistrationCertificate
+                      ? 'Configured'
+                      : 'When required by your wallet ecosystem'
+                  }}</mat-panel-description></mat-expansion-panel-header
+                >
+                <div class="field-stack">
+                  <h4>Registrar Certificate (optional)</h4>
+                  <mat-hint>
+                    Two approaches are supported: (1) import/reuse existing certificate via
+                    <code>jwt</code> or <code>id</code>, or (2) request a new one via
+                    <code>body</code> (including multilingual <code>purpose</code>).
+                  </mat-hint>
+
+                  @if (!create) {
+                    <div
+                      class="reg-cert-status"
+                      [attr.data-status]="registrationCertStatus"
+                      fxLayout="row"
+                      fxLayoutGap="12px"
+                      fxLayoutAlign="start center"
+                    >
+                      @switch (registrationCertStatus) {
+                        @case ('active') {
+                          <mat-icon color="primary">verified</mat-icon>
+                          <span
+                            ><strong>Active</strong>
+                            @if (registrationCertExpiresIn) {
+                              — expires in {{ registrationCertExpiresIn }}
+                            }
+                            @if (registrationCertCache?.source) {
+                              ({{ registrationCertCache.source }})
+                            }
+                          </span>
+                        }
+                        @case ('expiring') {
+                          <mat-icon color="accent">schedule</mat-icon>
+                          <span
+                            ><strong>Expiring soon</strong> — {{ registrationCertExpiresIn }}
+                            remaining
+                          </span>
+                        }
+                        @case ('expired') {
+                          <mat-icon color="warn">error_outline</mat-icon>
+                          <span><strong>Expired</strong> — reissue required</span>
+                        }
+                        @case ('pending') {
+                          <mat-icon color="accent">refresh</mat-icon>
+                          <span
+                            ><strong>Pending</strong> — will be reissued on save (config
+                            changed)</span
+                          >
+                        }
+                        @case ('none') {
+                          <mat-icon>info</mat-icon>
+                          <span>No registration certificate configured</span>
+                        }
+                      }
+                      <span fxFlex></span>
+                      @if (registrationCertStatus !== 'none') {
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          [disabled]="reissuing"
+                          (click)="reissueRegistrationCert()"
+                        >
+                          <mat-icon>refresh</mat-icon>
+                          {{ reissuing ? 'Reissuing…' : 'Reissue now' }}
+                        </button>
+                      }
+                    </div>
+                  }
+                  <mat-tab-group
+                    [selectedIndex]="registrationCertTabIndex"
+                    (selectedIndexChange)="registrationCertTabIndex = $event"
+                  >
+                    <mat-tab label="Import">
+                      <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
+                        <mat-form-field>
+                          <mat-label>Registration Certificate JWT</mat-label>
+                          <textarea
+                            matInput
+                            formControlName="registrationCertImportJwt"
+                            rows="4"
+                            placeholder="Paste existing registration certificate JWT"
+                          ></textarea>
+                          <mat-hint>
+                            If JWT is provided, EUDIPLO uses it directly without contacting
+                            registrar.
+                          </mat-hint>
+                        </mat-form-field>
+
+                        <mat-form-field>
+                          <mat-label>Existing Registrar Certificate ID</mat-label>
+                          <input
+                            matInput
+                            formControlName="registrationCertImportId"
+                            placeholder="existing-registration-cert-id"
+                          />
+                          <mat-hint>
+                            Optional alternative to JWT: reuse an active registrar certificate by
+                            ID.
+                          </mat-hint>
+                        </mat-form-field>
+                      </div>
+                    </mat-tab>
+
+                    <mat-tab label="Form Based">
+                      <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
+                        <mat-hint>
+                          Defaults from tenant registrar configuration are prefilled here. You can
+                          override values per presentation config.
+                        </mat-hint>
+
+                        <mat-form-field>
+                          <mat-label>Privacy Policy URL</mat-label>
+                          <input
+                            matInput
+                            formControlName="registrationCertBodyPrivacyPolicy"
+                            placeholder="https://verifier.example/privacy"
+                          />
+                        </mat-form-field>
+
+                        <mat-form-field>
+                          <mat-label>Support URI</mat-label>
+                          <input
+                            matInput
+                            formControlName="registrationCertBodySupportUri"
+                            placeholder="mailto:support@verifier.example"
+                          />
+                        </mat-form-field>
+
+                        <mat-form-field>
+                          <mat-label>Intermediary RP ID (optional)</mat-label>
+                          <input
+                            matInput
+                            formControlName="registrationCertBodyIntermediary"
+                            placeholder="optional-relying-party-id"
+                          />
+                        </mat-form-field>
+
+                        <div fxLayout="row" fxLayoutAlign="space-between center">
+                          <h5>Purposes</h5>
+                          <button mat-button type="button" (click)="addRegistrationCertPurpose()">
+                            <mat-icon>add</mat-icon>
+                            Add Purpose
+                          </button>
+                        </div>
+
+                        <div
+                          formArrayName="registrationCertBodyPurpose"
+                          fxLayout="column"
+                          fxLayoutGap="12px"
+                        >
+                          @for (
+                            purposeCtrl of registrationCertPurposeArray.controls;
+                            let i = $index;
+                            track i
+                          ) {
+                            <div
+                              [formGroup]="asFormGroup(purposeCtrl)"
+                              fxLayout="row"
+                              fxLayoutGap="12px"
+                              fxLayout.lt-md="column"
+                              class="purpose-row"
+                            >
+                              <mat-form-field fxFlex="30">
+                                <mat-label>Language</mat-label>
+                                <mat-select formControlName="lang">
+                                  @for (option of purposeLanguageOptions; track option.value) {
+                                    <mat-option [value]="option.value"
+                                      >{{ option.label }} ({{ option.value }})</mat-option
+                                    >
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                              <mat-form-field fxFlex>
+                                <mat-label>Purpose</mat-label>
+                                <input
+                                  matInput
+                                  formControlName="content"
+                                  placeholder="To register a new user"
+                                />
+                              </mat-form-field>
+                              <button
+                                mat-icon-button
+                                color="warn"
+                                type="button"
+                                (click)="removeRegistrationCertPurpose(i)"
+                                matTooltip="Remove purpose"
+                              >
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </div>
+                          }
+                        </div>
+
+                        <mat-hint>
+                          Add one or more multilingual purpose statements that explain why user data
+                          is requested.
+                        </mat-hint>
+                      </div>
+                    </mat-tab>
+                  </mat-tab-group>
+                </div>
+              </mat-expansion-panel>
+              <mat-expansion-panel [expanded]="showSettingsErrors || hasIntegrationOptions">
+                <mat-expansion-panel-header
+                  ><mat-panel-title>Application integration</mat-panel-title
+                  ><mat-panel-description
+                    >Webhooks and attachments</mat-panel-description
+                  ></mat-expansion-panel-header
+                >
+                <div class="field-stack">
+                  <h4>Webhook endpoint</h4>
+                  <mat-form-field>
+                    <mat-label>Webhook Endpoint</mat-label>
+                    <mat-select formControlName="webhookEndpointId">
+                      <mat-option value="">None</mat-option>
+                      @for (endpoint of webhookEndpoints; track endpoint.id) {
+                        <mat-option [value]="endpoint.id"
+                          >{{ endpoint.name }} ({{ endpoint.id }})</mat-option
+                        >
+                      }
+                    </mat-select>
+                    <mat-hint>Endpoint that receives presentation lifecycle notifications</mat-hint>
+                  </mat-form-field>
+                  <h4>Attached credentials</h4>
+                  <button mat-button (click)="addAttachment()" type="button">Add Attachment</button>
+                  <div formArrayName="attached">
+                    @for (
+                      attachmentCtrl of getFormArray('attached').controls;
+                      let i = $index;
+                      track $index
+                    ) {
+                      <app-credential-ids
+                        [formGroup]="asFormGroup(attachmentCtrl)"
+                        (removeAttachment)="removeAttachment(i)"
+                      ></app-credential-ids>
+                    }
+                  </div>
+                </div>
+              </mat-expansion-panel>
+              <mat-expansion-panel
+                [expanded]="showSettingsErrors || !!form.get('transaction_data')?.value"
+              >
+                <mat-expansion-panel-header
+                  ><mat-panel-title>Transaction data</mat-panel-title
+                  ><mat-panel-description
+                    >Advanced</mat-panel-description
+                  ></mat-expansion-panel-header
+                >
+                <div class="field-stack">
+                  <app-editor
+                    formControlName="transaction_data"
+                    [schema]="transactionDataArraySchema"
+                    [errors]="$safeNavigationMigration(form.controls['transaction_data']?.errors)"
+                  ></app-editor>
+                  <mat-hint>
+                    Transaction data is an array of objects with at least <code>type</code> and
+                    <code>credential_ids</code> properties. Example:
+                    <code
+                      >[{{ '{' }}"type": "payment", "credential_ids": ["pid"], "amount": 100{{
+                        '}'
+                      }}]</code
+                    >
+                  </mat-hint>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </section>
+        </mat-tab>
+        <mat-tab label="4. Review" [disabled]="guided && furthestStep < 3">
+          <section class="form-section">
+            <h3>Review your presentation configuration</h3>
+            <dl class="settings-summary">
+              <div>
+                <dt>ID</dt>
+                <dd>{{ form.get('id')?.value }}</dd>
+              </div>
+              <div>
+                <dt>Description</dt>
+                <dd>{{ form.get('description')?.value }}</dd>
+              </div>
+              <div>
+                <dt>Request lifetime</dt>
+                <dd>{{ form.get('lifeTime')?.value }} seconds</dd>
+              </div>
+              <div>
+                <dt>Status checks</dt>
+                <dd>{{ selectedStatusCheckModeLabel }}</dd>
+              </div>
+              <div>
+                <dt>Signing key chain</dt>
+                <dd>
+                  {{ form.get('accessKeyChainId')?.value || 'Tenant default access key chain' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Registration certificate</dt>
+                <dd>{{ hasRegistrationCertificate ? 'Configured' : 'Not configured' }}</dd>
+              </div>
+              <div>
+                <dt>Webhook</dt>
+                <dd>{{ form.get('webhookEndpointId')?.value || 'None' }}</dd>
+              </div>
+              <div>
+                <dt>Redirect</dt>
+                <dd>{{ form.get('redirectUri')?.value || 'None' }}</dd>
+              </div>
+              <div>
+                <dt>Attachments</dt>
+                <dd>{{ getFormArray('attached').length }}</dd>
+              </div>
+              <div>
+                <dt>Transaction data</dt>
+                <dd>{{ form.get('transaction_data')?.value ? 'Configured' : 'None' }}</dd>
+              </div>
+            </dl>
+            <h4>Requested credentials</h4>
+            @if (credentialRequirements; as requirements) {
+              <p>
+                Each required group must be satisfied. Any one alternative within a group is
+                sufficient.
+              </p>
+              @for (requirement of requirements; track $index) {
+                <p>
+                  <strong
+                    >Requirement {{ $index + 1 }} ({{
+                      requirement.required ? 'required' : 'optional'
+                    }}):</strong
+                  >
+                  {{ requirement.options.join(' OR ') }}
+                </p>
+              }
+            } @else {
+              <p>All credentials listed below are required.</p>
+            }
+            @for (credential of querySummary; track $index) {
+              <div class="credential-summary">
+                <strong>{{ credential.id }}</strong> · {{ credential.format }}
+                <p>{{ credential.type }}</p>
+                <p>{{ credential.trust }}</p>
+                <ul>
+                  @for (claim of credential.claims; track $index) {
+                    <li>{{ claim }}</li>
+                  } @empty {
+                    <li>No claim selection specified. Review the query before saving.</li>
+                  }
+                </ul>
+              </div>
+            }
+            @if (hasAdvancedQuery) {
+              <p class="setup-notice">
+                This query includes advanced rules. Review the complete DCQL JSON in the Credentials
+                step before saving.
+              </p>
+            }
+            @if (accessSetupMessage) {
+              <p class="setup-notice">{{ accessSetupMessage }}</p>
+            }
+            <p>
+              After saving, use <strong>Create offer</strong> on the configuration page to test a
+              request with your wallet.
             </p>
-          }
-          @if (accessSetupMessage) {
-            <p class="setup-notice">{{ accessSetupMessage }}</p>
-          }
-          <p>
-            After saving, use <strong>Create offer</strong> on the configuration page to test a
-            request with your wallet.
-          </p>
-        </section>
-      </mat-tab>
-    </mat-tab-group>
-    @if (validationMessage) {
-      <p class="form-error" role="alert">{{ validationMessage }}</p>
-    }
-    <footer class="form-actions">
-      <button mat-button type="button" [routerLink]="copyMode ? ['../../'] : ['../']">
-        Cancel
-      </button>
-      <span class="action-spacer"></span>
-      @if (guided && activeStep > 0) {
-        <button mat-stroked-button type="button" (click)="activeStep = activeStep - 1">Back</button>
+          </section>
+        </mat-tab>
+      </mat-tab-group>
+      @if (validationMessage) {
+        <p class="form-error" role="alert">{{ validationMessage }}</p>
       }
-      @if (guided && activeStep < 3) {
-        <button mat-flat-button type="submit">Continue<mat-icon>arrow_forward</mat-icon></button>
-      } @else {
-        <button
-          mat-flat-button
-          type="submit"
-          [disabled]="saving"
-          appConfigManaged
-          managedKind="PresentationConfig"
-          [managedResourceId]="create ? '' : form.get('id')?.value || ''"
-        >
-          <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon
-          >{{ saving ? 'Saving…' : create ? 'Create Configuration' : 'Save Configuration' }}
+      <footer class="form-actions">
+        <button mat-button type="button" [routerLink]="copyMode ? ['../../'] : ['../']">
+          Cancel
         </button>
-      }
-    </footer>
-  </form>
+        <span class="action-spacer"></span>
+        @if (guided && activeStep > 0) {
+          <button mat-stroked-button type="button" (click)="activeStep = activeStep - 1">
+            Back
+          </button>
+        }
+        @if (guided && activeStep < 3) {
+          <button mat-flat-button type="submit">Continue<mat-icon>arrow_forward</mat-icon></button>
+        } @else {
+          <button
+            mat-flat-button
+            type="submit"
+            [disabled]="saving"
+            appConfigManaged
+            managedKind="PresentationConfig"
+            [managedResourceId]="create ? '' : form.get('id')?.value || ''"
+          >
+            <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon
+            >{{ saving ? 'Saving…' : create ? 'Create Configuration' : 'Save Configuration' }}
+          </button>
+        }
+      </footer>
+    </form>
+  }
 </div>

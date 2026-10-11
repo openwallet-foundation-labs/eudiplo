@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -11,6 +12,7 @@ import { CredentialConfigService } from '../credential-config.service';
 import { DisplayFormValue } from '../credential-config.types';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { JwtService } from '../../../services/jwt.service';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-credential-config-list',
@@ -22,12 +24,16 @@ import { JwtService } from '../../../services/jwt.service';
     RouterModule,
     FlexLayoutModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './credential-config-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './credential-config-list.component.scss',
 })
 export class CredentialConfigListComponent extends BaseAsyncListComponent<CredentialConfig> {
+  protected readonly loadFailedMessage = 'Failed to load credential configurations';
+
   get configs(): CredentialConfig[] {
     return this.items;
   }

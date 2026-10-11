@@ -1,0 +1,29 @@
+.load-error mat-card-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.load-error mat-icon {
+  color: var(--mat-sys-error);
+  flex-shrink: 0;
+}
+
+.text {
+  flex: 1 1 240px;
+}
+
+.text p {
+  margin: 4px 0 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions mat-icon {
+  color: inherit;
+}

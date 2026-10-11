@@ -55,10 +55,17 @@ import {
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
 import { schemaFormValidator } from '../../../utils/schema-form-validator';
-import { getApiErrorMessage } from '../../../utils/error-message';
+import { LabelledFailure, getApiErrorMessage } from '../../../utils/error-message';
 import { hostedVctUrl } from '../../../utils/public-url';
 import { FrontendConfigService } from '../../../services/frontend-config.service';
 import { JwtService } from '../../../services/jwt.service';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
+import { SourceLoadState, loadSource, reportSourceFailures } from '../../../common/load-source';
+
+/** The sources of the options of the form's selects. */
+type CredentialConfigSource =
+  'keyChains' | 'presentationConfigs' | 'attributeProviders' | 'webhookEndpoints';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -88,6 +95,7 @@ import { JwtService } from '../../../services/jwt.service';
     EditorComponent,
     ImageFieldComponent,
     DragDropModule,
+    LoadErrorComponent,
   ],
   templateUrl: './credential-config-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -103,6 +111,17 @@ export class CredentialConfigCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public loading = false;
+  /** While the configuration to edit loads; saving before would overwrite it with defaults. */
+  loadingConfig = false;
+  /** Set when the configuration to edit could not be loaded; the form stays hidden. */
+  loadError = '';
+  /** Load state of the options of each select, so a failed load is not shown as "none exist". */
+  readonly loadState: Record<CredentialConfigSource, SourceLoadState> = {
+    keyChains: 'loading',
+    presentationConfigs: 'loading',
+    attributeProviders: 'loading',
+    webhookEndpoints: 'loading',
+  };
   public submitAttempted = false;
   guidedMode = true;
   activeStep = 0;
@@ -339,41 +358,45 @@ export class CredentialConfigCreateComponent implements OnInit {
       this.guidedMode = false;
     }
   }
+  /** Loaders of the options of each select; a source that failed is loaded again on its own. */
+  private readonly sources: Record<
+    CredentialConfigSource,
+    () => Promise<LabelledFailure | undefined>
+  > = {
+    // Only attestation key chains sign credentials.
+    keyChains: () =>
+      loadSource(this.loadState, 'keyChains', 'key chains', async () => {
+        const response = await keyChainControllerGetAll({ query: { usageType: 'attestation' } });
+        this.keyChains = response.data || [];
+      }),
+    presentationConfigs: () =>
+      loadSource(this.loadState, 'presentationConfigs', 'presentation configurations', async () => {
+        this.presentationConfigs =
+          (await this.presentationManagementService.loadConfigurations()) || [];
+      }),
+    attributeProviders: () =>
+      loadSource(this.loadState, 'attributeProviders', 'attribute providers', async () => {
+        const response = await attributeProviderControllerGetAll({});
+        this.attributeProviders = (response.data || []) as AttributeProviderEntity[];
+      }),
+    webhookEndpoints: () =>
+      loadSource(this.loadState, 'webhookEndpoints', 'webhook endpoints', async () => {
+        const response = await webhookEndpointControllerGetAll({});
+        this.webhookEndpoints = (response.data || []) as WebhookEndpointEntity[];
+      }),
+  };
+
+  /** Loads the options of one select again, keeping what the user entered. */
+  async retrySource(source: CredentialConfigSource): Promise<void> {
+    reportSourceFailures(this.snackBar, [await this.sources[source]()]);
+  }
+
   ngOnInit() {
-    // Load only attestation key chains for signing certificate selection
-    keyChainControllerGetAll({ query: { usageType: 'attestation' } }).then(
-      (res) => (this.keyChains = res.data || []),
-      (error) => {
-        console.error('Failed to load key chains:', error);
-        this.snackBar.open('Failed to load key chains', 'Close', {
-          duration: 3000,
-        });
-      }
-    );
-
-    // Load presentation configurations for IAE
-    this.presentationManagementService.loadConfigurations().then(
-      (configs) => (this.presentationConfigs = configs || []),
-      (error) => {
-        console.error('Failed to load presentation configs:', error);
-      }
-    );
-
-    // Load attribute providers for selection
-    attributeProviderControllerGetAll({}).then(
-      (res) => (this.attributeProviders = (res.data || []) as AttributeProviderEntity[]),
-      (error) => {
-        console.error('Failed to load attribute providers:', error);
-      }
-    );
-
-    // Load webhook endpoints for selection
-    webhookEndpointControllerGetAll({}).then(
-      (res) => (this.webhookEndpoints = (res.data || []) as WebhookEndpointEntity[]),
-      (error) => {
-        console.error('Failed to load webhook endpoints:', error);
-      }
-    );
+    void Promise.all(
+      (Object.keys(this.sources) as CredentialConfigSource[]).map((source) =>
+        this.sources[source]()
+      )
+    ).then((failures) => reportSourceFailures(this.snackBar, failures));
 
     // The hosted VCT URI starts with the backend's PUBLIC_URL, not the instance URL.
     this.tenantId = this.jwtService.getTenantId();
@@ -381,34 +404,41 @@ export class CredentialConfigCreateComponent implements OnInit {
       .getConfig()
       .then((config) => (this.publicUrl = config?.publicUrl ?? null));
 
-    const id = this.route.snapshot.params['id'];
-    if (!id) {
-      return;
+    if (this.route.snapshot.params['id']) {
+      this.loadConfigForEdit();
     }
-    this.credentialConfigService.getConfig(id).then(
-      (config) => {
-        if (!config) {
-          this.snackBar.open('Config not found', 'Close', {
-            duration: 3000,
-          });
-          this.router.navigate(['../'], { relativeTo: this.route });
-          return;
-        }
+  }
 
-        this.patchFormFromConfig(config);
-        this.form.get('id')?.disable();
-      },
-      (error) => {
-        console.error('Error loading key:', error);
-        this.snackBar.open('Failed to load key', 'Close', {
-          duration: 3000,
-        });
-      }
-    );
+  /** Loads the configuration to edit; on failure the form stays hidden behind a retry. */
+  loadConfigForEdit(): void {
+    const id = this.route.snapshot.params['id'];
+    this.loadingConfig = true;
+    this.loadError = '';
+    this.credentialConfigService
+      .getConfig(id)
+      .then(
+        (config) => {
+          if (!config) {
+            this.snackBar.open('Config not found', 'Close', {
+              duration: 3000,
+            });
+            this.router.navigate(['../'], { relativeTo: this.route });
+            return;
+          }
+
+          this.patchFormFromConfig(config);
+          this.form.get('id')?.disable();
+        },
+        (error) => {
+          console.error('Error loading credential configuration:', error);
+          this.loadError = getApiErrorMessage(error, 'Failed to load credential configuration');
+        }
+      )
+      .finally(() => (this.loadingConfig = false));
   }
 
   onSubmit() {
-    if (this.loading) return;
+    if (this.loading || this.loadingConfig || this.loadError) return;
     this.submitAttempted = true;
     this.stepError = '';
     for (let step = 0; step < 4; step++) if (!this.validateStep(step)) return;
@@ -459,9 +489,10 @@ export class CredentialConfigCreateComponent implements OnInit {
           },
           (error) => {
             console.error('Error saving configuration:', error);
-            this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
-              duration: 5000,
-            });
+            openErrorSnackBar(
+              this.snackBar,
+              getApiErrorMessage(error, 'Failed to save configuration', { allIssues: true })
+            );
           }
         )
         .finally(() => {

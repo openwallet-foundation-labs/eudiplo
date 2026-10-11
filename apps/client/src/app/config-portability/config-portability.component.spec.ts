@@ -7,6 +7,11 @@ import type {
   ConfigPortabilityService,
   ConfigResourceMetadata,
 } from './config-portability.service';
+import { errorSnackBarDuration } from '../utils/error-snackbar';
+
+/** The arguments of an error snackbar with this text. */
+const errorSnackBar = (text: string) =>
+  [text, 'Close', { duration: errorSnackBarDuration(text) }] as const;
 
 describe('ConfigPortabilityComponent detaching selected resources', () => {
   let detach: ReturnType<typeof vi.fn>;
@@ -49,10 +54,10 @@ describe('ConfigPortabilityComponent detaching selected resources', () => {
     await component.detachSelected();
 
     expect(openSnackBar).toHaveBeenLastCalledWith(
-      'Detached 0 of 3 resource(s): the backend could not be reached. ' +
-        'Check the connection and try again.',
-      'Close',
-      { duration: 8000 }
+      ...errorSnackBar(
+        'Detached 0 of 3 resource(s): the backend could not be reached. ' +
+          'Check the connection and try again.'
+      )
     );
     expect(component.selected.size).toBe(3);
   });
@@ -66,10 +71,10 @@ describe('ConfigPortabilityComponent detaching selected resources', () => {
     await component.detachSelected();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Detached 1 of 3 resource(s). Failed: CredentialConfig/pid: Resource not found; ' +
-        'TrustList/tl-1: the backend could not be reached. Check the connection and try again.',
-      'Close',
-      { duration: 8000 }
+      ...errorSnackBar(
+        'Detached 1 of 3 resource(s). Failed: CredentialConfig/pid: Resource not found; ' +
+          'TrustList/tl-1: the backend could not be reached. Check the connection and try again.'
+      )
     );
     expect([...component.selected]).toEqual(['CredentialConfig/pid', 'TrustList/tl-1']);
   });
@@ -84,10 +89,10 @@ describe('ConfigPortabilityComponent detaching selected resources', () => {
     await component.detachSelected();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Detached 1 of 3 resource(s). Failed: CredentialConfig/pid: Resource not found; ' +
-        'TrustList/tl-1: failed',
-      'Close',
-      { duration: 8000 }
+      ...errorSnackBar(
+        'Detached 1 of 3 resource(s). Failed: CredentialConfig/pid: Resource not found; ' +
+          'TrustList/tl-1: failed'
+      )
     );
   });
 });
