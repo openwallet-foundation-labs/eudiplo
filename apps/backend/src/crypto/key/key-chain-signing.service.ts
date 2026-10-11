@@ -175,8 +175,9 @@ export class KeyChainSigningService {
         tenantId: string,
         id: string,
     ): Promise<KeyChainEntity> {
+        // The tenant's encryption key chain never signs.
         const keyChain = await this.keyChainRepository.findOne({
-            where: { tenantId, id },
+            where: { tenantId, id, usage: KeyUsage.Sign },
         });
         if (!keyChain) {
             throw new NotFoundException(`Key chain ${id} not found`);
