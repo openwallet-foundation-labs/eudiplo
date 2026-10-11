@@ -648,8 +648,8 @@ export class SchemaMetadataSubmissionService {
         // publish-only ones (category, tags) exist only at the registrar, and
         // its schemaMeta (part of the config file format) rejects them.
         const schemaMeta = Object.fromEntries(
-            Object.entries(normalizedConfig).filter(
-                ([key]) => key in SchemaMetaConfig.schema.shape,
+            Object.entries(normalizedConfig).filter(([key]) =>
+                Object.hasOwn(SchemaMetaConfig.schema.shape, key),
             ),
         );
         const schemaMetaForLink = {

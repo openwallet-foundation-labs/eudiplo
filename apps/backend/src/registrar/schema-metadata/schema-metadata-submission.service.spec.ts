@@ -207,21 +207,40 @@ describe("SchemaMetadataSubmissionService registrar catalogue fields", () => {
         },
     );
 
-    it("sends a category without tags to the registrar", async () => {
-        const { tags: _tags, ...categoryOnly } = config;
+    it.each([
+        {
+            fields: { category: "identity" },
+            update: { displayName: "German PID", category: "identity" },
+        },
+        {
+            fields: { tags: ["pid"] },
+            update: { displayName: "German PID", tags: ["pid"] },
+        },
+        { fields: { tags: [] }, update: { displayName: "German PID" } },
+    ])(
+        "sends only the set catalogue fields $fields to the registrar",
+        async ({ fields, update }) => {
+            const {
+                category: _category,
+                tags: _tags,
+                ...withoutCatalogue
+            } = config;
 
-        await service.submitSchemaMetadata(
-            "tenant-1",
-            SignSchemaMetaConfigDto.schema.parse({ config: categoryOnly }),
-        );
+            await service.submitSchemaMetadata(
+                "tenant-1",
+                SignSchemaMetaConfigDto.schema.parse({
+                    config: { ...withoutCatalogue, ...fields },
+                }),
+            );
 
-        expect(schemaMetadataService.updateMetadata).toHaveBeenCalledWith(
-            "tenant-1",
-            schemaMetadataId,
-            "1.0.0",
-            { displayName: "German PID", category: "identity" },
-        );
-    });
+            expect(schemaMetadataService.updateMetadata).toHaveBeenCalledWith(
+                "tenant-1",
+                schemaMetadataId,
+                "1.0.0",
+                update,
+            );
+        },
+    );
 
     describe("link-only request", () => {
         const {

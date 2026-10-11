@@ -1,7 +1,11 @@
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatSelectHarness } from '@angular/material/select/testing';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import { SchemaService } from '../schema.service';
 import { SchemaCreateComponent } from './schema-create.component';
 
 describe('SchemaCreateComponent', () => {
@@ -70,5 +74,34 @@ describe('SchemaCreateComponent', () => {
       { duration: 5000 }
     );
     expect(component.loading).toBe(false);
+  });
+});
+
+describe('SchemaCreateComponent template', () => {
+  it('lets the user clear a selected category', async () => {
+    const pending = () => new Promise<never>(() => undefined);
+    TestBed.configureTestingModule({
+      imports: [SchemaCreateComponent],
+      providers: [
+        provideRouter([]),
+        { provide: SchemaService, useValue: { getVocabularies: pending } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations: pending } },
+      ],
+    });
+    const fixture = TestBed.createComponent(SchemaCreateComponent);
+    const component = fixture.componentInstance;
+    component.categoryVocabularies = [{ code: 'identity', label: 'Identity' } as any];
+    fixture.detectChanges();
+    component.composeForm.patchValue({ category: 'identity' });
+
+    const select = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+      MatSelectHarness.with({ selector: '[formControlName="category"]' })
+    );
+    await select.open();
+    const [none] = await select.getOptions();
+    expect(await none.getText()).toBe('— None —');
+    await none.click();
+
+    expect(component.composeForm.value.category).toBe('');
   });
 });
