@@ -111,28 +111,35 @@ describe("configuration comparisons", () => {
                 .unchanged,
         ).toBe(false);
     });
-    it("treats a stored null key chain description like an omitted one", async () => {
+    describe("key chains", () => {
         const publicJwk = { kty: "EC", crv: "P-256", x: "x", y: "y" };
-        const result = service({}) as any;
         // Use the real stored-spec mapping instead of the stub.
-        delete result.currentSpec;
-        result.repos = {
-            keyChains: {
-                findOneBy: async () => ({
-                    description: null,
-                    usageType: "attestation",
-                    kmsProvider: "vault",
-                    externalKeyId: "vault-key",
-                    activeJwk: { ...publicJwk, d: "private" },
-                    activeCertificate: "cert",
-                    rotationEnabled: false,
-                    rotationIntervalDays: null,
-                    certValidityDays: null,
-                    hasInternalCa: () => false,
-                }),
-            },
-        };
-        const document: ConfigDocument = {
+        function storedKeyChain(overrides: Record<string, unknown> = {}) {
+            const row = {
+                id: "key",
+                description: null,
+                usageType: "attestation",
+                kmsProvider: "vault",
+                externalKeyId: "vault-key",
+                activeJwk: { ...publicJwk, d: "private" },
+                activeCertificate: "cert",
+                rotationEnabled: false,
+                rotationIntervalDays: null,
+                certValidityDays: null,
+                hasInternalCa: () => false,
+                ...overrides,
+            };
+            const result = service({}) as any;
+            delete result.currentSpec;
+            result.repos = {
+                keyChains: {
+                    findOneBy: async () => row,
+                    find: async () => [row],
+                },
+            };
+            return result as ConfigBundleService;
+        }
+        const keyChain = (spec: Record<string, unknown>): ConfigDocument => ({
             $schema: schemaUrl("KeyChain"),
             kind: "KeyChain",
             metadata: {},
@@ -147,12 +154,187 @@ describe("configuration comparisons", () => {
                     publicJwk,
                 },
                 crt: ["cert"],
-                rotationPolicy: { enabled: false },
+                ...spec,
             },
-        };
-        expect(await result.compareDocument("tenant", document)).toEqual({
-            unchanged: true,
-            changes: [],
+        });
+
+        it("treats a stored null key chain description like an omitted one", async () => {
+            expect(
+                await storedKeyChain().compareDocument(
+                    "tenant",
+                    keyChain({ rotationPolicy: { enabled: false } }),
+                ),
+            ).toEqual({ unchanged: true, changes: [] });
+        });
+        it("plans an exported key chain without rotation values as unchanged", async () => {
+            const result = storedKeyChain() as any;
+            const none = { find: async () => [], findOneBy: async () => null };
+            Object.assign(result.repos, {
+                tenants: { findOneByOrFail: async () => ({ name: "Tenant" }) },
+                clients: none,
+                registrarConfigs: none,
+                issuanceConfigs: none,
+                credentialConfigs: none,
+                presentationConfigs: none,
+                attributeProviders: none,
+                webhookEndpoints: none,
+                trustLists: none,
+                statusLists: none,
+            });
+            result.kmsTenantConfigService = { getTenantConfig: () => null };
+            result.ownershipService = {
+                get: async () => ({ generation: 1, ownership: "unmanaged" }),
+            };
+
+            const { documents } = await result.exportBundle("tenant");
+            const exported = documents.find(
+                (document: ConfigDocument) =>
+                    document.$schema === schemaUrl("KeyChain"),
+            );
+
+            expect(exported.spec.rotationPolicy).toEqual({ enabled: false });
+            expect(
+                await result.compareDocument("tenant", {
+                    ...exported,
+                    kind: "KeyChain",
+                }),
+            ).toEqual({ unchanged: true, changes: [] });
+        });
+        it("treats null rotation values from earlier exports like omitted ones", async () => {
+            expect(
+                await storedKeyChain().compareDocument(
+                    "tenant",
+                    keyChain({
+                        rotationPolicy: {
+                            enabled: false,
+                            intervalDays: null,
+                            certValidityDays: null,
+                        },
+                    }),
+                ),
+            ).toEqual({ unchanged: true, changes: [] });
+        });
+        it("treats an omitted rotation policy as disabled rotation", async () => {
+            const stored = storedKeyChain();
+            expect(
+                await stored.compareDocument("tenant", keyChain({})),
+            ).toEqual({ unchanged: true, changes: [] });
+            const rotating = storedKeyChain({
+                rotationEnabled: true,
+                rotationIntervalDays: 30,
+            });
+            expect(
+                await rotating.compareDocument("tenant", keyChain({})),
+            ).toEqual({
+                unchanged: false,
+                changes: [
+                    {
+                        path: "/spec/rotationPolicy/enabled",
+                        before: true,
+                        after: false,
+                    },
+                    {
+                        path: "/spec/rotationPolicy/intervalDays",
+                        before: 30,
+                    },
+                ],
+            });
+        });
+        const jwk = { ...publicJwk, d: "private" };
+        // Rotation changes the plan lists for a stored internal db chain.
+        const plannedRotation = async (
+            row: Record<string, unknown>,
+            keySource: Record<string, unknown>,
+            rotationPolicy: Record<string, unknown>,
+        ) =>
+            (
+                await storedKeyChain({
+                    kmsProvider: "db",
+                    externalKeyId: null,
+                    rootJwk: jwk,
+                    rootCertificate: "root",
+                    hasInternalCa: () => true,
+                    ...row,
+                }).compareDocument(
+                    "tenant",
+                    keyChain({
+                        kmsProvider: "db",
+                        keySource: { type: "private-jwk", jwk, ...keySource },
+                        crt: ["root"],
+                        rotationPolicy,
+                    }),
+                )
+            ).changes.filter(({ path }) =>
+                path.startsWith("/spec/rotationPolicy"),
+            );
+
+        it("plans the rotation values the importer stores for a private key without active key", async () => {
+            // With rotation, the importer fills in its default interval.
+            expect(
+                await plannedRotation(
+                    {
+                        rotationEnabled: true,
+                        rotationIntervalDays: 90,
+                        certValidityDays: 30,
+                    },
+                    {},
+                    { enabled: true, certValidityDays: 30 },
+                ),
+            ).toEqual([]);
+            // Without rotation, it stores no intervals.
+            expect(
+                await plannedRotation(
+                    {},
+                    {},
+                    { enabled: false, intervalDays: 30, certValidityDays: 30 },
+                ),
+            ).toEqual([]);
+        });
+        it("plans the rotation values of an internal chain with private keys as given", async () => {
+            const activeKey = { activeJwk: jwk };
+            // No import defaults with rotation enabled.
+            expect(
+                await plannedRotation({ rotationEnabled: true }, activeKey, {
+                    enabled: true,
+                }),
+            ).toEqual([]);
+            // Intervals are kept without rotation.
+            expect(
+                await plannedRotation(
+                    { rotationIntervalDays: 30, certValidityDays: 60 },
+                    activeKey,
+                    { enabled: false, intervalDays: 30, certValidityDays: 60 },
+                ),
+            ).toEqual([]);
+        });
+        it("reports the removal of values a key chain document leaves out", async () => {
+            const stored = storedKeyChain({
+                description: "Signing key",
+                rotationEnabled: true,
+                rotationIntervalDays: 30,
+                certValidityDays: 365,
+            });
+            expect(
+                await stored.compareDocument(
+                    "tenant",
+                    keyChain({
+                        rotationPolicy: { enabled: true, intervalDays: null },
+                    }),
+                ),
+            ).toEqual({
+                unchanged: false,
+                changes: [
+                    { path: "/spec/description", before: "Signing key" },
+                    {
+                        path: "/spec/rotationPolicy/certValidityDays",
+                        before: 365,
+                    },
+                    {
+                        path: "/spec/rotationPolicy/intervalDays",
+                        before: 30,
+                    },
+                ],
+            });
         });
     });
     it("reports a description added to a trust list without one as new", async () => {

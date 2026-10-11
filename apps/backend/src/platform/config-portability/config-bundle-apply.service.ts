@@ -54,6 +54,7 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
+import { keyChainSettingsColumns } from "./key-chain-document.js";
 
 function redactDiagnosticMessage(message: string): string {
     return message
@@ -713,7 +714,6 @@ export class ConfigBundleApplyService {
                 await this.keyChains.save({
                     id: resourceId(document),
                     tenantId,
-                    description: spec.description,
                     usageType: spec.usageType,
                     usage: KeyUsage.Sign,
                     kmsProvider: "db",
@@ -723,16 +723,15 @@ export class ConfigBundleApplyService {
                     rootCertificate: spec.crt?.at(-1),
                     activeJwk: spec.keySource.activeJwk,
                     activeCertificate: spec.activeCertificate,
-                    rotationEnabled: spec.rotationPolicy?.enabled ?? true,
-                    rotationIntervalDays: spec.rotationPolicy?.intervalDays,
-                    certValidityDays: spec.rotationPolicy?.certValidityDays,
+                    ...keyChainSettingsColumns(spec),
                 });
                 return;
             }
-            await this.keyChainService.importKeyChain(
-                tenantId,
-                this.migrationService.unwrapForLegacyImporter(document) as any,
-            );
+            // The importer sets rotation itself but keeps an omitted description.
+            await this.keyChainService.importKeyChain(tenantId, {
+                ...this.migrationService.unwrapForLegacyImporter(document),
+                description: spec.description ?? null,
+            } as any);
             return;
         }
         if (spec.keySource?.type !== "external-reference") {
@@ -744,7 +743,6 @@ export class ConfigBundleApplyService {
         await this.keyChains.save({
             id: resourceId(document),
             tenantId,
-            description: spec.description,
             usageType: spec.usageType,
             usage: KeyUsage.Sign,
             kmsProvider: spec.keySource.provider,
@@ -764,11 +762,7 @@ export class ConfigBundleApplyService {
                 spec.keySource.externalKeyId,
             activeCertificate:
                 spec.activeCertificate ?? spec.crt?.join("\n") ?? "",
-            rotationEnabled: spec.rotationPolicy?.enabled ?? false,
-            rotationIntervalDays:
-                spec.rotationPolicy?.intervalDays ?? (null as any),
-            certValidityDays:
-                spec.rotationPolicy?.certValidityDays ?? (null as any),
+            ...keyChainSettingsColumns(spec),
         });
     }
 

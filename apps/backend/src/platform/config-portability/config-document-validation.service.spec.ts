@@ -33,6 +33,35 @@ describe("ConfigDocumentValidationService", () => {
         ).toEqual([]);
     });
 
+    it("accepts the null rotation values of earlier exports with a private key", () => {
+        expect(
+            service.validate({
+                $schema: schemaUrl("KeyChain"),
+                kind: "KeyChain",
+                metadata: {},
+                spec: {
+                    id: "issuer",
+                    usageType: "attestation",
+                    keySource: {
+                        type: "private-jwk",
+                        jwk: {
+                            kty: "EC",
+                            crv: "P-256",
+                            x: "x",
+                            y: "y",
+                            d: "d",
+                        },
+                    },
+                    rotationPolicy: {
+                        enabled: false,
+                        intervalDays: null,
+                        certValidityDays: null,
+                    },
+                },
+            }),
+        ).toEqual([]);
+    });
+
     it("accepts identity carried by the schema-described spec", () => {
         expect(
             service.validate({
