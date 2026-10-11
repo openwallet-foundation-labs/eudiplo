@@ -147,6 +147,25 @@ A secret that is not set, such as the client secret of a registrar account witho
 `regenerate` keeps the key chain ID but creates a new cryptographic identity:
 certificates and anything bound to the old key must be renewed.
 
+A `private-jwk` key source takes one of two forms:
+
+- With only `jwk`, the document is imported like
+  [`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate)
+  and accepts only that request's fields. To restore an exported internal
+  chain from its root CA key, remove `activeCertificate` and set
+  `rotationPolicy` to `{ "enabled": true }`, optionally with intervals:
+  EUDIPLO keeps the root and creates a new signing key under it (an external
+  CA chain). Without rotation, the root CA key itself becomes the signing key.
+- With `activeJwk` as well, it stores an internal chain as given, in the
+  database: `jwk` is the root CA key and `crt` holds exactly its certificate,
+  `activeJwk` is the signing key and `activeCertificate` its certificate,
+  which may be followed by the root certificate. Both certificates must be
+  PEM and match their keys, the root certificate must be a CA certificate,
+  and `kmsProvider` must be `db` or left out; the plan blocks the resource
+  otherwise. Exports never contain the signing key of an internal chain
+  ([key chain export](../trust/keys-and-certificates.md#import-a-key-and-certificate)),
+  so this form needs key material you hold outside EUDIPLO.
+
 **Placeholders.** Any string value can be `${VAR}` or `${VAR:default}`
 (uppercase letters, digits, `_`; an empty variable counts as unset). Values are
 substituted once and not interpreted again. In tenant folders, unresolved

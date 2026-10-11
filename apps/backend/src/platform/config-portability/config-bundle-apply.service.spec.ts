@@ -329,7 +329,7 @@ describe("reviewed plans and replacement failures", () => {
 describe("key chain replacement", () => {
     const algorithm = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
     const crypto = webcrypto as Crypto;
-    async function keyWithCertificate() {
+    async function keyWithCertificate(ca = false) {
         const keys = (await crypto.subtle.generateKey(algorithm, true, [
             "sign",
             "verify",
@@ -343,6 +343,15 @@ describe("key chain replacement", () => {
                     notAfter: new Date(Date.now() + 3_600_000),
                     keys,
                     signingAlgorithm: algorithm,
+                    extensions: ca
+                        ? [
+                              new x509.BasicConstraintsExtension(
+                                  true,
+                                  undefined,
+                                  true,
+                              ),
+                          ]
+                        : [],
                 },
                 crypto,
             );
@@ -423,7 +432,7 @@ describe("key chain replacement", () => {
     });
     it("clears the values an internal chain with private keys leaves out", async () => {
         const service = setup();
-        const root = await keyWithCertificate();
+        const root = await keyWithCertificate(true);
         const active = await keyWithCertificate();
 
         await service.applyKeyChain(
@@ -443,9 +452,32 @@ describe("key chain replacement", () => {
             expect.objectContaining(cleared),
         );
     });
+    it("rechecks an internal chain with private keys before saving it", async () => {
+        const service = setup();
+        const root = await keyWithCertificate(true);
+        const active = await keyWithCertificate();
+
+        await expect(
+            service.applyKeyChain(
+                "tenant",
+                keyChain({
+                    keySource: {
+                        type: "private-jwk",
+                        jwk: root.jwk,
+                        activeJwk: active.jwk,
+                    },
+                    crt: [root.certificate],
+                    activeCertificate: root.certificate,
+                }),
+            ),
+        ).rejects.toThrow(
+            "The first certificate in activeCertificate does not belong to keySource.activeJwk.",
+        );
+        expect(service.repos.keyChains.save).not.toHaveBeenCalled();
+    });
     it("stores the rotation values of an internal chain with private keys as given", async () => {
         const service = setup();
-        const root = await keyWithCertificate();
+        const root = await keyWithCertificate(true);
         const active = await keyWithCertificate();
         const internalChain = (rotationPolicy: Record<string, unknown>) =>
             keyChain({

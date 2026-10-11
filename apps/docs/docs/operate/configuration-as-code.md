@@ -137,8 +137,10 @@ eudiplo config export --instance production --output acme.zip
 ```
 
 The export never contains secrets or database-held private keys. It replaces
-them with `${…}` placeholders and lists them as requirements in `manifest.json`;
-supply the values on the target instance or let the import generate them (see
+secrets with `${…}` placeholders and private keys with
+`keySource: { "type": "required" }`, and lists both as requirements in
+`manifest.json`; supply the values on the target instance or let the import
+generate them (see
 [secret and key policy](../reference/config-bundle-format.md#secret-and-key-policy)).
 
 ## Upgrade old files
