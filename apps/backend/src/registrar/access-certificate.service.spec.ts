@@ -204,6 +204,8 @@ describe("AccessCertificateService.createAccessCertificate", () => {
         expect(certService.addCertificate).toHaveBeenCalledWith("tenant", {
             crt: ["PEM"],
             keyId: "access",
+            defaultDescription:
+                "Access certificate from registrar (ID: registrar-cert)",
         });
     });
 

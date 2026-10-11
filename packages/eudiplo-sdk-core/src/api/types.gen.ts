@@ -6500,6 +6500,10 @@ export type RegistrarControllerCreateAccessCertificateErrors = {
      */
     400: unknown;
     /**
+     * The caller lacks the registrar:manage role
+     */
+    403: unknown;
+    /**
      * No registrar configuration found or key not found
      */
     404: unknown;
