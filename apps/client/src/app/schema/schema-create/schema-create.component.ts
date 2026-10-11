@@ -188,6 +188,17 @@ export class SchemaCreateComponent implements OnInit {
     return this.composeForm.get('trustedAuthorities') as FormArray<FormGroup>;
   }
 
+  /**
+   * The root certificates in `trustedAuthorities`, with their index in that
+   * FormArray. Selected trust lists come first in the same array, so the
+   * FormArray index does not count root certificates.
+   */
+  get rootCertificates(): { group: FormGroup; index: number }[] {
+    return this.trustedAuthorities.controls
+      .map((group, index) => ({ group, index }))
+      .filter(({ group }) => group.get('frameworkType')?.value === 'x509');
+  }
+
   /** Display label for a credential config (used in select dropdown). */
   configLabel(c: CredentialConfig): string {
     return c.description ? `${c.description} (${c.id})` : c.id;

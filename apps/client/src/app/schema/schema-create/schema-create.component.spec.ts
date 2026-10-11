@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -421,10 +422,76 @@ describe('SchemaCreateComponent required fields', () => {
     fixture.detectChanges();
 
     const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
-      'label[for="root-certificate-0"]'
+      'label[for="root-certificate-1"]'
     );
     expect(labels).toHaveLength(1);
-    expect(labels[0].textContent).toContain('Root certificate (base64 DER)');
+    expect(labels[0].textContent).toContain('Root certificate 1 (base64 DER)');
+  });
+
+  it('numbers root certificates among themselves, behind the selected trust lists', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    const element = fixture.nativeElement as HTMLElement;
+    component.addX509TrustAnchor();
+    component.addX509TrustAnchor();
+    component.trustedAuthorities.at(0).patchValue({ value: 'MIIBFIRST0==' });
+    component.trustedAuthorities.at(1).patchValue({ value: 'MIIBSECOND==' });
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    fixture.detectChanges();
+
+    const fields = () =>
+      [...element.querySelectorAll<HTMLTextAreaElement>('textarea[id^="root-certificate-"]')].map(
+        (textarea) => ({
+          label: element.querySelector(`label[for="${textarea.id}"]`)?.textContent?.trim(),
+          value: textarea.value,
+        })
+      );
+    const removeButtons = () => [
+      ...element.querySelectorAll<HTMLButtonElement>(
+        'button[aria-label^="Remove root certificate"]'
+      ),
+    ];
+
+    expect(fields()).toEqual([
+      { label: 'Root certificate 1 (base64 DER)', value: 'MIIBFIRST0==' },
+      { label: 'Root certificate 2 (base64 DER)', value: 'MIIBSECOND==' },
+    ]);
+    expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Remove root certificate 1',
+      'Remove root certificate 2',
+    ]);
+    const tooltipText = async (name: string) => {
+      const tooltip = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+        MatTooltipHarness.with({ selector: `[aria-label="${name}"]` })
+      );
+      await tooltip.show();
+      return tooltip.getTooltipText();
+    };
+    expect(await tooltipText('Remove root certificate 2')).toBe('Remove root certificate 2');
+
+    removeButtons()[0].click();
+    fixture.detectChanges();
+
+    expect(fields()).toEqual([{ label: 'Root certificate 1 (base64 DER)', value: 'MIIBSECOND==' }]);
+    expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Remove root certificate 1',
+    ]);
+    expect(await tooltipText('Remove root certificate 1')).toBe('Remove root certificate 1');
+
+    // The remaining row still edits its own entry, behind the trust list.
+    const textarea = element.querySelector<HTMLTextAreaElement>('#root-certificate-1')!;
+    textarea.value = 'MIIBTYPED0==';
+    textarea.dispatchEvent(new Event('input'));
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    await component.submit();
+
+    expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
+      { trustListId: 'tl-1' },
+      { frameworkType: 'x509', value: 'MIIBTYPED0==' },
+    ]);
   });
 
   it('does not navigate after a submit that finishes once the user has left', async () => {
