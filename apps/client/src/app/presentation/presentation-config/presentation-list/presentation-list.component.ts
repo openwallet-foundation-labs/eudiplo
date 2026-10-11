@@ -57,7 +57,7 @@ export class PresentationListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadConfigurations();
+    void this.loadConfigurations();
   }
 
   async loadConfigurations(): Promise<void> {

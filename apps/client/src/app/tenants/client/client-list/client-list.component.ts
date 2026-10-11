@@ -82,7 +82,7 @@ export class ClientListComponent implements OnInit {
     if (this.loadedClients) {
       this.clients = this.loadedClients;
     } else {
-      this.loadClients();
+      void this.loadClients();
     }
   }
 

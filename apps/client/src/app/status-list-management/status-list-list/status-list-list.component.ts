@@ -71,7 +71,7 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    void this.loadData();
   }
 
   ngAfterViewInit(): void {

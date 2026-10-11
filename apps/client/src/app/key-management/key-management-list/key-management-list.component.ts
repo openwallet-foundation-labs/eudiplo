@@ -110,7 +110,7 @@ export class KeyManagementListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadAllKeys();
+    void this.loadAllKeys();
   }
 
   async loadAllKeys(): Promise<void> {

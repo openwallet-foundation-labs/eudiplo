@@ -104,7 +104,7 @@ export class StatusListEditComponent implements OnInit {
       capacity: new FormControl(null),
     });
 
-    this.loadData();
+    void this.loadData();
   }
 
   /** Loaders of the options of each select; a source that failed is loaded again on its own. */
