@@ -201,10 +201,10 @@ describe("AccessCertificateService.createAccessCertificate", () => {
             certId: "access",
             crt: "PEM",
         });
-        expect(certService.addCertificate).toHaveBeenCalledWith(
-            "tenant",
-            expect.objectContaining({ crt: ["PEM"], keyId: "access" }),
-        );
+        expect(certService.addCertificate).toHaveBeenCalledWith("tenant", {
+            crt: ["PEM"],
+            keyId: "access",
+        });
     });
 
     it.each([

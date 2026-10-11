@@ -247,6 +247,17 @@ describe("KeyChainService.update rotation policy", () => {
             { description: "Signing" },
         );
     });
+
+    it("keeps the description when only the certificate changes", async () => {
+        const service = updateServiceFor(keyChain({}));
+
+        await service.update("tenant", "key", { activeCertificate: "PEM" });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { activeCertificate: "PEM" },
+        );
+    });
 });
 
 describe("KeyChainService.findByUsageType", () => {
