@@ -117,10 +117,45 @@ describe('getApiErrorMessage', () => {
     expect(getApiErrorMessage(undefined, 'Failed to load')).toBe('Failed to load');
   });
 
-  it('keeps a message that already says what failed', () => {
+  it('keeps a backend message that already says what failed', () => {
+    expect(
+      getApiErrorMessage(
+        { statusCode: 502, message: 'Failed to create access certificate' },
+        'Failed to load'
+      )
+    ).toBe('Failed to create access certificate');
+  });
+
+  it.each([
+    ['Chrome', 'Failed to fetch'],
+    ['Chrome naming the host', 'Failed to fetch (localhost)'],
+    ['Firefox', 'NetworkError when attempting to fetch resource.'],
+    ['Safari', 'Load failed'],
+    ['Safari naming the host', 'Load failed (localhost)'],
+    ['Safari 16', 'The Internet connection appears to be offline.'],
+  ])('says when the backend could not be reached (%s)', (_browser, message) => {
+    expect(getApiErrorMessage(new TypeError(message), 'Failed to delete client')).toBe(
+      'Failed to delete client: the backend could not be reached. Check the connection and try again.'
+    );
+  });
+
+  it('counts only a TypeError from fetch as a network failure', () => {
     expect(getApiErrorMessage(new Error('Failed to fetch'), 'Failed to load')).toBe(
       'Failed to fetch'
     );
+  });
+
+  it.each([
+    [
+      "Cannot read properties of undefined (reading 'id')",
+      "Failed to delete client: Cannot read properties of undefined (reading 'id')",
+    ],
+    [
+      'Failed to fetch dynamically imported module: https://x/chunk.js',
+      'Failed to fetch dynamically imported module: https://x/chunk.js',
+    ],
+  ])('keeps the message of a TypeError that is not a network failure: %s', (message, expected) => {
+    expect(getApiErrorMessage(new TypeError(message), 'Failed to delete client')).toBe(expected);
   });
 
   it('names the field of the first validation issue', () => {

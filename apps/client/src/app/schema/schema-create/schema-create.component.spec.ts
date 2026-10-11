@@ -179,6 +179,22 @@ describe('SchemaCreateComponent loading its sources', () => {
     );
   });
 
+  it('names the source when the backend message already says what failed', async () => {
+    getVocabularies.mockRejectedValue({
+      statusCode: 502,
+      message: 'Failed to authenticate with registrar: the OIDC provider could not be reached',
+    });
+
+    await createComponent().loadData();
+
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load categories and tags from the registrar: ' +
+        'Failed to authenticate with registrar: the OIDC provider could not be reached',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
   it('names each source when the backend cannot be reached', async () => {
     loadConfigurations.mockRejectedValue(new TypeError('Failed to fetch'));
     getVocabularies.mockRejectedValue(new TypeError('Failed to fetch'));
@@ -190,10 +206,11 @@ describe('SchemaCreateComponent loading its sources', () => {
 
     await createComponent().loadData();
 
+    const unreachable = 'the backend could not be reached. Check the connection and try again.';
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load credential configs: Failed to fetch; ' +
-        'Failed to load trust lists: Failed to fetch; ' +
-        'Failed to load categories and tags from the registrar: Failed to fetch',
+      `Failed to load credential configs: ${unreachable}; ` +
+        `Failed to load trust lists: ${unreachable}; ` +
+        `Failed to load categories and tags from the registrar: ${unreachable}`,
       'Close',
       { duration: 10000 }
     );

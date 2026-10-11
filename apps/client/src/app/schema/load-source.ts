@@ -21,7 +21,7 @@ export async function loadSource<K extends string>(
   } catch (error) {
     console.error(`${fallback}:`, error);
     state[source] = 'failed';
-    // A message such as "Failed to fetch" replaces the fallback, so name the source again.
+    // A backend message that starts with "Failed to" replaces the fallback, so name the source again.
     const message = getApiErrorMessage(error, fallback);
     return message.startsWith(fallback) ? message : `${fallback}: ${message}`;
   }

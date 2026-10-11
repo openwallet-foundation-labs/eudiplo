@@ -34,7 +34,17 @@ export function apiErrorDetail(error: unknown): string | undefined {
   return extracted && extracted.toLowerCase() !== '[object object]' ? extracted : undefined;
 }
 
+/**
+ * Message for a failed SDK call: the backend's message prefixed with
+ * `fallback`, plus the first validation issue; a hint when the backend could
+ * not be reached; else `fallback`. A backend message that starts with
+ * "Failed to" already says what failed and is returned without the prefix.
+ */
 export function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (isNetworkError(error)) {
+    return unreachableMessage(fallback);
+  }
+
   const extracted = apiErrorDetail(error);
   const issue = firstValidationIssue(error);
   if (!extracted) {
@@ -75,10 +85,34 @@ export function hasHttpStatus(error: unknown, status: number): boolean {
 export function getHttpErrorMessage(error: unknown, fallback: string): string {
   const response = error as { status?: unknown; error?: { message?: unknown } | null } | null;
   if (response?.status === 0) {
-    return `${fallback}: the backend could not be reached. Check the connection and try again.`;
+    return unreachableMessage(fallback);
   }
   const body = response?.error;
   return getApiErrorMessage(typeof body?.message === 'string' ? body : error, fallback);
+}
+
+function unreachableMessage(fallback: string): string {
+  return `${fallback}: the backend could not be reached. Check the connection and try again.`;
+}
+
+/**
+ * Messages of the `TypeError` that `fetch` rejects with when the request got
+ * no response (offline, DNS, refused connection, CORS). Other `TypeError`s,
+ * such as a bug in the calling code, keep their message.
+ */
+const NETWORK_ERROR_MESSAGES = [
+  /^Failed to fetch( \(.+\))?$/, // Chrome, optionally naming the host
+  /^NetworkError when attempting to fetch resource\.$/, // Firefox
+  /^Load failed( \(.+\))?$/, // Safari
+  /^The Internet connection appears to be offline\.$/, // Safari 16
+];
+
+/** True when `fetch` rejected because the backend could not be reached. */
+function isNetworkError(error: unknown): boolean {
+  return (
+    error instanceof TypeError &&
+    NETWORK_ERROR_MESSAGES.some((pattern) => pattern.test(error.message))
+  );
 }
 
 /** A field the backend rejected in a `400 Validation failed` response. */
