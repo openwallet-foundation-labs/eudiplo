@@ -7,7 +7,7 @@ import { AuditLogService } from "./audit-log.service.js";
 import { AuditLogResponseDto } from "./dto/audit-log-response.dto.js";
 
 @ApiTags("Audit Log")
-@Secured([Role.Clients])
+@Secured([Role.Clients, Role.AuditRead])
 @Controller("admin/audit-logs")
 export class AuditLogController {
     constructor(private readonly auditLogService: AuditLogService) {}

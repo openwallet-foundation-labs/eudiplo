@@ -46,7 +46,7 @@ const TENANT_ADMIN_REQUIRED =
  * - Rotation policy and previous keys (for grace period)
  */
 @ApiTags("Key Chain")
-@Secured([Role.Issuances, Role.Presentations])
+@Secured([Role.Issuances, Role.Presentations, Role.Keys])
 @Controller("key-chain")
 export class KeyChainController {
     constructor(

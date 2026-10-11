@@ -2,7 +2,7 @@
 // The CLI bundles this module through assets:sync; do not maintain a second engine.
 export const CONFIG_FORMATS = {
     Tenant: { slug: "tenant", file: "TenantConfigFile", version: 1 },
-    Client: { slug: "client", file: "ClientConfigFile", version: 1 },
+    Client: { slug: "client", file: "ClientConfigFile", version: 2 },
     KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 1 },
     KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 1 },
     RegistrarConfig: {
@@ -162,6 +162,15 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 3,
         // v3 only adds the optional verifierKeyPem to wallet provider trust
         // list references: a v2 spec is a valid v3 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "client-v2-read-and-status-roles",
+        kind: "Client",
+        from: 1,
+        to: 2,
+        // v2 only adds the roles audit:read, sessions:read, credentials:status
+        // and keys:manage: a v1 spec is a valid v2 spec.
         migrate: (spec) => ({ spec }),
     },
     {

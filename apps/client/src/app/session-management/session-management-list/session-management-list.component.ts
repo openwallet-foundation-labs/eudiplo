@@ -48,6 +48,8 @@ import {
   SessionManagementService,
   SessionQueryParams,
 } from '../session-management.service';
+import { maySessionChange, SESSION_CHANGER_ROLES } from '../session-roles';
+import { JwtService } from '../../services/jwt.service';
 
 // Define the SessionStatus type
 export type SessionStatus = 'active' | 'fetched' | 'completed' | 'expired' | 'failed' | 'cancelled';
@@ -204,9 +206,14 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   private readonly sessionManagementService = inject(SessionManagementService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly jwtService = inject(JwtService);
   private readonly refresh$ = new Subject<void>();
 
   ngOnInit(): void {
+    // sessions:read alone reads sessions but cancels and deletes none.
+    if (!this.jwtService.hasRole(SESSION_CHANGER_ROLES)) {
+      this.displayedColumns = this.displayedColumns.filter((column) => column !== 'select');
+    }
     this.restoreFilters(this.route.snapshot.queryParamMap);
     this.restoreTableState(this.route.snapshot.queryParams);
     void this.loadConfigOptions();
@@ -429,11 +436,38 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
     }));
   }
 
+  readonly canOfferIssuance = this.jwtService.hasRole('issuance:offer');
+  readonly canRequestPresentation = this.jwtService.hasRole('presentation:request');
+  readonly readOnlyRowHint = 'Your roles let you read this session but not cancel or delete it';
+  /**
+   * Like the backend, sessions:read lists the sessions a wallet can still use
+   * only for the types the caller creates or manages.
+   */
+  readonly hidesOpenSessions =
+    this.jwtService.hasRole('sessions:read') &&
+    !(
+      maySessionChange((roles) => this.jwtService.hasRole(roles), { requestId: undefined }) &&
+      maySessionChange((roles) => this.jwtService.hasRole(roles), { requestId: 'presentation' })
+    );
+
+  /** Whether the caller may cancel and delete this session, not only read it. */
+  canChange(session: Session): boolean {
+    return maySessionChange((roles) => this.jwtService.hasRole(roles), session);
+  }
+
+  /** Rows of the page the caller may cancel and delete. */
+  private get changeableRows(): Session[] {
+    return this.dataSource.data.filter((session) => this.canChange(session));
+  }
+
+  get hasChangeableRows(): boolean {
+    return this.changeableRows.length > 0;
+  }
+
   // Selection methods
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
+    const numRows = this.changeableRows.length;
+    return numRows > 0 && this.selection.selected.length === numRows;
   }
 
   masterToggle() {
@@ -442,12 +476,15 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.selection.select(...this.dataSource.data);
+    this.selection.select(...this.changeableRows);
   }
 
   checkboxLabel(row?: Session): string {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    if (!this.canChange(row)) {
+      return `row ${row.id}: ${this.readOnlyRowHint}`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id}`;
   }

@@ -390,6 +390,14 @@ export class TypeOrmSessionRepository implements SessionRepository {
         }
         if (query.q)
             qb.andWhere(this.matchesSearch(parseSessionSearch(query.q)));
+        for (const type of query.hideOpen ?? []) {
+            // `NOT s.consumed` instead of a boolean parameter, which
+            // better-sqlite3 cannot bind.
+            qb.andWhere(
+                `NOT (s.requestId IS ${type === "issuance" ? "" : "NOT "}NULL AND NOT s.consumed AND s.status IN (:...openStatuses))`,
+                { openStatuses: [...OPEN_SESSION_STATUSES] },
+            );
+        }
         return qb;
     }
 

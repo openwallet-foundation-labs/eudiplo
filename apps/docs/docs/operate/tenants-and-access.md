@@ -104,25 +104,40 @@ put in offers, `allowedPresentationConfigs` the presentation configurations it
 may request. Other IDs are rejected with `403`; an empty or missing list allows
 all.
 
-The session endpoints (`/api/session`) need `issuance:offer` or
-`presentation:request` and show a client only the sessions of its side:
-issuance sessions with `issuance:offer` or `issuance:manage`, presentation
-sessions with `presentation:request` or `presentation:manage`. Other sessions
-are left out of the list, answer `404` and are not deleted. Changing credential
-status (`POST /api/session/revoke`) needs `issuance:offer` or
-`issuance:manage`.
+The session endpoints (`/api/session`) need `issuance:offer`,
+`presentation:request` or `sessions:read`. Without `sessions:read`, a client
+sees only the sessions of its side: issuance sessions with `issuance:offer` or
+`issuance:manage`, presentation sessions with `presentation:request` or
+`presentation:manage`. Other sessions are left out of the list, answer `404`
+and are not deleted. `sessions:read` reads the sessions of both sides, with
+their logs, events, counts and credential status, including issued claims and
+presented credentials, but creates, cancels and deletes none; together with
+`issuance:offer` or `presentation:request`, a client still cancels and deletes
+only the sessions of that side. Of the session types a client with
+`sessions:read` cannot cancel, which also holds for `issuance:manage` or
+`presentation:manage` without `issuance:offer` or `presentation:request`, it
+sees only the sessions a wallet can no longer use: redeemed, answered or in a
+final status. The others are left out of the list and answer `404`,
+because their session ID alone lets a wallet redeem the offer or answer the
+request; the counts include them. The sessions it sees come without the values
+a wallet redeems or answers them with, such as the offer and request URIs and
+the transaction code. Changing credential status
+(`POST /api/session/revoke`) needs `credentials:status` or `issuance:manage`.
 
 Typical role sets:
 
 | Caller                                   | Roles                                                         |
 | ---------------------------------------- | ------------------------------------------------------------- |
-| Your application backend                 | `issuance:offer`, `presentation:request`                      |
+| Your application backend                 | `issuance:offer`, `presentation:request`; also `credentials:status` if it revokes or suspends credentials |
+| Support staff who look up sessions and revoke credentials | `sessions:read`, `credentials:status`        |
+| Auditor                                  | `audit:read`, `sessions:read`                                 |
+| Key custodian                            | `keys:manage`                                                 |
 | CI pipeline that imports configuration   | `tenant:admin`                                                |
 | Person who configures a tenant           | `issuance:manage`, `presentation:manage`, `clients:manage`, `users:manage`, and the roles they hand out; `tenant:admin` instead also allows key export and KMS settings |
 | Platform operator                        | `tenants:manage`, on a client without a tenant                |
 
-`issuance:manage` and `presentation:manage` create, import, rotate and delete
-key chains, but exporting a key chain with its private key
+`issuance:manage`, `presentation:manage` and `keys:manage` create, import,
+rotate and delete key chains, but exporting a key chain with its private key
 (`GET /api/key-chain/{id}/export`) and the tenant KMS provider configuration
 (`/api/key-chain/providers/config`), which contains provider credentials, need
 `tenant:admin` or `tenants:manage`, like configuration bundles.

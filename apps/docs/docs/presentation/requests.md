@@ -4,7 +4,7 @@ title: Create Presentation Requests
 
 import SchemaReference from "@site/src/components/SchemaReference";
 
-Every verification starts with `POST /api/verifier/offer`. It creates a session from a [presentation configuration](configure-verification.md) and returns what you hand to the wallet or the browser. The caller needs the `presentation:request` or `presentation:manage` role; only `presentation:request` can also read the resulting session. An API client with `allowedPresentationConfigs` may only use the listed configurations.
+Every verification starts with `POST /api/verifier/offer`. It creates a session from a [presentation configuration](configure-verification.md) and returns what you hand to the wallet or the browser. The caller needs the `presentation:request` or `presentation:manage` role; `presentation:request`, or `sessions:read`, can also read the resulting session ([what `sessions:read` sees](../operate/tenants-and-access.md#api-clients-with-least-privilege)). An API client with `allowedPresentationConfigs` may only use the listed configurations.
 
 ## Request body
 

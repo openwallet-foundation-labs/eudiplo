@@ -28,6 +28,7 @@ import { TokenExpiryService } from './services/token-expiry.service';
 import { NavSectionsService } from './services/nav-sections.service';
 import { NavSectionComponent } from './common/nav-section/nav-section.component';
 import { ApiService } from './core';
+import { KEY_CHAIN_ROLES } from './key-management/key-chain.service';
 
 @Component({
   selector: 'app-root',
@@ -155,6 +156,8 @@ export class AppComponent implements OnInit, OnDestroy {
   navigateToClientManagement(): void {
     this.router.navigate(['/clients']);
   }
+
+  readonly keyChainRoles = KEY_CHAIN_ROLES;
 
   /**
    * Check if user has permission to manage Keycloak clients

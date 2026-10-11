@@ -327,6 +327,30 @@ describe('DashboardService', () => {
     expect(requests).toEqual([]);
   });
 
+  it('loads the session overview for sessions:read without offering actions', async () => {
+    roles = ['sessions:read'];
+    responses['/api/session/stats'] = {};
+    responses['/api/session'] = { items: [], total: 0, page: 1, pageSize: 5, totalPages: 0 };
+
+    await service.getCounters();
+
+    expect(service.canViewSessions).toBe(true);
+    expect(service.canOfferIssuance).toBe(false);
+    expect(requests).toContain('/api/session?pageSize=5&sortBy=updatedAt&sortOrder=desc');
+    expect(requests.some((path) => path.startsWith('/api/key-chain'))).toBe(false);
+    expect(requests.some((path) => path.startsWith('/api/issuer'))).toBe(false);
+  });
+
+  it('loads key chains and KMS health for keys:manage only', async () => {
+    roles = ['keys:manage'];
+    responses['/api/key-chain'] = [];
+
+    await service.getCounters();
+
+    expect(service.canManageKeyChains).toBe(true);
+    expect([...requests].sort()).toEqual(['/api/key-chain', '/api/key-chain/providers/health']);
+  });
+
   it('sends key chain managers without an access key chain to create one', async () => {
     roles = ['issuance:manage'];
     responses['/api/key-chain'] = [];

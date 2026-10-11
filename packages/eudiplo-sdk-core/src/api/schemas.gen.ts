@@ -110,7 +110,11 @@ export const RoleDtoSchema = {
                 'users:manage',
                 'tenants:manage',
                 'tenant:admin',
-                'registrar:manage'
+                'registrar:manage',
+                'audit:read',
+                'sessions:read',
+                'credentials:status',
+                'keys:manage'
             ],
             type: 'string',
             description: 'OAuth2 roles',
@@ -391,7 +395,11 @@ export const ClientEntitySchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             },
             description: 'Roles assigned to the client'
@@ -523,7 +531,11 @@ export const CreateTenantDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -903,7 +915,11 @@ export const UpdateClientDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -974,7 +990,11 @@ export const CreateClientDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             },
             description: 'Roles assigned to the client. At least one role is required.'
@@ -1247,7 +1267,11 @@ export const ManagedUserDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -1294,7 +1318,11 @@ export const CreateUserDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -1334,7 +1362,11 @@ export const UpdateUserDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },

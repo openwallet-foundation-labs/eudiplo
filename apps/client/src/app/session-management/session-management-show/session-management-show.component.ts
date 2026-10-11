@@ -28,6 +28,12 @@ import {
 import { GrafanaLinkService } from '../../services/grafana-link.service';
 import { JwtService } from '../../services/jwt.service';
 import { CredentialStatusCardComponent } from '../credential-status/credential-status-card.component';
+import {
+  CREDENTIAL_STATUS_CHANGER_ROLES,
+  CREDENTIAL_STATUS_READER_ROLES,
+  maySessionChange,
+  sessionOfferRole,
+} from '../session-roles';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { decodeJwt } from 'jose';
@@ -64,6 +70,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
    * Check if this session can be recreated as a new offer
    */
   canRecreateOffer(): boolean {
+    if (!this.session || !this.jwtService.hasRole(sessionOfferRole(this.session))) return false;
     if (this.isIssuanceSession()) {
       return !!this.session?.credentialPayload;
     }
@@ -103,10 +110,23 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     private jwtService: JwtService
   ) {}
 
-  /** Changing credential status is an issuer action, like on the backend. */
-  canManageCredentialStatus(): boolean {
+  /** Credential status is issuer data, like on the backend. */
+  canReadCredentialStatus(): boolean {
+    return this.isIssuanceSession() && this.jwtService.hasRole(CREDENTIAL_STATUS_READER_ROLES);
+  }
+
+  /** Revoking, suspending and reinstating needs credentials:status or issuance:manage. */
+  canChangeCredentialStatus(): boolean {
+    return this.jwtService.hasRole(CREDENTIAL_STATUS_CHANGER_ROLES);
+  }
+
+  /**
+   * Whether the backend returns the session's offer or request: only to
+   * callers that may cancel the session (see `maySessionChange`).
+   */
+  canSeeOffer(): boolean {
     return (
-      this.isIssuanceSession() && this.jwtService.hasRole(['issuance:offer', 'issuance:manage'])
+      !!this.session && maySessionChange((roles) => this.jwtService.hasRole(roles), this.session)
     );
   }
 
@@ -114,7 +134,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   /** Only offers and requests a wallet has neither redeemed nor finished can be cancelled. */
   canCancel(): boolean {
-    return !!this.session && isCancellable(this.session);
+    return !!this.session && isCancellable(this.session) && this.canSeeOffer();
   }
 
   cancelSession(): void {

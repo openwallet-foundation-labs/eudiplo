@@ -12,6 +12,10 @@ import {
 } from './issuance/issuance.routes';
 import { webhookEndpointRoutes } from './webhook-endpoint/webhook-endpoint.routes';
 import { keyManagementRoutes } from './key-management/key-management.routes';
+import { KEY_ADMIN_ROLES, KEY_CHAIN_ROLES } from './key-management/key-chain.service';
+
+// Key chain roles read the screens; the admin roles keep key export and KMS settings.
+const keyScreenRoles = [...KEY_CHAIN_ROLES, ...KEY_ADMIN_ROLES];
 import {
   presentationConfigRoutes,
   presentationOfferRoutes,
@@ -79,7 +83,7 @@ export const routes: Routes = [
   {
     path: 'admin/activity-logs',
     canActivate: [AuthGuard, RoleGuard],
-    data: { role: getRole('clients:manage') },
+    data: { role: [getRole('clients:manage'), getRole('audit:read')] },
     loadComponent: () =>
       import('./admin/admin-activity-logs/admin-activity-logs.component').then(
         (m) => m.AdminActivityLogsComponent
@@ -132,12 +136,14 @@ export const routes: Routes = [
   // Key & Certificate routes
   {
     path: 'keys',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: keyScreenRoles },
     children: keyManagementRoutes,
   },
   {
     path: 'kms',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: keyScreenRoles },
     loadComponent: () =>
       import('./key-management/key-management-providers/key-management-providers.component').then(
         (m) => m.KeyManagementProvidersComponent

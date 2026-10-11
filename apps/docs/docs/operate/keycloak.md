@@ -110,7 +110,9 @@ Realm roles are in `realm_access.roles` by default.
   the client credentials grant.
 
 Choose the roles from the [roles reference](../reference/roles.md), for example
-`issuance:manage` and `presentation:manage` for people who configure a tenant.
+`issuance:manage` and `presentation:manage` for people who configure a tenant,
+or `sessions:read` and `credentials:status` for support staff who look up
+sessions and revoke credentials.
 Tenant administrators need `clients:manage` and `users:manage` plus every role
 they hand out ([granting roles](../reference/roles.md#granting-roles)), or
 `tenant:admin`, which also allows key export and KMS settings. Roles you assign
