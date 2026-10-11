@@ -117,7 +117,7 @@ describe('LoginComponent with a kept session', () => {
   it('waits for the kept session instead of asking for credentials', () => {
     render();
 
-    expect(page().querySelector('[role="status"]')?.textContent).toContain(
+    expect(page().querySelector('output')?.textContent).toContain(
       'Resuming the session of client-a at http://backend.test'
     );
     expect(page().querySelector('form')).toBeNull();
@@ -134,7 +134,7 @@ describe('LoginComponent with a kept session', () => {
     render();
 
     expect(page().querySelector('form')).not.toBeNull();
-    expect(page().querySelector('[role="status"]')).toBeNull();
+    expect(page().querySelector('output')).toBeNull();
     expect(api.refreshAccessToken).not.toHaveBeenCalled();
   });
 
@@ -282,7 +282,7 @@ describe('LoginComponent with a kept session', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(page().querySelector('[role="status"]')).toBeNull();
+    expect(page().querySelector('output')).toBeNull();
     expect(api.loginWithClientCredentials).toHaveBeenCalledWith(
       'client-b',
       'secret-b',

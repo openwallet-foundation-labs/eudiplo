@@ -28,10 +28,12 @@
         <div class="kept-session">
           <div class="kept-session-status">
             <mat-spinner diameter="24" aria-hidden="true"></mat-spinner>
-            <p role="status">
-              Resuming the session of <strong>{{ session.clientId }}</strong> at
-              {{ session.baseUrl }}. This page keeps trying until the session is renewed, then
-              continues.
+            <p>
+              <output>
+                Resuming the session of <strong>{{ session.clientId }}</strong> at
+                {{ session.baseUrl }}. This page keeps trying until the session is renewed, then
+                continues.
+              </output>
             </p>
           </div>
           <div class="kept-session-actions">
