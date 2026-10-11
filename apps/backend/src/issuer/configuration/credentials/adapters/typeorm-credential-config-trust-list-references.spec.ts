@@ -62,4 +62,28 @@ describe("TypeOrmCredentialConfigTrustListReferences", () => {
             expect.objectContaining({ where: { tenantId: "acme" } }),
         );
     });
+
+    it("checks the spec of a configuration document that is not stored", () => {
+        const references = new TypeOrmCredentialConfigTrustListReferences(
+            {} as any,
+        );
+
+        expect(
+            references.namesList(
+                {
+                    schemaMeta: {
+                        trustedAuthorities: [
+                            {
+                                frameworkType: "etsi_tl",
+                                value: "http://localhost:3000/issuers/acme/trust-list/pid-issuers",
+                            },
+                        ],
+                    },
+                },
+                list,
+            ),
+        ).toBe(true);
+        expect(references.namesList({ schemaMeta: null }, list)).toBe(false);
+        expect(references.namesList(null, list)).toBe(false);
+    });
 });

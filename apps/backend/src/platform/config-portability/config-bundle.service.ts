@@ -23,6 +23,15 @@ import { Not, Repository } from "typeorm";
 import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
 import { KmsTenantConfigService } from "../../crypto/key/kms/kms-tenant-config.service.js";
 import { withoutRemovedChainedVp } from "../../issuer/configuration/issuance/domain/removed-authorization-servers.js";
+import {
+    type ConfigurationChange,
+    TrustListReferences,
+} from "../../issuer/trust-list/application/trust-list-references.js";
+import {
+    describeTrustListReferences,
+    isTrustListReferenceKind,
+    trustListReferenceId,
+} from "../../issuer/trust-list/domain/trust-list-reference.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
 import { FilesService } from "../../storage/files.service.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
@@ -135,6 +144,7 @@ export class ConfigBundleService {
         private readonly documentValidationService: ConfigDocumentValidationService,
         private readonly ownershipService: ConfigOwnershipService,
         private readonly configService: ConfigService,
+        private readonly trustListReferences: TrustListReferences,
     ) {}
 
     private get tenants() {
@@ -691,6 +701,13 @@ export class ConfigBundleService {
                     issues: [],
                 });
             }
+            issues.push(
+                ...(await this.blockDeletingTrustListsInUse(
+                    tenantId,
+                    upgradedDocuments,
+                    items,
+                )),
+            );
         }
         if (revision !== (await this.configurationRevision(tenantId)))
             throw new ConflictException(
@@ -720,6 +737,67 @@ export class ConfigBundleService {
             items,
             issues,
         };
+    }
+
+    /**
+     * Blocks deleting a trust list that a configuration surviving the import
+     * still references: a stored configuration the plan neither deletes nor
+     * rewrites, or a document of the bundle with its new content.
+     */
+    private async blockDeletingTrustListsInUse(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+    ): Promise<ConfigMigrationIssue[]> {
+        const deletedLists = items.filter(
+            (item) => item.action === "delete" && item.kind === "TrustList",
+        );
+        if (deletedLists.length === 0) return [];
+        const actions = new Map(
+            items.map((item) => [`${item.kind}/${item.id}`, item.action]),
+        );
+        const change: ConfigurationChange = { written: [], removed: [] };
+        for (const document of documents) {
+            const { kind, spec } = document;
+            const id = resourceId(document);
+            // A skipped document leaves the stored configuration in place.
+            if (
+                !isTrustListReferenceKind(kind) ||
+                actions.get(`${kind}/${id}`) === "skip"
+            )
+                continue;
+            change.written.push({
+                kind,
+                id: trustListReferenceId(kind, id),
+                content: spec,
+            });
+        }
+        for (const item of items) {
+            if (item.action === "delete" && isTrustListReferenceKind(item.kind))
+                change.removed.push({
+                    kind: item.kind,
+                    id: trustListReferenceId(item.kind, item.id),
+                });
+        }
+        const issues: ConfigMigrationIssue[] = [];
+        for (const item of deletedLists) {
+            const references = await this.trustListReferences.findAfter(
+                { tenantId, id: item.id },
+                change,
+            );
+            if (references.length === 0) continue;
+            const issue: ConfigMigrationIssue = {
+                severity: "error",
+                code: "TRUST_LIST_IN_USE",
+                path: "/metadata/id",
+                message: `Trust list ${JSON.stringify(item.id)} is left out of this import, so replace mode deletes it, but it is still referenced by ${describeTrustListReferences(references)}. Keep the trust list in the bundle or folder, or remove these references.`,
+                resource: { kind: "TrustList", id: item.id },
+            };
+            item.issues.push(issue);
+            item.action = "blocked";
+            issues.push(issue);
+        }
+        return issues;
     }
 
     /**

@@ -417,6 +417,24 @@ describe("startup configuration reconciliation", () => {
                 }),
             ]),
         );
+        // The deleted list is blocked as well, naming every configuration
+        // that still uses it, so its deletion never happens unchecked.
+        const trustListItem = replacePlan.items.find(
+            (item) => item.kind === "TrustList",
+        );
+        expect(trustListItem?.action).toBe("blocked");
+        expect(trustListItem?.issues).toEqual([
+            {
+                severity: "error",
+                code: "TRUST_LIST_IN_USE",
+                path: "/metadata/id",
+                message: `Trust list "580831bc-ef11-43f4-a3be-a2b6bf1b29a3" is left out of this import, so replace mode deletes it, but it is still referenced by 2 presentation configs ("age-over-18" and "pid"). Keep the trust list in the bundle or folder, or remove these references.`,
+                resource: {
+                    kind: "TrustList",
+                    id: "580831bc-ef11-43f4-a3be-a2b6bf1b29a3",
+                },
+            },
+        ]);
     });
 
     it("exports schema documents in a version 2 bundle and packs matching checksums", async () => {

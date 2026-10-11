@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+    isTrustListReferenceKind,
     referencesVisibleTo,
     TrustListInUseError,
     type TrustListReference,
     trustListInUseMessage,
     trustListRefNamesList,
+    trustListReferenceId,
     urlNamesTrustList,
 } from "./trust-list-reference.js";
 
@@ -148,5 +150,22 @@ describe("referencesVisibleTo", () => {
             "1 presentation config,",
         );
         expect(JSON.stringify(visible)).not.toContain("membership");
+    });
+});
+
+describe("trustListReferenceId", () => {
+    it("keeps configuration IDs and drops the one of the issuance configuration", () => {
+        expect(trustListReferenceId("PresentationConfig", "pid")).toBe("pid");
+        expect(trustListReferenceId("CredentialConfig", "pid")).toBe("pid");
+        expect(
+            trustListReferenceId("IssuanceConfig", "issuance"),
+        ).toBeUndefined();
+    });
+});
+
+describe("isTrustListReferenceKind", () => {
+    it("accepts only kinds that can reference a trust list", () => {
+        expect(isTrustListReferenceKind("IssuanceConfig")).toBe(true);
+        expect(isTrustListReferenceKind("TrustList")).toBe(false);
     });
 });
