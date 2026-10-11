@@ -27,6 +27,7 @@ import {
   trustListControllerGetAllTrustLists,
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import { getApiErrorMessage } from '../../utils/error-message';
 import { SchemaService } from '../schema.service';
 
 const SEMVER_REGEX =
@@ -413,8 +414,9 @@ export class SchemaCreateComponent implements OnInit {
       this.router.navigate(['/schema', created.id]);
     } catch (error) {
       console.error('Failed to submit schema metadata:', error);
-      const msg = error instanceof Error ? error.message : 'Failed to submit schema';
-      this.snackBar.open(msg, 'Close', { duration: 5000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to submit schema'), 'Close', {
+        duration: 5000,
+      });
     } finally {
       this.loading = false;
     }

@@ -19,6 +19,7 @@ import {
     registrationCertificateControllerRegister,
 } from "./generated/index.js";
 import { RegistrarAuthService } from "./registrar-auth.service.js";
+import { registrarErrorMessage } from "./registrar-error-message.js";
 
 /**
  * Options for resolving a registration certificate.
@@ -250,10 +251,7 @@ export class RegistrationCertificateService {
             const statusCode = Number(
                 (res.error as any)?.statusCode ?? (res.error as any)?.status,
             );
-            const upstreamMessage =
-                (res.error as any)?.message ||
-                (res.error as any)?.error ||
-                "Unknown registrar error";
+            const upstreamMessage = registrarErrorMessage(res.error);
 
             this.logger.error(
                 {

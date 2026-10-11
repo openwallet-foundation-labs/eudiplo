@@ -247,4 +247,28 @@ describe("RegistrationCertificateService creation via the registrar", () => {
             }),
         );
     });
+
+    it("passes on only the registrar's messages, not its error body", async () => {
+        vi.mocked(registrationCertificateControllerRegister).mockResolvedValue({
+            error: {
+                statusCode: 400,
+                message: ["purpose must not be empty", "rpId is unknown"],
+                error: "Bad Request",
+                details: { internal: "not for the caller" },
+            },
+        } as any);
+
+        await expect(
+            service.resolveRegistrationCertificate(
+                { body },
+                dcqlQuery,
+                "r",
+                "tenant",
+            ),
+        ).rejects.toThrow(
+            new BadRequestException(
+                "Failed to create registration certificate: purpose must not be empty; rpId is unknown",
+            ),
+        );
+    });
 });

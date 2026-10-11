@@ -18,6 +18,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainService } from '../key-chain.service';
 import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.service';
 import { KeyChainCreateDto, KeyChainImportDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
+import { getHttpErrorMessage } from '../../utils/error-message';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
@@ -424,10 +425,20 @@ export class KeyCreateWizardComponent implements OnInit {
           );
         } catch (error: any) {
           console.error('Error enrolling certificate:', error);
-          const message = error.error?.message || 'Failed to enroll certificate from registrar';
-          this.snackBar.open(`Key created, but enrollment failed: ${message}`, 'View Key', {
-            duration: 8000,
-          });
+          // Names an unreachable backend separately from a registrar failure.
+          const message = getHttpErrorMessage(error, 'Failed to enroll certificate from registrar');
+          // The key page opens below; the action leads to the registrar
+          // settings. The client cannot enroll an existing key, so say how to retry.
+          this.snackBar
+            .open(
+              `Key created without a registrar certificate: ${message}. Fix the Registrar Config, then delete this key and create it again, or enroll it with POST /api/registrar/access-certificate and its keyId.`,
+              'Go to Registrar',
+              { duration: 12000 }
+            )
+            .onAction()
+            .subscribe(() => {
+              this.router.navigate(['/registrar']);
+            });
         }
         this.router.navigate(['/keys', result.id]);
         return;

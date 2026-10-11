@@ -29,6 +29,7 @@ describe("RegistrarConfigService", () => {
         save: ReturnType<typeof vi.fn>;
     };
     let authService: {
+        assertSafeUrls: ReturnType<typeof vi.fn>;
         testCredentials: ReturnType<typeof vi.fn>;
         invalidateToken: ReturnType<typeof vi.fn>;
     };
@@ -45,6 +46,7 @@ describe("RegistrarConfigService", () => {
             save: vi.fn(async (entity) => entity),
         };
         authService = {
+            assertSafeUrls: vi.fn().mockResolvedValue(undefined),
             testCredentials: vi.fn().mockResolvedValue(undefined),
             invalidateToken: vi.fn(),
         };
@@ -243,6 +245,101 @@ describe("RegistrarConfigService", () => {
             expect(authService.testCredentials).not.toHaveBeenCalled();
             expect(repository.save).toHaveBeenCalled();
             expect(authService.invalidateToken).toHaveBeenCalledWith("tenant");
+        });
+    });
+
+    describe("URL checks", () => {
+        const blocked = () =>
+            authService.assertSafeUrls.mockRejectedValue(
+                new BadRequestException(
+                    "Outbound URL target resolves to a private or loopback IP",
+                ),
+            );
+
+        it("checks a changed registrar URL before testing the credentials", async () => {
+            blocked();
+            const dto = {
+                registrarUrl: "https://internal.example",
+                password: "new-password",
+                clientSecret: "new-secret",
+            };
+
+            await expect(service.updateConfig("tenant", dto)).rejects.toThrow(
+                "private or loopback IP",
+            );
+            expect(authService.assertSafeUrls).toHaveBeenCalledWith({
+                registrarUrl: "https://internal.example",
+                oidcUrl: stored.oidcUrl,
+            });
+            expect(authService.testCredentials).not.toHaveBeenCalled();
+            expect(repository.save).not.toHaveBeenCalled();
+        });
+
+        it("checks the stored URLs on an update that leaves them out", async () => {
+            blocked();
+
+            await expect(
+                service.updateConfig("tenant", {
+                    registrationCertificateDefaults: null,
+                }),
+            ).rejects.toThrow("private or loopback IP");
+            expect(authService.assertSafeUrls).toHaveBeenCalledWith({
+                registrarUrl: stored.registrarUrl,
+                oidcUrl: stored.oidcUrl,
+            });
+            expect(repository.save).not.toHaveBeenCalled();
+        });
+
+        it("checks the URLs of an import but not its credentials", async () => {
+            blocked();
+            const dto = {
+                registrarUrl: stored.registrarUrl,
+                oidcUrl: "https://internal.example/realms/x",
+                clientId: "client",
+                username: "user",
+                password: "new-password",
+            };
+
+            await expect(service.replaceConfig("tenant", dto)).rejects.toThrow(
+                "private or loopback IP",
+            );
+            // Without DNS lookups: an unresolvable host must not stop an import.
+            expect(authService.assertSafeUrls).toHaveBeenCalledWith(dto, {
+                resolveHosts: false,
+            });
+            expect(authService.testCredentials).not.toHaveBeenCalled();
+            expect(repository.save).not.toHaveBeenCalled();
+        });
+
+        it("checks the URLs only once on save", async () => {
+            await service.saveConfig("tenant", {
+                registrarUrl: stored.registrarUrl,
+                oidcUrl: stored.oidcUrl,
+                clientId: "client",
+                username: "user",
+                password: "new-password",
+            });
+
+            expect(authService.assertSafeUrls).toHaveBeenCalledTimes(1);
+            expect(authService.testCredentials).toHaveBeenCalledTimes(1);
+        });
+
+        it("checks the URLs before testing the credentials on save", async () => {
+            blocked();
+            const dto = {
+                registrarUrl: stored.registrarUrl,
+                oidcUrl: stored.oidcUrl,
+                clientId: "client",
+                username: "user",
+                password: "new-password",
+            };
+
+            await expect(
+                service.saveConfig("tenant", dto),
+            ).rejects.toBeInstanceOf(BadRequestException);
+            expect(authService.assertSafeUrls).toHaveBeenCalledWith(dto);
+            expect(authService.testCredentials).not.toHaveBeenCalled();
+            expect(repository.save).not.toHaveBeenCalled();
         });
     });
 });

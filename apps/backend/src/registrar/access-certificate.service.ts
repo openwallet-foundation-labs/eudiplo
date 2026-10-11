@@ -60,7 +60,6 @@ export class AccessCertificateService {
         });
 
         if (res.error) {
-            console.log(res.error);
             this.logger.error(
                 { error: res.error },
                 `[${tenantId}] Failed to create access certificate`,

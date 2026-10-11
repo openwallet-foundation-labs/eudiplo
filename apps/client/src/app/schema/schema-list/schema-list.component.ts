@@ -2,11 +2,11 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { getApiErrorMessage } from '../../utils/error-message';
 import { SchemaMetadata, SchemaService } from '../schema.service';
 
 interface GroupedSchemaMetadata {
@@ -23,7 +23,6 @@ interface GroupedSchemaMetadata {
     DatePipe,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
     MatTableModule,
     MatTooltipModule,
     RouterModule,
@@ -37,6 +36,7 @@ export class SchemaListComponent implements OnInit {
   items: SchemaMetadata[] = [];
   groupedItems: GroupedSchemaMetadata[] = [];
   loading = false;
+  loadError: string | null = null;
 
   get schemaMetadataCount(): number {
     return this.groupedItems.length;
@@ -54,10 +54,7 @@ export class SchemaListComponent implements OnInit {
     'actions',
   ];
 
-  constructor(
-    private readonly schemaService: SchemaService,
-    private readonly snackBar: MatSnackBar
-  ) {}
+  constructor(private readonly schemaService: SchemaService) {}
 
   ngOnInit(): void {
     this.loadItems();
@@ -65,12 +62,13 @@ export class SchemaListComponent implements OnInit {
 
   async loadItems(): Promise<void> {
     this.loading = true;
+    this.loadError = null;
     try {
       this.items = await this.schemaService.listMine();
       this.groupedItems = this.groupById(this.items);
     } catch (error) {
       console.error('Failed to load schema metadata:', error);
-      this.snackBar.open('Failed to load schema', 'Close', { duration: 3000 });
+      this.loadError = getApiErrorMessage(error, 'Failed to load schema');
     } finally {
       this.loading = false;
     }
