@@ -23,7 +23,7 @@ export const roles: Role[] = [
 ];
 
 /** Roles that only a caller with `tenants:manage` can grant. */
-const reservedRoles: Role[] = ['tenants:manage', 'tenant:admin'];
+const reservedRoles: ReadonlySet<Role> = new Set<Role>(['tenants:manage', 'tenant:admin']);
 
 /**
  * Roles a caller may grant to clients and users, as the backend checks them:
@@ -35,7 +35,7 @@ export function grantableRoles(callerRoles: string[]): Role[] {
   const source = callerRoles.includes('tenant:admin')
     ? roles
     : roles.filter((role) => callerRoles.includes(role));
-  return source.filter((role) => !reservedRoles.includes(role));
+  return source.filter((role) => !reservedRoles.has(role));
 }
 
 /** Explains to the caller which roles it can grant. */

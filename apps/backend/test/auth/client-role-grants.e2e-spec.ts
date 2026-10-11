@@ -158,9 +158,12 @@ describe("Client role grants (e2e)", () => {
 
     describe("create", () => {
         test("grants a role the caller holds", async () => {
-            await createClient(managerToken, "grants-created", [
-                Role.IssuanceOffer,
-            ]).expect(201);
+            const response = await createClient(
+                managerToken,
+                "grants-created",
+                [Role.IssuanceOffer],
+            ).expect(201);
+            expect(response.body.roles).toEqual([Role.IssuanceOffer]);
         });
 
         test.each([
@@ -179,13 +182,20 @@ describe("Client role grants (e2e)", () => {
         });
 
         test("tenant:admin grants every role except the reserved ones", async () => {
-            await createClient(adminToken, "grants-by-tenant-admin", [
-                Role.Registrar,
-                Role.Users,
-            ]).expect(201);
-            await createClient(adminToken, "grants-tenant-admin", [
-                Role.TenantAdmin,
-            ]).expect(403);
+            const created = await createClient(
+                adminToken,
+                "grants-by-tenant-admin",
+                [Role.Registrar, Role.Users],
+            ).expect(201);
+            expect(created.body.roles).toEqual([Role.Registrar, Role.Users]);
+            const refused = await createClient(
+                adminToken,
+                "grants-tenant-admin",
+                [Role.TenantAdmin],
+            ).expect(403);
+            expect(refused.body.message).toContain(
+                `Cannot grant ${Role.TenantAdmin}`,
+            );
         });
 
         test("refuses the ID of another tenant's client and leaves it alone", async () => {
@@ -240,9 +250,12 @@ describe("Client role grants (e2e)", () => {
         });
 
         test("refuses the root client's ID", async () => {
-            await createClient(managerToken, rootClientId, [
+            const response = await createClient(managerToken, rootClientId, [
                 Role.IssuanceOffer,
             ]).expect(409);
+            expect(response.body.message).toBe(
+                `Client ID '${rootClientId}' is already in use`,
+            );
             await tokenFor(rootClientId, rootSecret).expect(201);
         });
     });
@@ -257,6 +270,13 @@ describe("Client role grants (e2e)", () => {
                     roles: [Role.IssuanceOffer, Role.Clients],
                 })
                 .expect(200);
+            const client = await getClient(adminToken, "grants-update").expect(
+                200,
+            );
+            expect(client.body).toMatchObject({
+                description: "changed",
+                roles: [Role.IssuanceOffer, Role.Clients],
+            });
         });
 
         test("refuses to add a role the caller does not hold", async () => {
@@ -298,20 +318,27 @@ describe("Client role grants (e2e)", () => {
         });
 
         test("answers 404 for an unknown client", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .patch("/client/grants-unknown")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .send({ description: "missing" })
                 .expect(404);
+            expect(response.body.message).toBe(
+                "Client 'grants-unknown' not found",
+            );
         });
     });
 
     describe("rotate secret", () => {
         test("refuses a client with roles the caller does not hold", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .post(`/client/${adminClientId}/rotate-secret`)
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(403);
+            expect(response.body.message).toContain(
+                `Cannot manage client ${adminClientId}`,
+            );
+            expect(response.body.secret).toBeUndefined();
             await tokenFor(adminClientId, adminSecret).expect(201);
         });
 
@@ -320,37 +347,50 @@ describe("Client role grants (e2e)", () => {
                 .post("/client/grants-offer/rotate-secret")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(201);
+            expect(response.body.secret).toEqual(expect.any(String));
             await tokenFor("grants-offer", response.body.secret).expect(201);
         });
 
         test("a tenant:admin caller rotates a tenant:admin client", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .post("/client/grants-platform-peer/rotate-secret")
                 .set("Authorization", `Bearer ${platformTenantAdminToken}`)
                 .expect(201);
+            await tokenFor("grants-platform-peer", response.body.secret).then(
+                (token) => expect(token.status).toBe(201),
+            );
         });
 
         test("the root client rotates any client", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .post("/client/grants-registrar/rotate-secret")
                 .set("Authorization", `Bearer ${rootToken}`)
                 .expect(201);
+            await tokenFor("grants-registrar", response.body.secret).then(
+                (token) => expect(token.status).toBe(201),
+            );
         });
 
         test("answers 404 for an unknown client", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .post("/client/grants-unknown/rotate-secret")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(404);
+            expect(response.body.message).toBe(
+                "Client 'grants-unknown' not found",
+            );
         });
     });
 
     describe("delete", () => {
         test("refuses a client with roles the caller does not hold", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .delete("/client/grants-registrar")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(403);
+            expect(response.body.message).toContain(
+                "Cannot manage client grants-registrar",
+            );
             await getClient(adminToken, "grants-registrar").expect(200);
         });
 
@@ -359,14 +399,23 @@ describe("Client role grants (e2e)", () => {
                 .delete("/client/grants-delete")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(204);
-            await getClient(adminToken, "grants-delete").expect(404);
+            const clients = await request(app.getHttpServer())
+                .get("/client")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .expect(200);
+            expect(
+                clients.body.map(
+                    (client: { clientId: string }) => client.clientId,
+                ),
+            ).not.toContain("grants-delete");
         });
 
         test("stays a no-op for an unknown client", async () => {
-            await request(app.getHttpServer())
+            const response = await request(app.getHttpServer())
                 .delete("/client/grants-unknown")
                 .set("Authorization", `Bearer ${managerToken}`)
                 .expect(204);
+            expect(response.body).toEqual({});
         });
     });
 

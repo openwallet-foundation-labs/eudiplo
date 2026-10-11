@@ -2,7 +2,10 @@ import { ForbiddenException } from "@nestjs/common";
 import { allRoles, Role } from "./role.enum.js";
 
 /** Roles that only a caller with `tenants:manage` can grant. */
-const reservedRoles: readonly Role[] = [Role.Tenants, Role.TenantAdmin];
+const reservedRoles: ReadonlySet<Role> = new Set([
+    Role.Tenants,
+    Role.TenantAdmin,
+]);
 
 /** OpenAPI description of the 403 for a role the caller may not grant. */
 export const GRANT_DENIED_DESCRIPTION =
@@ -24,7 +27,7 @@ export function grantableRoles(callerRoles: readonly string[]): Set<Role> {
     const source = callerRoles.includes(Role.TenantAdmin)
         ? allRoles
         : allRoles.filter((role) => callerRoles.includes(role));
-    return new Set(source.filter((role) => !reservedRoles.includes(role)));
+    return new Set(source.filter((role) => !reservedRoles.has(role)));
 }
 
 /**
