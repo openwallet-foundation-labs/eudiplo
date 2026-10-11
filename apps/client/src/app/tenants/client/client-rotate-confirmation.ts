@@ -9,7 +9,7 @@ export function clientRotateConfirmation(clientId: string, signedInClientId?: st
   ];
   if (clientId === signedInClientId) {
     paragraphs.push(
-      'You are signed in with this client. Your session continues with the new secret.'
+      'You are signed in with this client. Your session continues with the new secret, which this browser does not store: after a reload, you need the new secret to log in again once the session expires.'
     );
   }
   return paragraphs.join('\n\n');

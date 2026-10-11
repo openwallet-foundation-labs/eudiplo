@@ -446,7 +446,13 @@ describe('ApiService token refresh', () => {
     );
     expect(service.accessToken).toBe('rotated');
     expect(service.getClientSecret()).toBe('new-secret');
-    expect(store.get('oauth_client_secret')).toBe('new-secret');
+    // Kept in memory only; the stored old secret is refused now.
+    expect(store.has('oauth_client_secret')).toBe(false);
+
+    // A reload keeps the renewed token until it expires, without renewing it.
+    const reloaded = reload();
+    expect(reloaded.accessToken).toBe('rotated');
+    expect(reloaded.canRefreshToken()).toBe(false);
   });
 
   it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {
