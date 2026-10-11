@@ -43,7 +43,7 @@ rejects versions newer than its own.
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
 | `Client`             | `ClientConfigFile`            | 1               |           |
 | `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
-| `KeyChain`           | `KeyChainConfigFile`          | 1               |           |
+| `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
@@ -76,6 +76,19 @@ read v3 files.
 `frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
 certificate in `value`. A v1 document is migrated unchanged; 9.x cannot read v2
 files.
+
+**KeyChain v2** came with EUDIPLO 10.0. It adds the optional `type`
+(`standalone` or `internalChain`), which exports write. For a `private-jwk` key
+source without `activeJwk` it says whether `jwk` is the signing key or a CA key
+under which the import creates a new signing key, as `type` does for
+[`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate).
+For `regenerate` it is the type of the new key chain, like
+`keySource.keyChainType`; without either, a document with `activeCertificate`
+becomes an internal chain. For the other key sources, and for a `regenerate`
+key source with both, it must match the key chain they describe, or the plan
+reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
+9.x cannot read v2 files. A bare key chain file with `type`, as
+`GET /api/key-chain/{id}/export` writes it, is read as v2.
 
 ## Tenant folder layout
 
@@ -152,10 +165,10 @@ A `private-jwk` key source takes one of two forms:
 - With only `jwk`, the document is imported like
   [`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate)
   and accepts only that request's fields. To restore an exported internal
-  chain from its root CA key, remove `activeCertificate` and set
-  `rotationPolicy` to `{ "enabled": true }`, optionally with intervals:
-  EUDIPLO keeps the root and creates a new signing key under it (an external
-  CA chain). Without rotation, the root CA key itself becomes the signing key.
+  chain, put its root CA key from `GET /api/key-chain/{id}/export` into `jwk`,
+  remove `activeCertificate` and keep `"type": "internalChain"`: EUDIPLO keeps
+  the root CA certificate and creates a new signing key under it. Without
+  `type` and rotation, the root CA key itself becomes the signing key.
 - With `activeJwk` as well, it stores an internal chain as given, in the
   database: `jwk` is the root CA key and `crt` holds exactly its certificate,
   `activeJwk` is the signing key and `activeCertificate` its certificate,
@@ -193,8 +206,9 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
 
-A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the description and rotation policy:
+A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the type, description and rotation policy:
 
+- The plan lists `type` as the import creates it, also for a document without `type` ([KeyChain v2](#resource-types-and-versions)).
 - A `description` it leaves out is removed.
 - Without `rotationPolicy`, rotation is disabled.
 - A rotation value it leaves out or sets to `null` is not set. Exception: a `private-jwk` key source without `activeJwk` is imported like `POST /api/key-chain/import`, so with rotation enabled a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365, and with rotation disabled no intervals are stored.

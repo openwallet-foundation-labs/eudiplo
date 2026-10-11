@@ -21,6 +21,8 @@ const privateJwk = {
     alg: "ES256",
 };
 
+const rootJwk = { ...privateJwk, kid: "key-root" };
+
 function keyChain(overrides: Partial<KeyChainEntity>): KeyChainEntity {
     return Object.assign(new KeyChainEntity(), {
         id: "key",
@@ -125,6 +127,27 @@ describe("KeyChainService.export", () => {
                 certValidityDays: 365,
             },
         });
+    });
+
+    it.each([
+        ["a standalone key chain", {}, "standalone", privateJwk, ["leaf"]],
+        [
+            "the root of an internal chain",
+            { rootJwk: rootJwk, rootCertificate: "root" },
+            "internalChain",
+            rootJwk,
+            ["root"],
+        ],
+    ])("exports the type of %s", async (_, overrides, type, key, crt) => {
+        const service = serviceFor(
+            keyChain({ activeCertificate: "leaf", ...overrides }),
+            "db",
+        );
+
+        const exported = await service.export("tenant", "key");
+
+        expect(exported).toMatchObject({ type, key, crt });
+        expect(KeyChainImportSchema.safeParse(exported).success).toBe(true);
     });
 
     it("scopes the lookup to the tenant", async () => {

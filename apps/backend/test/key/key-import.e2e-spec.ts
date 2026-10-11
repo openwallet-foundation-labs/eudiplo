@@ -175,6 +175,111 @@ describe("Key Chain — Import (e2e)", () => {
             );
         });
 
+        test("re-imports the export of an internal chain without rotation", async () => {
+            const created = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send({
+                    usageType: KeyUsageType.Attestation,
+                    type: "internalChain",
+                })
+                .expect(201);
+            const keyId = created.body.id;
+            const original = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+
+            const exported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}/export`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+
+            expect(exported.body).toMatchObject({
+                type: "internalChain",
+                crt: [original.body.rootCertificate.pem],
+            });
+            expect(exported.body).not.toHaveProperty("rotationPolicy");
+
+            await request(app.getHttpServer())
+                .delete(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(204);
+            await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send(exported.body)
+                .expect(201);
+
+            const reimported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(reimported.body).toMatchObject({
+                type: "internalChain",
+                rootCertificate: { pem: original.body.rootCertificate.pem },
+                activeCertificate: {
+                    subject: original.body.activeCertificate.subject,
+                    issuer: original.body.rootCertificate.subject,
+                },
+                rotationPolicy: { enabled: false },
+            });
+            // The signing key is new; the root key is not used for signing.
+            expect(reimported.body.activePublicKey.kid).not.toBe(
+                exported.body.key.kid,
+            );
+
+            const reexported = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}/export`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(reexported.body).toMatchObject({
+                type: "internalChain",
+                key: exported.body.key,
+                crt: exported.body.crt,
+            });
+        });
+
+        test("imports a CA key without certificate as an internal chain", async () => {
+            const keyId = v4();
+            await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send({
+                    id: keyId,
+                    key: { ...privateKey, kid: `${keyId}-root` },
+                    usageType: KeyUsageType.Attestation,
+                    type: "internalChain",
+                } satisfies KeyChainImportDto)
+                .expect(201);
+
+            const keyChain = await request(app.getHttpServer())
+                .get(`/key-chain/${keyId}`)
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .expect(200);
+            expect(keyChain.body).toMatchObject({
+                type: "internalChain",
+                activeCertificate: {
+                    issuer: keyChain.body.rootCertificate.subject,
+                },
+                rotationPolicy: { enabled: false },
+            });
+            expect(keyChain.body.activePublicKey.kid).not.toBe(`${keyId}-root`);
+        });
+
+        test("rejects an unknown key chain type", async () => {
+            const response = await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${tenantAdminToken}`)
+                .send({
+                    key: privateKey,
+                    usageType: KeyUsageType.Attestation,
+                    type: "externalChain",
+                })
+                .expect(400);
+            expect(JSON.stringify(response.body)).toContain("type");
+        });
+
         test("re-imports the export of a standalone key chain with rotation enabled", async () => {
             const created = await request(app.getHttpServer())
                 .post("/key-chain")
@@ -216,6 +321,7 @@ describe("Key Chain — Import (e2e)", () => {
                 .get(`/key-chain/${keyId}`)
                 .set("Authorization", `Bearer ${tenantAdminToken}`)
                 .expect(200);
+            expect(exported.body.type).toBe("standalone");
             expect(reimported.body).toMatchObject({
                 type: "standalone",
                 activePublicKey: original.body.activePublicKey,

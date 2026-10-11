@@ -4,7 +4,7 @@ export const CONFIG_FORMATS = {
     Tenant: { slug: "tenant", file: "TenantConfigFile", version: 1 },
     Client: { slug: "client", file: "ClientConfigFile", version: 1 },
     KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 1 },
-    KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 1 },
+    KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 2 },
     RegistrarConfig: {
         slug: "registrar-config",
         file: "RegistrarConfigFile",
@@ -86,6 +86,17 @@ export function resourceId(input: ConfigFile<unknown>): string {
         throw new Error(`Configuration spec.${field} is required`);
     return id;
 }
+/**
+ * The format version a bare file (a spec without envelope) is read as: v1,
+ * except a key chain with `type`, which KeyChain v2 added and which the bare
+ * key chain export writes.
+ */
+export function bareFileVersion(
+    kind: ConfigResourceKind,
+    spec: Record<string, unknown>,
+): number {
+    return kind === "KeyChain" && "type" in spec ? 2 : 1;
+}
 export interface ConfigMigrationIssue {
     severity: "warning" | "required-input" | "error";
     code: string;
@@ -162,6 +173,15 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 3,
         // v3 only adds the optional verifierKeyPem to wallet provider trust
         // list references: a v2 spec is a valid v3 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "key-chain-v2-type",
+        kind: "KeyChain",
+        from: 1,
+        to: 2,
+        // v2 only adds the optional key chain `type`: a v1 spec is a valid v2
+        // spec, imported as before.
         migrate: (spec) => ({ spec }),
     },
     {

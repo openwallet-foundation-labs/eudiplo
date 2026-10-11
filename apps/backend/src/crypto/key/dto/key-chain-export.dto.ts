@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { KeyUsageType } from "../types/key-usage-type.js";
+import { KeyChainType } from "./key-chain-create.dto.js";
 
 /**
  * EC JWK for export. Includes the private key for database-held keys only.
@@ -65,13 +66,20 @@ export class KeyChainExportDto {
 
     @ApiProperty({
         description:
-            "The key in JWK format (EC). Contains the private key for database-held keys and only the public key for external KMS providers.",
+            "Key chain type. For internalChain, key and crt are the root CA key and certificate; the import generates a new signing key.",
+        enum: KeyChainType,
+    })
+    type!: KeyChainType;
+
+    @ApiProperty({
+        description:
+            "The key in JWK format (EC): the root CA key of an internal chain, otherwise the signing key. Contains the private key for database-held keys and only the public key for external KMS providers.",
     })
     key!: ExportEcJwk;
 
     @ApiPropertyOptional({
         description:
-            "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+            "Certificate chain in PEM format: the root CA certificate of an internal chain, otherwise the chain leaf first, then intermediates/CA.",
     })
     crt?: string[];
 
