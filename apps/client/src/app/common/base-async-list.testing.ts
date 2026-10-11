@@ -27,6 +27,40 @@ export interface ListStatesScenario<S> {
   providers?: Provider[];
 }
 
+async function waitUntil(
+  fixture: ComponentFixture<unknown>,
+  check: (element: HTMLElement) => void
+): Promise<HTMLElement> {
+  const element = fixture.nativeElement as HTMLElement;
+  await vi.waitFor(() => {
+    fixture.detectChanges();
+    check(element);
+  });
+  return element;
+}
+
+/** Lets a render hook that a load may have scheduled run before an assertion. */
+async function settle(fixture: ComponentFixture<unknown>): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  fixture.detectChanges();
+}
+
+function loadingIndicator(element: HTMLElement, label: string): Element | null {
+  return element.querySelector(`[aria-label="${label}"]`);
+}
+
+function retryButton(element: HTMLElement): HTMLButtonElement | undefined {
+  return Array.from(element.querySelectorAll<HTMLButtonElement>('app-load-error button')).find(
+    (button) => button.textContent?.includes('Retry')
+  );
+}
+
+function expectFailure(element: HTMLElement, failure: string): void {
+  expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+    `${failure}: Database unavailable`
+  );
+}
+
 /**
  * Specs for the states every list screen on `BaseAsyncListComponent` shows:
  * loading, empty with a link to create, and a failed load with Retry, with
@@ -50,40 +84,6 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
       return fixture;
     }
 
-    async function waitUntil(
-      fixture: ComponentFixture<unknown>,
-      check: (element: HTMLElement) => void
-    ): Promise<HTMLElement> {
-      const element = fixture.nativeElement as HTMLElement;
-      await vi.waitFor(() => {
-        fixture.detectChanges();
-        check(element);
-      });
-      return element;
-    }
-
-    function loadingIndicator(element: HTMLElement): Element | null {
-      return element.querySelector(`[aria-label="${screen.loading}"]`);
-    }
-
-    function retryButton(element: HTMLElement): HTMLButtonElement | undefined {
-      return Array.from(element.querySelectorAll<HTMLButtonElement>('app-load-error button')).find(
-        (button) => button.textContent?.includes('Retry')
-      );
-    }
-
-    function expectFailure(element: HTMLElement): void {
-      expect(element.querySelector('[role="alert"]')?.textContent).toContain(
-        `${screen.failure}: Database unavailable`
-      );
-    }
-
-    /** Lets a render hook that a load may have scheduled run before an assertion. */
-    async function settle(fixture: ComponentFixture<unknown>): Promise<void> {
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      fixture.detectChanges();
-    }
-
     /** Renders a screen whose first load fails; the failure is logged, not hidden. */
     async function renderFailed(): Promise<{
       fixture: ComponentFixture<unknown>;
@@ -92,7 +92,7 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
     }> {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       const fixture = render();
-      const element = await waitUntil(fixture, expectFailure);
+      const element = await waitUntil(fixture, (el) => expectFailure(el, screen.failure));
       const retry = retryButton(element);
       expect(retry).toBeDefined();
       expect(consoleError).toHaveBeenCalledWith(`${screen.failure}:`, expect.anything());
@@ -112,7 +112,7 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
 
       const element = render().nativeElement as HTMLElement;
 
-      expect(loadingIndicator(element)).not.toBeNull();
+      expect(loadingIndicator(element, screen.loading)).not.toBeNull();
       expect(element.textContent).not.toContain(screen.empty);
       expect(element.querySelector('table')).toBeNull();
       expect(element.querySelector('[role="alert"]')).toBeNull();
@@ -130,7 +130,7 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
         link.textContent?.includes(screen.create)
       );
       expect(create?.getAttribute('href')).toBe('/create');
-      expect(loadingIndicator(element)).toBeNull();
+      expect(loadingIndicator(element, screen.loading)).toBeNull();
       expect(element.querySelector('table')).toBeNull();
       expect(element.querySelector('[role="alert"]')).toBeNull();
       // Only a retry moves focus; opening the page leaves it alone.
@@ -138,7 +138,7 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
       expect(document.activeElement).not.toBe(element.querySelector('h2'));
     });
 
-    it('names the Create button like its tooltip', async () => {
+    it('names the Create button like its tooltip', () => {
       fetchItems.mockResolvedValue([]);
       const fixture = render();
 
@@ -226,7 +226,7 @@ export function describeListStates<S>(screen: ListStatesScenario<S>): void {
         expect(retryButton(el)).not.toBe(retry);
       });
       const element = fixture.nativeElement as HTMLElement;
-      expectFailure(element);
+      expectFailure(element, screen.failure);
       expect(document.activeElement).toBe(retryButton(element));
       expect(fetchItems).toHaveBeenCalledTimes(2);
     });
