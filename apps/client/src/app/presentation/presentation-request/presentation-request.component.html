@@ -144,10 +144,12 @@
                   </div>
                 }
 
-                <div class="preview-item">
-                  <strong>Webhook configuration:</strong>
-                  <a [routerLink]="['/webhook-endpoints']">Open webhook endpoints</a>
-                </div>
+                @if (canManageWebhookEndpoints) {
+                  <div class="preview-item">
+                    <strong>Webhook configuration:</strong>
+                    <a [routerLink]="['/webhook-endpoints']">Open webhook endpoints</a>
+                  </div>
+                }
 
                 @if (selectedConfig.registration_cert) {
                   <div class="preview-item">
@@ -179,14 +181,18 @@
             <p>
               You need to create at least one presentation configuration before generating requests.
             </p>
-            <button
-              mat-raised-button
-              color="primary"
-              [routerLink]="['../presentation-config/create']"
-            >
-              <mat-icon>add</mat-icon>
-              Create Presentation Configuration
-            </button>
+            @if (canManagePresentationConfigs) {
+              <button
+                mat-raised-button
+                color="primary"
+                [routerLink]="['../presentation-config/create']"
+              >
+                <mat-icon>add</mat-icon>
+                Create Presentation Configuration
+              </button>
+            } @else {
+              <p>Ask an administrator with presentation:manage to create one.</p>
+            }
           </div>
         </mat-card-content>
       </mat-card>

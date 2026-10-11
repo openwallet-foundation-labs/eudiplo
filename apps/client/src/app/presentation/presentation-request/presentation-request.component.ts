@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { inject, Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -25,6 +25,7 @@ import { EditorComponent, extractSchema } from '../../utils/editor/editor.compon
 import { transactionDataArraySchema } from '../../utils/schemas';
 import { asSentence, getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { JwtService } from '../../services/jwt.service';
 
 type PresentationRequestWithClientIdScheme = PresentationRequest & {
   clientIdScheme?: 'x509_hash' | 'x509_san_dns';
@@ -66,6 +67,18 @@ export class PresentationRequestComponent implements OnInit {
   qrCodeDataUrl: string | null = null;
   showTransactionDataOverride = false;
   transactionDataArraySchema = transactionDataArraySchema;
+
+  private readonly jwtService = inject(JwtService);
+
+  /** Presentation configurations can be created with `presentation:manage`. */
+  get canManagePresentationConfigs(): boolean {
+    return this.jwtService.hasRole('presentation:manage');
+  }
+
+  /** Webhook endpoints can be opened with `issuance:manage` or `presentation:manage`. */
+  get canManageWebhookEndpoints(): boolean {
+    return this.jwtService.hasRole(['issuance:manage', 'presentation:manage']);
+  }
 
   constructor(
     private presentationManagementService: PresentationManagementService,

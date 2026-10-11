@@ -4,7 +4,7 @@ title: Client Development
 
 # Client development
 
-The web client (`apps/client`, package `@eudiplo/client`) is an Angular application with standalone components and Angular Material. It talks to the backend only through the generated `@eudiplo/sdk-core` client.
+The web client (`apps/client`, package `@eudiplo/client`) is an Angular application with standalone components and Angular Material. It talks to the backend through the generated `@eudiplo/sdk-core` client; only the registrar configuration still uses Angular `HttpClient`, whose `core/auth.interceptor.ts` adds the token.
 
 ## Commands
 
@@ -43,8 +43,8 @@ Commit the regenerated `packages/eudiplo-sdk-core/src/api` together with the bac
 apps/client/src/
 ├── app/
 │   ├── app.config.ts, app.routes.ts   # providers and top-level routes
-│   ├── core/                # API service (SDK setup), OIDC service, auth interceptor
-│   ├── services/            # environment, theme, version check, frontend config, session expiry warning, Grafana links, JWT helpers
+│   ├── core/                # API service (SDK setup), reaction to refused requests, OIDC service, auth interceptor
+│   ├── services/            # environment, theme, version check, frontend config, session notices, role change notice, Grafana links, JWT helpers
 │   ├── guards/              # auth.guard.ts, roles.guard.ts
 │   ├── common/              # shared base list component, load error card, source loading, small utilities
 │   ├── utils/               # reusable UI: editor, image field, webhook config, schema validation; error messages

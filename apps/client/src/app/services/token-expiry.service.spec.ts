@@ -4,8 +4,11 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 
-import { ApiService } from '../core';
+import { ApiRefusalService, ApiService } from '../core';
 import { TokenExpiryService } from './token-expiry.service';
+
+const revokedText =
+  'Your API client no longer has access, for example because it was deleted or its secret changed. Log in with a client that has access; unsaved changes on this page will be lost.';
 
 describe('TokenExpiryService', () => {
   let api: {
@@ -14,12 +17,18 @@ describe('TokenExpiryService', () => {
     getTokenTimeRemaining: () => number;
     canRefreshToken: () => boolean;
     isReconnecting: () => boolean;
+    areCredentialsRejected: () => boolean;
     ensureAuthenticated: ReturnType<typeof vi.fn>;
     tokenRenewed$: Subject<void>;
     logout: ReturnType<typeof vi.fn>;
   };
+  let refusals: { isAccessRevoked: () => boolean; accessRevoked$: Subject<void> };
   let router: { url: string; navigate: ReturnType<typeof vi.fn>; events: Subject<unknown> };
-  let notices: { action: Subject<void>; dismissed: Subject<void>; dismiss: () => void }[];
+  let notices: {
+    action: Subject<void>;
+    dismissed: Subject<{ dismissedByAction: boolean } | void>;
+    dismiss: () => void;
+  }[];
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let service: TokenExpiryService;
 
@@ -32,17 +41,19 @@ describe('TokenExpiryService', () => {
       getTokenTimeRemaining: () => 60 * 60_000,
       canRefreshToken: () => false,
       isReconnecting: () => false,
+      areCredentialsRejected: () => false,
       ensureAuthenticated: vi.fn().mockResolvedValue(false),
       tokenRenewed$: new Subject<void>(),
       logout: vi.fn(),
     };
+    refusals = { isAccessRevoked: () => false, accessRevoked$: new Subject<void>() };
     router = { url: '/dashboard', navigate: vi.fn(), events: new Subject<unknown>() };
     notices = [];
     snackBar = {
       open: vi.fn(() => {
         const notice = {
           action: new Subject<void>(),
-          dismissed: new Subject<void>(),
+          dismissed: new Subject<{ dismissedByAction: boolean } | void>(),
           dismiss: () => notice.dismissed.next(),
         };
         notices.push(notice);
@@ -56,6 +67,7 @@ describe('TokenExpiryService', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ApiService, useValue: api },
+        { provide: ApiRefusalService, useValue: refusals },
         { provide: Router, useValue: router },
         { provide: MatSnackBar, useValue: snackBar },
       ],
@@ -276,6 +288,62 @@ describe('TokenExpiryService', () => {
     await Promise.all([first, second]);
 
     expect(api.ensureAuthenticated).toHaveBeenCalledOnce();
+  });
+
+  it('ends a session whose client lost its access at once, although its token is valid', async () => {
+    service.start();
+    // Let the first check finish.
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(snackBar.open).not.toHaveBeenCalled();
+
+    refusals.isAccessRevoked = () => true;
+    refusals.accessRevoked$.next();
+    await vi.waitFor(() => expect(texts()).toEqual([revokedText]));
+    notices[0].action.next();
+
+    expect(api.logout).toHaveBeenCalledOnce();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('does not bring the revoked notice back after its Log in action', async () => {
+    refusals.isAccessRevoked = () => true;
+    await service.check();
+
+    notices[0].action.next();
+    notices[0].dismissed.next({ dismissedByAction: true });
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(texts()).toEqual([revokedText]);
+    expect(api.logout).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the revoked notice through later checks', async () => {
+    refusals.isAccessRevoked = () => true;
+    await service.check();
+    const dismiss = vi.spyOn(notices[0], 'dismiss');
+
+    await service.check();
+
+    expect(dismiss).not.toHaveBeenCalled();
+    expect(texts()).toEqual([revokedText]);
+  });
+
+  it('brings the revoked notice back at once when another message replaced it', async () => {
+    refusals.isAccessRevoked = () => true;
+    await service.check();
+
+    notices[0].dismissed.next();
+
+    await vi.waitFor(() => expect(texts()).toEqual([revokedText, revokedText]));
+  });
+
+  it('names lost access instead of expiry when the credentials were rejected', async () => {
+    api.getAuthenticationStatus = () => false;
+    api.areCredentialsRejected = () => true;
+
+    await service.check();
+
+    expect(texts()).toEqual([revokedText]);
   });
 
   it('reports an ended OIDC session whose token was cleared', async () => {

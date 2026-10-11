@@ -7,9 +7,9 @@ import { ApiService } from '../core';
 import type { Role } from '../services/jwt.service';
 import { RoleGuard } from './roles.guard';
 
-/** An unsigned access token with the given roles; JwtService only decodes it. */
-function accessToken(roles: Role[]): string {
-  const payload = btoa(JSON.stringify({ roles }))
+/** An unsigned access token with the given roles and claims; JwtService only decodes it. */
+export function accessToken(roles: string[], claims: Record<string, unknown> = {}): string {
+  const payload = btoa(JSON.stringify({ ...claims, roles }))
     .replaceAll('+', '-')
     .replaceAll('/', '_')
     .replaceAll('=', '');

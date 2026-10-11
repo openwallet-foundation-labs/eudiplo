@@ -77,7 +77,9 @@ export function getApiErrorMessage(
  * message that already ends with a period does not get a second one.
  */
 export function asSentence(message: string): string {
-  return `${message.replace(/\.+$/, '')}.`;
+  let end = message.length;
+  while (end > 0 && message[end - 1] === '.') end--;
+  return `${message.slice(0, end)}.`;
 }
 
 /** How many issues of a `400 Validation failed` response the message names. */
