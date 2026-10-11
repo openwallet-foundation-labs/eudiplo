@@ -21,6 +21,7 @@ import { ConfigOwnershipDirective } from '../../../config-portability/config-own
 import { JwtService } from '../../../services/jwt.service';
 import { canManageRoles } from '../../../services/role-grants';
 import { getApiErrorMessage } from '../../../utils/error-message';
+import { clientDeleteConfirmation } from '../client-delete-confirmation';
 
 @Component({
   selector: 'app-client-list',
@@ -95,21 +96,30 @@ export class ClientListComponent implements OnInit {
   async deleteClient(client: ClientEntity): Promise<void> {
     if (
       !client.clientId ||
-      !confirm(`Are you sure you want to delete client "${client.clientId}"?`)
+      !confirm(clientDeleteConfirmation(client.clientId, this.apiService.getClientId()))
     ) {
       return;
     }
 
     try {
       await clientControllerDeleteClient({ path: { id: client.clientId } });
-      await this.loadClients(); // Reload the list
-      this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting client:', error);
       this.snackBar.open(getApiErrorMessage(error, 'Failed to delete client'), 'Close', {
         duration: 5000,
       });
+      return;
     }
+
+    if (client.clientId === this.apiService.getClientId()) {
+      // The deleted client can no longer renew this session.
+      this.apiService.logout();
+      this.snackBar.open('Client deleted. You have been signed out.', 'Close', { duration: 5000 });
+      await this.router.navigate(['/login']);
+      return;
+    }
+    await this.loadClients(); // Reload the list
+    this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
   }
 
   /**

@@ -1,6 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { clientControllerGetClient, ClientEntity } from '@eudiplo/sdk-core';
+import {
+  clientControllerDeleteClient,
+  clientControllerGetClient,
+  ClientEntity,
+} from '@eudiplo/sdk-core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MatCardModule } from '@angular/material/card';
@@ -8,12 +12,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
 import { JwtService } from '../../../services/jwt.service';
 import { roleChoices } from '../../../services/role-grants';
 import { RoleLockNoticeComponent } from '../../../common/role-lock-notice.component';
 import { getApiErrorMessage } from '../../../utils/error-message';
+import { ApiService } from '../../../core';
+import { clientDeleteConfirmation } from '../client-delete-confirmation';
 
 @Component({
   selector: 'app-client-show',
@@ -25,6 +32,7 @@ import { getApiErrorMessage } from '../../../utils/error-message';
     RouterModule,
     FlexLayoutModule,
     MatChipsModule,
+    MatTooltipModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
     RoleLockNoticeComponent,
@@ -35,11 +43,15 @@ import { getApiErrorMessage } from '../../../utils/error-message';
 })
 export class ClientShowComponent implements OnInit {
   client?: ClientEntity;
+  /** True while the delete request runs and, once it succeeded, until the page is left; disables Edit and Delete. */
+  deleting = false;
   constructor(
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly apiService: ApiService,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   /** Roles of the client that keep the signed-in caller from editing or deleting it */
@@ -63,5 +75,41 @@ export class ClientShowComponent implements OnInit {
         this.router.navigate(['..'], { relativeTo: this.route });
       }
     );
+  }
+
+  async deleteClient(): Promise<void> {
+    if (
+      !this.client?.clientId ||
+      this.deleting ||
+      !confirm(clientDeleteConfirmation(this.client.clientId, this.apiService.getClientId()))
+    ) {
+      return;
+    }
+    const clientId = this.client.clientId;
+
+    this.deleting = true;
+    try {
+      await clientControllerDeleteClient({ path: { id: clientId } });
+    } catch (error) {
+      this.deleting = false;
+      console.error('Error deleting client:', error);
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete client'), 'Close', {
+        duration: 5000,
+      });
+      return;
+    }
+
+    if (clientId === this.apiService.getClientId()) {
+      // The deleted client can no longer renew this session.
+      this.apiService.logout();
+      this.snackBar.open('Client deleted. You have been signed out.', 'Close', { duration: 5000 });
+      await this.router.navigate(['/login']);
+      return;
+    }
+    this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
+    // The user may have left the page while the request was running.
+    if (!this.destroyRef.destroyed) {
+      await this.router.navigate(['../'], { relativeTo: this.route });
+    }
   }
 }
