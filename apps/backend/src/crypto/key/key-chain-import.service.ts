@@ -1,6 +1,11 @@
 import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    Logger,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { exportJWK, importPKCS8, type JWK } from "jose";
@@ -97,10 +102,18 @@ export class KeyChainImportService {
         const hostname = this.getHostname();
 
         const privateKey = await this.resolvePrivateKey(dto);
-        const replacing = await this.keyChainRepository.existsBy({
-            tenantId,
-            id,
+        const existing = await this.keyChainRepository.findOne({
+            where: { tenantId, id },
+            select: { id: true, usage: true },
         });
+        // Only signing key chains are user-manageable; an import must not
+        // turn the tenant's encryption key chain into one.
+        if (existing && existing.usage !== KeyUsage.Sign) {
+            throw new ConflictException(
+                `Key chain id ${id} belongs to a key chain that EUDIPLO manages itself. Use another id.`,
+            );
+        }
+        const replacing = existing !== null;
         if (!privateKey.kid) {
             privateKey.kid = `${id}-active`;
         }

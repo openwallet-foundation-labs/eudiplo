@@ -15,7 +15,7 @@ A key chain is a signing key together with its certificate chain. Each tenant ne
 | `statusList`  | Status lists for [revocation](../issuance/revocation.md)                                       | Status List Signing               |
 | `trustList`   | [Trust lists](trust-lists.md) you publish                                                      | Trust List Signing                |
 
-`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself; it is not listed with the other key chains.
+`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself. It is not listed with the other key chains, and the key chain endpoints do not change it: updating, rotating, deleting or exporting its ID answers `404`, and an import with its ID answers `409`. Configuration bundles leave it out and skip a document with its ID ([Config Bundle Format](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
 
 ## Key chain types
 

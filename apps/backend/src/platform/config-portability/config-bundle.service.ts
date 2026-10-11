@@ -19,7 +19,8 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare as compareSecret } from "bcrypt";
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
+import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
 import { KmsTenantConfigService } from "../../crypto/key/kms/kms-tenant-config.service.js";
 import { withoutRemovedChainedVp } from "../../issuer/configuration/issuance/domain/removed-authorization-servers.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
@@ -93,6 +94,19 @@ function pathMatches(pattern: string, path: string): boolean {
         expected.length === actual.length &&
         expected.every((part, index) => part === "*" || part === actual[index])
     );
+}
+
+/** The action a plan item gets from its state, in order of precedence. */
+function planAction(state: {
+    blocked: boolean;
+    skip: boolean;
+    unchanged: boolean;
+    exists: boolean;
+}): ConfigImportPlanItem["action"] {
+    if (state.blocked) return "blocked";
+    if (state.skip) return "skip";
+    if (state.unchanged) return "unchanged";
+    return state.exists ? "update" : "create";
 }
 
 function placeholder(
@@ -220,8 +234,9 @@ export class ConfigBundleService {
             );
         }
 
+        // The tenant's encryption key chain is system-owned, not configuration.
         for (const keyChain of await this.keyChains.find({
-            where: { tenantId },
+            where: { tenantId, usage: KeyUsage.Sign },
         })) {
             const publicJwk = this.toPublicJwk(
                 keyChain.hasInternalCa()
@@ -433,6 +448,8 @@ export class ConfigBundleService {
         const items: ConfigImportPlanItem[] = [];
         const issues: ConfigMigrationIssue[] = [];
         const upgradedDocuments: ConfigDocument[] = [];
+        const systemOwnedKeyChains =
+            await this.systemOwnedKeyChainIds(tenantId);
         for (const file of bundle.documents) {
             const input = this.migrationService.normalize(file);
             const sourceVersion = input.$schema!;
@@ -448,21 +465,41 @@ export class ConfigBundleService {
                 result.document.kind,
                 resourceId(result.document),
             );
-            const itemIssues = [...result.issues];
-            itemIssues.push(
-                ...this.documentValidationService.validate(result.document),
-            );
-            this.collectUnresolvedRequirements(result.document, itemIssues);
             const reference = {
                 kind: result.document.kind,
                 id: resourceId(result.document),
             };
+            // Key chains EUDIPLO manages itself, such as the tenant's
+            // encryption key chain, are not configuration. Exports of earlier
+            // versions contain the encryption key chain; skip it instead of
+            // asking for its private key.
+            const skipReserved =
+                exists &&
+                reference.kind === "KeyChain" &&
+                systemOwnedKeyChains.has(reference.id);
+            const itemIssues = [...result.issues];
+            itemIssues.push(
+                ...this.documentValidationService.validate(result.document),
+            );
+            if (skipReserved) {
+                itemIssues.push({
+                    severity: "warning",
+                    code: "KEY_CHAIN_ID_RESERVED",
+                    path: "/spec/id",
+                    message:
+                        "This ID belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain. It is skipped.",
+                    resource: reference,
+                });
+            } else {
+                this.collectUnresolvedRequirements(result.document, itemIssues);
+            }
             // A startup folder import must not fail the whole tenant because
             // one resource diverged; it skips that resource and says how to recover.
             const startupFolder = ownershipSource.startsWith("folder:");
             let skipDiverged = false;
             if (
                 exists &&
+                !skipReserved &&
                 !options.reattach &&
                 metadata.ownership === "detached" &&
                 sourceInScope(metadata.source, ownershipSource)
@@ -478,6 +515,7 @@ export class ConfigBundleService {
                 });
             } else if (
                 exists &&
+                !skipReserved &&
                 !options.reattach &&
                 (result.document.metadata.generation ?? 1) < metadata.generation
             ) {
@@ -541,7 +579,8 @@ export class ConfigBundleService {
                     },
                 });
             }
-            const skipExisting = exists && mode === "create" && !skipDiverged;
+            const skipExisting =
+                exists && mode === "create" && !skipDiverged && !skipReserved;
             if (skipExisting) {
                 itemIssues.push({
                     severity: "warning",
@@ -563,7 +602,13 @@ export class ConfigBundleService {
             let comparison:
                 | { unchanged: boolean; changes: ConfigChange[] }
                 | undefined;
-            if (exists && mode !== "create" && !blocked && !skipDiverged) {
+            if (
+                exists &&
+                mode !== "create" &&
+                !blocked &&
+                !skipDiverged &&
+                !skipReserved
+            ) {
                 // Reattach restores the folder version, so it always compares.
                 comparison =
                     !options.reattach &&
@@ -585,15 +630,12 @@ export class ConfigBundleService {
                 metadataChanged,
                 kind: result.document.kind,
                 id: resourceId(result.document),
-                action: blocked
-                    ? "blocked"
-                    : skipExisting || skipDiverged
-                      ? "skip"
-                      : comparison?.unchanged
-                        ? "unchanged"
-                        : exists
-                          ? "update"
-                          : "create",
+                action: planAction({
+                    blocked,
+                    skip: skipExisting || skipDiverged || skipReserved,
+                    unchanged: comparison?.unchanged ?? false,
+                    exists,
+                }),
                 sourceVersion,
                 targetVersion: result.document.$schema!,
                 migrations: result.migrations,
@@ -633,7 +675,9 @@ export class ConfigBundleService {
             for (const metadata of managed) {
                 if (
                     metadata.kind === "Tenant" ||
-                    included.has(`${metadata.kind}/${metadata.resourceId}`)
+                    included.has(`${metadata.kind}/${metadata.resourceId}`) ||
+                    (metadata.kind === "KeyChain" &&
+                        systemOwnedKeyChains.has(metadata.resourceId))
                 ) {
                     continue;
                 }
@@ -676,6 +720,20 @@ export class ConfigBundleService {
             items,
             issues,
         };
+    }
+
+    /**
+     * IDs of the key chains EUDIPLO manages itself, such as the tenant's
+     * encryption key chain. Imports neither change nor delete them.
+     */
+    private async systemOwnedKeyChainIds(
+        tenantId: string,
+    ): Promise<Set<string>> {
+        const keyChains = await this.keyChains.find({
+            where: { tenantId, usage: Not(KeyUsage.Sign) },
+            select: { id: true },
+        });
+        return new Set(keyChains.map((keyChain) => keyChain.id));
     }
 
     /** Hash configuration only; live status values and allocation stacks are not configuration. */

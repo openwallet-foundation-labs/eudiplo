@@ -99,7 +99,8 @@ export class ConfigFolderBundleService {
             for (const issue of item.issues) {
                 if (
                     issue.code === "RESOURCE_DETACHED" ||
-                    issue.code === "STALE_GENERATION"
+                    issue.code === "STALE_GENERATION" ||
+                    issue.code === "KEY_CHAIN_ID_RESERVED"
                 ) {
                     this.logger.warn(
                         `[${tenantId}] Skipped ${item.kind} '${item.id}' (${issue.code}): ${issue.message}`,

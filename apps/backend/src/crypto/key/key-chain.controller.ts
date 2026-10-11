@@ -261,6 +261,11 @@ export class KeyChainController {
         description: "Key chain imported successfully",
         type: KeyChainIdResponseDto,
     })
+    @ApiResponse({
+        status: 409,
+        description:
+            "The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.",
+    })
     async import(
         @Token() token: TokenPayload,
         @Body() body: KeyChainImportDto,

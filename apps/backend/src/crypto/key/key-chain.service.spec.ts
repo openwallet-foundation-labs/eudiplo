@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Role } from "../../auth/roles/role.enum.js";
 import { RolesGuard } from "../../auth/roles/roles.guard.js";
 import type { TokenPayload } from "../../auth/token.decorator.js";
-import { KeyChainEntity } from "./entities/key-chain.entity.js";
+import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainController } from "./key-chain.controller.js";
 import { KeyChainService } from "./key-chain.service.js";
 import { KeyChainImportSchema } from "./schemas/key-chain.schema.js";
@@ -150,13 +150,13 @@ describe("KeyChainService.export", () => {
         expect(KeyChainImportSchema.safeParse(exported).success).toBe(true);
     });
 
-    it("scopes the lookup to the tenant", async () => {
+    it("scopes the lookup to the tenant's signing key chains", async () => {
         const service = serviceFor(keyChain({}), "db") as any;
 
         await service.export("tenant", "key");
 
         expect(service.keyChainRepository.findOne).toHaveBeenCalledWith({
-            where: { tenantId: "tenant", id: "key" },
+            where: { tenantId: "tenant", id: "key", usage: KeyUsage.Sign },
         });
     });
 });
@@ -246,6 +246,60 @@ describe("KeyChainService.update rotation policy", () => {
             { tenantId: "tenant", id: "key" },
             { description: "Signing" },
         );
+    });
+});
+
+describe("KeyChainService.findByUsageType", () => {
+    /** A repository whose `findOne` returns the first row matching `where`. */
+    function serviceWith(rows: KeyChainEntity[]) {
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: async ({ where }: { where: Record<string, unknown> }) =>
+                rows.find((row) =>
+                    Object.entries(where).every(
+                        ([key, value]) =>
+                            row[key as keyof KeyChainEntity] === value,
+                    ),
+                ) ?? null,
+        };
+        return service as KeyChainService;
+    }
+
+    const encryptionKeyChain = keyChain({
+        id: "system",
+        usageType: KeyUsageType.Encrypt,
+        usage: KeyUsage.Encrypt,
+    });
+    const signingKeyChain = (id: string) =>
+        keyChain({
+            id,
+            usageType: KeyUsageType.Encrypt,
+            usage: KeyUsage.Sign,
+        });
+
+    it("prefers the encryption key chain over signing key chains with usage type encrypt", async () => {
+        const service = serviceWith([
+            signingKeyChain("user"),
+            encryptionKeyChain,
+        ]);
+
+        const found = await service.findByUsageType(
+            "tenant",
+            KeyUsageType.Encrypt,
+        );
+
+        expect(found.id).toBe("system");
+    });
+
+    it("still finds an encryption key chain that an import turned into a signing key chain", async () => {
+        const service = serviceWith([signingKeyChain("converted")]);
+
+        const found = await service.findByUsageType(
+            "tenant",
+            KeyUsageType.Encrypt,
+        );
+
+        expect(found.id).toBe("converted");
     });
 });
 
