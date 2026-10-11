@@ -187,6 +187,9 @@ describe('TrustListShowComponent references', () => {
 
     const text = await referencesCard(fixture, 'Loading credential configs');
     expect(text).not.toContain('No credential configs');
+    // <output> is a status live region, so screen readers announce the loading state.
+    const output = (fixture.nativeElement as HTMLElement).querySelector('output');
+    expect(output?.textContent?.trim()).toBe('Loading credential configs…');
   });
 
   it('reports a failed load instead of claiming that no config uses the list', async () => {
