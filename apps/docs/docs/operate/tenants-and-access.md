@@ -5,9 +5,9 @@ title: Tenants and Access
 # Tenants and Access
 
 Create tenants, give applications least-privilege API clients, and let people
-sign in. Every management endpoint (`/api/...`) needs an OAuth 2.0 bearer token
-whose roles and tenant decide what the caller may do; the roles are listed in
-the [roles reference](../reference/roles.md).
+sign in. Every management endpoint (`/api/...`) needs an OAuth 2.0 bearer token;
+the roles and tenant of its client or person decide what the caller may do. The
+roles are listed in the [roles reference](../reference/roles.md).
 
 ## Tenants
 
@@ -15,7 +15,9 @@ A tenant is one issuer and/or verifier: its credential, issuance and presentatio
 configurations, keys, trust lists, sessions and clients belong to it. All
 records carry the tenant ID, and every request is scoped to the tenant in the
 access token. Tenants have no lifecycle states besides `active`; to take a
-tenant offline, delete its clients or the tenant.
+tenant offline, delete it (below). Deleting its clients only ends their API
+access ([revoke access](#revoke-access)): people who sign in with Keycloak keep
+theirs, and wallets can still finish the offers and requests already sent.
 
 ### Create a tenant
 
@@ -59,8 +61,9 @@ curl -X POST https://eudiplo.example.com/api/oauth2/token \
 ```
 
 The client can also send its credentials with HTTP Basic authentication. Tokens
-are signed with `MASTER_SECRET` and expire after `JWT_EXPIRES_IN` (default
-`24h`). Use them as `Authorization: Bearer <token>`. The Swagger UI of the
+are signed with `MASTER_SECRET` and expire after 24 hours. The response has no
+refresh token; request a new token with the client credentials. Use tokens as
+`Authorization: Bearer <token>`. The Swagger UI of the
 management API is at `/api/docs` (its **Authorize** button uses the same
 endpoint); the wallet-facing protocol API is documented at `/docs`.
 
@@ -128,6 +131,24 @@ A caller hands out only roles it holds, or with `tenant:admin` every role
 except `tenants:manage` and `tenant:admin`, and cannot change or take over a
 client or user with more rights than its own
 ([granting roles](../reference/roles.md#granting-roles)).
+
+### Revoke access
+
+With the built-in server, EUDIPLO reads the client on every request: a token is
+accepted only while its client exists in the token's tenant, and with the roles,
+`allowedIssuanceConfigs` and `allowedPresentationConfigs` the client has now.
+Deleting a client (`DELETE /api/client/:id`) ends its access at once; changing
+its roles or limits applies to the tokens it already has. Rotating the secret
+does not end those tokens. Tokens of a deleted client become valid again while
+a client with the same ID exists in the same tenant, so give a replacement a new
+ID. This includes `<tenant>-admin` when you create a deleted tenant again.
+
+With Keycloak, EUDIPLO checks tokens without asking Keycloak. Deleting a client
+also deletes it in Keycloak, which then issues no new tokens to it, but the
+tokens it already has stay valid until they expire (the realm's access token
+lifespan, 5 minutes by default), and during that time its config limits no
+longer apply. Keep that lifespan short. Changes to the limits apply at once,
+role changes in Keycloak with the next token.
 
 ## External OIDC provider and human users
 

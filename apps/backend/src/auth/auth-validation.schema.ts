@@ -67,14 +67,6 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
         .description("Local JWT issuer")
         .meta({ group: "auth", order: 60 }),
 
-    JWT_EXPIRES_IN: Joi.when("OIDC", {
-        is: Joi.exist(),
-        then: Joi.string().optional(),
-        otherwise: Joi.string().default("24h"),
-    })
-        .description("Local JWT expiration")
-        .meta({ group: "auth", order: 70 }),
-
     AUTH_CLIENT_SECRET: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),

@@ -148,10 +148,6 @@ export const TokenResponseSchema = {
             type: 'string',
             description: 'Bearer access token'
         },
-        refresh_token: {
-            type: 'string',
-            description: 'Optional refresh token'
-        },
         token_type: {
             enum: [
                 'Bearer'

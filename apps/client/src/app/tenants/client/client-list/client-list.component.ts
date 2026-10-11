@@ -129,7 +129,7 @@ export class ClientListComponent implements OnInit {
   async rotateSecret(client: ClientEntity): Promise<void> {
     if (
       !confirm(
-        `Are you sure you want to rotate the secret for "${client.clientId}"?\n\nThe current secret will be invalidated immediately. Make sure to save the new secret - you won't be able to see it again!`
+        `Are you sure you want to rotate the secret for "${client.clientId}"?\n\nThe current secret will be invalidated immediately; tokens already issued with it stay valid until they expire. Make sure to save the new secret - you won't be able to see it again!`
       )
     ) {
       return;
