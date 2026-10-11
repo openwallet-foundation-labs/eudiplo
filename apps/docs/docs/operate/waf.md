@@ -31,6 +31,13 @@ example with an IP allow list, a VPN or an identity-aware proxy. Except for the
 token endpoint and the Swagger UI (`/api/docs`, `/api/docs-json`), every call
 also needs a bearer token, so the network rule is a second layer.
 
+The web client sends its token requests to the token endpoint of the
+discovery document, `PUBLIC_URL/api/oauth2/token` (with `OIDC` set, the
+provider's), even when operators enter another backend address on its login
+page. Allow `OPTIONS` (CORS preflight) and `POST` on `/api/oauth2/token` from
+operators' browsers on the `PUBLIC_URL` host too
+([web client addresses](docker-compose.md#web-client-addresses)).
+
 | Setting       | Value                                                                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Methods       | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS` for the CORS preflight of the web client                                                                         |
