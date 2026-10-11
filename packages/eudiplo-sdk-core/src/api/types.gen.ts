@@ -1153,11 +1153,15 @@ export type KeyChainExportDto = {
      */
     usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
     /**
-     * The key in JWK format (EC). Contains the private key for database-held keys and only the public key for external KMS providers.
+     * Key chain type. For internalChain, key and crt are the root CA key and certificate; the import generates a new signing key.
+     */
+    type: 'standalone' | 'internalChain';
+    /**
+     * The key in JWK format (EC): the root CA key of an internal chain, otherwise the signing key. Contains the private key for database-held keys and only the public key for external KMS providers.
      */
     key: ExportEcJwk;
     /**
-     * Certificate chain in PEM format (leaf first, then intermediates/CA).
+     * Certificate chain in PEM format: the root CA certificate of an internal chain, otherwise the chain leaf first, then intermediates/CA.
      */
     crt?: Array<string>;
     /**
@@ -1261,7 +1265,7 @@ export type EcJwk = {
 
 export type RotationPolicyImportDto = {
     /**
-     * Whether rotation is enabled. When true, the imported key becomes a root CA signer, unless crt is a single self-signed certificate that is not a CA.
+     * Whether rotation is enabled. Without type, true makes the imported key a root CA signer, unless crt is a single self-signed certificate that is not a CA.
      */
     enabled: boolean;
     /**
@@ -1325,7 +1329,11 @@ export type KeyChainImportDto = {
      */
     usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
     /**
-     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate, unless the chain is a single self-signed certificate that is not a CA.
+     * Key chain type. standalone: key is the signing key and crt its chain, leaf first. internalChain: key is a CA key and the last crt entry its CA certificate (created if crt is omitted); a new signing key is generated with a certificate issued by it. Without type, key is a CA key only if rotationPolicy.enabled is true and crt is not a single self-signed certificate that is not a CA. The export writes it.
+     */
+    type?: 'standalone' | 'internalChain';
+    /**
+     * Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. For an internal chain (see type), the last certificate in the chain is treated as the root CA certificate.
      */
     crt?: Array<string>;
     /**
@@ -1333,7 +1341,7 @@ export type KeyChainImportDto = {
      */
     kmsProvider?: string;
     /**
-     * Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. intervalDays defaults to 90 and certValidityDays to 365.
+     * Rotation policy. Without type, enabling it makes the imported key a root CA signer and a new leaf key is generated; if crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. With rotation enabled, intervalDays defaults to 90 and certValidityDays to 365; without it, no intervals are stored.
      */
     rotationPolicy?: RotationPolicyImportDto & {
         /**

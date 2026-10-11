@@ -268,6 +268,70 @@ describe("config upgrade", () => {
         expect(await runCli(["config", "upgrade", source], context)).toBe(1);
         await expect(access(`${source}.upgraded`)).rejects.toThrow();
     });
+    it("upgrades key chains without type to the current format", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "folder");
+        await mkdir(join(source, "key-chains"), { recursive: true });
+        const key = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        const spec = { usageType: "attestation", key };
+        await writeFile(
+            join(source, "key-chains", "bare.json"),
+            JSON.stringify({ id: "bare", ...spec }),
+        );
+        await writeFile(
+            join(source, "key-chains", "enveloped.json"),
+            JSON.stringify({
+                $schema: schemaUrl("KeyChain", 1),
+                metadata: { generation: 1 },
+                spec: {
+                    id: "enveloped",
+                    usageType: "attestation",
+                    keySource: { type: "private-jwk", jwk: key },
+                },
+            }),
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        for (const id of ["bare", "enveloped"]) {
+            const result = JSON.parse(
+                await readFile(
+                    join(`${source}.upgraded`, "key-chains", `${id}.json`),
+                    "utf8",
+                ),
+            );
+            expect(result.$schema).toBe(schemaUrl("KeyChain"));
+            expect(result.spec).not.toHaveProperty("type");
+        }
+    });
+    it("upgrades a bare key chain export with type", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "folder");
+        await mkdir(join(source, "key-chains"), { recursive: true });
+        const key = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        await writeFile(
+            join(source, "key-chains", "issuer.json"),
+            JSON.stringify({
+                id: "issuer",
+                usageType: "attestation",
+                type: "internalChain",
+                key,
+            }),
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        expect(
+            JSON.parse(
+                await readFile(
+                    join(`${source}.upgraded`, "key-chains", "issuer.json"),
+                    "utf8",
+                ),
+            ),
+        ).toMatchObject({
+            $schema: schemaUrl("KeyChain"),
+            spec: {
+                type: "internalChain",
+                keySource: { type: "private-jwk", jwk: key },
+            },
+        });
+    });
     it("does not expose secrets in a legacy folder upgrade diff", async () => {
         const { cwd, context, output } = await setup();
         const source = join(cwd, "folder");

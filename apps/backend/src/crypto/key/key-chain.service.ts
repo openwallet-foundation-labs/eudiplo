@@ -316,6 +316,11 @@ export class KeyChainService {
             id: keyChain.id,
             description: keyChain.description ?? undefined,
             usageType: keyChain.usageType,
+            // Without it, an import treats the root key as a CA key only
+            // with rotation enabled.
+            type: keyChain.hasInternalCa()
+                ? KeyChainType.InternalChain
+                : KeyChainType.Standalone,
             // Private key material is only exported for database-held keys.
             // For external KMS providers the entity stores the public JWK;
             // strip private components defensively so a key that belongs

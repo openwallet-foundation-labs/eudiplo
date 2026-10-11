@@ -121,6 +121,69 @@ describe("ConfigDocumentValidationService", () => {
         });
     });
 
+    it.each([
+        [
+            "standalone",
+            {
+                type: "private-jwk",
+                jwk: { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" },
+                activeJwk: { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" },
+            },
+        ],
+        [
+            "internalChain",
+            {
+                type: "external-reference",
+                provider: "vault",
+                externalKeyId: "key",
+                publicJwk: { kty: "EC", crv: "P-256", x: "x", y: "y" },
+            },
+        ],
+        ["standalone", { type: "regenerate", keyChainType: "internalChain" }],
+    ])(
+        "reports a type %s that contradicts the key source",
+        (type, keySource) => {
+            const issues = service.validate({
+                $schema: schemaUrl("KeyChain"),
+                kind: "KeyChain",
+                metadata: {},
+                spec: {
+                    id: "issuer",
+                    usageType: "attestation",
+                    type,
+                    keySource,
+                },
+            });
+
+            expect(issues).toContainEqual(
+                expect.objectContaining({
+                    code: "KEY_CHAIN_TYPE_MISMATCH",
+                    path: "/spec/type",
+                }),
+            );
+        },
+    );
+
+    it.each([
+        { type: "regenerate", keyChainType: "internalChain" },
+        // Without keyChainType, type decides the regenerated key chain.
+        { type: "regenerate" },
+    ])("accepts a type that matches the key source %o", (keySource) => {
+        expect(
+            service.validate({
+                $schema: schemaUrl("KeyChain"),
+                kind: "KeyChain",
+                metadata: {},
+                spec: {
+                    id: "issuer",
+                    usageType: "attestation",
+                    type: "internalChain",
+                    keySource,
+                },
+            }),
+        ).toEqual([]);
+    });
+
     it("accepts identity carried by the schema-described spec", () => {
         expect(
             service.validate({
