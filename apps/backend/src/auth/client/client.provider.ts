@@ -30,6 +30,16 @@ export abstract class ClientsProvider {
     abstract getClient(tenantId: string, clientId: string): Promise<ClientData>;
 
     /**
+     * Roles a client of the tenant has, for the authorization check before it
+     * is changed, deleted or gets a new secret.
+     * @returns The roles, or `undefined` when the tenant has no such client
+     */
+    abstract getClientRoles(
+        tenantId: string,
+        clientId: string,
+    ): Promise<string[] | undefined>;
+
+    /**
      * Get a client by its clientId only (without tenant context).
      * Used for JWT validation where we need to fetch the client's restrictions.
      * @param clientId The client ID (may be namespaced with tenant prefix for Keycloak)

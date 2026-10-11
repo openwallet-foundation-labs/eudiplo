@@ -5,6 +5,7 @@
 </div>
 @if (client) {
   <app-config-ownership-notice kind="Client" [resourceId]="client.clientId" />
+  <app-role-lock-notice subject="client" [roles]="unmanageableRoles" />
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ client.clientId }}</mat-card-title>
@@ -24,6 +25,7 @@
       <button
         mat-button
         routerLink="edit"
+        [disabled]="!canManage"
         appConfigManaged
         managedKind="Client"
         [managedResourceId]="client.clientId"
@@ -33,6 +35,7 @@
       <button
         mat-button
         color="warn"
+        [disabled]="!canManage"
         appConfigManaged
         managedKind="Client"
         [managedResourceId]="client.clientId"

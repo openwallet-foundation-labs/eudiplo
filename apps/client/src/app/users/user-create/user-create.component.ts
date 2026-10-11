@@ -17,7 +17,10 @@ import {
   userControllerGetUser,
   userControllerUpdateUser,
 } from '@eudiplo/sdk-core';
-import { JwtService, roles } from '../../services/jwt.service';
+import { JwtService } from '../../services/jwt.service';
+import { type RoleOption, roleChoices } from '../../services/role-grants';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { RoleLockNoticeComponent } from '../../common/role-lock-notice.component';
 import { UserTemporaryPasswordDialogComponent } from '../user-temporary-password-dialog/user-temporary-password-dialog.component';
 
 @Component({
@@ -35,6 +38,7 @@ import { UserTemporaryPasswordDialogComponent } from '../user-temporary-password
     RouterModule,
     MatTooltipModule,
     MatCheckboxModule,
+    RoleLockNoticeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-create.component.html',
@@ -44,7 +48,16 @@ export class UserCreateComponent implements OnInit {
 
   userForm: FormGroup;
   isSubmitting = false;
-  availableRoles = roles;
+  /**
+   * Roles available for selection: the roles the signed-in caller may grant,
+   * plus the other roles of the edited user, which stay selected and cannot
+   * be changed.
+   */
+  roleOptions: RoleOption[] = [];
+  /** Explains which roles the caller can grant */
+  grantHint = '';
+  /** Roles of the edited user that the caller neither holds nor may grant */
+  unmanageableRoles: string[] = [];
   loaded = false;
   id?: string | null;
 
@@ -61,9 +74,8 @@ export class UserCreateComponent implements OnInit {
       roles: [[], [Validators.required]],
     });
 
-    if (!this.jwtService.hasRole('tenants:manage')) {
-      this.availableRoles = roles.filter((r) => r !== 'tenants:manage' && r !== 'tenant:admin');
-    }
+    this.roleOptions = roleChoices(this.jwtService.getRoles()).options;
+    this.grantHint = this.jwtService.grantHint();
   }
 
   ngOnInit(): void {
@@ -79,6 +91,12 @@ export class UserCreateComponent implements OnInit {
 
         this.userForm.patchValue(res.data);
         this.userForm.get('username')?.disable();
+        const choices = roleChoices(this.jwtService.getRoles(), res.data.roles ?? []);
+        this.roleOptions = choices.options;
+        this.unmanageableRoles = choices.unmanageable;
+        if (this.unmanageableRoles.length > 0) {
+          this.userForm.disable();
+        }
       });
     }
   }
@@ -119,9 +137,7 @@ export class UserCreateComponent implements OnInit {
       }
     } catch (error) {
       this.snackBar.open(
-        error instanceof Error
-          ? error.message
-          : `Failed to ${this.loaded ? 'update' : 'create'} user`,
+        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} user`),
         'Close',
         { duration: 5000 }
       );

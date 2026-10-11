@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type ServerSentEventsResult, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { AppControllerGetFrontendConfigData, AppControllerGetFrontendConfigResponses, AppControllerGetVersionData, AppControllerGetVersionResponses, AttributeProviderControllerCreateData, AttributeProviderControllerCreateResponses, AttributeProviderControllerDeleteData, AttributeProviderControllerDeleteErrors, AttributeProviderControllerDeleteResponses, AttributeProviderControllerGetAllData, AttributeProviderControllerGetAllResponses, AttributeProviderControllerGetByIdData, AttributeProviderControllerGetByIdErrors, AttributeProviderControllerGetByIdResponses, AttributeProviderControllerUpdateData, AttributeProviderControllerUpdateErrors, AttributeProviderControllerUpdateResponses, AuditLogControllerGetAuditLogsData, AuditLogControllerGetAuditLogsResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, CacheControllerClearAllCachesData, CacheControllerClearAllCachesResponses, CacheControllerClearStatusListCacheData, CacheControllerClearStatusListCacheResponses, CacheControllerClearTrustListCacheData, CacheControllerClearTrustListCacheResponses, CacheControllerGetStatsData, CacheControllerGetStatsResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientErrors, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientsResponses, ClientControllerRotateClientSecretData, ClientControllerRotateClientSecretResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientErrors, ClientControllerUpdateClientResponses, ConfigPortabilityControllerAcknowledgeInterruptionData, ConfigPortabilityControllerAcknowledgeInterruptionResponses, ConfigPortabilityControllerDetachData, ConfigPortabilityControllerDetachResponses, ConfigPortabilityControllerExportData, ConfigPortabilityControllerExportResponses, ConfigPortabilityControllerImportArchiveData, ConfigPortabilityControllerImportArchiveResponses, ConfigPortabilityControllerImportData, ConfigPortabilityControllerImportResponses, ConfigPortabilityControllerOperationData, ConfigPortabilityControllerOperationResponses, ConfigPortabilityControllerOperationsData, ConfigPortabilityControllerOperationsResponses, ConfigPortabilityControllerPlanArchiveData, ConfigPortabilityControllerPlanArchiveResponses, ConfigPortabilityControllerPlanData, ConfigPortabilityControllerPlanReattachData, ConfigPortabilityControllerPlanReattachResponses, ConfigPortabilityControllerPlanResponses, ConfigPortabilityControllerReattachData, ConfigPortabilityControllerReattachResponses, ConfigPortabilityControllerResourcesData, ConfigPortabilityControllerResourcesOfKindData, ConfigPortabilityControllerResourcesOfKindErrors, ConfigPortabilityControllerResourcesOfKindResponses, ConfigPortabilityControllerResourcesResponses, ConfigPortabilityControllerUpgradeData, ConfigPortabilityControllerUpgradeResponses, CredentialConfigControllerDeleteIssuanceConfigurationData, CredentialConfigControllerDeleteIssuanceConfigurationResponses, CredentialConfigControllerGetConfigByIdData, CredentialConfigControllerGetConfigByIdResponses, CredentialConfigControllerGetConfigsData, CredentialConfigControllerGetConfigsResponses, CredentialConfigControllerStoreCredentialConfigurationData, CredentialConfigControllerStoreCredentialConfigurationResponses, CredentialConfigControllerUpdateCredentialConfigurationData, CredentialConfigControllerUpdateCredentialConfigurationResponses, CredentialOfferControllerGetOfferData, CredentialOfferControllerGetOfferResponses, DeferredControllerCompleteDeferredData, DeferredControllerCompleteDeferredErrors, DeferredControllerCompleteDeferredResponses, DeferredControllerFailDeferredData, DeferredControllerFailDeferredErrors, DeferredControllerFailDeferredResponses, IssuanceConfigControllerGetIssuanceConfigurationsData, IssuanceConfigControllerGetIssuanceConfigurationsResponses, IssuanceConfigControllerReissueRegistrationCertificateData, IssuanceConfigControllerReissueRegistrationCertificateErrors, IssuanceConfigControllerReissueRegistrationCertificateResponses, IssuanceConfigControllerStoreIssuanceConfigurationData, IssuanceConfigControllerStoreIssuanceConfigurationResponses, KeyChainControllerCreateData, KeyChainControllerCreateResponses, KeyChainControllerDeleteData, KeyChainControllerDeleteErrors, KeyChainControllerDeleteResponses, KeyChainControllerDeleteTenantKmsConfigData, KeyChainControllerDeleteTenantKmsConfigErrors, KeyChainControllerDeleteTenantKmsConfigResponses, KeyChainControllerExportData, KeyChainControllerExportErrors, KeyChainControllerExportResponses, KeyChainControllerGetAllData, KeyChainControllerGetAllResponses, KeyChainControllerGetByIdData, KeyChainControllerGetByIdErrors, KeyChainControllerGetByIdResponses, KeyChainControllerGetProvidersData, KeyChainControllerGetProvidersHealthData, KeyChainControllerGetProvidersHealthResponses, KeyChainControllerGetProvidersResponses, KeyChainControllerGetTenantKmsConfigData, KeyChainControllerGetTenantKmsConfigErrors, KeyChainControllerGetTenantKmsConfigResponses, KeyChainControllerImportData, KeyChainControllerImportResponses, KeyChainControllerRotateData, KeyChainControllerRotateErrors, KeyChainControllerRotateResponses, KeyChainControllerUpdateData, KeyChainControllerUpdateErrors, KeyChainControllerUpdateResponses, KeyChainControllerUpdateTenantKmsConfigData, KeyChainControllerUpdateTenantKmsConfigErrors, KeyChainControllerUpdateTenantKmsConfigResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetConfigurationData, PresentationManagementControllerGetConfigurationResponses, PresentationManagementControllerListSchemaMetadataCatalogData, PresentationManagementControllerListSchemaMetadataCatalogResponses, PresentationManagementControllerReissueRegistrationCertificateData, PresentationManagementControllerReissueRegistrationCertificateErrors, PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerResolveIssuerMetadataData, PresentationManagementControllerResolveIssuerMetadataErrors, PresentationManagementControllerResolveIssuerMetadataResponses, PresentationManagementControllerResolveSchemaMetadataData, PresentationManagementControllerResolveSchemaMetadataErrors, PresentationManagementControllerResolveSchemaMetadataJwtData, PresentationManagementControllerResolveSchemaMetadataJwtErrors, PresentationManagementControllerResolveSchemaMetadataJwtResponses, PresentationManagementControllerResolveSchemaMetadataResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PresentationManagementControllerUpdateConfigurationData, PresentationManagementControllerUpdateConfigurationResponses, RegistrarControllerCreateAccessCertificateData, RegistrarControllerCreateAccessCertificateErrors, RegistrarControllerCreateAccessCertificateResponses, RegistrarControllerCreateConfigData, RegistrarControllerCreateConfigErrors, RegistrarControllerCreateConfigResponses, RegistrarControllerDeleteConfigData, RegistrarControllerDeleteConfigResponses, RegistrarControllerGetConfigData, RegistrarControllerGetConfigErrors, RegistrarControllerGetConfigResponses, RegistrarControllerUpdateConfigData, RegistrarControllerUpdateConfigErrors, RegistrarControllerUpdateConfigResponses, SchemaMetadataControllerDeprecateVersionData, SchemaMetadataControllerDeprecateVersionResponses, SchemaMetadataControllerFindAllData, SchemaMetadataControllerFindAllResponses, SchemaMetadataControllerFindOneData, SchemaMetadataControllerFindOneResponses, SchemaMetadataControllerGetJwtData, SchemaMetadataControllerGetJwtResponses, SchemaMetadataControllerGetLatestData, SchemaMetadataControllerGetLatestResponses, SchemaMetadataControllerGetMineData, SchemaMetadataControllerGetMineResponses, SchemaMetadataControllerGetSchemaData, SchemaMetadataControllerGetSchemaResponses, SchemaMetadataControllerGetVersionsData, SchemaMetadataControllerGetVersionsResponses, SchemaMetadataControllerGetVocabulariesData, SchemaMetadataControllerGetVocabulariesResponses, SchemaMetadataControllerPublishSchemaMetadataData, SchemaMetadataControllerPublishSchemaMetadataErrors, SchemaMetadataControllerPublishSchemaMetadataResponses, SchemaMetadataControllerPublishSchemaMetadataVersionData, SchemaMetadataControllerPublishSchemaMetadataVersionErrors, SchemaMetadataControllerPublishSchemaMetadataVersionResponses, SchemaMetadataControllerRemoveData, SchemaMetadataControllerRemoveResponses, SchemaMetadataControllerUpdateData, SchemaMetadataControllerUpdateResponses, SessionConfigControllerGetConfigData, SessionConfigControllerGetConfigResponses, SessionConfigControllerResetConfigData, SessionConfigControllerResetConfigResponses, SessionConfigControllerUpdateConfigData, SessionConfigControllerUpdateConfigResponses, SessionControllerCancelData, SessionControllerCancelErrors, SessionControllerCancelResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetCredentialStatusData, SessionControllerGetCredentialStatusErrors, SessionControllerGetCredentialStatusResponses, SessionControllerGetSessionData, SessionControllerGetSessionLogsData, SessionControllerGetSessionLogsResponses, SessionControllerGetSessionResponses, SessionControllerGetSessionStatsData, SessionControllerGetSessionStatsResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllErrors, SessionControllerRevokeAllResponses, SessionEventsControllerSubscribeToSessionEventsData, SessionEventsControllerSubscribeToSessionEventsErrors, SessionEventsControllerSubscribeToSessionEventsResponse, SessionEventsControllerSubscribeToSessionEventsResponses, StatusListConfigControllerGetConfigData, StatusListConfigControllerGetConfigResponses, StatusListConfigControllerResetConfigData, StatusListConfigControllerResetConfigResponses, StatusListConfigControllerUpdateConfigData, StatusListConfigControllerUpdateConfigResponses, StatusListManagementControllerCreateListData, StatusListManagementControllerCreateListResponses, StatusListManagementControllerDeleteListData, StatusListManagementControllerDeleteListResponses, StatusListManagementControllerGetListData, StatusListManagementControllerGetListResponses, StatusListManagementControllerGetListsData, StatusListManagementControllerGetListsResponses, StatusListManagementControllerUpdateListData, StatusListManagementControllerUpdateListResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, TenantControllerUpdateTenantData, TenantControllerUpdateTenantResponses, TrustListControllerCreateTrustListData, TrustListControllerCreateTrustListResponses, TrustListControllerDeleteTrustListData, TrustListControllerDeleteTrustListResponses, TrustListControllerExportTrustListData, TrustListControllerExportTrustListResponses, TrustListControllerGetAllTrustListsData, TrustListControllerGetAllTrustListsResponses, TrustListControllerGetTrustListData, TrustListControllerGetTrustListResponses, TrustListControllerGetTrustListVersionData, TrustListControllerGetTrustListVersionResponses, TrustListControllerGetTrustListVersionsData, TrustListControllerGetTrustListVersionsResponses, TrustListControllerUpdateTrustListData, TrustListControllerUpdateTrustListResponses, UserControllerCreateUserData, UserControllerCreateUserResponses, UserControllerDeleteUserData, UserControllerDeleteUserResponses, UserControllerGetUserData, UserControllerGetUserResponses, UserControllerGetUsersData, UserControllerGetUsersResponses, UserControllerUpdateUserData, UserControllerUpdateUserResponses, VerifierOfferControllerGetOfferData, VerifierOfferControllerGetOfferResponses, WebhookEndpointControllerCreateData, WebhookEndpointControllerCreateResponses, WebhookEndpointControllerDeleteData, WebhookEndpointControllerDeleteErrors, WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerGetAllData, WebhookEndpointControllerGetAllResponses, WebhookEndpointControllerGetByIdData, WebhookEndpointControllerGetByIdErrors, WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerUpdateData, WebhookEndpointControllerUpdateErrors, WebhookEndpointControllerUpdateResponses } from './types.gen';
+import type { AppControllerGetFrontendConfigData, AppControllerGetFrontendConfigResponses, AppControllerGetVersionData, AppControllerGetVersionResponses, AttributeProviderControllerCreateData, AttributeProviderControllerCreateResponses, AttributeProviderControllerDeleteData, AttributeProviderControllerDeleteErrors, AttributeProviderControllerDeleteResponses, AttributeProviderControllerGetAllData, AttributeProviderControllerGetAllResponses, AttributeProviderControllerGetByIdData, AttributeProviderControllerGetByIdErrors, AttributeProviderControllerGetByIdResponses, AttributeProviderControllerUpdateData, AttributeProviderControllerUpdateErrors, AttributeProviderControllerUpdateResponses, AuditLogControllerGetAuditLogsData, AuditLogControllerGetAuditLogsResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, CacheControllerClearAllCachesData, CacheControllerClearAllCachesResponses, CacheControllerClearStatusListCacheData, CacheControllerClearStatusListCacheResponses, CacheControllerClearTrustListCacheData, CacheControllerClearTrustListCacheResponses, CacheControllerGetStatsData, CacheControllerGetStatsResponses, ClientControllerCreateClientData, ClientControllerCreateClientErrors, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientErrors, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientErrors, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientsResponses, ClientControllerRotateClientSecretData, ClientControllerRotateClientSecretErrors, ClientControllerRotateClientSecretResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientErrors, ClientControllerUpdateClientResponses, ConfigPortabilityControllerAcknowledgeInterruptionData, ConfigPortabilityControllerAcknowledgeInterruptionResponses, ConfigPortabilityControllerDetachData, ConfigPortabilityControllerDetachResponses, ConfigPortabilityControllerExportData, ConfigPortabilityControllerExportResponses, ConfigPortabilityControllerImportArchiveData, ConfigPortabilityControllerImportArchiveResponses, ConfigPortabilityControllerImportData, ConfigPortabilityControllerImportResponses, ConfigPortabilityControllerOperationData, ConfigPortabilityControllerOperationResponses, ConfigPortabilityControllerOperationsData, ConfigPortabilityControllerOperationsResponses, ConfigPortabilityControllerPlanArchiveData, ConfigPortabilityControllerPlanArchiveResponses, ConfigPortabilityControllerPlanData, ConfigPortabilityControllerPlanReattachData, ConfigPortabilityControllerPlanReattachResponses, ConfigPortabilityControllerPlanResponses, ConfigPortabilityControllerReattachData, ConfigPortabilityControllerReattachResponses, ConfigPortabilityControllerResourcesData, ConfigPortabilityControllerResourcesOfKindData, ConfigPortabilityControllerResourcesOfKindErrors, ConfigPortabilityControllerResourcesOfKindResponses, ConfigPortabilityControllerResourcesResponses, ConfigPortabilityControllerUpgradeData, ConfigPortabilityControllerUpgradeResponses, CredentialConfigControllerDeleteIssuanceConfigurationData, CredentialConfigControllerDeleteIssuanceConfigurationResponses, CredentialConfigControllerGetConfigByIdData, CredentialConfigControllerGetConfigByIdResponses, CredentialConfigControllerGetConfigsData, CredentialConfigControllerGetConfigsResponses, CredentialConfigControllerStoreCredentialConfigurationData, CredentialConfigControllerStoreCredentialConfigurationResponses, CredentialConfigControllerUpdateCredentialConfigurationData, CredentialConfigControllerUpdateCredentialConfigurationResponses, CredentialOfferControllerGetOfferData, CredentialOfferControllerGetOfferResponses, DeferredControllerCompleteDeferredData, DeferredControllerCompleteDeferredErrors, DeferredControllerCompleteDeferredResponses, DeferredControllerFailDeferredData, DeferredControllerFailDeferredErrors, DeferredControllerFailDeferredResponses, IssuanceConfigControllerGetIssuanceConfigurationsData, IssuanceConfigControllerGetIssuanceConfigurationsResponses, IssuanceConfigControllerReissueRegistrationCertificateData, IssuanceConfigControllerReissueRegistrationCertificateErrors, IssuanceConfigControllerReissueRegistrationCertificateResponses, IssuanceConfigControllerStoreIssuanceConfigurationData, IssuanceConfigControllerStoreIssuanceConfigurationResponses, KeyChainControllerCreateData, KeyChainControllerCreateResponses, KeyChainControllerDeleteData, KeyChainControllerDeleteErrors, KeyChainControllerDeleteResponses, KeyChainControllerDeleteTenantKmsConfigData, KeyChainControllerDeleteTenantKmsConfigErrors, KeyChainControllerDeleteTenantKmsConfigResponses, KeyChainControllerExportData, KeyChainControllerExportErrors, KeyChainControllerExportResponses, KeyChainControllerGetAllData, KeyChainControllerGetAllResponses, KeyChainControllerGetByIdData, KeyChainControllerGetByIdErrors, KeyChainControllerGetByIdResponses, KeyChainControllerGetProvidersData, KeyChainControllerGetProvidersHealthData, KeyChainControllerGetProvidersHealthResponses, KeyChainControllerGetProvidersResponses, KeyChainControllerGetTenantKmsConfigData, KeyChainControllerGetTenantKmsConfigErrors, KeyChainControllerGetTenantKmsConfigResponses, KeyChainControllerImportData, KeyChainControllerImportResponses, KeyChainControllerRotateData, KeyChainControllerRotateErrors, KeyChainControllerRotateResponses, KeyChainControllerUpdateData, KeyChainControllerUpdateErrors, KeyChainControllerUpdateResponses, KeyChainControllerUpdateTenantKmsConfigData, KeyChainControllerUpdateTenantKmsConfigErrors, KeyChainControllerUpdateTenantKmsConfigResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetConfigurationData, PresentationManagementControllerGetConfigurationResponses, PresentationManagementControllerListSchemaMetadataCatalogData, PresentationManagementControllerListSchemaMetadataCatalogResponses, PresentationManagementControllerReissueRegistrationCertificateData, PresentationManagementControllerReissueRegistrationCertificateErrors, PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerResolveIssuerMetadataData, PresentationManagementControllerResolveIssuerMetadataErrors, PresentationManagementControllerResolveIssuerMetadataResponses, PresentationManagementControllerResolveSchemaMetadataData, PresentationManagementControllerResolveSchemaMetadataErrors, PresentationManagementControllerResolveSchemaMetadataJwtData, PresentationManagementControllerResolveSchemaMetadataJwtErrors, PresentationManagementControllerResolveSchemaMetadataJwtResponses, PresentationManagementControllerResolveSchemaMetadataResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PresentationManagementControllerUpdateConfigurationData, PresentationManagementControllerUpdateConfigurationResponses, RegistrarControllerCreateAccessCertificateData, RegistrarControllerCreateAccessCertificateErrors, RegistrarControllerCreateAccessCertificateResponses, RegistrarControllerCreateConfigData, RegistrarControllerCreateConfigErrors, RegistrarControllerCreateConfigResponses, RegistrarControllerDeleteConfigData, RegistrarControllerDeleteConfigResponses, RegistrarControllerGetConfigData, RegistrarControllerGetConfigErrors, RegistrarControllerGetConfigResponses, RegistrarControllerUpdateConfigData, RegistrarControllerUpdateConfigErrors, RegistrarControllerUpdateConfigResponses, SchemaMetadataControllerDeprecateVersionData, SchemaMetadataControllerDeprecateVersionResponses, SchemaMetadataControllerFindAllData, SchemaMetadataControllerFindAllResponses, SchemaMetadataControllerFindOneData, SchemaMetadataControllerFindOneResponses, SchemaMetadataControllerGetJwtData, SchemaMetadataControllerGetJwtResponses, SchemaMetadataControllerGetLatestData, SchemaMetadataControllerGetLatestResponses, SchemaMetadataControllerGetMineData, SchemaMetadataControllerGetMineResponses, SchemaMetadataControllerGetSchemaData, SchemaMetadataControllerGetSchemaResponses, SchemaMetadataControllerGetVersionsData, SchemaMetadataControllerGetVersionsResponses, SchemaMetadataControllerGetVocabulariesData, SchemaMetadataControllerGetVocabulariesResponses, SchemaMetadataControllerPublishSchemaMetadataData, SchemaMetadataControllerPublishSchemaMetadataErrors, SchemaMetadataControllerPublishSchemaMetadataResponses, SchemaMetadataControllerPublishSchemaMetadataVersionData, SchemaMetadataControllerPublishSchemaMetadataVersionErrors, SchemaMetadataControllerPublishSchemaMetadataVersionResponses, SchemaMetadataControllerRemoveData, SchemaMetadataControllerRemoveResponses, SchemaMetadataControllerUpdateData, SchemaMetadataControllerUpdateResponses, SessionConfigControllerGetConfigData, SessionConfigControllerGetConfigResponses, SessionConfigControllerResetConfigData, SessionConfigControllerResetConfigResponses, SessionConfigControllerUpdateConfigData, SessionConfigControllerUpdateConfigResponses, SessionControllerCancelData, SessionControllerCancelErrors, SessionControllerCancelResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetCredentialStatusData, SessionControllerGetCredentialStatusErrors, SessionControllerGetCredentialStatusResponses, SessionControllerGetSessionData, SessionControllerGetSessionLogsData, SessionControllerGetSessionLogsResponses, SessionControllerGetSessionResponses, SessionControllerGetSessionStatsData, SessionControllerGetSessionStatsResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllErrors, SessionControllerRevokeAllResponses, SessionEventsControllerSubscribeToSessionEventsData, SessionEventsControllerSubscribeToSessionEventsErrors, SessionEventsControllerSubscribeToSessionEventsResponse, SessionEventsControllerSubscribeToSessionEventsResponses, StatusListConfigControllerGetConfigData, StatusListConfigControllerGetConfigResponses, StatusListConfigControllerResetConfigData, StatusListConfigControllerResetConfigResponses, StatusListConfigControllerUpdateConfigData, StatusListConfigControllerUpdateConfigResponses, StatusListManagementControllerCreateListData, StatusListManagementControllerCreateListResponses, StatusListManagementControllerDeleteListData, StatusListManagementControllerDeleteListResponses, StatusListManagementControllerGetListData, StatusListManagementControllerGetListResponses, StatusListManagementControllerGetListsData, StatusListManagementControllerGetListsResponses, StatusListManagementControllerUpdateListData, StatusListManagementControllerUpdateListResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantErrors, TenantControllerInitTenantResponses, TenantControllerUpdateTenantData, TenantControllerUpdateTenantResponses, TrustListControllerCreateTrustListData, TrustListControllerCreateTrustListResponses, TrustListControllerDeleteTrustListData, TrustListControllerDeleteTrustListResponses, TrustListControllerExportTrustListData, TrustListControllerExportTrustListResponses, TrustListControllerGetAllTrustListsData, TrustListControllerGetAllTrustListsResponses, TrustListControllerGetTrustListData, TrustListControllerGetTrustListResponses, TrustListControllerGetTrustListVersionData, TrustListControllerGetTrustListVersionResponses, TrustListControllerGetTrustListVersionsData, TrustListControllerGetTrustListVersionsResponses, TrustListControllerUpdateTrustListData, TrustListControllerUpdateTrustListResponses, UserControllerCreateUserData, UserControllerCreateUserErrors, UserControllerCreateUserResponses, UserControllerDeleteUserData, UserControllerDeleteUserErrors, UserControllerDeleteUserResponses, UserControllerGetUserData, UserControllerGetUserResponses, UserControllerGetUsersData, UserControllerGetUsersResponses, UserControllerUpdateUserData, UserControllerUpdateUserErrors, UserControllerUpdateUserResponses, VerifierOfferControllerGetOfferData, VerifierOfferControllerGetOfferResponses, WebhookEndpointControllerCreateData, WebhookEndpointControllerCreateResponses, WebhookEndpointControllerDeleteData, WebhookEndpointControllerDeleteErrors, WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerGetAllData, WebhookEndpointControllerGetAllResponses, WebhookEndpointControllerGetByIdData, WebhookEndpointControllerGetByIdErrors, WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerUpdateData, WebhookEndpointControllerUpdateErrors, WebhookEndpointControllerUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -62,7 +62,7 @@ export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(
 /**
  * Initialize a tenant
  */
-export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(options: Options<TenantControllerInitTenantData, ThrowOnError>): RequestResult<TenantControllerInitTenantResponses, unknown, ThrowOnError> => (options.client ?? client).post<TenantControllerInitTenantResponses, unknown, ThrowOnError>({
+export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(options: Options<TenantControllerInitTenantData, ThrowOnError>): RequestResult<TenantControllerInitTenantResponses, TenantControllerInitTenantErrors, ThrowOnError> => (options.client ?? client).post<TenantControllerInitTenantResponses, TenantControllerInitTenantErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/tenant',
     ...options,
@@ -124,7 +124,7 @@ export const clientControllerGetClients = <ThrowOnError extends boolean = true>(
 /**
  * Create a new client
  */
-export const clientControllerCreateClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerCreateClientData, ThrowOnError>): RequestResult<ClientControllerCreateClientResponses, unknown, ThrowOnError> => (options.client ?? client).post<ClientControllerCreateClientResponses, unknown, ThrowOnError>({
+export const clientControllerCreateClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerCreateClientData, ThrowOnError>): RequestResult<ClientControllerCreateClientResponses, ClientControllerCreateClientErrors, ThrowOnError> => (options.client ?? client).post<ClientControllerCreateClientResponses, ClientControllerCreateClientErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/client',
     ...options,
@@ -137,7 +137,7 @@ export const clientControllerCreateClient = <ThrowOnError extends boolean = true
 /**
  * Delete a client
  */
-export const clientControllerDeleteClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerDeleteClientData, ThrowOnError>): RequestResult<ClientControllerDeleteClientResponses, unknown, ThrowOnError> => (options.client ?? client).delete<ClientControllerDeleteClientResponses, unknown, ThrowOnError>({
+export const clientControllerDeleteClient = <ThrowOnError extends boolean = true>(options: Options<ClientControllerDeleteClientData, ThrowOnError>): RequestResult<ClientControllerDeleteClientResponses, ClientControllerDeleteClientErrors, ThrowOnError> => (options.client ?? client).delete<ClientControllerDeleteClientResponses, ClientControllerDeleteClientErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/client/{id}',
     ...options
@@ -170,9 +170,10 @@ export const clientControllerUpdateClient = <ThrowOnError extends boolean = true
  * Returns the new secret for one-time display - save it immediately!
  *
  * Users with `tenants:manage` role can rotate secrets for any client.
- * Users with `clients:manage` role can only rotate secrets for clients in their tenant.
+ * Users with `clients:manage` role can only rotate secrets for clients in
+ * their tenant whose roles they hold or may grant.
  */
-export const clientControllerRotateClientSecret = <ThrowOnError extends boolean = true>(options: Options<ClientControllerRotateClientSecretData, ThrowOnError>): RequestResult<ClientControllerRotateClientSecretResponses, unknown, ThrowOnError> => (options.client ?? client).post<ClientControllerRotateClientSecretResponses, unknown, ThrowOnError>({
+export const clientControllerRotateClientSecret = <ThrowOnError extends boolean = true>(options: Options<ClientControllerRotateClientSecretData, ThrowOnError>): RequestResult<ClientControllerRotateClientSecretResponses, ClientControllerRotateClientSecretErrors, ThrowOnError> => (options.client ?? client).post<ClientControllerRotateClientSecretResponses, ClientControllerRotateClientSecretErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/client/{id}/rotate-secret',
     ...options
@@ -249,7 +250,7 @@ export const userControllerGetUsers = <ThrowOnError extends boolean = true>(opti
 /**
  * Create a new managed user
  */
-export const userControllerCreateUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerCreateUserData, ThrowOnError>): RequestResult<UserControllerCreateUserResponses, unknown, ThrowOnError> => (options.client ?? client).post<UserControllerCreateUserResponses, unknown, ThrowOnError>({
+export const userControllerCreateUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerCreateUserData, ThrowOnError>): RequestResult<UserControllerCreateUserResponses, UserControllerCreateUserErrors, ThrowOnError> => (options.client ?? client).post<UserControllerCreateUserResponses, UserControllerCreateUserErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/user',
     ...options,
@@ -262,7 +263,7 @@ export const userControllerCreateUser = <ThrowOnError extends boolean = true>(op
 /**
  * Delete a managed user
  */
-export const userControllerDeleteUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerDeleteUserData, ThrowOnError>): RequestResult<UserControllerDeleteUserResponses, unknown, ThrowOnError> => (options.client ?? client).delete<UserControllerDeleteUserResponses, unknown, ThrowOnError>({
+export const userControllerDeleteUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerDeleteUserData, ThrowOnError>): RequestResult<UserControllerDeleteUserResponses, UserControllerDeleteUserErrors, ThrowOnError> => (options.client ?? client).delete<UserControllerDeleteUserResponses, UserControllerDeleteUserErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/user/{id}',
     ...options
@@ -280,7 +281,7 @@ export const userControllerGetUser = <ThrowOnError extends boolean = true>(optio
 /**
  * Update a managed user
  */
-export const userControllerUpdateUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerUpdateUserData, ThrowOnError>): RequestResult<UserControllerUpdateUserResponses, unknown, ThrowOnError> => (options.client ?? client).patch<UserControllerUpdateUserResponses, unknown, ThrowOnError>({
+export const userControllerUpdateUser = <ThrowOnError extends boolean = true>(options: Options<UserControllerUpdateUserData, ThrowOnError>): RequestResult<UserControllerUpdateUserResponses, UserControllerUpdateUserErrors, ThrowOnError> => (options.client ?? client).patch<UserControllerUpdateUserResponses, UserControllerUpdateUserErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/user/{id}',
     ...options,
@@ -477,242 +478,6 @@ export const attributeProviderControllerGetById = <ThrowOnError extends boolean 
 export const attributeProviderControllerUpdate = <ThrowOnError extends boolean = true>(options: Options<AttributeProviderControllerUpdateData, ThrowOnError>): RequestResult<AttributeProviderControllerUpdateResponses, AttributeProviderControllerUpdateErrors, ThrowOnError> => (options.client ?? client).patch<AttributeProviderControllerUpdateResponses, AttributeProviderControllerUpdateErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/issuer/attribute-providers/{id}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get sessions (paginated)
- */
-export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetAllSessionsData, ThrowOnError>): RequestResult<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session',
-    ...options
-});
-
-/**
- * Get session counts per type and status
- *
- * Counts all stored sessions of the tenant, not one page, optionally only those created in a time range. Only the session types the caller may read are included.
- */
-export const sessionControllerGetSessionStats = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetSessionStatsData, ThrowOnError>): RequestResult<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/stats',
-    ...options
-});
-
-/**
- * Deletes a session by its ID
- */
-export const sessionControllerDeleteSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerDeleteSessionData, ThrowOnError>): RequestResult<SessionControllerDeleteSessionResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SessionControllerDeleteSessionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}',
-    ...options
-});
-
-/**
- * Retrieves the session information for a given session ID.
- */
-export const sessionControllerGetSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionData, ThrowOnError>): RequestResult<SessionControllerGetSessionResponses, unknown, ThrowOnError> => (options.client ?? client).get<SessionControllerGetSessionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}',
-    ...options
-});
-
-/**
- * Cancel a pending offer
- *
- * Cancels an issuance offer or presentation request that a wallet has not redeemed yet, so it can no longer be used to start a flow. The session is kept with the status `cancelled`. Once a wallet exchanged the offer for tokens or answered the request, the session can no longer be cancelled; to revoke credentials that were already issued, use `POST /session/revoke`.
- */
-export const sessionControllerCancel = <ThrowOnError extends boolean = true>(options: Options<SessionControllerCancelData, ThrowOnError>): RequestResult<SessionControllerCancelResponses, SessionControllerCancelErrors, ThrowOnError> => (options.client ?? client).post<SessionControllerCancelResponses, SessionControllerCancelErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}/cancel',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get session log entries
- */
-export const sessionControllerGetSessionLogs = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionLogsData, ThrowOnError>): RequestResult<SessionControllerGetSessionLogsResponses, unknown, ThrowOnError> => (options.client ?? client).get<SessionControllerGetSessionLogsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}/logs',
-    ...options
-});
-
-/**
- * Get the status of the credentials issued in a session
- *
- * Lists one entry per issued credential that carries a status, with its current value in the status list and the list's bits per entry. The list is empty when no credential of the session carries a status. Change the status with `POST /session/revoke`.
- */
-export const sessionControllerGetCredentialStatus = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetCredentialStatusData, ThrowOnError>): RequestResult<SessionControllerGetCredentialStatusResponses, SessionControllerGetCredentialStatusErrors, ThrowOnError> => (options.client ?? client).get<SessionControllerGetCredentialStatusResponses, SessionControllerGetCredentialStatusErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}/credential-status',
-    ...options
-});
-
-/**
- * Change the status of the credentials issued in a session
- *
- * Revokes (1), suspends (2) or reinstates (0) all credentials issued in the session, optionally only those of one credential configuration. Revocation is final.
- */
-export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(options: Options<SessionControllerRevokeAllData, ThrowOnError>): RequestResult<SessionControllerRevokeAllResponses, SessionControllerRevokeAllErrors, ThrowOnError> => (options.client ?? client).post<SessionControllerRevokeAllResponses, SessionControllerRevokeAllErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/revoke',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Reset session storage configuration
- *
- * Resets the session storage configuration to use global defaults.
- */
-export const sessionConfigControllerResetConfig = <ThrowOnError extends boolean = true>(options?: Options<SessionConfigControllerResetConfigData, ThrowOnError>): RequestResult<SessionConfigControllerResetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).delete<SessionConfigControllerResetConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session-config',
-    ...options
-});
-
-/**
- * Get session storage configuration
- *
- * Returns the session storage configuration for the current tenant.
- */
-export const sessionConfigControllerGetConfig = <ThrowOnError extends boolean = true>(options?: Options<SessionConfigControllerGetConfigData, ThrowOnError>): RequestResult<SessionConfigControllerGetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionConfigControllerGetConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session-config',
-    ...options
-});
-
-/**
- * Update session storage configuration
- *
- * Updates the session storage configuration for the current tenant.
- */
-export const sessionConfigControllerUpdateConfig = <ThrowOnError extends boolean = true>(options: Options<SessionConfigControllerUpdateConfigData, ThrowOnError>): RequestResult<SessionConfigControllerUpdateConfigResponses, unknown, ThrowOnError> => (options.client ?? client).put<SessionConfigControllerUpdateConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session-config',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Subscribe to session status updates
- *
- * Server-Sent Events endpoint for real-time session status updates. The first event carries the current status; the stream ends after a terminal status (completed, expired, failed). Authorized like GET /session/{id}: send the token in the Authorization header.
- */
-export const sessionEventsControllerSubscribeToSessionEvents = <ThrowOnError extends boolean = true>(options: Options<SessionEventsControllerSubscribeToSessionEventsData, ThrowOnError, SessionEventsControllerSubscribeToSessionEventsResponse>): Promise<ServerSentEventsResult<SessionEventsControllerSubscribeToSessionEventsResponses>> => (options.client ?? client).sse.get<SessionEventsControllerSubscribeToSessionEventsResponses, SessionEventsControllerSubscribeToSessionEventsErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/session/{id}/events',
-    ...options
-});
-
-/**
- * Reset status list configuration
- *
- * Reset the status list configuration to global defaults. Only affects newly created status lists.
- */
-export const statusListConfigControllerResetConfig = <ThrowOnError extends boolean = true>(options?: Options<StatusListConfigControllerResetConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).delete<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-list-config',
-    ...options
-});
-
-/**
- * Get status list configuration
- *
- * Returns the current status list configuration for the tenant. Fields not set use global defaults.
- */
-export const statusListConfigControllerGetConfig = <ThrowOnError extends boolean = true>(options?: Options<StatusListConfigControllerGetConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerGetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).get<StatusListConfigControllerGetConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-list-config',
-    ...options
-});
-
-/**
- * Update status list configuration
- *
- * Update the status list configuration. Changes only affect newly created status lists. Set a field to null to reset to global default.
- */
-export const statusListConfigControllerUpdateConfig = <ThrowOnError extends boolean = true>(options: Options<StatusListConfigControllerUpdateConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError> => (options.client ?? client).put<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-list-config',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List all status lists
- *
- * Returns all status lists for the tenant, including their capacity and usage.
- */
-export const statusListManagementControllerGetLists = <ThrowOnError extends boolean = true>(options?: Options<StatusListManagementControllerGetListsData, ThrowOnError>): RequestResult<StatusListManagementControllerGetListsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<StatusListManagementControllerGetListsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-lists',
-    ...options
-});
-
-/**
- * Create a status list
- *
- * Creates a new status list. Optionally bind it to a specific credential configuration and/or certificate.
- */
-export const statusListManagementControllerCreateList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerCreateListData, ThrowOnError>): RequestResult<StatusListManagementControllerCreateListResponses, unknown, ThrowOnError> => (options.client ?? client).post<StatusListManagementControllerCreateListResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-lists',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Delete a status list
- *
- * Delete a status list. Only allowed if no credentials are using it.
- */
-export const statusListManagementControllerDeleteList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerDeleteListData, ThrowOnError>): RequestResult<StatusListManagementControllerDeleteListResponses, unknown, ThrowOnError> => (options.client ?? client).delete<StatusListManagementControllerDeleteListResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-lists/{listId}',
-    ...options
-});
-
-/**
- * Get a status list
- *
- * Returns details for a specific status list.
- */
-export const statusListManagementControllerGetList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerGetListData, ThrowOnError>): RequestResult<StatusListManagementControllerGetListResponses, unknown, ThrowOnError> => (options.client ?? client).get<StatusListManagementControllerGetListResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-lists/{listId}',
-    ...options
-});
-
-/**
- * Update a status list
- *
- * Update a status list's credential configuration binding and/or certificate.
- */
-export const statusListManagementControllerUpdateList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerUpdateListData, ThrowOnError>): RequestResult<StatusListManagementControllerUpdateListResponses, unknown, ThrowOnError> => (options.client ?? client).patch<StatusListManagementControllerUpdateListResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/status-lists/{listId}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -1019,6 +784,295 @@ export const cacheControllerClearStatusListCache = <ThrowOnError extends boolean
 });
 
 /**
+ * Get sessions (paginated)
+ */
+export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetAllSessionsData, ThrowOnError>): RequestResult<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session',
+    ...options
+});
+
+/**
+ * Get session counts per type and status
+ *
+ * Counts all stored sessions of the tenant, not one page, optionally only those created in a time range. Only the session types the caller may read are included.
+ */
+export const sessionControllerGetSessionStats = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetSessionStatsData, ThrowOnError>): RequestResult<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/stats',
+    ...options
+});
+
+/**
+ * Deletes a session by its ID
+ */
+export const sessionControllerDeleteSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerDeleteSessionData, ThrowOnError>): RequestResult<SessionControllerDeleteSessionResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SessionControllerDeleteSessionResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}',
+    ...options
+});
+
+/**
+ * Retrieves the session information for a given session ID.
+ */
+export const sessionControllerGetSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionData, ThrowOnError>): RequestResult<SessionControllerGetSessionResponses, unknown, ThrowOnError> => (options.client ?? client).get<SessionControllerGetSessionResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}',
+    ...options
+});
+
+/**
+ * Cancel a pending offer
+ *
+ * Cancels an issuance offer or presentation request that a wallet has not redeemed yet, so it can no longer be used to start a flow. The session is kept with the status `cancelled`. Once a wallet exchanged the offer for tokens or answered the request, the session can no longer be cancelled; to revoke credentials that were already issued, use `POST /session/revoke`.
+ */
+export const sessionControllerCancel = <ThrowOnError extends boolean = true>(options: Options<SessionControllerCancelData, ThrowOnError>): RequestResult<SessionControllerCancelResponses, SessionControllerCancelErrors, ThrowOnError> => (options.client ?? client).post<SessionControllerCancelResponses, SessionControllerCancelErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}/cancel',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get session log entries
+ */
+export const sessionControllerGetSessionLogs = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionLogsData, ThrowOnError>): RequestResult<SessionControllerGetSessionLogsResponses, unknown, ThrowOnError> => (options.client ?? client).get<SessionControllerGetSessionLogsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}/logs',
+    ...options
+});
+
+/**
+ * Get the status of the credentials issued in a session
+ *
+ * Lists one entry per issued credential that carries a status, with its current value in the status list and the list's bits per entry. The list is empty when no credential of the session carries a status. Change the status with `POST /session/revoke`.
+ */
+export const sessionControllerGetCredentialStatus = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetCredentialStatusData, ThrowOnError>): RequestResult<SessionControllerGetCredentialStatusResponses, SessionControllerGetCredentialStatusErrors, ThrowOnError> => (options.client ?? client).get<SessionControllerGetCredentialStatusResponses, SessionControllerGetCredentialStatusErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}/credential-status',
+    ...options
+});
+
+/**
+ * Change the status of the credentials issued in a session
+ *
+ * Revokes (1), suspends (2) or reinstates (0) all credentials issued in the session, optionally only those of one credential configuration. Revocation is final.
+ */
+export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(options: Options<SessionControllerRevokeAllData, ThrowOnError>): RequestResult<SessionControllerRevokeAllResponses, SessionControllerRevokeAllErrors, ThrowOnError> => (options.client ?? client).post<SessionControllerRevokeAllResponses, SessionControllerRevokeAllErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/revoke',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Reset session storage configuration
+ *
+ * Resets the session storage configuration to use global defaults.
+ */
+export const sessionConfigControllerResetConfig = <ThrowOnError extends boolean = true>(options?: Options<SessionConfigControllerResetConfigData, ThrowOnError>): RequestResult<SessionConfigControllerResetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).delete<SessionConfigControllerResetConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session-config',
+    ...options
+});
+
+/**
+ * Get session storage configuration
+ *
+ * Returns the session storage configuration for the current tenant.
+ */
+export const sessionConfigControllerGetConfig = <ThrowOnError extends boolean = true>(options?: Options<SessionConfigControllerGetConfigData, ThrowOnError>): RequestResult<SessionConfigControllerGetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionConfigControllerGetConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session-config',
+    ...options
+});
+
+/**
+ * Update session storage configuration
+ *
+ * Updates the session storage configuration for the current tenant.
+ */
+export const sessionConfigControllerUpdateConfig = <ThrowOnError extends boolean = true>(options: Options<SessionConfigControllerUpdateConfigData, ThrowOnError>): RequestResult<SessionConfigControllerUpdateConfigResponses, unknown, ThrowOnError> => (options.client ?? client).put<SessionConfigControllerUpdateConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session-config',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Subscribe to session status updates
+ *
+ * Server-Sent Events endpoint for real-time session status updates. The first event carries the current status; the stream ends after a terminal status (completed, expired, failed). Authorized like GET /session/{id}: send the token in the Authorization header.
+ */
+export const sessionEventsControllerSubscribeToSessionEvents = <ThrowOnError extends boolean = true>(options: Options<SessionEventsControllerSubscribeToSessionEventsData, ThrowOnError, SessionEventsControllerSubscribeToSessionEventsResponse>): Promise<ServerSentEventsResult<SessionEventsControllerSubscribeToSessionEventsResponses>> => (options.client ?? client).sse.get<SessionEventsControllerSubscribeToSessionEventsResponses, SessionEventsControllerSubscribeToSessionEventsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/session/{id}/events',
+    ...options
+});
+
+/**
+ * Reset status list configuration
+ *
+ * Reset the status list configuration to global defaults. Only affects newly created status lists.
+ */
+export const statusListConfigControllerResetConfig = <ThrowOnError extends boolean = true>(options?: Options<StatusListConfigControllerResetConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).delete<StatusListConfigControllerResetConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-list-config',
+    ...options
+});
+
+/**
+ * Get status list configuration
+ *
+ * Returns the current status list configuration for the tenant. Fields not set use global defaults.
+ */
+export const statusListConfigControllerGetConfig = <ThrowOnError extends boolean = true>(options?: Options<StatusListConfigControllerGetConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerGetConfigResponses, unknown, ThrowOnError> => (options?.client ?? client).get<StatusListConfigControllerGetConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-list-config',
+    ...options
+});
+
+/**
+ * Update status list configuration
+ *
+ * Update the status list configuration. Changes only affect newly created status lists. Set a field to null to reset to global default.
+ */
+export const statusListConfigControllerUpdateConfig = <ThrowOnError extends boolean = true>(options: Options<StatusListConfigControllerUpdateConfigData, ThrowOnError>): RequestResult<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError> => (options.client ?? client).put<StatusListConfigControllerUpdateConfigResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-list-config',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List all status lists
+ *
+ * Returns all status lists for the tenant, including their capacity and usage.
+ */
+export const statusListManagementControllerGetLists = <ThrowOnError extends boolean = true>(options?: Options<StatusListManagementControllerGetListsData, ThrowOnError>): RequestResult<StatusListManagementControllerGetListsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<StatusListManagementControllerGetListsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-lists',
+    ...options
+});
+
+/**
+ * Create a status list
+ *
+ * Creates a new status list. Optionally bind it to a specific credential configuration and/or certificate.
+ */
+export const statusListManagementControllerCreateList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerCreateListData, ThrowOnError>): RequestResult<StatusListManagementControllerCreateListResponses, unknown, ThrowOnError> => (options.client ?? client).post<StatusListManagementControllerCreateListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-lists',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a status list
+ *
+ * Delete a status list. Only allowed if no credentials are using it.
+ */
+export const statusListManagementControllerDeleteList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerDeleteListData, ThrowOnError>): RequestResult<StatusListManagementControllerDeleteListResponses, unknown, ThrowOnError> => (options.client ?? client).delete<StatusListManagementControllerDeleteListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-lists/{listId}',
+    ...options
+});
+
+/**
+ * Get a status list
+ *
+ * Returns details for a specific status list.
+ */
+export const statusListManagementControllerGetList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerGetListData, ThrowOnError>): RequestResult<StatusListManagementControllerGetListResponses, unknown, ThrowOnError> => (options.client ?? client).get<StatusListManagementControllerGetListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-lists/{listId}',
+    ...options
+});
+
+/**
+ * Update a status list
+ *
+ * Update a status list's credential configuration binding and/or certificate.
+ */
+export const statusListManagementControllerUpdateList = <ThrowOnError extends boolean = true>(options: Options<StatusListManagementControllerUpdateListData, ThrowOnError>): RequestResult<StatusListManagementControllerUpdateListResponses, unknown, ThrowOnError> => (options.client ?? client).patch<StatusListManagementControllerUpdateListResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/status-lists/{listId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List all webhook endpoints for the tenant.
+ */
+export const webhookEndpointControllerGetAll = <ThrowOnError extends boolean = true>(options?: Options<WebhookEndpointControllerGetAllData, ThrowOnError>): RequestResult<WebhookEndpointControllerGetAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<WebhookEndpointControllerGetAllResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/issuer/webhook-endpoints',
+    ...options
+});
+
+/**
+ * Create a new webhook endpoint
+ */
+export const webhookEndpointControllerCreate = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerCreateData, ThrowOnError>): RequestResult<WebhookEndpointControllerCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<WebhookEndpointControllerCreateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/issuer/webhook-endpoints',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete a webhook endpoint
+ */
+export const webhookEndpointControllerDelete = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerDeleteData, ThrowOnError>): RequestResult<WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerDeleteErrors, ThrowOnError> => (options.client ?? client).delete<WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerDeleteErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/issuer/webhook-endpoints/{id}',
+    ...options
+});
+
+/**
+ * Get a webhook endpoint by ID
+ */
+export const webhookEndpointControllerGetById = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerGetByIdData, ThrowOnError>): RequestResult<WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerGetByIdErrors, ThrowOnError> => (options.client ?? client).get<WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerGetByIdErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/issuer/webhook-endpoints/{id}',
+    ...options
+});
+
+/**
+ * Update a webhook endpoint
+ */
+export const webhookEndpointControllerUpdate = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerUpdateData, ThrowOnError>): RequestResult<WebhookEndpointControllerUpdateResponses, WebhookEndpointControllerUpdateErrors, ThrowOnError> => (options.client ?? client).patch<WebhookEndpointControllerUpdateResponses, WebhookEndpointControllerUpdateErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/issuer/webhook-endpoints/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Get issuance configuration
  */
 export const issuanceConfigControllerGetIssuanceConfigurations = <ThrowOnError extends boolean = true>(options?: Options<IssuanceConfigControllerGetIssuanceConfigurationsData, ThrowOnError>): RequestResult<IssuanceConfigControllerGetIssuanceConfigurationsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<IssuanceConfigControllerGetIssuanceConfigurationsResponses, unknown, ThrowOnError>({
@@ -1181,59 +1235,6 @@ export const schemaMetadataControllerGetSchema = <ThrowOnError extends boolean =
 export const schemaMetadataControllerDeprecateVersion = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerDeprecateVersionData, ThrowOnError>): RequestResult<SchemaMetadataControllerDeprecateVersionResponses, unknown, ThrowOnError> => (options.client ?? client).patch<SchemaMetadataControllerDeprecateVersionResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/schema-metadata/{id}/versions/{version}/deprecation',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * List all webhook endpoints for the tenant.
- */
-export const webhookEndpointControllerGetAll = <ThrowOnError extends boolean = true>(options?: Options<WebhookEndpointControllerGetAllData, ThrowOnError>): RequestResult<WebhookEndpointControllerGetAllResponses, unknown, ThrowOnError> => (options?.client ?? client).get<WebhookEndpointControllerGetAllResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/webhook-endpoints',
-    ...options
-});
-
-/**
- * Create a new webhook endpoint
- */
-export const webhookEndpointControllerCreate = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerCreateData, ThrowOnError>): RequestResult<WebhookEndpointControllerCreateResponses, unknown, ThrowOnError> => (options.client ?? client).post<WebhookEndpointControllerCreateResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/webhook-endpoints',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Delete a webhook endpoint
- */
-export const webhookEndpointControllerDelete = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerDeleteData, ThrowOnError>): RequestResult<WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerDeleteErrors, ThrowOnError> => (options.client ?? client).delete<WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerDeleteErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/webhook-endpoints/{id}',
-    ...options
-});
-
-/**
- * Get a webhook endpoint by ID
- */
-export const webhookEndpointControllerGetById = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerGetByIdData, ThrowOnError>): RequestResult<WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerGetByIdErrors, ThrowOnError> => (options.client ?? client).get<WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerGetByIdErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/webhook-endpoints/{id}',
-    ...options
-});
-
-/**
- * Update a webhook endpoint
- */
-export const webhookEndpointControllerUpdate = <ThrowOnError extends boolean = true>(options: Options<WebhookEndpointControllerUpdateData, ThrowOnError>): RequestResult<WebhookEndpointControllerUpdateResponses, WebhookEndpointControllerUpdateErrors, ThrowOnError> => (options.client ?? client).patch<WebhookEndpointControllerUpdateResponses, WebhookEndpointControllerUpdateErrors, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/webhook-endpoints/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',

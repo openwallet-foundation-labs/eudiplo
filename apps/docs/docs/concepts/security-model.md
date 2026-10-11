@@ -26,7 +26,7 @@ flowchart TB
 | Outbound calls           | EUDIPLO to URLs that tenants configure or that credentials and certificates name | Outbound URL policy (below), optional API key header for webhooks and attribute providers. Webhook requests are not signed. |
 | Storage and key material | EUDIPLO to database, object storage, KMS  | Sensitive columns encrypted at rest; with an external KMS the private keys never leave it. Configuration bundle exports never contain private keys. `GET /api/key-chain/{id}/export` returns the private key of a `db` key chain and, like the tenant KMS provider configuration with its provider credentials, needs `tenant:admin` or `tenants:manage`. |
 
-Tenants are isolated in the data layer: every entity carries a `tenantId`, and a client token only reaches its own tenant. A client with the `tenants:manage` role can manage all tenants, so give it only to platform operators ([Tenants and access](../operate/tenants-and-access.md)).
+Tenants are isolated in the data layer: every entity carries a `tenantId`, and a client token only reaches its own tenant. A client with the `tenants:manage` role can manage all tenants, so give it only to platform operators ([Tenants and access](../operate/tenants-and-access.md)). Within a tenant, a client or person cannot hand out roles beyond what its own roles allow, or change or take over a client or person with more rights ([granting roles](../reference/roles.md#granting-roles)).
 
 ### HTTPS and TLS
 

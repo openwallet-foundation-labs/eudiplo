@@ -18,6 +18,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
+import { JwtService } from '../../../services/jwt.service';
+import { canManageRoles } from '../../../services/role-grants';
+import { getApiErrorMessage } from '../../../utils/error-message';
 
 @Component({
   selector: 'app-client-list',
@@ -51,12 +54,24 @@ export class ClientListComponent implements OnInit {
     'actions',
   ];
 
+  readonly manageDeniedHint = 'This client has roles you neither hold nor may grant';
+  /** Roles of the signed-in caller, read once instead of per row */
+  private readonly callerRoles: string[];
+
   constructor(
     private readonly snackBar: MatSnackBar,
     private readonly apiService: ApiService,
     private readonly router: Router,
-    private readonly dialog: MatDialog
-  ) {}
+    private readonly dialog: MatDialog,
+    jwtService: JwtService
+  ) {
+    this.callerRoles = jwtService.getRoles();
+  }
+
+  /** Whether the signed-in caller may edit, delete or rotate the secret of the client. */
+  canManage(client: ClientEntity): boolean {
+    return canManageRoles(this.callerRoles, client.roles ?? []);
+  }
   ngOnInit(): void {
     if (this.loadedClients) {
       this.clients = this.loadedClients;
@@ -91,7 +106,9 @@ export class ClientListComponent implements OnInit {
       this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting client:', error);
-      this.snackBar.open('Failed to delete client', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete client'), 'Close', {
+        duration: 5000,
+      });
     }
   }
 
@@ -126,7 +143,9 @@ export class ClientListComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error rotating secret:', error);
-      this.snackBar.open('Failed to rotate client secret', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to rotate client secret'), 'Close', {
+        duration: 5000,
+      });
     }
   }
 }

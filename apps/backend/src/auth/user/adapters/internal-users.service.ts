@@ -19,6 +19,13 @@ export class InternalUsersProvider extends UsersProvider {
         this.unsupported();
     }
 
+    getUserRoles(
+        _tenantId: string,
+        _userId: string,
+    ): Promise<string[] | undefined> {
+        this.unsupported();
+    }
+
     addUser(_tenantId: string, _dto: CreateUser): Promise<ManagedUserDto> {
         this.unsupported();
     }

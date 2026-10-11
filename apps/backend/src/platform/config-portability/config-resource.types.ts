@@ -24,6 +24,13 @@ export interface ConfigPlanOptions {
      * older generation, and take file ownership again.
      */
     reattach?: boolean;
+    /**
+     * Roles of the API caller. Its import must follow the client API's role
+     * rules (`ConfigBundleApplyService.assertCallerMayAssignRoles` and
+     * `assertCallerMayChangeClients`). Startup imports from the operator's
+     * config folder leave it out.
+     */
+    callerRoles?: readonly string[];
 }
 
 export interface ConfigMigrationResult<T = Record<string, unknown>> {

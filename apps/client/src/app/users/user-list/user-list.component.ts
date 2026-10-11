@@ -13,6 +13,9 @@ import {
   userControllerDeleteUser,
   userControllerGetUsers,
 } from '@eudiplo/sdk-core';
+import { JwtService } from '../../services/jwt.service';
+import { canManageRoles } from '../../services/role-grants';
+import { getApiErrorMessage } from '../../utils/error-message';
 
 @Component({
   selector: 'app-user-list',
@@ -41,7 +44,21 @@ export class UserListComponent implements OnInit {
     'actions',
   ];
 
-  constructor(private readonly snackBar: MatSnackBar) {}
+  readonly manageDeniedHint = 'This user has roles you neither hold nor may grant';
+  /** Roles of the signed-in caller, read once instead of per row */
+  private readonly callerRoles: string[];
+
+  constructor(
+    private readonly snackBar: MatSnackBar,
+    jwtService: JwtService
+  ) {
+    this.callerRoles = jwtService.getRoles();
+  }
+
+  /** Whether the signed-in caller may edit or delete the user. */
+  canManage(user: ManagedUserDto): boolean {
+    return canManageRoles(this.callerRoles, user.roles ?? []);
+  }
 
   ngOnInit(): void {
     void this.loadUsers();
@@ -144,7 +161,9 @@ export class UserListComponent implements OnInit {
       this.snackBar.open('User deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting user:', error);
-      this.snackBar.open('Failed to delete user', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to delete user'), 'Close', {
+        duration: 5000,
+      });
     }
   }
 }

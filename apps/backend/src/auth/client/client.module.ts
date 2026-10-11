@@ -10,6 +10,7 @@ import {
 import { InternalClientsProvider } from "./adapters/internal-clients.service.js";
 import { KeycloakClientsProvider } from "./adapters/keycloak-clients.service.js";
 import { ClientController } from "./client.controller.js";
+import { ClientAccessService } from "./client-access.service.js";
 import { CLIENTS_PROVIDER, ClientsProvider } from "./client.provider.js";
 import { ClientEntity } from "./entities/client.entity.js";
 
@@ -50,8 +51,9 @@ import { ClientEntity } from "./entities/client.entity.js";
                 return provider;
             },
         },
+        ClientAccessService,
     ],
-    exports: [CLIENTS_PROVIDER],
+    exports: [CLIENTS_PROVIDER, ClientAccessService],
     controllers: [ClientController],
 })
 export class ClientModule {}

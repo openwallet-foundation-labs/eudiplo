@@ -12,7 +12,8 @@
       "issuance:offer",
       "issuance:manage",
       "presentation:request",
-      "presentation:manage"
+      "presentation:manage",
+      "registrar:manage"
     ]
   }
 }

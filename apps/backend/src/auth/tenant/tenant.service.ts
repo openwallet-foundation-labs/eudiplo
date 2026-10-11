@@ -27,6 +27,7 @@ import {
     CLIENTS_PROVIDER,
     ClientsProvider,
 } from "../client/client.provider.js";
+import { ClientIdTaken } from "../client/domain/client-data.js";
 import { Role } from "../roles/role.enum.js";
 import { TokenPayload } from "../token.decorator.js";
 import type { TenantData } from "./domain/tenant-data.js";
@@ -238,6 +239,15 @@ export class TenantService implements OnApplicationBootstrap {
         actorToken?: TokenPayload,
         requestMeta?: AuditLogRequestMeta,
     ) {
+        const adminClientId = `${data.id}-admin`;
+        const existingAdmin = data.roles
+            ? await this.clients.getClientById(adminClientId)
+            : null;
+        // Client IDs are unique across tenants: never take over another
+        // tenant's client.
+        if (existingAdmin && existingAdmin.tenantId !== data.id) {
+            throw new ClientIdTaken(adminClientId);
+        }
         const tenant = await this.tenantRepository.save({
             ...data,
             id: data.id,
@@ -249,8 +259,9 @@ export class TenantService implements OnApplicationBootstrap {
             | undefined;
 
         if ((data as CreateTenant).roles) {
+            // Creating an existing tenant again updates its admin client.
             const client = await this.clients.addClient(tenant.id, {
-                clientId: `${tenant.id}-admin`,
+                clientId: adminClientId,
                 description: `auto generated admin client for tenant ${tenant.id}`,
                 roles: [Role.Clients, ...((data as CreateTenant).roles || [])],
             });

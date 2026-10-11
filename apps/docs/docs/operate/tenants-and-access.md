@@ -34,7 +34,13 @@ curl -X POST https://eudiplo.example.com/api/tenant \
 
 If you pass `roles`, EUDIPLO also creates the client `acme-admin` with
 `clients:manage` plus these roles, and returns its secret once in the response.
-Use that client to set up the tenant and to create narrower clients.
+Use that client to set up the tenant and to create narrower clients. It can
+hand out only `clients:manage` and these roles, unless they include
+`tenant:admin` ([granting roles](../reference/roles.md#granting-roles)), so
+choose them with that in mind. The root client has no tenant and cannot change
+a tenant's clients, but sending `POST /api/tenant` again for the existing
+tenant, with its name and all roles the admin client needs, gives that client
+the roles; with the built-in server it also returns a new secret.
 `DELETE /api/tenant/:id` removes the tenant with its data and files. Tenants can
 also be created from a config folder with an `info.json`
 ([configuration as code](configuration-as-code.md)).
@@ -69,7 +75,8 @@ change the stored client; rotate its secret with
 ### API clients with least privilege
 
 Create one client per application, with only the roles it needs. A token with
-`clients:manage` creates clients in its own tenant:
+`clients:manage` creates clients in its own tenant, with the roles it can hand
+out, for example the `acme-admin` client above:
 
 ```bash
 curl -X POST https://eudiplo.example.com/api/client \
@@ -86,7 +93,8 @@ curl -X POST https://eudiplo.example.com/api/client \
 
 The response contains the generated secret once; it is stored as a bcrypt hash
 and cannot be read again. Rotate it with `POST /api/client/:id/rotate-secret`.
-Client IDs may contain letters, digits, `.`, `_`, `:` and `-`.
+Client IDs may contain letters, digits, `.`, `_`, `:` and `-`, and are unique
+across all tenants: an ID that is already taken answers `409`.
 
 `allowedIssuanceConfigs` limits the credential configuration IDs the client may
 put in offers, `allowedPresentationConfigs` the presentation configurations it
@@ -107,7 +115,7 @@ Typical role sets:
 | ---------------------------------------- | ------------------------------------------------------------- |
 | Your application backend                 | `issuance:offer`, `presentation:request`                      |
 | CI pipeline that imports configuration   | `tenant:admin`                                                |
-| Person who configures a tenant           | `issuance:manage`, `presentation:manage`, `clients:manage`, `users:manage` |
+| Person who configures a tenant           | `issuance:manage`, `presentation:manage`, `clients:manage`, `users:manage`, and the roles they hand out; `tenant:admin` instead also allows key export and KMS settings |
 | Platform operator                        | `tenants:manage`, on a client without a tenant                |
 
 `issuance:manage` and `presentation:manage` create, import, rotate and delete
@@ -116,8 +124,10 @@ key chains, but exporting a key chain with its private key
 (`/api/key-chain/providers/config`), which contains provider credentials, need
 `tenant:admin` or `tenants:manage`, like configuration bundles.
 
-Only a caller that has `tenants:manage` can grant `tenants:manage` or
-`tenant:admin`, to clients, users or through an imported bundle.
+A caller hands out only roles it holds, or with `tenant:admin` every role
+except `tenants:manage` and `tenant:admin`, and cannot change or take over a
+client or user with more rights than its own
+([granting roles](../reference/roles.md#granting-roles)).
 
 ## External OIDC provider and human users
 

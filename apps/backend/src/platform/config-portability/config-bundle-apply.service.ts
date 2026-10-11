@@ -20,6 +20,9 @@ import {
     CLIENTS_PROVIDER,
     ClientsProvider,
 } from "../../auth/client/client.provider.js";
+import { ClientAccessService } from "../../auth/client/client-access.service.js";
+import { allRoles, type Role } from "../../auth/roles/role.enum.js";
+import { assertMayGrantRoles } from "../../auth/roles/role-grants.js";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
 import { KeyChainType } from "../../crypto/key/dto/key-chain-create.dto.js";
 import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
@@ -93,7 +96,61 @@ export class ConfigBundleApplyService {
         @Inject(CLIENTS_PROVIDER)
         private readonly clientsProvider: ClientsProvider,
         private readonly repos: ConfigBundleRepositories,
+        private readonly clientAccess: ClientAccessService,
     ) {}
+
+    /**
+     * Applies the client API's grant rule to the client documents of an API
+     * caller's import: a client may keep its roles, but not gain one the
+     * caller may not grant. Runs before planning.
+     */
+    async assertCallerMayAssignRoles(
+        tenantId: string,
+        bundle: ConfigBundle,
+        callerRoles: readonly string[],
+    ): Promise<void> {
+        for (const document of bundle.documents ?? []) {
+            const spec = document?.spec;
+            if (!Array.isArray(spec?.roles)) continue;
+            // Unknown role names are left to the document validation.
+            const roles = spec.roles.filter((role): role is Role =>
+                allRoles.includes(role as Role),
+            );
+            if (typeof spec.clientId === "string") {
+                await this.clientAccess.assertMayAssignRoles(
+                    callerRoles,
+                    tenantId,
+                    spec.clientId,
+                    roles,
+                );
+            } else {
+                assertMayGrantRoles(callerRoles, roles);
+            }
+        }
+    }
+
+    /**
+     * Refuses an API caller's import whose plan changes or deletes a client
+     * with a role the caller neither holds nor may grant.
+     */
+    async assertCallerMayChangeClients(
+        tenantId: string,
+        plan: ConfigImportPlan,
+        callerRoles: readonly string[],
+    ): Promise<void> {
+        for (const item of plan.items) {
+            if (
+                item.kind === "Client" &&
+                (item.action === "update" || item.action === "delete")
+            ) {
+                await this.clientAccess.assertMayManage(
+                    callerRoles,
+                    tenantId,
+                    item.id,
+                );
+            }
+        }
+    }
 
     private get tenants() {
         return this.repos.tenants;
@@ -162,6 +219,13 @@ export class ConfigBundleApplyService {
         expectedFingerprint?: string,
         options: ConfigPlanOptions = {},
     ): Promise<ConfigImportPlan> {
+        if (options.callerRoles) {
+            await this.assertCallerMayAssignRoles(
+                tenantId,
+                bundle,
+                options.callerRoles,
+            );
+        }
         const plan = await this.bundleService.plan(
             tenantId,
             bundle,
@@ -169,6 +233,13 @@ export class ConfigBundleApplyService {
             ownershipSource,
             options,
         );
+        if (options.callerRoles) {
+            await this.assertCallerMayChangeClients(
+                tenantId,
+                plan,
+                options.callerRoles,
+            );
+        }
         if (
             expectedFingerprint &&
             plan.planFingerprint !== expectedFingerprint

@@ -25,7 +25,7 @@ Every portable resource is one JSON document:
 | `$schema`             | yes      | Resource type and format version. Only the canonical URLs below are accepted; they are resolved from schemas bundled with the backend and CLI, never fetched. |
 | `metadata.generation` | no       | Integer ≥ 1. A bundle import whose generation is lower than the stored one is blocked (`STALE_GENERATION`); the startup import skips that resource instead. |
 | `metadata.ownership`  | no       | `unmanaged` or `file-managed`. Reported on export, where a detached resource is reported as `unmanaged`; ignored on import, which always records `file-managed`. |
-| `spec`                | yes      | The desired configuration, without runtime state. The ID is `spec.id`, for clients `spec.clientId`.       |
+| `spec`                | yes      | The desired configuration, without runtime state. The ID is `spec.id`, for clients `spec.clientId`, which is unique across tenants: a client ID another tenant uses blocks the plan (`CLIENT_ID_TAKEN`). |
 
 Tenant, KMS, registrar and issuance settings exist once per tenant and have no ID.
 In tenant config folders, the importer also accepts *bare* files (only the
