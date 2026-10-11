@@ -18,10 +18,12 @@ export const bitsOptions = [
 })
 export class StatusListConfigService {
   /**
-   * Get the current status list configuration.
+   * Get the settings the tenant stores; `{}` when it stores none.
    */
   async getConfig(): Promise<StatusListConfig | null> {
-    const response = await statusListConfigControllerGetConfig<true>({});
+    // Without settings the backend answers an empty body without a
+    // Content-Type, which the SDK would otherwise return as a raw stream.
+    const response = await statusListConfigControllerGetConfig<true>({ parseAs: 'json' });
     return response.data ?? null;
   }
 
