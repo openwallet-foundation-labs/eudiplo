@@ -9,6 +9,11 @@ import {
   ConfigOwnershipService,
   ConfigResourceOwnership,
 } from '../config-portability/config-ownership.service';
+import {
+  buttonTooltip,
+  loseFocus,
+  RESET_WHILE_SAVING as WAIT_FOR_CHANGE,
+} from '../common/settings-screen.testing';
 import { RegistrarComponent } from './registrar.component';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
 
@@ -407,6 +412,21 @@ describe('RegistrarComponent load and save errors', () => {
 
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(registrarService.deleteConfig).toHaveBeenCalledTimes(1);
+    expect(component.isDeleting).toBe(false);
+  });
+
+  it('does not delete while a save runs or when nothing is stored', async () => {
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
+
+    await component.deleteConfig();
+    await load(stored);
+    component.isSaving = true;
+    await component.deleteConfig();
+
+    expect(confirm).not.toHaveBeenCalled();
+    expect(ownership.get).not.toHaveBeenCalled();
+    expect(registrarService.deleteConfig).not.toHaveBeenCalled();
     expect(component.isDeleting).toBe(false);
   });
 
@@ -831,6 +851,8 @@ describe('RegistrarComponent load and save errors', () => {
   });
 });
 
+const NOTHING_TO_DELETE = 'Nothing to delete: no registrar configuration is stored';
+
 describe('RegistrarComponent rendered', () => {
   let registrarService: ReturnType<typeof serviceMock>;
 
@@ -1018,7 +1040,8 @@ describe('RegistrarComponent rendered', () => {
     await vi.waitFor(() => expect(registrarService.deleteConfig).toHaveBeenCalled());
     fixture.detectChanges();
 
-    expect(button(fixture, 'Delete').disabled).toBe(true);
+    expect(button(fixture, 'Delete').getAttribute('aria-disabled')).toBe('true');
+    expect(buttonTooltip(fixture, 'Delete')).toBe(WAIT_FOR_CHANGE);
     expect(button(fixture, 'Delete').querySelector('.button-spinner')).not.toBeNull();
     expect(button(fixture, 'Update Configuration').disabled).toBe(true);
     expect(button(fixture, 'Update Configuration').querySelector('.button-spinner')).toBeNull();
@@ -1028,6 +1051,81 @@ describe('RegistrarComponent rendered', () => {
     fixture.detectChanges();
     expect(button(fixture, 'Save Configuration')).toBeDefined();
     expect(button(fixture, 'Delete').querySelector('.button-spinner')).toBeNull();
+  });
+
+  it('keeps Delete focusable and says why it cannot be used when nothing is stored', async () => {
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
+    const ownership = ownershipMock();
+    const fixture = await render(null, ownership);
+    const remove = button(fixture, 'Delete');
+
+    expect(remove.disabled).toBe(false);
+    expect(remove.getAttribute('aria-disabled')).toBe('true');
+    expect(buttonTooltip(fixture, 'Delete')).toBe(NOTHING_TO_DELETE);
+
+    // Material does not block the click on a disabledInteractive button.
+    // The ownership notice and lock look the record up themselves.
+    ownership.get.mockClear();
+    remove.click();
+
+    // The lookup comes right after the guard, before any await.
+    expect(ownership.get).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(registrarService.deleteConfig).not.toHaveBeenCalled();
+  });
+
+  it('names the action in the Delete tooltip while a configuration is stored', async () => {
+    const fixture = await render(stored);
+
+    expect(button(fixture, 'Delete').getAttribute('aria-disabled')).toBeNull();
+    expect(buttonTooltip(fixture, 'Delete')).toBe('Delete the registrar configuration');
+  });
+
+  it('returns focus to Save once the save, which disabled it, has finished', async () => {
+    const fixture = await render(stored);
+    let finish!: () => void;
+    registrarService.updateConfig.mockReturnValue(
+      new Promise<RegistrarConfig>((resolve) => (finish = () => resolve(stored)))
+    );
+    const save = button(fixture, 'Update Configuration');
+    save.focus();
+
+    save.click();
+    fixture.detectChanges();
+    expect(save.disabled).toBe(true);
+    expect(buttonTooltip(fixture, 'Delete')).toBe(WAIT_FOR_CHANGE);
+    loseFocus();
+    finish();
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(button(fixture, 'Update Configuration'));
+    });
+  });
+
+  it('moves focus to the card title once the configuration is deleted', async () => {
+    vi.stubGlobal('confirm', () => true);
+    const fixture = await render(stored);
+    let finish!: () => void;
+    registrarService.deleteConfig.mockReturnValue(
+      new Promise<undefined>((resolve) => (finish = () => resolve(undefined)))
+    );
+    const remove = button(fixture, 'Delete');
+    remove.focus();
+
+    remove.click();
+    await vi.waitFor(() => expect(registrarService.deleteConfig).toHaveBeenCalled());
+    // Delete is never natively disabled, so focus stays on it while the request runs.
+    expect(document.activeElement).toBe(remove);
+    finish();
+
+    const title = element(fixture).querySelector('mat-card-title');
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(title);
+    });
+    expect(buttonTooltip(fixture, 'Delete')).toBe(NOTHING_TO_DELETE);
   });
 
   it('drops the detached notice once the configuration is deleted', async () => {

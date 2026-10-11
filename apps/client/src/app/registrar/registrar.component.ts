@@ -26,6 +26,7 @@ import { ConfigOwnershipDirective } from '../config-portability/config-ownership
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
 import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
 import { LoadErrorComponent } from '../common/load-error.component';
+import { WAIT_FOR_CHANGE } from '../common/reset-defaults';
 import {
   ConfigOwnershipService,
   ConfigResourceOwnership,
@@ -133,6 +134,12 @@ export class RegistrarComponent implements OnInit {
   /** Where focus goes when a retry removes the error card with its focused Retry button. */
   @ViewChild('settingsTitle', { read: ElementRef })
   private readonly settingsTitle?: ElementRef<HTMLElement>;
+  /** Saving disables the focused Save button; focus returns to it afterwards. */
+  @ViewChild('saveButton', { read: ElementRef })
+  private readonly saveButton?: ElementRef<HTMLElement>;
+  /** Delete cannot be used once deleted; focus moves from it to the card title. */
+  @ViewChild('deleteButton', { read: ElementRef })
+  private readonly deleteButton?: ElementRef<HTMLElement>;
   private readonly injector = inject(Injector);
 
   configForm: FormGroup;
@@ -334,6 +341,7 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open(this.saveErrorMessage(error), 'Close', { duration: 12000 });
     } finally {
       this.isSaving = false;
+      focusAfterRenderIfLost(this.injector, () => this.saveButton?.nativeElement);
     }
   }
 
@@ -408,8 +416,19 @@ export class RegistrarComponent implements OnInit {
     return Object.keys(defaults).length ? defaults : null;
   }
 
+  /**
+   * Tooltip of Delete. The button stays focusable while it cannot be used, so
+   * the tooltip says why, and screen readers read it as its description.
+   */
+  get deleteTooltip(): string {
+    if (this.isSaving || this.isDeleting) return WAIT_FOR_CHANGE;
+    if (!this.hasConfig) return 'Nothing to delete: no registrar configuration is stored';
+    return 'Delete the registrar configuration';
+  }
+
   async deleteConfig(): Promise<void> {
-    if (this.isDeleting) return;
+    // `disabledInteractive` keeps the button clickable while it looks disabled.
+    if (!this.hasConfig || this.isSaving || this.isDeleting) return;
     // Set before the ownership lookup, a request, so a second click cannot ask twice.
     this.isDeleting = true;
     try {
@@ -425,6 +444,12 @@ export class RegistrarComponent implements OnInit {
       this.config = null;
       this.configForm.reset();
       this.selectedPreset = '';
+      // Delete stays focusable but unusable now that nothing is stored.
+      focusAfterRenderIfLost(
+        this.injector,
+        () => this.settingsTitle?.nativeElement,
+        () => this.deleteButton?.nativeElement
+      );
       // The backend removed the ownership record with the configuration.
       void this.ownershipNotice?.refresh();
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });

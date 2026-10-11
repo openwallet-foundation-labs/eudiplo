@@ -12,7 +12,7 @@ export function findButton(element: HTMLElement, label: string): HTMLButtonEleme
 }
 
 /** The tooltip of a button, which screen readers also read as its description. */
-function buttonTooltip(fixture: ComponentFixture<unknown>, label: string): string {
+export function buttonTooltip(fixture: ComponentFixture<unknown>, label: string): string {
   const host = fixture.debugElement
     .queryAll(By.css('button'))
     .find((b) => (b.nativeElement as HTMLElement).textContent?.includes(label));
