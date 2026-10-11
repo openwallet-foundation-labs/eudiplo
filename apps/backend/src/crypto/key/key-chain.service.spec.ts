@@ -1,6 +1,8 @@
+import { webcrypto } from "node:crypto";
 import type { ExecutionContext } from "@nestjs/common";
 import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
 import { Role } from "../../auth/roles/role.enum.js";
 import { RolesGuard } from "../../auth/roles/roles.guard.js";
@@ -311,6 +313,82 @@ describe("KeyChainService.findByUsageType", () => {
         );
 
         expect(found.id).toBe("converted");
+    });
+});
+
+describe("KeyChainService default access key chain", () => {
+    const issuedCertificate = async () => {
+        const algorithm = {
+            name: "ECDSA",
+            namedCurve: "P-256",
+            hash: "SHA-256",
+        };
+        const keys = (await webcrypto.subtle.generateKey(algorithm, true, [
+            "sign",
+            "verify",
+        ])) as CryptoKeyPair;
+        const cert = await x509.X509CertificateGenerator.create(
+            {
+                serialNumber: "01",
+                subject: "CN=Relying party",
+                issuer: "CN=Registrar CA",
+                notBefore: new Date(Date.now() - 60_000),
+                notAfter: new Date(Date.now() + 3_600_000),
+                signingAlgorithm: algorithm,
+                publicKey: keys.publicKey,
+                signingKey: keys.privateKey,
+            },
+            webcrypto as Crypto,
+        );
+        return cert.toString("pem");
+    };
+
+    it("uses the registrar-issued access key chain when none is named, not the first row", async () => {
+        const selfSigned = keyChain({
+            id: "self-signed",
+            usageType: KeyUsageType.Access,
+            createdAt: new Date(0),
+            activeCertificate: "unreadable, so ranked as self-signed",
+        });
+        const enrolled = keyChain({
+            id: "enrolled",
+            usageType: KeyUsageType.Access,
+            createdAt: new Date(1000),
+            activeCertificate: await issuedCertificate(),
+        });
+        const rows = [selfSigned, enrolled];
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = {
+            find: vi.fn(async () => rows),
+            findOne: vi.fn(
+                async ({ where }) =>
+                    rows.find((row) => row.id === where.id) ?? rows[0],
+            ),
+        };
+
+        const found = await (service as KeyChainService).findByUsageType(
+            "tenant",
+            KeyUsageType.Access,
+        );
+
+        expect(found.id).toBe("enrolled");
+        expect(service.keyChainRepository.find).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { tenantId: "tenant", usageType: KeyUsageType.Access },
+            }),
+        );
+    });
+
+    it("throws not found without an access key chain", async () => {
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = { find: vi.fn(async () => []) };
+
+        await expect(
+            (service as KeyChainService).findByUsageType(
+                "tenant",
+                KeyUsageType.Access,
+            ),
+        ).rejects.toThrow("No key chain found with usage type 'access'");
     });
 });
 

@@ -596,6 +596,17 @@ export type CreateAccessCertificateDto = {
     keyId: string;
 };
 
+export type CreateAccessKeyChainDto = {
+    /**
+     * Human-readable description for the new key chain.
+     */
+    description?: string;
+    /**
+     * KMS provider for the new key chain (defaults to the configured default provider).
+     */
+    kmsProvider?: string;
+};
+
 export type ManagedUserDto = {
     id: string;
     username: string;
@@ -6526,6 +6537,50 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 };
 
 export type RegistrarControllerCreateAccessCertificateResponse = RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
+
+export type RegistrarControllerCreateAccessKeyChainData = {
+    body: CreateAccessKeyChainDto;
+    path?: never;
+    query?: never;
+    url: '/api/registrar/access-key-chain';
+};
+
+export type RegistrarControllerCreateAccessKeyChainErrors = {
+    /**
+     * The registrar rejected the relying-party registration or the certificate request; no key chain was kept
+     */
+    400: unknown;
+    /**
+     * No registrar configuration found
+     */
+    404: unknown;
+    /**
+     * The enrollment failed and the new key chain could not be deleted; the message names it. Also returned when the registrar stops answering during the certificate request
+     */
+    500: unknown;
+};
+
+export type RegistrarControllerCreateAccessKeyChainResponses = {
+    /**
+     * Access key chain created and enrolled
+     */
+    201: {
+        /**
+         * The certificate ID at the registrar
+         */
+        id: string;
+        /**
+         * ID of the key chain that now holds the certificate
+         */
+        certId: string;
+        /**
+         * The certificate in PEM format
+         */
+        crt: string;
+    };
+};
+
+export type RegistrarControllerCreateAccessKeyChainResponse = RegistrarControllerCreateAccessKeyChainResponses[keyof RegistrarControllerCreateAccessKeyChainResponses];
 
 export type UserControllerGetUsersData = {
     body?: never;

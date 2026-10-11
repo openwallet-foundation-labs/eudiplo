@@ -28,7 +28,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { merge } from 'rxjs';
 import { KeyChainService } from '../key-chain.service';
 import {
-  accessCertificateRefusal,
+  accessKeyEnrollmentFailure,
   RegistrarConfig,
   RegistrarService,
 } from '../../registrar/registrar.service';
@@ -47,6 +47,10 @@ export interface EnrollmentError {
   message: string;
   /** False when the registrar configuration is not the cause, for example a missing role. */
   offerRegistrar: boolean;
+  /** A key EUDIPLO kept although the enrollment failed, offered for deletion. */
+  keptKeyId?: string;
+  /** True when the outcome is unknown and the user should check Keys. */
+  offerKeys?: boolean;
 }
 
 @Component({
@@ -500,6 +504,11 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
         return;
       }
 
+      if (isRegistrarEnrollment) {
+        await this.enrollWithRegistrar(description);
+        return;
+      }
+
       // Build the KeyChainCreateDto
       const createDto: KeyChainCreateDto = {
         usageType: usage,
@@ -510,11 +519,6 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       };
 
       const result = await this.keyChainService.create(createDto);
-
-      if (isRegistrarEnrollment) {
-        await this.enrollWithRegistrar(result.id);
-        return;
-      }
 
       // Show success message with next steps
       this.showSuccessMessage(usage);
@@ -564,56 +568,25 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Requests the registrar certificate for the access key just created. When
-   * EUDIPLO refuses the request, the key only has its self-signed certificate
-   * and could sign signed issuer metadata and the requests of presentation
-   * configurations that name no access key; it is deleted and the wizard says
-   * why next to Create & Enroll, so the user can check the registrar
-   * configuration and try again. After any other failure the certificate may
-   * have been stored, so the key is kept and opened. A user who left the
-   * wizard meanwhile gets the outcome in a snackbar and stays where they are.
+   * Creates an access key enrolled at the registrar in one request. When the
+   * enrollment fails, EUDIPLO deletes the new key itself, so the tenant is not
+   * left with a self-signed access key. A refusal is shown next to Create &
+   * Enroll, so the user can check the registrar configuration and try again.
+   * A server error carries the backend's reason, which names a key EUDIPLO
+   * could not delete. Without an answer the outcome is unknown, so the message
+   * says how to tell an enrolled key from a self-signed one. A user who left
+   * the wizard meanwhile gets the outcome in a snackbar and stays where they are.
    */
-  private async enrollWithRegistrar(keyId: string): Promise<void> {
+  private async enrollWithRegistrar(description?: string): Promise<void> {
+    let keyId: string;
     try {
-      await this.registrarService.createAccessCertificate(keyId);
+      ({ certId: keyId } = await this.registrarService.createAccessKeyChain({
+        description: description || this.getDefaultDescription(),
+        kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+      }));
     } catch (error) {
       console.error('Error enrolling certificate:', error);
-      // Names an unreachable backend separately from a registrar failure.
-      const reason = asSentence(
-        getHttpErrorMessage(error, 'Failed to enroll certificate from registrar')
-      );
-      const refusal = accessCertificateRefusal(error);
-      if (!refusal) {
-        this.openKeptKey(
-          keyId,
-          `Key created, but its registrar enrollment failed: ${reason} If the key's Active Certificate has the same Issuer as Subject, it is self-signed: delete the key and create it again.`
-        );
-        return;
-      }
-      const deleteReason = await this.deleteUnenrolledKey(keyId);
-      if (deleteReason) {
-        this.openKeptKey(
-          keyId,
-          `Key created without a registrar certificate: ${reason} ${deleteReason} Delete the key, check the registrar configuration, then create it again.`
-        );
-        return;
-      }
-      const enrollmentError: EnrollmentError =
-        refusal === 'role'
-          ? {
-              message:
-                'Enrolling through the registrar needs the registrar:manage role. The new key was deleted.',
-              offerRegistrar: false,
-            }
-          : {
-              message: `${reason} The new key was deleted. Check the registrar configuration and try again.`,
-              offerRegistrar: true,
-            };
-      if (this.destroyed) {
-        openErrorSnackBar(this.snackBar, enrollmentError.message);
-      } else {
-        this.enrollmentError = enrollmentError;
-      }
+      this.showEnrollmentError(this.enrollmentErrorFor(error));
       return;
     }
     this.snackBar
@@ -625,27 +598,54 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
     if (!this.destroyed) this.router.navigate(['/keys', keyId]);
   }
 
-  /** Deletes a key whose enrollment was refused; why it is still there, if it is. */
-  private async deleteUnenrolledKey(keyId: string): Promise<string | undefined> {
-    try {
-      await this.keyChainService.delete(keyId);
-      return undefined;
-    } catch (error) {
-      console.error('Error deleting the key after the failed enrollment:', error);
-      return asSentence(getApiErrorMessage(error, 'Failed to delete it'));
+  /** What to tell the user about a failed {@link enrollWithRegistrar}. */
+  private enrollmentErrorFor(error: unknown): EnrollmentError {
+    // Names an unreachable backend separately from a registrar failure.
+    const reason = asSentence(
+      getHttpErrorMessage(error, 'Failed to enroll certificate from registrar')
+    );
+    const failure = accessKeyEnrollmentFailure(error);
+    switch (failure.kind) {
+      case 'role':
+        return {
+          message:
+            'Enrolling through the registrar needs the registrar:manage role. No key was kept.',
+          offerRegistrar: false,
+        };
+      case 'registrar':
+        return {
+          message: `${reason} No key was kept. Check the registrar configuration and try again.`,
+          offerRegistrar: true,
+        };
+      case 'refused':
+      case 'failed':
+        return { message: `${reason} No key was kept.`, offerRegistrar: false };
+      case 'keyLeft':
+        return {
+          message:
+            `${reason} The new key has only its self-signed certificate: ` +
+            'delete it before you try again.',
+          offerRegistrar: false,
+          keptKeyId: failure.keyId,
+        };
+      case 'unknown':
+        return {
+          message:
+            `${reason} EUDIPLO may still have created the key. If Keys lists a new access key, open it: ` +
+            'a different Issuer than Subject in its Active Certificate means it is enrolled; ' +
+            'the same Issuer as Subject means it is self-signed and can be deleted.',
+          offerRegistrar: false,
+          offerKeys: true,
+        };
     }
   }
 
-  /** Opens a key whose enrollment failed and says what to check there. */
-  private openKeptKey(keyId: string, message: string): void {
+  private showEnrollmentError(enrollmentError: EnrollmentError): void {
     if (this.destroyed) {
-      openErrorSnackBar(this.snackBar, message, 'View Key')
-        .onAction()
-        .subscribe(() => this.router.navigate(['/keys', keyId]));
-      return;
+      openErrorSnackBar(this.snackBar, enrollmentError.message);
+    } else {
+      this.enrollmentError = enrollmentError;
     }
-    openErrorSnackBar(this.snackBar, message);
-    this.router.navigate(['/keys', keyId]);
   }
 
   private showSuccessMessage(usage: KeyUsageSelection): void {

@@ -16,6 +16,7 @@ import {
     CertificateBuilderService,
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
+import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
 import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto.js";
 import { KeyChainExportDto } from "./dto/key-chain-export.dto.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
@@ -428,6 +429,9 @@ export class KeyChainService {
     }
 
     /**
+     * Without an id, usage type `access` gives the default access key chain
+     * of {@link findDefaultAccessKeyChain}.
+     *
      * For usage type `encrypt`, prefers the tenant's encryption key chain
      * over signing key chains created with that usage type. Before imports
      * checked the stored usage, an import with usage type `encrypt` could
@@ -438,6 +442,9 @@ export class KeyChainService {
     private async findOneByUsageType(
         where: Record<string, unknown>,
     ): Promise<KeyChainEntity | null> {
+        if (where.usageType === KeyUsageType.Access && where.id === undefined) {
+            return this.findDefaultAccessKeyChain(where.tenantId as string);
+        }
         if (where.usageType !== KeyUsageType.Encrypt) {
             return this.keyChainRepository.findOne({ where });
         }
@@ -446,6 +453,30 @@ export class KeyChainService {
                 where: { ...where, usage: KeyUsage.Encrypt },
             })) ?? this.keyChainRepository.findOne({ where })
         );
+    }
+
+    /**
+     * The access key chain used where none is named, chosen by
+     * {@link pickDefaultAccessKeyChain}. Only the columns the rule reads are
+     * loaded for every candidate, so no key material is decrypted for them.
+     */
+    private async findDefaultAccessKeyChain(
+        tenantId: string,
+    ): Promise<KeyChainEntity | null> {
+        const candidates = await this.keyChainRepository.find({
+            where: { tenantId, usageType: KeyUsageType.Access },
+            select: {
+                id: true,
+                createdAt: true,
+                activeCertificate: true,
+                rootCertificate: true,
+            },
+        });
+        const chosen = pickDefaultAccessKeyChain(candidates);
+        if (!chosen) return null;
+        return this.keyChainRepository.findOne({
+            where: { tenantId, id: chosen.id },
+        });
     }
 
     async update(

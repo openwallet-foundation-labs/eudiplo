@@ -101,7 +101,7 @@ EUDIPLO signs with ES256 (ECDSA on P-256) only; `CRYPTO_ALG` accepts no other va
 | SD-JWT VC credentials, mdoc MSO                             | `attestation` key chain (`keyChainId` of the credential configuration)                      | ES256                           |
 | Status lists                                                | `statusList` key chain                                                                      | ES256                           |
 | Trust lists hosted by EUDIPLO                               | `trustList` key chain                                                                       | ES256                           |
-| OID4VP request objects, signed issuer metadata, `client_id` | `access` key chain (`accessKeyChainId` of the presentation configuration)                   | ES256                           |
+| OID4VP request objects, signed issuer metadata, `client_id` | `access` key chain (`accessKeyChainId` of the presentation configuration, otherwise the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain)) | ES256                           |
 | Encrypted credential requests, ISO 18013-7 responses        | `encrypt` key chain, published in the issuer metadata                                       | ECDH-ES (JWE), HPKE (ISO)       |
 | OID4VP responses                                            | A fresh key pair per session, not a key chain                                               | ECDH-ES with A128GCM or A256GCM |
 | Credential responses                                        | The wallet's key from the credential request                                                | ECDH-ES with A128GCM or A256GCM |

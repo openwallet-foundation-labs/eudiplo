@@ -1232,6 +1232,23 @@ export const CreateAccessCertificateDtoSchema = {
     additionalProperties: false
 } as const;
 
+export const CreateAccessKeyChainDtoSchema = {
+    type: 'object',
+    properties: {
+        description: {
+            description: 'Human-readable description for the new key chain.',
+            type: 'string',
+            example: 'Registrar access certificate'
+        },
+        kmsProvider: {
+            description: 'KMS provider for the new key chain (defaults to the configured default provider).',
+            type: 'string',
+            example: 'db'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ManagedUserDtoSchema = {
     type: 'object',
     properties: {

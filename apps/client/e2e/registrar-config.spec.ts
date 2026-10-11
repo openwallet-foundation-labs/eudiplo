@@ -309,7 +309,7 @@ test('deletes the configuration', async ({ page }) => {
   expect((await tenant.call('GET', '/api/registrar/config')).status).toBe(404);
 });
 
-test('deletes the new access key when the registrar refuses its enrollment', async ({ page }) => {
+test('keeps no access key when the registrar refuses its enrollment', async ({ page }) => {
   const tenant = await createTenant(['keys:manage']);
   // Saved while the realm accepts the account, refused when the key is enrolled.
   const realm = `locked-${randomBytes(4).toString('hex')}`;
@@ -334,7 +334,7 @@ test('deletes the new access key when the registrar refuses its enrollment', asy
 
   const refusal = page.getByRole('alert').filter({
     hasText:
-      /Failed to authenticate with registrar: the OIDC provider answered with HTTP 401.* The new key was deleted\. Check the registrar configuration and try again\./,
+      /Failed to authenticate with registrar: the OIDC provider answered with HTTP 401.* No key was kept\. Check the registrar configuration and try again\./,
   });
   await expect(refusal).toBeVisible();
   await expect(refusal).toBeFocused();

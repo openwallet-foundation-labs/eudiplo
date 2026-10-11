@@ -19,7 +19,7 @@ export enum Role {
     Tenants = "tenants:manage",
     // to manage the current tenant's full configuration: configuration bundles, key export and KMS provider settings; a caller with it may grant every role except tenants:manage and tenant:admin
     TenantAdmin = "tenant:admin",
-    // to manage the registrar configuration, enroll access certificates, and list, update, deprecate and delete schema metadata at the registrar; publishing it also needs issuance:manage
+    // to manage the registrar configuration, enroll access certificates, create access key chains enrolled at the registrar, and list, update, deprecate and delete schema metadata at the registrar; publishing it also needs issuance:manage
     Registrar = "registrar:manage",
     // to read the tenant's audit log
     AuditRead = "audit:read",

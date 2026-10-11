@@ -155,11 +155,8 @@ describe('KeyCreateWizardComponent', () => {
 });
 
 describe('KeyCreateWizardComponent registrar enrollment', () => {
-  let keyChainService: {
-    create: ReturnType<typeof vi.fn>;
-    delete: ReturnType<typeof vi.fn>;
-  };
-  let registrarService: { createAccessCertificate: ReturnType<typeof vi.fn> };
+  let keyChainService: { create: ReturnType<typeof vi.fn> };
+  let registrarService: { createAccessKeyChain: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
 
@@ -189,44 +186,50 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
   }
 
   beforeEach(() => {
-    keyChainService = {
-      create: vi.fn().mockResolvedValue({ id: 'key-1' }),
-      delete: vi.fn().mockResolvedValue(undefined),
+    keyChainService = { create: vi.fn() };
+    registrarService = {
+      createAccessKeyChain: vi
+        .fn()
+        .mockResolvedValue({ id: 'registrar-cert', certId: 'key-1', crt: 'PEM' }),
     };
-    registrarService = { createAccessCertificate: vi.fn().mockResolvedValue({}) };
     router = { navigate: vi.fn() };
     snackBar = { open: vi.fn().mockReturnValue({ onAction: () => of() }) };
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
-  it('opens the enrolled key', async () => {
-    await create().createKey();
+  it('creates and enrolls the key in one request and opens it', async () => {
+    const component = create();
+    component.configForm.patchValue({ description: '  Registrar key ', kmsProvider: 'vault' });
 
-    expect(registrarService.createAccessCertificate).toHaveBeenCalledWith('key-1');
-    expect(keyChainService.delete).not.toHaveBeenCalled();
+    await component.createKey();
+
+    expect(keyChainService.create).not.toHaveBeenCalled();
+    expect(registrarService.createAccessKeyChain).toHaveBeenCalledWith({
+      description: 'Registrar key',
+      kmsProvider: 'vault',
+    });
     expect(router.navigate).toHaveBeenCalledWith(['/keys', 'key-1']);
   });
 
-  it('deletes the key and says why next to Create & Enroll when the registrar authentication fails', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(authenticationFailed);
+  it('says why next to Create & Enroll when the registrar authentication fails', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(authenticationFailed);
     const component = create();
 
     await component.createKey();
 
-    expect(keyChainService.delete).toHaveBeenCalledWith('key-1');
     expect(router.navigate).not.toHaveBeenCalled();
     expect(snackBar.open).not.toHaveBeenCalled();
     expect(component.isSubmitting).toBe(false);
     expect(component.enrollmentError).toEqual({
       message:
         'Failed to authenticate with registrar: the OIDC provider answered with HTTP 401, invalid_grant. ' +
-        'The new key was deleted. Check the registrar configuration and try again.',
+        'No key was kept. Check the registrar configuration and try again.',
       offerRegistrar: true,
     });
   });
 
-  it('deletes the key when the registrar configuration is gone', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(
+  it('offers the registrar configuration when it is gone', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
       new HttpErrorResponse({
         status: 404,
         error: { statusCode: 404, message: 'No registrar configuration found for tenant t' },
@@ -236,13 +239,12 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
 
     await component.createKey();
 
-    expect(keyChainService.delete).toHaveBeenCalledWith('key-1');
     expect(router.navigate).not.toHaveBeenCalled();
     expect(component.enrollmentError?.offerRegistrar).toBe(true);
   });
 
-  it('deletes the key and names the missing role on 403', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(
+  it('names the missing role on 403', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
       new HttpErrorResponse({
         status: 403,
         error: { statusCode: 403, message: 'Forbidden resource' },
@@ -252,17 +254,15 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
 
     await component.createKey();
 
-    expect(keyChainService.delete).toHaveBeenCalledWith('key-1');
     expect(router.navigate).not.toHaveBeenCalled();
     expect(component.enrollmentError).toEqual({
-      message:
-        'Enrolling through the registrar needs the registrar:manage role. The new key was deleted.',
+      message: 'Enrolling through the registrar needs the registrar:manage role. No key was kept.',
       offerRegistrar: false,
     });
   });
 
   it('clears the previous refusal when Create & Enroll is selected again', async () => {
-    registrarService.createAccessCertificate.mockRejectedValueOnce(authenticationFailed);
+    registrarService.createAccessKeyChain.mockRejectedValueOnce(authenticationFailed);
     const component = create();
     await component.createKey();
     expect(component.enrollmentError).not.toBeNull();
@@ -274,7 +274,7 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
   });
 
   it('clears the refusal when the certificate source changes', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(authenticationFailed);
+    registrarService.createAccessKeyChain.mockRejectedValue(authenticationFailed);
     const component = create();
     await component.createKey();
     expect(component.enrollmentError).not.toBeNull();
@@ -285,76 +285,135 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
   });
 
   it('reports a refusal in a snackbar and stays put when the user left the wizard', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(authenticationFailed);
+    registrarService.createAccessKeyChain.mockRejectedValue(authenticationFailed);
     const component = create();
     const creating = component.createKey();
     component.ngOnDestroy();
 
     await creating;
 
-    expect(keyChainService.delete).toHaveBeenCalledWith('key-1');
     expect(component.enrollmentError).toBeNull();
     expect(router.navigate).not.toHaveBeenCalled();
-    expect(snackBar.open.mock.lastCall?.[0]).toContain('The new key was deleted.');
+    expect(snackBar.open.mock.lastCall?.[0]).toContain('No key was kept.');
   });
 
-  it('offers the kept key instead of opening it when the user left the wizard', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(
-      new HttpErrorResponse({ status: 502, statusText: 'Bad Gateway', error: 'Bad Gateway' })
+  it('says how to recognize an enrolled or self-signed key when the backend did not answer', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
+      new HttpErrorResponse({ status: 0, statusText: 'Unknown Error' })
     );
-    const component = create();
-    const creating = component.createKey();
-    component.ngOnDestroy();
-
-    await creating;
-
-    expect(router.navigate).not.toHaveBeenCalled();
-    expect(snackBar.open.mock.lastCall?.[1]).toBe('View Key');
-  });
-
-  it('keeps and opens the key when it cannot be deleted, and says why', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(authenticationFailed);
-    keyChainService.delete.mockRejectedValue({ statusCode: 500, message: 'Internal server error' });
     const component = create();
 
     await component.createKey();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/keys', 'key-1']);
-    expect(component.enrollmentError).toBeNull();
-    const [message, action] = snackBar.open.mock.lastCall!;
-    expect(message).toBe(
-      'Key created without a registrar certificate: Failed to authenticate with registrar: the OIDC provider answered with HTTP 401, invalid_grant. ' +
-        'Failed to delete it: Internal server error. Delete the key, check the registrar configuration, then create it again.'
-    );
-    expect(action).toBe('Close');
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.enrollmentError).toEqual({
+      message:
+        'Failed to enroll certificate from registrar: the backend could not be reached. Check the connection and try again. ' +
+        'EUDIPLO may still have created the key. If Keys lists a new access key, open it: ' +
+        'a different Issuer than Subject in its Active Certificate means it is enrolled; ' +
+        'the same Issuer as Subject means it is self-signed and can be deleted.',
+      offerRegistrar: false,
+      offerKeys: true,
+    });
   });
 
-  it('keeps the key when the backend did not answer, as the certificate may have been stored', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(
+  it.each([502, 503, 504])('treats a %s from a proxy as an unknown outcome', async (status) => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
+      new HttpErrorResponse({ status, statusText: 'Gateway', error: 'Gateway' })
+    );
+    const component = create();
+
+    await component.createKey();
+
+    expect(component.enrollmentError?.message).toContain('EUDIPLO may still have created the key.');
+    expect(component.enrollmentError?.offerKeys).toBe(true);
+  });
+
+  it('says no key was kept after a server error of EUDIPLO', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 500,
+        error: { statusCode: 500, message: 'Internal Server Error' },
+      })
+    );
+    const component = create();
+
+    await component.createKey();
+
+    expect(component.enrollmentError).toEqual({
+      message:
+        'Failed to enroll certificate from registrar: Internal Server Error. No key was kept.',
+      offerRegistrar: false,
+    });
+  });
+
+  it('does not blame the registrar for another refusal, such as an unknown KMS provider', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 400,
+        error: { statusCode: 400, message: "Unknown KMS provider 'x'. Configured providers: db" },
+      })
+    );
+    const component = create();
+
+    await component.createKey();
+
+    expect(component.enrollmentError).toEqual({
+      message:
+        "Failed to enroll certificate from registrar: Unknown KMS provider 'x'. Configured providers: db. No key was kept.",
+      offerRegistrar: false,
+    });
+  });
+
+  it('offers the key EUDIPLO could not delete', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 500,
+        error: {
+          statusCode: 500,
+          message:
+            'Failed to create access certificate. The new access key chain key-1 could not be deleted; delete it.',
+        },
+      })
+    );
+    const component = create();
+
+    await component.createKey();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.enrollmentError).toEqual({
+      message:
+        'Failed to create access certificate. The new access key chain key-1 could not be deleted; delete it. ' +
+        'The new key has only its self-signed certificate: delete it before you try again.',
+      offerRegistrar: false,
+      keptKeyId: 'key-1',
+    });
+  });
+
+  it('reports an unknown outcome in a snackbar when the user left the wizard', async () => {
+    registrarService.createAccessKeyChain.mockRejectedValue(
       new HttpErrorResponse({ status: 0, statusText: 'Unknown Error' })
     );
+    const component = create();
+    const creating = component.createKey();
+    component.ngOnDestroy();
 
-    await create().createKey();
+    await creating;
 
-    expect(keyChainService.delete).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/keys', 'key-1']);
-    const [message, action] = snackBar.open.mock.lastCall!;
-    expect(message).toBe(
-      'Key created, but its registrar enrollment failed: Failed to enroll certificate from registrar: the backend could not be reached. Check the connection and try again. ' +
-        "If the key's Active Certificate has the same Issuer as Subject, it is self-signed: delete the key and create it again."
-    );
-    expect(action).toBe('Close');
+    expect(component.enrollmentError).toBeNull();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(snackBar.open.mock.lastCall?.[0]).toContain('If Keys lists a new access key');
   });
 
-  it('keeps the key after a server error', async () => {
-    registrarService.createAccessCertificate.mockRejectedValue(
-      new HttpErrorResponse({ status: 502, statusText: 'Bad Gateway', error: 'Bad Gateway' })
-    );
+  it('sends the default description and KMS provider when none is chosen', async () => {
+    const component = create();
+    component.configForm.patchValue({ description: '', kmsProvider: '' });
 
-    await create().createKey();
+    await component.createKey();
 
-    expect(keyChainService.delete).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/keys', 'key-1']);
+    const [body] = registrarService.createAccessKeyChain.mock.lastCall!;
+    expect(body.description).toBeTruthy();
+    expect(body.kmsProvider).toBe('db');
   });
 });
 

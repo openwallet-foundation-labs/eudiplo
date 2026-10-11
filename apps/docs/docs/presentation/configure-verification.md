@@ -110,7 +110,7 @@ EUDIPLO only attaches it when the tenant has a registrar configuration. Resoluti
 
 ## Reader authentication (ISO 18013-7)
 
-Set `readerAuth: true` to sign the `DeviceRequest` of [ISO 18013-7 requests](requests.md#iso-18013-7-annex-c) with the access key chain (`accessKeyChainId`, or the tenant's access key chain). The wallet then validates the reader certificate chain before it releases data. The setting has no effect on OpenID4VP requests, which are always signed.
+Set `readerAuth: true` to sign the `DeviceRequest` of [ISO 18013-7 requests](requests.md#iso-18013-7-annex-c) with the access key chain (`accessKeyChainId`, or the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain)). The wallet then validates the reader certificate chain before it releases data. The setting has no effect on OpenID4VP requests, which are always signed.
 
 Reader authentication signs with the stored private key, so it needs an access key chain on the `db` [KMS provider](../operate/kms.md). Access keys in an external KMS cannot be used for it.
 

@@ -46,11 +46,22 @@ EUDIPLO acts as one relying party at the registrar. If the account has none yet,
 
 ## 2. Get an access certificate
 
-In **Cryptographic Assets → Keys → Create Key**, choose **Access Certificate → Registrar Enrollment**. EUDIPLO creates an access key chain, sends a certificate request for its key to the registrar and stores the returned certificate on the key chain. The key chain keeps its description (the one you entered, or **Access Certificate** if you left it empty), so you can still select it by that description, for example as **Access Key Chain** of a presentation configuration.
+In **Cryptographic Assets → Keys → Create Key**, choose **Access Certificate → Registrar Enrollment**. EUDIPLO creates an access key chain, sends a certificate request for its key to the registrar and stores the returned certificate on the key chain, all in one request. The key chain keeps its description (the one you entered, or **Access Certificate** if you left it empty), so you can still select it by that description, for example as **Access Key Chain** of a presentation configuration.
 
-If EUDIPLO refuses the enrollment (`400`, `403` or `404`), for example with `400 Failed to authenticate with registrar: …` because the stored credentials are wrong or the OIDC provider cannot be reached, the Web Client deletes the new key chain and shows the reason next to **Create & Enroll**: with only its self-signed certificate the key chain could otherwise sign signed issuer metadata and the requests of presentation configurations that name no access key chain. Check the registrar configuration and select **Create & Enroll** again. If the Web Client gets no answer from EUDIPLO, or EUDIPLO answers with another status such as `500`, the certificate may have been stored, so the key chain is kept and opened; so is a refused one that cannot be deleted. If its **Active Certificate** has the same issuer as subject, it is self-signed: delete the key chain, or enroll it through the API below.
+If the enrollment fails, EUDIPLO deletes the new key chain again, so no access key chain with only its self-signed certificate is left. When EUDIPLO refuses (`400`, `403` or `404`), for example with `400 Failed to authenticate with registrar: …` because the stored credentials are wrong or the OIDC provider cannot be reached, the Web Client shows the reason next to **Create & Enroll**. Check the registrar configuration and select **Create & Enroll** again. After another status such as `500`, the reason is shown as well; if EUDIPLO could not delete the new key chain, the reason names it, and you delete it under **Keys**. If the Web Client gets no answer from EUDIPLO, it cannot tell whether the key chain was created: if **Keys** lists a new access key chain whose **Active Certificate** has a different issuer than subject, it is enrolled; with the same issuer as subject, it is self-signed and can be deleted.
 
-Via the API, create a standalone `access` key chain ([Keys and Certificates](keys-and-certificates.md#create-a-key-chain)) and enroll it:
+Via the API, the same in one request:
+
+```bash
+curl -X POST "$EUDIPLO_URL/api/registrar/access-key-chain" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{ "description": "Registrar access certificate" }'
+```
+
+`description` and `kmsProvider` are optional; without `kmsProvider` the default [KMS provider](../operate/kms.md) is used. EUDIPLO checks the registrar configuration and the relying party before it creates the key chain. When the registrar refuses the certificate request or EUDIPLO cannot store the certificate, the key chain is deleted and the request fails, with `400` for a refusal. If the key chain cannot be deleted, the request fails with `500` and the message names the key chain to delete. The response contains `id` (the certificate ID at the registrar), `certId` (the new key chain) and `crt` (the certificate as PEM).
+
+To enroll an existing key chain, for example one created with `POST /api/key-chain` ([Keys and Certificates](keys-and-certificates.md#create-a-key-chain)), send its ID instead. On failure that key chain is kept with the certificate it had:
 
 ```bash
 curl -X POST "$EUDIPLO_URL/api/registrar/access-certificate" \
@@ -59,7 +70,11 @@ curl -X POST "$EUDIPLO_URL/api/registrar/access-certificate" \
   --data '{ "keyId": "<access key chain id>" }'
 ```
 
-The response contains `id` (the certificate ID at the registrar), `certId` (the key chain that now holds the certificate) and `crt` (the certificate as PEM).
+The response has the same fields; `certId` is the key chain you sent.
+
+Both endpoints need the `registrar:manage` role. When the registrar answers the certificate request with an error, or no answer arrives, it may still have issued the certificate, for example when its response was lost. EUDIPLO then looks for an active certificate with the key's public key among the registrar's access certificates of your relying party, other than the one the key chain already holds, and stores it, as if the request had succeeded. Without one, an error answer of the registrar fails the request with `400`; a registrar that stops answering during the certificate request fails it with `500`. A registrar that cannot be reached at all fails earlier, with `400 Failed to fetch relying parties from registrar`. When EUDIPLO cannot store a certificate this request issued, it revokes it at the registrar; if that fails too, the log names the certificate ID to revoke there.
+
+Where no access key chain is named, EUDIPLO picks the [default access key chain](keys-and-certificates.md#default-access-key-chain), which prefers a registrar certificate over a self-signed one.
 
 If the registrar already issued a key and certificate to you, import them as an **External Certificate** instead; no registrar configuration is needed for that. Do not rotate a key chain with a registrar certificate: rotation replaces it with a self-signed certificate. Enroll a new key chain instead.
 
