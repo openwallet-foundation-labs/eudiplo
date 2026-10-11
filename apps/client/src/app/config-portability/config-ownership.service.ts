@@ -4,59 +4,60 @@ import {
   configPortabilityControllerPlanReattach,
   configPortabilityControllerReattach,
   configPortabilityControllerResources,
+  configPortabilityControllerResourcesOfKind,
   type ConfigResourceMetadataEntity,
+  type ConfigResourceOwnershipDto,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../core';
 
-export type ConfigResourceKind =
-  | 'Tenant'
-  | 'Client'
-  | 'KmsConfig'
-  | 'KeyChain'
-  | 'RegistrarConfig'
-  | 'IssuanceConfig'
-  | 'CredentialConfig'
-  | 'PresentationConfig'
-  | 'AttributeProvider'
-  | 'WebhookEndpoint'
-  | 'TrustList'
-  | 'StatusList';
+export type ConfigResourceKind = ConfigResourceOwnershipDto['kind'];
 
-export interface ConfigResourceMetadata {
+export type ConfigResourceOwnership = ConfigResourceOwnershipDto;
+
+const LOOKUP_TIMEOUT_MS = 10_000;
+
+export interface ConfigResourceMetadata extends ConfigResourceOwnership {
   tenantId: string;
-  kind: ConfigResourceKind;
-  resourceId: string;
-  ownership: 'unmanaged' | 'file-managed' | 'detached';
-  generation: number;
-  source?: string;
-  lastAppliedAt?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ConfigOwnershipService {
-  private resources?: Promise<ConfigResourceMetadata[]>;
+  /** Lookups still in flight, so the lock notice and buttons of one screen share a request. */
+  private readonly pending = new Map<ConfigResourceKind, Promise<ConfigResourceOwnership[]>>();
 
   constructor(private readonly api: ApiService) {}
 
-  list(force = false): Promise<ConfigResourceMetadata[]> {
-    if (force || !this.resources) {
-      this.resources = configPortabilityControllerResources<true>({ client: this.api.client })
-        .then((result) => result.data as ConfigResourceMetadata[])
-        .catch((error: unknown) => {
-          this.resources = undefined;
-          throw error;
-        });
-    }
-    return this.resources;
+  /** Every resource of the tenant. Needs `tenant:admin` or `tenants:manage`. */
+  async list(): Promise<ConfigResourceMetadata[]> {
+    const result = await configPortabilityControllerResources<true>({ client: this.api.client });
+    return result.data as ConfigResourceMetadata[];
+  }
+
+  /**
+   * Resources of one kind, readable with any role that manages the kind. Not
+   * cached beyond the request, so a later screen or another login sees the
+   * current state.
+   */
+  private listKind(kind: ConfigResourceKind): Promise<ConfigResourceOwnership[]> {
+    const pending = this.pending.get(kind);
+    if (pending) return pending;
+    const request = configPortabilityControllerResourcesOfKind<true>({
+      client: this.api.client,
+      path: { kind },
+      // Locked buttons wait for the answer; a stalled request must not block them for good.
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
+    })
+      .then((result) => result.data)
+      .finally(() => this.pending.delete(kind));
+    this.pending.set(kind, request);
+    return request;
   }
 
   async get(
     kind: ConfigResourceKind,
     resourceId: string
-  ): Promise<ConfigResourceMetadata | undefined> {
-    return (await this.list()).find(
-      (resource) => resource.kind === kind && resource.resourceId === resourceId
-    );
+  ): Promise<ConfigResourceOwnership | undefined> {
+    return (await this.listKind(kind)).find((resource) => resource.resourceId === resourceId);
   }
 
   async isManaged(kind: ConfigResourceKind, resourceId: string): Promise<boolean> {
@@ -68,9 +69,7 @@ export class ConfigOwnershipService {
       client: this.api.client,
       path: { kind, id: resourceId },
     });
-    const metadata = result.data as ConfigResourceMetadataEntity as ConfigResourceMetadata;
-    await this.list(true);
-    return metadata;
+    return result.data as ConfigResourceMetadataEntity as ConfigResourceMetadata;
   }
 
   /** Plans resetting a resource to its version in the server's config folder. */
@@ -92,11 +91,6 @@ export class ConfigOwnershipService {
       path: { kind, id: resourceId },
       query: { planFingerprint },
     });
-    await this.list(true);
     return result.data;
-  }
-
-  invalidate(): void {
-    this.resources = undefined;
   }
 }

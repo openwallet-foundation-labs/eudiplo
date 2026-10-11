@@ -18,7 +18,7 @@ import { ConfigOwnershipDirective } from '../config-portability/config-ownership
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
 import {
   ConfigOwnershipService,
-  ConfigResourceMetadata,
+  ConfigResourceOwnership,
 } from '../config-portability/config-ownership.service';
 import { getHttpErrorMessage, getValidationIssues } from '../utils/error-message';
 import { httpUrlValidator } from '../utils/http-url-validator';
@@ -389,22 +389,23 @@ export class RegistrarComponent implements OnInit {
   }
 
   async deleteConfig(): Promise<void> {
-    // Advisory only: without the ownership the question leaves the restore out.
-    const ownership = await this.ownership
-      .get('RegistrarConfig', 'registrar')
-      .catch(() => undefined);
-    if (!confirm(this.deleteQuestion(ownership))) {
-      return;
-    }
-
+    if (this.isDeleting) return;
+    // Set before the ownership lookup, a request, so a second click cannot ask twice.
     this.isDeleting = true;
     try {
+      // Advisory only: without the ownership the question leaves the restore out.
+      const ownership = await this.ownership
+        .get('RegistrarConfig', 'registrar')
+        .catch(() => undefined);
+      if (!confirm(this.deleteQuestion(ownership))) {
+        return;
+      }
+
       await this.registrarService.deleteConfig();
       this.config = null;
       this.configForm.reset();
       this.selectedPreset = '';
       // The backend removed the ownership record with the configuration.
-      this.ownership.invalidate();
       void this.ownershipNotice?.refresh();
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });
     } catch (error) {
@@ -422,7 +423,7 @@ export class RegistrarComponent implements OnInit {
    * configured again. A configuration detached from a folder has no ownership
    * record once deleted, so a startup import from that folder creates it again.
    */
-  private deleteQuestion(ownership?: ConfigResourceMetadata): string {
+  private deleteQuestion(ownership?: ConfigResourceOwnership): string {
     const secrets = this.config?.hasClientSecret ? 'password, client secret' : 'password';
     const restore =
       ownership?.ownership === 'detached'

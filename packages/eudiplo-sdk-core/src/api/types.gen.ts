@@ -5797,6 +5797,33 @@ export type ConfigResourceMetadataEntity = {
     updatedAt: string;
 };
 
+export type ConfigResourceOwnershipDto = {
+    /**
+     * Resource kind, as in the config bundle format
+     */
+    kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+    /**
+     * Resource ID, or the singleton ID such as `issuance`
+     */
+    resourceId: string;
+    /**
+     * `file-managed` resources reject API and web client changes with 409 until they are detached.
+     */
+    ownership: 'unmanaged' | 'file-managed' | 'detached';
+    /**
+     * Generation of the stored definition
+     */
+    generation: number;
+    /**
+     * File or bundle that provisioned the resource. Kept after detaching.
+     */
+    source?: string;
+    /**
+     * Last time an import, detach or reattach changed the ownership
+     */
+    lastAppliedAt?: string;
+};
+
 export type PresentationConfigWritable = {
     /**
      * Clock skew tolerance for credential JWT time validation, in seconds.
@@ -8421,6 +8448,32 @@ export type ConfigPortabilityControllerResourcesResponses = {
 };
 
 export type ConfigPortabilityControllerResourcesResponse = ConfigPortabilityControllerResourcesResponses[keyof ConfigPortabilityControllerResourcesResponses];
+
+export type ConfigPortabilityControllerResourcesOfKindData = {
+    body?: never;
+    path: {
+        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+    };
+    query?: never;
+    url: '/api/config-bundles/resources/{kind}';
+};
+
+export type ConfigPortabilityControllerResourcesOfKindErrors = {
+    /**
+     * Unknown resource kind.
+     */
+    400: unknown;
+    /**
+     * The token has no tenant or no role that manages this kind.
+     */
+    403: unknown;
+};
+
+export type ConfigPortabilityControllerResourcesOfKindResponses = {
+    200: Array<ConfigResourceOwnershipDto>;
+};
+
+export type ConfigPortabilityControllerResourcesOfKindResponse = ConfigPortabilityControllerResourcesOfKindResponses[keyof ConfigPortabilityControllerResourcesOfKindResponses];
 
 export type ConfigPortabilityControllerDetachData = {
     body?: never;

@@ -159,7 +159,7 @@ export class ConfigPortabilityService {
   }
 
   listResources(): Promise<ConfigResourceMetadata[]> {
-    return this.ownership.list(true);
+    return this.ownership.list();
   }
 
   detach(kind: string, id: string): Promise<ConfigResourceMetadata> {

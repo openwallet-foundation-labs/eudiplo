@@ -1,5 +1,5 @@
 import { expect, test } from './support/test';
-import { hasAuthCredentials } from './support/e2e-config';
+import { hasAuthCredentials, resolvedE2EConfig } from './support/e2e-config';
 
 test('presentation config list is reachable when authenticated', async ({ page }) => {
   test.skip(
@@ -22,4 +22,29 @@ test('presentation config create page is reachable when authenticated', async ({
   await expect(page).not.toHaveURL(/\/login$/);
   await expect(page).toHaveURL(/\/presentation-config\/create$/);
   await expect(page.getByRole('heading', { name: 'Create Presentation' })).toBeVisible();
+});
+
+test('a file-managed presentation config is locked for a client without tenant:admin', async ({
+  page,
+}) => {
+  // Build mode imports the demo tenant from files and signs in with its
+  // test-client, which has the manage roles but not tenant:admin.
+  test.skip(!resolvedE2EConfig.useBuild, 'Needs the demo tenant and test-client (E2E_USE_BUILD).');
+
+  await page.goto('/presentation-config/pid');
+  await expect(page.getByText('Managed by a configuration bundle')).toBeVisible();
+  await expect(page.getByText('ask someone with the tenant:admin role')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'View ownership' })).toHaveCount(0);
+  const managedActions = page.locator('button[appconfigmanaged]');
+  await expect(managedActions).toHaveCount(2);
+  for (const action of await managedActions.all()) {
+    await expect(action).toHaveAttribute('aria-disabled', 'true');
+  }
+
+  await page.goto('/presentation-config/pid/edit');
+  await expect(page.getByText('Managed by a configuration bundle')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save Configuration' })).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  );
 });

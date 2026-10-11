@@ -177,6 +177,71 @@ describe("startup configuration reconciliation", () => {
             });
     });
 
+    it("shows a manage role the ownership of the kinds it changes, in its own tenant only", async () => {
+        const server = app.getHttpServer();
+        const appConfig = app.get(ConfigService);
+        const tokenFor = async (clientId: string, clientSecret: string) => {
+            const response = await request(server)
+                .post("/api/oauth2/token")
+                .send({
+                    grant_type: "client_credentials",
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                })
+                .expect(201);
+            return `Bearer ${response.body.access_token}`;
+        };
+        // The demo client with presentation:request and presentation:manage only.
+        const verifier = await tokenFor(
+            "presentation-test",
+            "presentation-test-secret",
+        );
+
+        const response = await request(server)
+            .get("/config-bundles/resources/PresentationConfig")
+            .set("Authorization", verifier)
+            .expect(200);
+        const demoConfigs = (await app.get(ConfigOwnershipService).list("demo"))
+            .filter((entry) => entry.kind === "PresentationConfig")
+            .map((entry) => entry.resourceId);
+        const ids = response.body.map((entry: any) => entry.resourceId);
+        expect(ids).toEqual(demoConfigs);
+        // The haip tenant's own configs stay invisible.
+        expect(ids).not.toContain("kyc");
+        expect(response.body).toContainEqual({
+            kind: "PresentationConfig",
+            resourceId: "pid",
+            ownership: "file-managed",
+            generation: 1,
+            source: expect.any(String),
+            lastAppliedAt: expect.any(String),
+        });
+
+        for (const kind of ["CredentialConfig", "Client", "KmsConfig"]) {
+            await request(server)
+                .get(`/config-bundles/resources/${kind}`)
+                .set("Authorization", verifier)
+                .expect(403);
+        }
+        await request(server)
+            .get("/config-bundles/resources/Unknown")
+            .set("Authorization", verifier)
+            .expect(400);
+        await request(server)
+            .get("/config-bundles/resources")
+            .set("Authorization", verifier)
+            .expect(403);
+
+        const root = await tokenFor(
+            appConfig.getOrThrow<string>("AUTH_CLIENT_ID"),
+            appConfig.getOrThrow<string>("AUTH_CLIENT_SECRET"),
+        );
+        await request(server)
+            .get("/config-bundles/resources/PresentationConfig")
+            .set("Authorization", root)
+            .expect(403);
+    });
+
     it("exports resources created without a description as a bundle that passes its own schema validation", async () => {
         const appConfig = app.get(ConfigService);
         const bootstrap = await request(app.getHttpServer())
