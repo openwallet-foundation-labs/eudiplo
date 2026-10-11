@@ -309,17 +309,26 @@
         }
 
         <!-- Sessions Section -->
-        @if (hasRole(['presentation:request', 'issuance:offer'])) {
+        @if (
+          hasRole([
+            'presentation:request',
+            'issuance:offer',
+            'issuance:manage',
+            'presentation:manage',
+          ])
+        ) {
           <app-nav-section section="sessions" icon="monitoring" label="Sessions">
-            <mat-list-item
-              [routerLink]="['/session-management']"
-              routerLinkActive="active-link"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="closeSidenavOnMobile()"
-            >
-              <mat-icon matListItemIcon>list_alt</mat-icon>
-              <span matListItemTitle>All Sessions</span>
-            </mat-list-item>
+            @if (hasRole(['presentation:request', 'issuance:offer'])) {
+              <mat-list-item
+                [routerLink]="['/session-management']"
+                routerLinkActive="active-link"
+                [routerLinkActiveOptions]="{ exact: true }"
+                (click)="closeSidenavOnMobile()"
+              >
+                <mat-icon matListItemIcon>list_alt</mat-icon>
+                <span matListItemTitle>All Sessions</span>
+              </mat-list-item>
+            }
 
             @if (hasRole(['issuance:manage', 'presentation:manage'])) {
               <mat-list-item

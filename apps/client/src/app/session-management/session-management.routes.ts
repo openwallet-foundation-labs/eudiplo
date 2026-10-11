@@ -13,7 +13,7 @@ export const sessionManagementRoutes: Routes = [
   {
     path: 'config',
     canActivate: [RoleGuard],
-    data: { role: getRole('issuance:manage') },
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     loadComponent: () =>
       import('../session-config/session-config.component').then((m) => m.SessionConfigComponent),
   },
