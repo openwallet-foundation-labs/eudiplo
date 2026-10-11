@@ -98,6 +98,11 @@ export class JwtService {
     return this.getTenantId() !== null;
   }
 
+  /** Config Portability (bundles, detach, reset) needs a tenant and `tenant:admin` or `tenants:manage`. */
+  canUseConfigPortability(): boolean {
+    return this.hasTenantContext() && this.hasRole(['tenants:manage', 'tenant:admin']);
+  }
+
   /**
    * Tenant of the signed-in client from the token's `tenant_id` claim, or null without one.
    */

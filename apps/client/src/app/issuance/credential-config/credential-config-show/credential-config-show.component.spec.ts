@@ -31,7 +31,14 @@ describe('CredentialConfigShowComponent schema links', () => {
       imports: [CredentialConfigShowComponent],
       providers: [
         provideRouter([]),
-        { provide: JwtService, useValue: { hasRole: (role: string) => roles.includes(role) } },
+        {
+          provide: JwtService,
+          useValue: {
+            hasRole: (role: string) => roles.includes(role),
+            // Read by the ownership notice the screen renders.
+            canUseConfigPortability: () => false,
+          },
+        },
       ],
     });
     const fixture = TestBed.createComponent(CredentialConfigShowComponent);

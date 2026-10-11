@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   ConfigOwnershipService,
-  ConfigResourceMetadata,
+  ConfigResourceOwnership,
 } from '../config-portability/config-ownership.service';
 import { RegistrarComponent } from './registrar.component';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
@@ -26,20 +26,19 @@ afterEach(() => vi.unstubAllGlobals());
 
 type SaveRequest = (config: Partial<RegistrarConfigRequest>) => Promise<RegistrarConfig>;
 
-/** Ownership service whose record is gone once the cache is invalidated, as after a delete. */
-function ownershipMock(metadata?: ConfigResourceMetadata) {
+/** Ownership service with one record; `drop()` removes it, as the backend does on delete. */
+function ownershipMock(metadata?: ConfigResourceOwnership) {
   let current = metadata;
   return {
     get: vi.fn(async () => current),
     isManaged: vi.fn(async () => false),
-    invalidate: vi.fn(() => {
+    drop: () => {
       current = undefined;
-    }),
+    },
   };
 }
 
-const detached: ConfigResourceMetadata = {
-  tenantId: 'tenant',
+const detached: ConfigResourceOwnership = {
   kind: 'RegistrarConfig',
   resourceId: 'registrar',
   ownership: 'detached',
@@ -385,6 +384,24 @@ describe('RegistrarComponent load and save errors', () => {
     expect(component.hasConfig).toBe(false);
   });
 
+  it('asks once when Delete is clicked again while the ownership lookup runs', async () => {
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
+    await load(stored);
+    let answer!: (ownership: undefined) => void;
+    ownership.get.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+
+    const first = component.deleteConfig();
+    expect(component.isDeleting).toBe(true);
+    const second = component.deleteConfig();
+    answer(undefined);
+    await Promise.all([first, second]);
+
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(registrarService.deleteConfig).toHaveBeenCalledTimes(1);
+    expect(component.isDeleting).toBe(false);
+  });
+
   it('names what deleting removes before it deletes', async () => {
     const confirm = vi.fn(() => false);
     vi.stubGlobal('confirm', confirm);
@@ -400,6 +417,7 @@ describe('RegistrarComponent load and save errors', () => {
     expect(question).toContain('This cannot be undone.');
     expect(registrarService.deleteConfig).not.toHaveBeenCalled();
     expect(component.hasConfig).toBe(true);
+    expect(component.isDeleting).toBe(false);
   });
 
   it('leaves the client secret out of the question when none is stored', async () => {
@@ -447,12 +465,29 @@ describe('RegistrarComponent load and save errors', () => {
     );
 
     const deleting = component.deleteConfig();
-    await vi.waitFor(() => expect(component.isDeleting).toBe(true));
+    await vi.waitFor(() => expect(registrarService.deleteConfig).toHaveBeenCalled());
+    expect(component.isDeleting).toBe(true);
     expect(component.isSaving).toBe(false);
     finish();
     await deleting;
 
     expect(component.isDeleting).toBe(false);
+  });
+
+  it('still asks and deletes when the ownership lookup fails', async () => {
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
+    await load(stored);
+    ownership.get.mockRejectedValueOnce(new Error('The operation timed out.'));
+
+    await component.deleteConfig();
+
+    const [question] = confirm.mock.calls[0] as unknown as [string];
+    expect(question).toContain('This cannot be undone.');
+    expect(registrarService.deleteConfig).toHaveBeenCalledTimes(1);
+    expect(snackBar.open).toHaveBeenCalledWith('Configuration deleted', 'Close', {
+      duration: 3000,
+    });
   });
 
   it("names the backend's reason for a failed delete and keeps the configuration", async () => {
@@ -954,7 +989,7 @@ describe('RegistrarComponent rendered', () => {
     expect(button(fixture, 'Update Configuration').disabled).toBe(false);
   });
 
-  it('disables Save and Delete while a delete runs, without the save spinner', async () => {
+  it('disables Save and Delete while a delete runs, with the spinner on Delete', async () => {
     vi.stubGlobal('confirm', () => true);
     const fixture = await render(stored);
     let finish!: () => void;
@@ -963,22 +998,29 @@ describe('RegistrarComponent rendered', () => {
     );
 
     button(fixture, 'Delete').click();
-    await vi.waitFor(() => expect(fixture.componentInstance.isDeleting).toBe(true));
+    await vi.waitFor(() => expect(registrarService.deleteConfig).toHaveBeenCalled());
     fixture.detectChanges();
 
     expect(button(fixture, 'Delete').disabled).toBe(true);
+    expect(button(fixture, 'Delete').querySelector('.button-spinner')).not.toBeNull();
     expect(button(fixture, 'Update Configuration').disabled).toBe(true);
-    expect(element(fixture).querySelector('.button-spinner')).toBeNull();
+    expect(button(fixture, 'Update Configuration').querySelector('.button-spinner')).toBeNull();
 
     finish();
     await vi.waitFor(() => expect(fixture.componentInstance.isDeleting).toBe(false));
     fixture.detectChanges();
     expect(button(fixture, 'Save Configuration')).toBeDefined();
+    expect(button(fixture, 'Delete').querySelector('.button-spinner')).toBeNull();
   });
 
   it('drops the detached notice once the configuration is deleted', async () => {
     vi.stubGlobal('confirm', () => true);
-    const fixture = await render(stored, ownershipMock(detached));
+    const ownership = ownershipMock(detached);
+    const fixture = await render(stored, ownership);
+    registrarService.deleteConfig.mockImplementation(async () => {
+      ownership.drop();
+      return undefined;
+    });
     await vi.waitFor(() => {
       fixture.detectChanges();
       expect(element(fixture).textContent).toContain('Detached from folder:/config/tenant');

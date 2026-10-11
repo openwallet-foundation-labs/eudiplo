@@ -74,6 +74,71 @@ describe("ConfigOwnershipService", () => {
         ).resolves.toMatchObject([{ resourceId: "included" }]);
     });
 
+    it("lists one kind of a tenant without the source hash or null fields", async () => {
+        const lastAppliedAt = new Date("2026-10-01T00:00:00Z");
+        const repository = {
+            find: vi.fn().mockResolvedValue([
+                {
+                    tenantId: "tenant-a",
+                    kind: "CredentialConfig",
+                    resourceId: "pid",
+                    ownership: "file-managed",
+                    generation: 2,
+                    source: "folder:/config/tenant-a",
+                    sourceHash: "abc",
+                    lastAppliedAt,
+                    createdAt: lastAppliedAt,
+                    updatedAt: lastAppliedAt,
+                },
+                {
+                    tenantId: "tenant-a",
+                    kind: "CredentialConfig",
+                    resourceId: "manual",
+                    ownership: "unmanaged",
+                    generation: 3,
+                    source: null,
+                    sourceHash: null,
+                    lastAppliedAt: null,
+                    createdAt: lastAppliedAt,
+                    updatedAt: lastAppliedAt,
+                },
+            ]),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        const entries = await service.listKind("tenant-a", "CredentialConfig");
+
+        expect(entries).toStrictEqual([
+            {
+                kind: "CredentialConfig",
+                resourceId: "pid",
+                ownership: "file-managed",
+                generation: 2,
+                source: "folder:/config/tenant-a",
+                lastAppliedAt,
+            },
+            {
+                kind: "CredentialConfig",
+                resourceId: "manual",
+                ownership: "unmanaged",
+                generation: 3,
+                source: undefined,
+                lastAppliedAt: undefined,
+            },
+        ]);
+        // JSON leaves the null fields out instead of sending null.
+        expect(JSON.parse(JSON.stringify(entries[1]))).toEqual({
+            kind: "CredentialConfig",
+            resourceId: "manual",
+            ownership: "unmanaged",
+            generation: 3,
+        });
+        expect(repository.find).toHaveBeenCalledWith({
+            where: { tenantId: "tenant-a", kind: "CredentialConfig" },
+            order: { resourceId: "ASC" },
+        });
+    });
+
     it("rejects a stale file generation", async () => {
         const repository = {
             findOneBy: vi.fn().mockResolvedValue({

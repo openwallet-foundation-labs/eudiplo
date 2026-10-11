@@ -5,6 +5,7 @@ import type {
     ConfigOwnership,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import type { ConfigResourceOwnershipDto } from "./dto/config-resource-ownership.dto.js";
 import { ConfigResourceMetadataEntity } from "./entities/config-resource-metadata.entity.js";
 
 @Injectable()
@@ -44,6 +45,25 @@ export class ConfigOwnershipService {
             where: { tenantId },
             order: { kind: "ASC", resourceId: "ASC" },
         });
+    }
+
+    /** Ownership of one kind, without the source hash of the admin listing. */
+    async listKind(
+        tenantId: string,
+        kind: ConfigResourceKind,
+    ): Promise<ConfigResourceOwnershipDto[]> {
+        const entries = await this.repository.find({
+            where: { tenantId, kind },
+            order: { resourceId: "ASC" },
+        });
+        return entries.map((entry) => ({
+            kind: entry.kind,
+            resourceId: entry.resourceId,
+            ownership: entry.ownership,
+            generation: entry.generation,
+            source: entry.source ?? undefined,
+            lastAppliedAt: entry.lastAppliedAt ?? undefined,
+        }));
     }
 
     listManagedBySource(

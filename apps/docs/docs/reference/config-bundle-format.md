@@ -187,7 +187,7 @@ different layout.
 ## Management API
 
 All endpoints act on the tenant of the access token and accept `tenant:admin` or
-`tenants:manage` ([roles](roles.md)).
+`tenants:manage` ([roles](roles.md)), except where noted below.
 
 | Endpoint                                                          | Purpose                                   |
 | ----------------------------------------------------------------- | ----------------------------------------- |
@@ -200,8 +200,22 @@ All endpoints act on the tenant of the access token and accept `tenant:admin` or
 | `GET /api/config-bundles/operations`, `GET …/operations/:id`      | Latest 50 operation reports, or one report |
 | `POST /api/config-bundles/operations/:id/acknowledge-interruption?confirmWorkerStopped=true` | Release the lock of an interrupted operation |
 | `GET /api/config-bundles/resources`                               | Ownership and generation of every resource |
+| `GET /api/config-bundles/resources/:kind`                         | Ownership and generation of one kind's resources |
 | `POST /api/config-bundles/resources/:kind/:id/detach`             | Make a `file-managed` resource `detached`  |
 | `POST /api/config-bundles/resources/:kind/:id/reattach/plan`      | Plan resetting a resource to its version in `CONFIG_FOLDER` |
 | `POST /api/config-bundles/resources/:kind/:id/reattach?planFingerprint=…` | Apply that plan and make the resource `file-managed` again |
 
 Exports, imports, detach and reattach actions are recorded in the tenant audit log.
+
+`GET /api/config-bundles/resources/:kind` also accepts the roles that change
+resources of that kind, so screens can lock file-managed resources for them:
+
+| Kind                                                                    | Also readable with                       |
+| ----------------------------------------------------------------------- | ---------------------------------------- |
+| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage` |
+| `KeyChain`, `WebhookEndpoint`, `TrustList`                              | `issuance:manage`, `presentation:manage` |
+| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                        |
+| `PresentationConfig`                                                    | `presentation:manage`                    |
+| `Client`                                                                | `clients:manage`                         |
+| `RegistrarConfig`                                                       | `registrar:manage`                       |
+| `KmsConfig`                                                             | no other role                            |

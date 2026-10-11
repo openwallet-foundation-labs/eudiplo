@@ -221,7 +221,11 @@
             managedKind="RegistrarConfig"
             managedResourceId="registrar"
           >
-            <mat-icon>delete</mat-icon>
+            @if (isDeleting) {
+              <mat-spinner diameter="18" class="button-spinner"></mat-spinner>
+            } @else {
+              <mat-icon>delete</mat-icon>
+            }
             Delete
           </button>
           <button

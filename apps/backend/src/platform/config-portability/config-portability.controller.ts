@@ -3,6 +3,7 @@ import {
     BadRequestException,
     Body,
     Controller,
+    ForbiddenException,
     Get,
     Param,
     Post,
@@ -13,7 +14,14 @@ import {
     UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiConsumes, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+    ApiConsumes,
+    ApiOperation,
+    ApiParam,
+    ApiQuery,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { AuditLogService } from "../../audit-log/audit-log.service.js";
 import {
@@ -38,6 +46,8 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import { CONFIG_RESOURCE_KINDS } from "./config-resource.types.js";
+import { mayReadConfigOwnership } from "./config-resource-access.js";
+import { ConfigResourceOwnershipDto } from "./dto/config-resource-ownership.dto.js";
 
 @ApiTags("Configuration portability")
 @Secured([Role.Tenants, Role.TenantAdmin])
@@ -302,6 +312,44 @@ export class ConfigPortabilityController {
     @ApiOperation({ summary: "List configuration resource ownership" })
     resources(@Token() token: TokenPayload) {
         return this.ownershipService.list(requireTenantContext(token));
+    }
+
+    @Get("resources/:kind")
+    // A literal list for the roles reference; config-resource-access.spec.ts
+    // keeps it equal to the roles mayReadConfigOwnership admits.
+    @Secured([
+        Role.Tenants,
+        Role.TenantAdmin,
+        Role.Issuances,
+        Role.Presentations,
+        Role.Clients,
+        Role.Registrar,
+    ])
+    @ApiOperation({
+        summary: "List the configuration ownership of one resource kind",
+        description:
+            "Lets screens lock file-managed resources before a change fails with 409. Besides `tenant:admin` and `tenants:manage`, it accepts the roles that change the kind through the management API, for example `issuance:manage` for `CredentialConfig` or `presentation:manage` for `PresentationConfig`.",
+    })
+    @ApiParam({ name: "kind", enum: CONFIG_RESOURCE_KINDS })
+    @ApiResponse({ status: 200, type: [ConfigResourceOwnershipDto] })
+    @ApiResponse({ status: 400, description: "Unknown resource kind." })
+    @ApiResponse({
+        status: 403,
+        description:
+            "The token has no tenant or no role that manages this kind.",
+    })
+    resourcesOfKind(
+        @Token() token: TokenPayload,
+        @Param("kind") rawKind: string,
+    ): Promise<ConfigResourceOwnershipDto[]> {
+        const tenantId = requireTenantContext(token);
+        const kind = this.assertKind(rawKind);
+        if (!mayReadConfigOwnership(token.roles, kind)) {
+            throw new ForbiddenException(
+                `Reading the ownership of ${kind} resources needs a role that manages them.`,
+            );
+        }
+        return this.ownershipService.listKind(tenantId, kind);
     }
 
     @Post("resources/:kind/:id/detach")

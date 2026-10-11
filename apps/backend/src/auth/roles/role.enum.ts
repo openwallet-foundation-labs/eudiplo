@@ -3,11 +3,11 @@
  * the role descriptions of the generated docs (apps/docs/scripts/generate-roles-docs.ts).
  */
 export enum Role {
-    // to manage verifier resources: presentation configurations, trust lists, key chains and webhook endpoints
+    // to manage verifier resources: presentation configurations, trust lists, key chains, webhook endpoints and session settings
     Presentations = "presentation:manage",
     // to create presentation requests, read presentation configurations and read or delete presentation sessions
     PresentationRequest = "presentation:request",
-    // to manage issuer resources: credential and issuance configurations, attribute providers, status lists, key chains and webhook endpoints, and, together with registrar:manage, to publish schema metadata at the registrar
+    // to manage issuer resources: credential and issuance configurations, attribute providers, status lists and their settings, trust lists, key chains, webhook endpoints and session settings, and, together with registrar:manage, to publish schema metadata at the registrar
     Issuances = "issuance:manage",
     // to create credential offers, complete or fail deferred issuance, revoke or suspend credentials, and read or delete issuance sessions
     IssuanceOffer = "issuance:offer",
