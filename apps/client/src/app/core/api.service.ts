@@ -60,6 +60,8 @@ export class ApiService {
   private readonly renewed = new Subject<void>();
   /** Emits after each new token, for example when a kept session resumes after an outage. */
   readonly tokenRenewed$ = this.renewed.asObservable();
+  /** The token endpoint rejected the credentials of this session. */
+  private credentialsRejected = false;
 
   constructor(
     private readonly httpClient: HttpClient,
@@ -70,6 +72,11 @@ export class ApiService {
     this.setClient(defaultApiUrl(runtimeEnv.env?.apiUrl, environment.api?.baseUrl));
     // Then try to load stored config (may override the default)
     this.loadTokenFromStorage();
+  }
+
+  /** True after the token endpoint rejected the credentials, for example of a deleted client. */
+  areCredentialsRejected(): boolean {
+    return this.credentialsRejected;
   }
 
   /** Returns the access token, preferring the OIDC token in OIDC mode. */
@@ -147,6 +154,7 @@ export class ApiService {
 
     // New credentials start a new session; a failure of their first token request ends it.
     this.resetRefresh();
+    this.credentialsRejected = false;
     this.oauth2Client = new OAuth2Client({
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
       tokenEndpoint: resolvedTokenEndpoint,
@@ -270,6 +278,7 @@ export class ApiService {
       } else {
         console.error('Failed to refresh access token:', error);
         this.forgetCredentials();
+        this.credentialsRejected = isCredentialRejection(error);
       }
       throw error;
     }
@@ -462,6 +471,7 @@ export class ApiService {
     }
 
     this.forgetCredentials();
+    this.credentialsRejected = false;
     this.oauth2Client = undefined;
     this._localAccessToken = '';
     this.tokenExpirationTime = undefined;

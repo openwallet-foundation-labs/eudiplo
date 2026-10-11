@@ -109,12 +109,14 @@ export const routes: Routes = [
   // Issuance routes
   {
     path: 'issuance-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
     children: issuanceConfigRoutes,
   },
   {
     path: 'credential-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
     children: credentialConfigRoutes,
   },
   {
@@ -125,19 +127,22 @@ export const routes: Routes = [
   },
   {
     path: 'webhook-endpoints',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: webhookEndpointRoutes,
   },
 
   // Key & Certificate routes
   {
     path: 'keys',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: keyManagementRoutes,
   },
   {
     path: 'kms',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     loadComponent: () =>
       import('./key-management/key-management-providers/key-management-providers.component').then(
         (m) => m.KeyManagementProvidersComponent
@@ -180,7 +185,8 @@ export const routes: Routes = [
   // Presentation config routes
   {
     path: 'presentation-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('presentation:manage') },
     children: presentationConfigRoutes,
   },
 
