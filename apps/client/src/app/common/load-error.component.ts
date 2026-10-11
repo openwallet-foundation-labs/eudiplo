@@ -12,6 +12,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
+import { focusIfFocusWasLost } from './focus-if-lost.util';
+
 /**
  * Takes the place of a page's content when its data could not be loaded, so
  * the page shows neither an empty list nor a form with made-up values, and
@@ -59,9 +61,6 @@ export class LoadErrorComponent implements AfterViewInit {
    * has moved it elsewhere in the meantime.
    */
   ngAfterViewInit(): void {
-    const active = document.activeElement;
-    if (!active || active === document.body) {
-      this.retryButton?.nativeElement.focus();
-    }
+    focusIfFocusWasLost(this.retryButton?.nativeElement);
   }
 }

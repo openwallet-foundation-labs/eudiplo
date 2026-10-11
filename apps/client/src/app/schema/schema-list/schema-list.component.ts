@@ -1,14 +1,15 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { BaseAsyncListComponent } from '../../common/base-async-list.component';
+import { LoadErrorComponent } from '../../common/load-error.component';
 import { JwtService } from '../../services/jwt.service';
-import { getApiErrorMessage } from '../../utils/error-message';
 import { SchemaMetadata, SchemaService } from '../schema.service';
 import { compareVersionsDesc } from '../schema-version';
 
@@ -25,23 +26,21 @@ interface GroupedSchemaMetadata {
     CommonModule,
     DatePipe,
     MatButtonModule,
-    MatCardModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
     RouterModule,
     FlexLayoutModule,
+    LoadErrorComponent,
   ],
   templateUrl: './schema-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './schema-list.component.scss',
 })
-export class SchemaListComponent implements OnInit {
-  items: SchemaMetadata[] = [];
+export class SchemaListComponent extends BaseAsyncListComponent<SchemaMetadata> {
+  protected readonly loadFailedMessage = 'Failed to load schemas';
   groupedItems: GroupedSchemaMetadata[] = [];
-  loading = false;
-  /** Why the list could not be loaded; shown instead of the empty state. */
-  loadError = '';
 
   get schemaMetadataCount(): number {
     return this.groupedItems.length;
@@ -62,31 +61,19 @@ export class SchemaListComponent implements OnInit {
   constructor(
     private readonly schemaService: SchemaService,
     private readonly jwtService: JwtService
-  ) {}
+  ) {
+    super();
+  }
 
   /** Creating a schema publishes it, which needs `issuance:manage` besides `registrar:manage`. */
   get canCreate(): boolean {
     return this.jwtService.hasRole('issuance:manage');
   }
 
-  ngOnInit(): void {
-    this.loadItems();
-  }
-
-  async loadItems(): Promise<void> {
-    this.loading = true;
-    this.loadError = '';
-    try {
-      this.items = await this.schemaService.listMine();
-      this.groupedItems = this.groupById(this.items);
-    } catch (error) {
-      console.error('Failed to load schema metadata:', error);
-      this.items = [];
-      this.groupedItems = [];
-      this.loadError = getApiErrorMessage(error, 'Failed to load schemas');
-    } finally {
-      this.loading = false;
-    }
+  protected async fetchItems(): Promise<SchemaMetadata[]> {
+    const items = await this.schemaService.listMine();
+    this.groupedItems = this.groupById(items);
+    return items;
   }
 
   private groupById(items: SchemaMetadata[]): GroupedSchemaMetadata[] {

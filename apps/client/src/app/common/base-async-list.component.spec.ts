@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 
 import { BaseAsyncListComponent } from './base-async-list.component';
@@ -17,7 +18,8 @@ class TestList extends BaseAsyncListComponent<string> {
 
 describe('BaseAsyncListComponent', () => {
   it('keeps a failed load apart from an empty list and loads again on retry', async () => {
-    const list = new TestList();
+    // The base class injects, as Angular does when it creates a list component.
+    const list = TestBed.runInInjectionContext(() => new TestList());
     list.fetch
       .mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' })
       .mockResolvedValueOnce(['a']);
