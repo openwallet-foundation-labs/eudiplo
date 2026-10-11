@@ -18,6 +18,8 @@ import { JwtService, Role } from './services/jwt.service';
 import { ThemeService } from './services/theme.service';
 import { VersionService } from './services/version.service';
 import { TokenExpiryService } from './services/token-expiry.service';
+import { NavSectionsService } from './services/nav-sections.service';
+import { NavSectionComponent } from './common/nav-section/nav-section.component';
 import { ApiService } from './core';
 
 @Component({
@@ -36,6 +38,7 @@ import { ApiService } from './core';
     MatListModule,
     MatDividerModule,
     RouterModule,
+    NavSectionComponent,
   ],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -59,7 +62,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public jwtService: JwtService,
     public themeService: ThemeService,
     public versionService: VersionService,
-    private readonly tokenExpiry: TokenExpiryService
+    private readonly tokenExpiry: TokenExpiryService,
+    private navSections: NavSectionsService
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((event: NavigationEnd) => {
         // Hide toolbar on login page, show on all other pages
         this.shouldShowToolbar = !event.url.includes('/login');
+        this.navSections.navigatedTo(event.urlAfterRedirects);
         this.checkBackendVersion();
       });
 

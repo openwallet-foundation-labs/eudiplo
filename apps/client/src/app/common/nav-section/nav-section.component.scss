@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+// The header of a section; it collapses the entries below it.
+.nav-section-toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  // Fits the sidenav and keeps the icon on the 16px column of the entry icons.
+  width: calc(100% - 16px);
+  margin-inline: 8px;
+  padding-inline: 8px;
+  // The whole row is clickable, as tall as the entries, instead of a margin around the label.
+  min-height: 48px;
+  margin-block: 0;
+  padding-block: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  line-height: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  .subheader-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+  }
+
+  .nav-section-chevron {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    opacity: 0.7;
+    transition: transform 0.15s ease-in-out;
+  }
+
+  &[aria-expanded='false'] .nav-section-chevron {
+    transform: rotate(-90deg);
+  }
+}
