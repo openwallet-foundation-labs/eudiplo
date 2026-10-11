@@ -48,26 +48,26 @@ describe('ConfigOwnershipService', () => {
   });
 
   it('reads one kind with a single request for the lookups of a screen', async () => {
-    const [notice, edit, remove] = await Promise.all([
+    const [notice, edit, other] = await Promise.all([
       service.get('PresentationConfig', 'pid'),
-      service.isManaged('PresentationConfig', 'pid'),
-      service.isManaged('PresentationConfig', 'manual'),
+      service.get('PresentationConfig', 'pid'),
+      service.get('PresentationConfig', 'manual'),
     ]);
 
     expect(notice).toMatchObject({ ownership: 'file-managed', source: 'folder:/config/demo' });
-    expect(edit).toBe(true);
-    expect(remove).toBe(false);
+    expect(edit).toEqual(notice);
+    expect(other).toMatchObject({ ownership: 'unmanaged' });
     expect(requests).toEqual(['/api/config-bundles/resources/PresentationConfig']);
   });
 
   it('keeps kinds apart when they share a resource ID', async () => {
     const [presentation, credential] = await Promise.all([
-      service.isManaged('PresentationConfig', 'pid'),
-      service.isManaged('CredentialConfig', 'pid'),
+      service.get('PresentationConfig', 'pid'),
+      service.get('CredentialConfig', 'pid'),
     ]);
 
-    expect(presentation).toBe(true);
-    expect(credential).toBe(false);
+    expect(presentation?.ownership).toBe('file-managed');
+    expect(credential?.ownership).toBe('unmanaged');
     expect(requests.sort()).toEqual([
       '/api/config-bundles/resources/CredentialConfig',
       '/api/config-bundles/resources/PresentationConfig',
@@ -75,20 +75,22 @@ describe('ConfigOwnershipService', () => {
   });
 
   it('asks again for a later screen', async () => {
-    await service.isManaged('PresentationConfig', 'pid');
-    await service.isManaged('PresentationConfig', 'pid');
+    await service.get('PresentationConfig', 'pid');
+    await service.get('PresentationConfig', 'pid');
 
     expect(requests).toHaveLength(2);
   });
 
   it('rejects a failed lookup and retries on the next one', async () => {
     status = 403;
-    await expect(service.isManaged('PresentationConfig', 'pid')).rejects.toMatchObject({
+    await expect(service.get('PresentationConfig', 'pid')).rejects.toMatchObject({
       statusCode: 403,
     });
 
     status = 200;
-    await expect(service.isManaged('PresentationConfig', 'pid')).resolves.toBe(true);
+    await expect(service.get('PresentationConfig', 'pid')).resolves.toMatchObject({
+      ownership: 'file-managed',
+    });
     expect(requests).toHaveLength(2);
   });
 });

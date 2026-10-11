@@ -48,3 +48,47 @@ test('a file-managed presentation config is locked for a client without tenant:a
     'true'
   );
 });
+
+test('a locked action on the list says why and lets no click or key through', async ({ page }) => {
+  test.skip(!resolvedE2EConfig.useBuild, 'Needs the demo tenant and test-client (E2E_USE_BUILD).');
+
+  await page.goto('/presentation-config');
+  const row = page
+    .getByRole('row')
+    .filter({ has: page.getByRole('cell', { name: 'pid', exact: true }) });
+  const view = row.locator('button').first();
+  const edit = row.getByRole('button', { name: 'Edit Configuration' });
+  const tooltip = page.locator('.mat-mdc-tooltip');
+  await expect(edit).toHaveAttribute('aria-disabled', 'true');
+  await expect(edit).toHaveAccessibleDescription(/^Edit Configuration\. Managed by .+, read-only$/);
+
+  /** Whether the edit page opens within a moment of `action`. */
+  async function opensEditPage(action: () => Promise<void>): Promise<boolean> {
+    const navigated = page.waitForURL(/\/edit$/, { timeout: 2_000 }).then(
+      () => true,
+      () => false
+    );
+    await action();
+    return navigated;
+  }
+
+  // Keyboard users reach the locked action, see why, and cannot trigger it.
+  await view.focus();
+  await page.keyboard.press('Tab');
+  await expect(edit).toBeFocused();
+  await expect(tooltip).toContainText('Managed by');
+  expect(
+    await opensEditPage(async () => {
+      await page.keyboard.press('Enter');
+      await page.keyboard.press('Space');
+    })
+  ).toBe(false);
+
+  // Mouse users get the tooltip on hover; the click stops at the button.
+  await edit.blur();
+  await expect(tooltip).toBeHidden();
+  await edit.hover();
+  await expect(tooltip).toContainText('Edit Configuration. Managed by');
+  // Playwright treats aria-disabled as disabled and would wait for it otherwise.
+  expect(await opensEditPage(() => edit.click({ force: true }))).toBe(false);
+});

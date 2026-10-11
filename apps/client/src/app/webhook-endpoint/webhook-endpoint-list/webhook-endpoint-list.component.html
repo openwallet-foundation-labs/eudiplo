@@ -29,12 +29,19 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let endpoint">
-      <button matIconButton [routerLink]="[endpoint.id]">
+      <button
+        matIconButton
+        [routerLink]="[endpoint.id]"
+        matTooltip="View webhook endpoint"
+        aria-label="View webhook endpoint"
+      >
         <mat-icon>visibility</mat-icon>
       </button>
       <button
         matIconButton
         [routerLink]="[endpoint.id, 'edit']"
+        matTooltip="Edit webhook endpoint"
+        aria-label="Edit webhook endpoint"
         appConfigManaged
         managedKind="WebhookEndpoint"
         [managedResourceId]="endpoint.id"

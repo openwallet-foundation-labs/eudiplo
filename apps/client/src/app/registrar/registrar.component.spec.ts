@@ -31,7 +31,6 @@ function ownershipMock(metadata?: ConfigResourceOwnership) {
   let current = metadata;
   return {
     get: vi.fn(async () => current),
-    isManaged: vi.fn(async () => false),
     drop: () => {
       current = undefined;
     },

@@ -29,12 +29,19 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let provider">
-      <button matIconButton [routerLink]="[provider.id]">
+      <button
+        matIconButton
+        [routerLink]="[provider.id]"
+        matTooltip="View attribute provider"
+        aria-label="View attribute provider"
+      >
         <mat-icon>visibility</mat-icon>
       </button>
       <button
         matIconButton
         [routerLink]="[provider.id, 'edit']"
+        matTooltip="Edit attribute provider"
+        aria-label="Edit attribute provider"
         appConfigManaged
         managedKind="AttributeProvider"
         [managedResourceId]="provider.id"
