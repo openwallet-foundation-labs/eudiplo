@@ -79,8 +79,10 @@ test('schema pages without a registrar and without issuance:manage', async ({ pa
   await page.goto('/schema');
   const listError = page.getByRole('alert');
   await expect(listError).toContainText('Failed to load schemas: No registrar configuration');
-  await expect(listError.getByRole('button', { name: 'Retry' })).toBeVisible();
-  await expect(listError.getByRole('link', { name: 'Registrar configuration' })).toBeVisible();
+  // The error card's actions sit next to the alert text, not inside it.
+  const errorCard = page.locator('app-load-error');
+  await expect(errorCard.getByRole('button', { name: 'Retry' })).toBeVisible();
+  await expect(errorCard.getByRole('link', { name: 'Registrar configuration' })).toBeVisible();
   await expect(page.getByText('No schemas published')).toHaveCount(0);
 
   // Create needs issuance:manage: disabled, with the role in its description.

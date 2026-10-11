@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { WebhookEndpointEntity } from '@eudiplo/sdk-core';
@@ -18,6 +19,7 @@ import { LoadErrorComponent } from '../../common/load-error.component';
     MatTableModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     RouterModule,
     FlexLayoutModule,
     ConfigOwnershipDirective,
