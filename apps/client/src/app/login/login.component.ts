@@ -87,6 +87,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   readonly retryingKeptSession = signal(false);
   private keptSessionEvents?: Subscription;
   private readonly apiUrlInput = viewChild<ElementRef<HTMLInputElement>>('apiUrlInput');
+  private readonly clientSecretInput = viewChild<ElementRef<HTMLInputElement>>('clientSecretInput');
+  /** An ended session signed in with client credentials, so the form stays on that tab even where SSO is offered. */
+  private keepClientCredentialsTab = false;
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -111,8 +114,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.apiService.hasKeptSession()) {
       this.waitForKeptSession();
     } else {
-      // The session may have been rejected before this page opened.
-      this.reportRejection();
+      // The session may have expired or been rejected before this page opened.
+      this.reportEndedSession();
     }
     console.log('Initializing login form');
     this.initializeForm();
@@ -149,22 +152,37 @@ export class LoginComponent implements OnInit, OnDestroy {
           return;
         }
         this.showForm();
-        this.reportRejection();
+        this.reportEndedSession();
       });
     // Nothing may be due soon, for example after the laptop slept past the token's expiry.
     // This joins a renewal already in flight; failures are retried or end the session.
     void this.apiService.refreshAccessToken().catch(() => undefined);
   }
 
-  private reportRejection(): void {
-    const rejected = this.apiService.takeRejectedSession();
-    if (!rejected) return;
-    this.previousSession = rejected;
-    this.snackBar.open(
-      `The credentials of ${rejected.clientId} were rejected, for example because the client was deleted or its secret changed. Log in again.`,
-      'Close',
-      { duration: 10_000, panelClass: ['error-snackbar'] }
-    );
+  /** Says why the previous session ended; the form starts from its client and instance. */
+  private reportEndedSession(): void {
+    const ended = this.apiService.takeEndedSession();
+    if (!ended) return;
+    this.previousSession = { clientId: ended.clientId, baseUrl: ended.baseUrl };
+    this.keepClientCredentialsTab = true;
+    this.selectedLoginMode = 'client';
+    if (ended.reason === 'expired') {
+      // Only the secret is left to enter. Rejected credentials may need another client.
+      afterNextRender(() => this.clientSecretInput()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    }
+    const [message, panelClass] =
+      ended.reason === 'expired'
+        ? [
+            `The session of ${ended.clientId} expired. Log in again to continue.`,
+            'warning-snackbar',
+          ]
+        : [
+            `The credentials of ${ended.clientId} were rejected, for example because the client was deleted or its secret changed. Log in again.`,
+            'error-snackbar',
+          ];
+    this.snackBar.open(message, 'Close', { duration: 10_000, panelClass: [panelClass] });
   }
 
   /** Renews the kept session now instead of waiting for the next automatic attempt. */
@@ -289,6 +307,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onLoginTabChange(index: number): void {
     this.selectedLoginMode = index === 0 ? 'sso' : 'client';
+    // The user chose SSO after an ended session; detecting the mode again keeps that choice.
+    if (index === 0) this.keepClientCredentialsTab = false;
     this.syncLoginModeState();
   }
 
@@ -327,7 +347,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       if (discovery?.ui_client_id) {
         this.detectedMode = 'oidc';
-        this.selectedLoginMode = 'sso';
+        // Another instance than the ended session's opens like a fresh login page.
+        const sameInstance = normalizedUrl === this.previousSession?.baseUrl;
+        this.selectedLoginMode = this.keepClientCredentialsTab && sameInstance ? 'client' : 'sso';
         this.discoveredIssuer = discovery.issuer;
         this.discoveredUiClientId = discovery.ui_client_id;
       } else {

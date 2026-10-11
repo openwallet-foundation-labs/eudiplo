@@ -21,6 +21,8 @@ describe('TokenExpiryService', () => {
     ensureAuthenticated: ReturnType<typeof vi.fn>;
     tokenRenewed$: Subject<void>;
     logout: ReturnType<typeof vi.fn>;
+    logoutExpired: ReturnType<typeof vi.fn>;
+    hasEndedSession: () => boolean;
   };
   let refusals: { isAccessRevoked: () => boolean; accessRevoked$: Subject<void> };
   let router: { url: string; navigate: ReturnType<typeof vi.fn>; events: Subject<unknown> };
@@ -45,6 +47,8 @@ describe('TokenExpiryService', () => {
       ensureAuthenticated: vi.fn().mockResolvedValue(false),
       tokenRenewed$: new Subject<void>(),
       logout: vi.fn(),
+      logoutExpired: vi.fn(),
+      hasEndedSession: () => false,
     };
     refusals = { isAccessRevoked: () => false, accessRevoked$: new Subject<void>() };
     router = { url: '/dashboard', navigate: vi.fn(), events: new Subject<unknown>() };
@@ -143,8 +147,22 @@ describe('TokenExpiryService', () => {
     expect(texts()).toEqual([
       'Your session has expired. Log in again; unsaved changes on this page will be lost.',
     ]);
-    expect(api.logout).toHaveBeenCalledOnce();
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(api.logoutExpired).toHaveBeenCalledOnce();
+    expect(api.logout).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: undefined });
+  });
+
+  it('returns to the page after logging in again as the client of the expired session', async () => {
+    router.url = '/issuance/config?tab=claims';
+    api.getAuthenticationStatus = () => false;
+    api.logoutExpired.mockImplementation(() => (api.hasEndedSession = () => true));
+
+    await service.check();
+    notices[0].action.next();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: '/issuance/config?tab=claims' },
+    });
   });
 
   it('reports an unreachable backend without a logout while the kept session reconnects', async () => {
@@ -302,7 +320,23 @@ describe('TokenExpiryService', () => {
     notices[0].action.next();
 
     expect(api.logout).toHaveBeenCalledOnce();
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(api.logoutExpired).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], { queryParams: undefined });
+  });
+
+  it('returns to the page after the revoked notice when the rejected client signs in again', async () => {
+    router.url = '/issuance/offers';
+    refusals.isAccessRevoked = () => true;
+    // The token endpoint rejected the credentials before, so logout keeps the rejected session.
+    api.hasEndedSession = () => true;
+
+    await service.check();
+    notices[0].action.next();
+
+    expect(api.logout).toHaveBeenCalledOnce();
+    expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: '/issuance/offers' },
+    });
   });
 
   it('does not bring the revoked notice back after its Log in action', async () => {

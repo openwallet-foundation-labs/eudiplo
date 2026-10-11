@@ -129,7 +129,7 @@ export class TokenExpiryService implements OnDestroy {
       'Your session has expired. Log in again; unsaved changes on this page will be lost.',
       'Log in'
     );
-    notice?.onAction().subscribe(() => this.logInAgain());
+    notice?.onAction().subscribe(() => this.logInAgain(true));
   }
 
   /**
@@ -145,7 +145,7 @@ export class TokenExpiryService implements OnDestroy {
     notice?.afterDismissed().subscribe((dismissal) => {
       if (!dismissal?.dismissedByAction && !this.notice) void this.check();
     });
-    notice?.onAction().subscribe(() => this.logInAgain());
+    notice?.onAction().subscribe(() => this.logInAgain(false));
   }
 
   /**
@@ -159,9 +159,21 @@ export class TokenExpiryService implements OnDestroy {
     );
   }
 
-  private logInAgain(): void {
-    this.apiService.logout();
-    this.router.navigate(['/login']);
+  /**
+   * Ends the session and opens the login page. After an expiry the login page gets
+   * the client and instance of the session, and signing in again as that client
+   * returns to this page.
+   */
+  private logInAgain(expired: boolean): void {
+    const returnUrl = this.router.url;
+    if (expired) {
+      this.apiService.logoutExpired();
+    } else {
+      this.apiService.logout();
+    }
+    // The login page keeps the return path only for the client of the ended session.
+    const queryParams = this.apiService.hasEndedSession() ? { returnUrl } : undefined;
+    void this.router.navigate(['/login'], { queryParams });
   }
 
   /** Opens a notice of this kind unless one is open, replacing a notice of another kind. */
