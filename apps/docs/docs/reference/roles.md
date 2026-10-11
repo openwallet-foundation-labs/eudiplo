@@ -13,6 +13,8 @@ A token passes the role check if it carries **any** of an endpoint's roles.
 Most endpoints also act on the tenant in the token and refuse a token without
 one, such as the root client's. Without a tenant, `tenants:manage` works for the
 `/api/tenant` endpoints and for rotating client secrets.
+`GET /api/config-bundles/resources/:kind` also checks the kind
+([which roles](config-bundle-format.md#management-api)).
 
 import RoleReference from "@site/src/components/RoleReference";
 

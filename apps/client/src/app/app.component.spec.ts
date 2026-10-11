@@ -37,6 +37,7 @@ describe('AppComponent navigation', () => {
             hasRole: (role: Role | Role[]) =>
               (Array.isArray(role) ? role : [role]).some((r) => roles.includes(r)),
             hasTenantContext: () => true,
+            canUseConfigPortability: JwtService.prototype.canUseConfigPortability,
           },
         },
       ],
@@ -56,6 +57,14 @@ describe('AppComponent navigation', () => {
     ['issuance and verification', ['issuance:manage', 'presentation:manage']],
   ])('lists Webhook Endpoints once for %s admins', (_, roles) => {
     expect(menuItems(roles).filter((item) => item === 'Webhook Endpoints')).toHaveLength(1);
+  });
+
+  it('shows Config Portability only with tenant:admin or tenants:manage', () => {
+    expect(menuItems(['tenant:admin'])).toContain('Config Portability');
+    TestBed.resetTestingModule();
+    expect(menuItems(['issuance:manage', 'presentation:manage'])).not.toContain(
+      'Config Portability'
+    );
   });
 
   it('hides Webhook Endpoints from clients that cannot manage them', () => {
@@ -81,7 +90,14 @@ describe('AppComponent collapsible navigation', () => {
           { path: 'old-credential-config', redirectTo: 'credential-config' },
           { path: 'dashboard', component: EmptyPageComponent },
         ]),
-        { provide: JwtService, useValue: { hasRole, hasTenantContext: () => true } },
+        {
+          provide: JwtService,
+          useValue: {
+            hasRole,
+            hasTenantContext: () => true,
+            canUseConfigPortability: JwtService.prototype.canUseConfigPortability,
+          },
+        },
       ],
     });
     const fixture = TestBed.createComponent(AppComponent);

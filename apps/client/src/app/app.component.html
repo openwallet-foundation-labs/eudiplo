@@ -70,7 +70,7 @@
             <span matListItemTitle>Connection Settings</span>
           </mat-list-item>
 
-          @if (jwtService.hasTenantContext() && hasRole(['tenants:manage', 'tenant:admin'])) {
+          @if (jwtService.canUseConfigPortability()) {
             <mat-list-item
               [routerLink]="['/settings/config-portability']"
               routerLinkActive="active-link"

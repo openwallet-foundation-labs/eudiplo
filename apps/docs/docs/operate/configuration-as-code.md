@@ -49,8 +49,11 @@ applies it, and makes the resource `file-managed` again. Its stored generation
 becomes the file's generation, so later startups apply the folder again.
 
 The web client lists ownership and offers **Detach** and **Reset to file** under
-**Settings > Config Portability** (shown with `tenant:admin` or
-`tenants:manage`).
+**Settings > Config Portability** (shown to a tenant's clients and users with
+`tenant:admin` or `tenants:manage`). On the screens of a `file-managed` resource
+it shows a lock notice and disables editing and deleting, also for clients that
+only have the role managing that resource, such as `issuance:manage` for
+credential configs.
 
 ## Provision tenants from a folder
 

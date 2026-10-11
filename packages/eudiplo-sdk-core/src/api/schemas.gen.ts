@@ -11905,6 +11905,62 @@ export const ConfigResourceMetadataEntitySchema = {
     ]
 } as const;
 
+export const ConfigResourceOwnershipDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'Tenant',
+                'Client',
+                'KmsConfig',
+                'KeyChain',
+                'RegistrarConfig',
+                'IssuanceConfig',
+                'CredentialConfig',
+                'PresentationConfig',
+                'AttributeProvider',
+                'WebhookEndpoint',
+                'TrustList',
+                'StatusList'
+            ],
+            type: 'string',
+            description: 'Resource kind, as in the config bundle format'
+        },
+        resourceId: {
+            type: 'string',
+            description: 'Resource ID, or the singleton ID such as `issuance`'
+        },
+        ownership: {
+            enum: [
+                'unmanaged',
+                'file-managed',
+                'detached'
+            ],
+            type: 'string',
+            description: '`file-managed` resources reject API and web client changes with 409 until they are detached.'
+        },
+        generation: {
+            type: 'number',
+            description: 'Generation of the stored definition'
+        },
+        source: {
+            type: 'string',
+            description: 'File or bundle that provisioned the resource. Kept after detaching.'
+        },
+        lastAppliedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last time an import, detach or reattach changed the ownership'
+        }
+    },
+    required: [
+        'kind',
+        'resourceId',
+        'ownership',
+        'generation'
+    ]
+} as const;
+
 export const PresentationConfigWritableSchema = {
     type: 'object',
     properties: {
