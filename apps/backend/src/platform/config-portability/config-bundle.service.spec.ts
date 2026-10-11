@@ -1,3 +1,4 @@
+import { schemaUrl } from "@eudiplo/config-format/config-format.js";
 import { describe, expect, it } from "vitest";
 import { CreateRegistrarConfigSchema } from "../../registrar/schemas/registrar.schema.js";
 import { ConfigBundleService } from "./config-bundle.service.js";
@@ -7,6 +8,7 @@ import type {
     ConfigDocument,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { documentSourceHash } from "./config-source-hash.js";
 
 describe("ConfigBundleService secret handling", () => {
     const service = Object.create(
@@ -218,5 +220,42 @@ describe("ConfigBundleService issuance export", () => {
             { type: "built-in", id: "built-in" },
             { type: "chained", id: "chained", upstream },
         ]);
+    });
+});
+
+describe("ConfigBundleService plans for documents applied as they are", () => {
+    const client: ConfigDocument = {
+        $schema: schemaUrl("Client"),
+        kind: "Client",
+        metadata: { generation: 1 },
+        spec: { clientId: "app", secret: "!generate" },
+    };
+    const metadata = {
+        ownership: "file-managed" as const,
+        source: "folder:/config/demo",
+        sourceHash: documentSourceHash(client),
+    };
+    const skipsComparison = (oidc?: string) => {
+        const service = Object.create(
+            ConfigBundleService.prototype,
+        ) as ConfigBundleService;
+        Reflect.set(service, "configService", { get: () => oidc });
+        return (
+            Reflect.get(service, "skipsComparison") as (
+                document: ConfigDocument,
+                applied: typeof metadata,
+                source: string,
+            ) => boolean
+        ).call(service, client, metadata, "folder:/config/demo");
+    };
+
+    it("keeps a generated-secret client applied as it is", () => {
+        expect(skipsComparison()).toBe(true);
+    });
+
+    it("applies it again with Keycloak, which the plan cannot compare", () => {
+        expect(skipsComparison("https://idp.example/realms/eudiplo")).toBe(
+            false,
+        );
     });
 });

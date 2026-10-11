@@ -1,5 +1,8 @@
 import { webcrypto } from "node:crypto";
-import { schemaUrl } from "@eudiplo/config-format/config-format.js";
+import {
+    normalizeDocument,
+    schemaUrl,
+} from "@eudiplo/config-format/config-format.js";
 import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
@@ -10,6 +13,7 @@ import type {
     ConfigDocument,
     ConfigImportPlan,
 } from "./config-resource.types.js";
+import { documentSourceHash } from "./config-source-hash.js";
 
 describe("ConfigBundleApplyService", () => {
     it("does not apply or claim ownership of resources skipped in create mode", async () => {
@@ -122,12 +126,92 @@ function setupApply(
     service.bundleService = { plan: vi.fn().mockResolvedValue(plan) };
     service.filesService = { saveImportedAsset: vi.fn() };
     service.migrationService = { upgrade: vi.fn((document) => ({ document })) };
-    service.ownershipService = { markApplied: vi.fn(), remove: vi.fn() };
+    service.ownershipService = {
+        get: vi.fn().mockResolvedValue({ ownership: "unmanaged" }),
+        markApplied: vi.fn(),
+        remove: vi.fn(),
+    };
     service.resourceRegistry = { get: () => ({ importPhase: 1 }) };
     service.applyDocument = vi.fn();
     service.deleteDocument = vi.fn();
     return { service, bundle, plan };
 }
+
+describe("generated client secrets", () => {
+    const document = {
+        $schema: schemaUrl("Client"),
+        metadata: { generation: 1 },
+        spec: { clientId: "app", secret: "!generate" },
+    };
+    const appliedHash = documentSourceHash(normalizeDocument(document));
+
+    // With Keycloak, the plan lists an existing client as an update even
+    // when this source applied its document as it is.
+    function setupClientApply(sourceHash: string) {
+        const { service, bundle } = setupApply([]);
+        service.bundleService.plan.mockResolvedValue({
+            tenantId: "tenant-a",
+            mode: "upsert",
+            applicable: true,
+            issues: [],
+            items: [
+                {
+                    kind: "Client",
+                    id: "app",
+                    action: "update",
+                    sourceVersion: "eudiplo.dev/client/v1",
+                    targetVersion: "eudiplo.dev/client/v1",
+                    migrations: [],
+                    issues: [],
+                },
+            ],
+        });
+        service.ownershipService.get = vi.fn().mockResolvedValue({
+            ownership: "file-managed",
+            source: "bundle:tenant-a",
+            sourceHash,
+        });
+        delete service.applyDocument;
+        service.repos = { clients: { countBy: vi.fn().mockResolvedValue(1) } };
+        service.clientsProvider = {
+            updateClient: vi.fn(),
+            rotateClientSecret: vi.fn().mockResolvedValue("rotated"),
+            setClientSecret: vi.fn(),
+        };
+        bundle.documents = [document];
+        return { service, bundle };
+    }
+
+    it("updates a client this source applied as it is and keeps its secret", async () => {
+        const { service, bundle } = setupClientApply(appliedHash);
+        const result = await service.apply("tenant-a", bundle, "upsert");
+        expect(service.clientsProvider.updateClient).toHaveBeenCalled();
+        expect(
+            service.clientsProvider.rotateClientSecret,
+        ).not.toHaveBeenCalled();
+        expect(result.generatedSecrets).toBeUndefined();
+    });
+
+    it("generates a new secret for a changed document or on reattach", async () => {
+        const changed = setupClientApply("other");
+        const reattached = setupClientApply(appliedHash);
+        const results = [
+            await changed.service.apply("tenant-a", changed.bundle, "upsert"),
+            await reattached.service.apply(
+                "tenant-a",
+                reattached.bundle,
+                "upsert",
+                undefined,
+                undefined,
+                { reattach: true },
+            ),
+        ];
+        for (const result of results)
+            expect(result.generatedSecrets).toMatchObject([
+                { kind: "Client", id: "app", value: "rotated" },
+            ]);
+    });
+});
 
 describe("apply reconciliation and recovery", () => {
     it("does not rewrite unchanged resources or their unchanged metadata", async () => {

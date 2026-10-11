@@ -188,7 +188,12 @@ eudiplo config import acme.zip --instance staging --mode replace \
 ```
 
 Client secrets generated during the import (`"secret": "!generate"`) are
-returned once in the import result; store them immediately.
+returned once in the import result; store them immediately. The client keeps its
+secret on later imports of the same document from the same source; change the
+document or raise `metadata.generation` to get a new one
+([details](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
+A startup import does not show the secret it generates: detach the client and
+rotate its secret through the API or web client.
 
 ## Plans, locks and recovery
 

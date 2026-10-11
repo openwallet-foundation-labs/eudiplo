@@ -20,9 +20,11 @@ import type { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import * as x509 from "@peculiar/x509";
+import { compare as compareSecret } from "bcrypt";
 import request from "supertest";
 import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { ClientEntity } from "../../src/auth/client/entities/client.entity.js";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
 import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
 import { KeyChainService } from "../../src/crypto/key/key-chain.service.js";
@@ -1209,6 +1211,160 @@ describe("startup configuration reconciliation", () => {
                         resourceId: id,
                     });
             }
+        }
+    });
+
+    it("keeps the secret of a !generate client whose document did not change since it was applied", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const clients = dataSource.getRepository(ClientEntity);
+        const clientId = "generated-secret-client";
+        const spec = {
+            clientId,
+            secret: "!generate",
+            roles: ["issuance:offer"],
+        };
+        const clientBundle = (
+            clientSpec: Record<string, unknown>,
+            generation = 1,
+        ) =>
+            documentBundle(
+                "Client",
+                clientId,
+                `clients/${clientId}.json`,
+                clientSpec,
+                generation,
+            );
+        const storedSecret = async () =>
+            (await clients.findOneByOrFail({ tenantId: "demo", clientId }))
+                .secret!;
+        const planned = async (bundle: ConfigBundle, source?: string) =>
+            (await service.plan("demo", bundle, "upsert", source)).items.find(
+                (item) => item.kind === "Client",
+            )?.action;
+
+        try {
+            const bundle = clientBundle(spec);
+            const created = await apply.apply("demo", bundle, "upsert");
+            const [secret] = created.generatedSecrets!;
+            expect(await planned(bundle)).toBe("unchanged");
+            const reapplied = await apply.apply("demo", bundle, "upsert");
+            expect(reapplied.generatedSecrets).toBeUndefined();
+            expect(
+                await compareSecret(secret.value, await storedSecret()),
+            ).toBe(true);
+
+            // Another source, a raised generation or another document
+            // generates a new secret.
+            expect(await planned(bundle, "bundle:other")).toBe("update");
+            const other = await apply.apply(
+                "demo",
+                bundle,
+                "upsert",
+                "bundle:other",
+            );
+            expect(other.generatedSecrets).toHaveLength(1);
+            expect(
+                await compareSecret(
+                    other.generatedSecrets![0].value,
+                    await storedSecret(),
+                ),
+            ).toBe(true);
+            const raised = await apply.apply(
+                "demo",
+                clientBundle(spec, 2),
+                "upsert",
+            );
+            expect(raised.generatedSecrets).toHaveLength(1);
+            expect(raised.generatedSecrets![0].value).not.toBe(secret.value);
+            const edited = await apply.apply(
+                "demo",
+                clientBundle({ ...spec, description: "Edited" }, 2),
+                "upsert",
+            );
+            expect(edited.generatedSecrets).toHaveLength(1);
+            expect(
+                await compareSecret(
+                    edited.generatedSecrets![0].value,
+                    await storedSecret(),
+                ),
+            ).toBe(true);
+        } finally {
+            await clients.delete({ tenantId: "demo", clientId });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "Client",
+                    resourceId: clientId,
+                });
+        }
+    });
+
+    it("keeps the secret of an unchanged !generate client file across startup imports", async () => {
+        const folder = app.get(ConfigFolderBundleService);
+        const dataSource = app.get(DataSource);
+        const clients = dataSource.getRepository(ClientEntity);
+        const clientId = "folder-generated-secret-client";
+        const file = join(
+            runtimeFolder,
+            "config",
+            "demo",
+            "clients",
+            `${clientId}.json`,
+        );
+        writeFileSync(
+            file,
+            JSON.stringify({
+                $schema: schemaUrl("Client"),
+                metadata: { generation: 1 },
+                spec: {
+                    clientId,
+                    secret: "!generate",
+                    roles: ["issuance:offer"],
+                },
+            }),
+        );
+        const storedSecret = async () =>
+            (await clients.findOneByOrFail({ tenantId: "demo", clientId }))
+                .secret!;
+
+        try {
+            await folder.applyTenantFolder("demo", "upsert");
+            const imported = await storedSecret();
+            await folder.applyTenantFolder("demo", "upsert");
+            expect(await storedSecret()).toBe(imported);
+
+            // Reattach applies the file again and returns a new secret once.
+            const reattach = await folder.planReattach(
+                "demo",
+                "Client",
+                clientId,
+            );
+            const reattached = await folder.reattach(
+                "demo",
+                "Client",
+                clientId,
+                reattach.planFingerprint!,
+            );
+            expect(reattached.generatedSecrets).toHaveLength(1);
+            expect(
+                await compareSecret(
+                    reattached.generatedSecrets![0].value,
+                    await storedSecret(),
+                ),
+            ).toBe(true);
+        } finally {
+            rmSync(file, { force: true });
+            await clients.delete({ tenantId: "demo", clientId });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "Client",
+                    resourceId: clientId,
+                });
         }
     });
 

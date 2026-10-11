@@ -48,7 +48,10 @@ import type {
     ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
-import { documentSourceHash } from "./config-source-hash.js";
+import {
+    documentAppliedAsIs,
+    documentSourceHash,
+} from "./config-source-hash.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
 import {
     appliedKeyChainType,
@@ -362,9 +365,24 @@ export class ConfigBundleApplyService {
                         id: resourceId(document),
                     },
                     async () => {
+                        // With Keycloak, the plan lists a client applied as it is
+                        // as an update, which keeps its secret.
+                        const appliedAsIs =
+                            document.kind === "Client" &&
+                            !options.reattach &&
+                            documentAppliedAsIs(
+                                document,
+                                await this.ownershipService.get(
+                                    tenantId,
+                                    document.kind,
+                                    resourceId(document),
+                                ),
+                                ownershipSource,
+                            );
                         const secret = await this.applyDocument(
                             tenantId,
                             document,
+                            appliedAsIs,
                         );
                         if (secret) generatedSecrets.push(secret);
                     },
@@ -493,6 +511,7 @@ export class ConfigBundleApplyService {
     private async applyDocument(
         tenantId: string,
         document: ConfigDocument,
+        appliedAsIs: boolean,
     ): Promise<
         | {
               kind: "Client";
@@ -532,7 +551,8 @@ export class ConfigBundleApplyService {
                         resourceId(document),
                         client,
                     );
-                    if (generated) {
+                    // The secret was generated when this document was applied.
+                    if (generated && !appliedAsIs) {
                         const value =
                             await this.clientsProvider.rotateClientSecret(
                                 tenantId,
@@ -558,12 +578,12 @@ export class ConfigBundleApplyService {
                         secret,
                     });
                 }
-                return generated
+                return generated && secret
                     ? {
                           kind: "Client",
                           id: resourceId(document),
                           path: "/spec/secret",
-                          value: secret!,
+                          value: secret,
                       }
                     : undefined;
             }
