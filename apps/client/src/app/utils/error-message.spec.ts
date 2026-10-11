@@ -43,6 +43,12 @@ describe('getValidationIssues', () => {
     ).toEqual([{ path: 'id', message: 'Required' }]);
   });
 
+  it('names no field when the path is not a list', () => {
+    expect(getValidationIssues({ errors: [{ path: 'config', message: 'Required' }] })).toEqual([
+      { path: '', message: 'Required' },
+    ]);
+  });
+
   it('drops issues without a message', () => {
     expect(getValidationIssues(badRequest([{ path: ['a'] }, null, 'text']))).toEqual([]);
   });
@@ -75,6 +81,18 @@ describe('getHttpErrorMessage', () => {
     expect(getHttpErrorMessage(new HttpErrorResponse({ status: 0 }), 'Failed to save')).toBe(
       'Failed to save: the backend could not be reached. Check the connection and try again.'
     );
+  });
+
+  it('names the first field a 400 response rejected', () => {
+    expect(
+      getHttpErrorMessage(
+        badRequest([
+          { path: ['oidcUrl'], message: 'Invalid URL', code: 'invalid_format' },
+          { path: ['display', 0, 'name'], message: 'Required', code: 'invalid_type' },
+        ]),
+        'Failed to save'
+      )
+    ).toBe('Failed to save: Validation failed (oidcUrl: Invalid URL; 1 more)');
   });
 
   it("falls back to Angular's message, which names the status", () => {
@@ -126,6 +144,15 @@ describe('getApiErrorMessage', () => {
     ).toBe('Failed: Required');
   });
 
+  it('counts only issues with a message as more', () => {
+    expect(
+      getApiErrorMessage(
+        { message: 'Validation failed', errors: [{ path: ['a'], message: 'Required' }, 'junk'] },
+        'Failed'
+      )
+    ).toBe('Failed: Validation failed (a: Required)');
+  });
+
   it('ignores an errors field that is not a list of issues', () => {
     expect(getApiErrorMessage({ message: 'Bad Request', errors: ['plain string'] }, 'Failed')).toBe(
       'Failed: Bad Request'
@@ -135,7 +162,7 @@ describe('getApiErrorMessage', () => {
   it('adds the validation issue to a message that already says what failed', () => {
     expect(
       getApiErrorMessage(
-        { message: 'Failed to parse', errors: [{ path: 'config', message: 'Required' }] },
+        { message: 'Failed to parse', errors: [{ path: ['config'], message: 'Required' }] },
         'Failed to load'
       )
     ).toBe('Failed to parse (config: Required)');

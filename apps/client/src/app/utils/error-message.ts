@@ -100,7 +100,6 @@ export function getValidationIssues(error: unknown): ValidationIssue[] {
   return issues.flatMap((issue) => {
     const { path, message } = (issue ?? {}) as { path?: unknown; message?: unknown };
     if (typeof message !== 'string') return [];
-    if (Array.isArray(path)) return [{ path: path.join('.'), message }];
-    return [{ path: typeof path === 'string' ? path : '', message }];
+    return [{ path: Array.isArray(path) ? path.join('.') : '', message }];
   });
 }
