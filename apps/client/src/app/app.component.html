@@ -93,34 +93,40 @@
     >
       <mat-nav-list>
         <!-- Dashboard - Always visible, entry point -->
-        <mat-list-item
+        <a
+          mat-list-item
           [routerLink]="['/dashboard']"
           routerLinkActive="active-link"
+          ariaCurrentWhenActive="page"
           (click)="closeSidenavOnMobile()"
         >
           <mat-icon matListItemIcon>dashboard</mat-icon>
           <span matListItemTitle>Dashboard</span>
-        </mat-list-item>
+        </a>
 
         <app-nav-section section="settings" icon="settings" label="Settings">
-          <mat-list-item
+          <a
+            mat-list-item
             [routerLink]="['/settings/connection']"
             routerLinkActive="active-link"
+            ariaCurrentWhenActive="page"
             (click)="closeSidenavOnMobile()"
           >
             <mat-icon matListItemIcon>settings_ethernet</mat-icon>
             <span matListItemTitle>Connection Settings</span>
-          </mat-list-item>
+          </a>
 
           @if (jwtService.hasTenantContext() && hasRole(['tenants:manage', 'tenant:admin'])) {
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/settings/config-portability']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>move_up</mat-icon>
               <span matListItemTitle>Config Portability</span>
-            </mat-list-item>
+            </a>
           }
         </app-nav-section>
 
@@ -132,47 +138,55 @@
             label="Administration"
           >
             @if (hasRole('tenants:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/tenants']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>cloud</mat-icon>
                 <span matListItemTitle>Tenants</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole('clients:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/clients']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>devices</mat-icon>
                 <span matListItemTitle>API Clients</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole('users:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/users']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>group</mat-icon>
                 <span matListItemTitle>Users</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole('clients:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/admin/activity-logs']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>history</mat-icon>
                 <span matListItemTitle>Activity Logs</span>
-              </mat-list-item>
+              </a>
             }
           </app-nav-section>
         }
@@ -180,37 +194,43 @@
         <!-- Cryptographic Assets Section -->
         @if (hasRole(['presentation:manage', 'issuance:manage'])) {
           <app-nav-section section="crypto" icon="key" label="Cryptographic Assets">
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/keys']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>vpn_key</mat-icon>
               <span matListItemTitle>Keys</span>
-            </mat-list-item>
+            </a>
 
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/kms']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>dns</mat-icon>
               <span matListItemTitle>KMS Providers</span>
-            </mat-list-item>
+            </a>
           </app-nav-section>
         }
 
         <!-- Integrations Section: webhook endpoints serve issuance and verification -->
         @if (hasRole(['issuance:manage', 'presentation:manage'])) {
           <app-nav-section section="integrations" icon="hub" label="Integrations">
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/webhook-endpoints']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>webhook</mat-icon>
               <span matListItemTitle>Webhook Endpoints</span>
-            </mat-list-item>
+            </a>
           </app-nav-section>
         }
 
@@ -218,61 +238,73 @@
         @if (hasRole(['issuance:manage', 'issuance:offer'])) {
           <app-nav-section section="issuance" icon="card_membership" label="Credential Issuance">
             @if (hasRole('issuance:offer')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/offer/issuance']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>add_card</mat-icon>
                 <span matListItemTitle>New Issuance</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole('issuance:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/credential-config']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>badge</mat-icon>
                 <span matListItemTitle>Credential Types</span>
-              </mat-list-item>
+              </a>
 
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/issuance-config']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>settings</mat-icon>
                 <span matListItemTitle>Issuer Settings</span>
-              </mat-list-item>
+              </a>
 
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/trust-list']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>checklist</mat-icon>
                 <span matListItemTitle>Trust Lists</span>
-              </mat-list-item>
+              </a>
 
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/status-lists']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>format_list_bulleted</mat-icon>
                 <span matListItemTitle>Status Lists</span>
-              </mat-list-item>
+              </a>
 
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/attribute-providers']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>cloud_download</mat-icon>
                 <span matListItemTitle>Attribute Providers</span>
-              </mat-list-item>
+              </a>
             }
           </app-nav-section>
         }
@@ -280,23 +312,27 @@
         <!-- Registrar Section -->
         @if (hasRole('registrar:manage')) {
           <app-nav-section section="registrar" icon="app_registration" label="Registrar">
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/registrar']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>app_registration</mat-icon>
               <span matListItemTitle>Registrar Config</span>
-            </mat-list-item>
+            </a>
 
-            <mat-list-item
+            <a
+              mat-list-item
               [routerLink]="['/schema']"
               routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
               (click)="closeSidenavOnMobile()"
             >
               <mat-icon matListItemIcon>schema</mat-icon>
               <span matListItemTitle>Schema</span>
-            </mat-list-item>
+            </a>
           </app-nav-section>
         }
 
@@ -304,25 +340,29 @@
         @if (hasRole(['presentation:manage', 'presentation:request'])) {
           <app-nav-section section="verification" icon="verified" label="Credential Verification">
             @if (hasRole('presentation:request')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/offer/presentation']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>fact_check</mat-icon>
                 <span matListItemTitle>New Verification</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole('presentation:manage')) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/presentation-config']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>tune</mat-icon>
                 <span matListItemTitle>Verification Configs</span>
-              </mat-list-item>
+              </a>
             }
           </app-nav-section>
         }
@@ -338,26 +378,30 @@
         ) {
           <app-nav-section section="sessions" icon="monitoring" label="Sessions">
             @if (hasRole(['presentation:request', 'issuance:offer'])) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/session-management']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 [routerLinkActiveOptions]="{ exact: true }"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>list_alt</mat-icon>
                 <span matListItemTitle>All Sessions</span>
-              </mat-list-item>
+              </a>
             }
 
             @if (hasRole(['issuance:manage', 'presentation:manage'])) {
-              <mat-list-item
+              <a
+                mat-list-item
                 [routerLink]="['/session-management/config']"
                 routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
                 (click)="closeSidenavOnMobile()"
               >
                 <mat-icon matListItemIcon>settings</mat-icon>
                 <span matListItemTitle>Session Settings</span>
-              </mat-list-item>
+              </a>
             }
           </app-nav-section>
         }
