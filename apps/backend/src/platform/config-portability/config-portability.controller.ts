@@ -3,7 +3,6 @@ import {
     BadRequestException,
     Body,
     Controller,
-    ForbiddenException,
     Get,
     Param,
     Post,
@@ -100,12 +99,7 @@ export class ConfigPortabilityController {
         @Query("mode") mode: ConfigImportMode = "upsert",
     ) {
         this.assertMode(mode);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
-        return this.bundleService.plan(
-            requireTenantContext(token),
-            bundle,
-            mode,
-        );
+        return this.authorizedPlan(token, bundle, mode);
     }
 
     @Post("plan/archive")
@@ -123,12 +117,7 @@ export class ConfigPortabilityController {
         if (!file?.buffer)
             throw new BadRequestException("bundle file is required");
         const bundle = this.archiveService.decode(file.buffer);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
-        return this.bundleService.plan(
-            requireTenantContext(token),
-            bundle,
-            mode,
-        );
+        return this.authorizedPlan(token, bundle, mode);
     }
 
     @ApiQuery({
@@ -180,7 +169,6 @@ export class ConfigPortabilityController {
         if (!file?.buffer)
             throw new BadRequestException("bundle file is required");
         const bundle = this.archiveService.decode(file.buffer);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
         return this.applyAndAudit(
             token,
             request,
@@ -191,29 +179,28 @@ export class ConfigPortabilityController {
         );
     }
 
-    private assertBundlePrivilegedRoleAuthorization(
+    /**
+     * Plans an import and applies the client API's role rules to it, so the
+     * plan already reports what the import would refuse.
+     */
+    private async authorizedPlan(
         token: TokenPayload,
         bundle: ConfigBundle,
+        mode: ConfigImportMode,
     ) {
-        if (token.roles.includes(Role.Tenants)) return;
-
-        const privilegedRoles = new Set([Role.Tenants, Role.TenantAdmin]);
-        for (const document of bundle.documents ?? []) {
-            const roles = Array.isArray(document?.spec?.roles)
-                ? document.spec.roles
-                : [];
-            if (
-                roles.some(
-                    (role) =>
-                        typeof role === "string" &&
-                        privilegedRoles.has(role as Role),
-                )
-            ) {
-                throw new ForbiddenException(
-                    "Cannot assign tenant:manage role without having tenant:manage privileges",
-                );
-            }
-        }
+        const tenantId = requireTenantContext(token);
+        await this.applyService.assertCallerMayAssignRoles(
+            tenantId,
+            bundle,
+            token.roles,
+        );
+        const plan = await this.bundleService.plan(tenantId, bundle, mode);
+        await this.applyService.assertCallerMayChangeClients(
+            tenantId,
+            plan,
+            token.roles,
+        );
+        return plan;
     }
 
     private async applyAndAudit(
@@ -225,7 +212,6 @@ export class ConfigPortabilityController {
         planFingerprint?: string,
     ) {
         this.assertMode(mode);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
         if (mode === "replace" && confirmReplace !== "true") {
             throw new BadRequestException(
                 "replace mode requires confirmReplace=true",
@@ -242,6 +228,7 @@ export class ConfigPortabilityController {
             mode,
             undefined,
             planFingerprint,
+            { callerRoles: token.roles },
         );
         await this.auditLogService.record({
             tenantId,
@@ -386,6 +373,7 @@ export class ConfigPortabilityController {
             kind,
             id,
             planFingerprint,
+            token.roles,
         );
         await this.auditLogService.record({
             tenantId,

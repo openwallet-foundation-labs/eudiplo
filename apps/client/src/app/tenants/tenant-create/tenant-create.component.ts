@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Role, roles } from '../../services/jwt.service';
 import { SecretDialogComponent } from '../client/secret-dialog/secret-dialog.component';
 import { ApiService } from '../../core';
+import { getApiErrorMessage } from '../../utils/error-message';
 
 @Component({
   selector: 'app-tenant-create',
@@ -158,9 +159,7 @@ export class TenantCreateComponent implements OnInit {
       }
     } catch (error) {
       this.snackBar.open(
-        error instanceof Error
-          ? error.message
-          : `Failed to ${this.isEditMode ? 'update' : 'create'} tenant`,
+        getApiErrorMessage(error, `Failed to ${this.isEditMode ? 'update' : 'create'} tenant`),
         'Close',
         { duration: 5000 }
       );

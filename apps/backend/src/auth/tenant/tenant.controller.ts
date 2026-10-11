@@ -58,6 +58,11 @@ export class TenantController {
     @ApiOperation({ summary: "Initialize a tenant" })
     @ApiBody({ type: CreateTenantDto })
     @ApiResponse({ status: 201, type: TenantCreateResponseDto })
+    @ApiResponse({
+        status: 409,
+        description:
+            "The admin client ID `<id>-admin` is used by another tenant or the root client",
+    })
     @Post()
     initTenant(
         @Body() data: CreateTenantDto,

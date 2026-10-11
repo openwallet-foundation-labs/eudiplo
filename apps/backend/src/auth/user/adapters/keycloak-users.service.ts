@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { decodeJwt } from "jose";
+import { keycloakAuthorizationRoles } from "../../keycloak-authorization-roles.js";
 import { allRoles, Role } from "../../roles/role.enum.js";
 import { ManagedUserDto } from "../dto/managed-user.dto.js";
 import type { CreateUser, UpdateUser } from "../schemas/create-user.schema.js";
@@ -66,6 +67,19 @@ export class KeycloakUsersProvider extends UsersProvider {
 
         this.ensureTenantOwnership(tenantId, user, "viewed");
         return this.mapUser(user);
+    }
+
+    async getUserRoles(
+        tenantId: string,
+        userId: string,
+    ): Promise<string[] | undefined> {
+        const user = await this.kc.users.findOne({ id: userId });
+        if (!user?.id) {
+            return undefined;
+        }
+
+        this.ensureTenantOwnership(tenantId, user, "managed");
+        return keycloakAuthorizationRoles(this.kc, user.id);
     }
 
     async addUser(tenantId: string, dto: CreateUser): Promise<ManagedUserDto> {

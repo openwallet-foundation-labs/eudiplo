@@ -8,7 +8,11 @@ import { IsNull, Repository } from "typeorm";
 import { ConfigImportService } from "../../../platform/config-import/config-import.service.js";
 import { Role } from "../../roles/role.enum.js";
 import { ClientsProvider } from "../client.provider.js";
-import type { ClientData, CreatedClient } from "../domain/client-data.js";
+import {
+    type ClientData,
+    ClientIdTaken,
+    type CreatedClient,
+} from "../domain/client-data.js";
 import { ClientEntity } from "../entities/client.entity.js";
 import type { CreateClient, UpdateClient } from "../schemas/client.schema.js";
 import { CreateClientSchema } from "../schemas/client.schema.js";
@@ -108,6 +112,17 @@ export class InternalClientsProvider
             .then((client) => this.toClientData(client, tenantId));
     }
 
+    async getClientRoles(
+        tenantId: string,
+        clientId: string,
+    ): Promise<string[] | undefined> {
+        const client = await this.repo.findOneBy({
+            clientId,
+            tenant: { id: tenantId },
+        });
+        return client?.roles;
+    }
+
     /**
      * Get a client by its clientId only (without tenant context).
      * Used for JWT validation to fetch client restrictions.
@@ -122,6 +137,11 @@ export class InternalClientsProvider
         dto: CreateClient,
         secret = dto.secret ?? randomBytes(32).toString("hex"),
     ): Promise<CreatedClient> {
+        // `save` would move a client of another tenant, or the root client.
+        const existing = await this.repo.findOneBy({ clientId: dto.clientId });
+        if (existing && existing.tenantId !== tenantId) {
+            throw new ClientIdTaken(dto.clientId);
+        }
         // Hash the secret before storing
         const hashedSecret = await bcrypt.hash(secret, BCRYPT_ROUNDS);
         const entity = await this.repo.save({

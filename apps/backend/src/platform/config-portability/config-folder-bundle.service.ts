@@ -144,6 +144,7 @@ export class ConfigFolderBundleService {
         kind: ConfigResourceKind,
         id: string,
         planFingerprint: string,
+        callerRoles?: readonly string[],
     ): Promise<ConfigImportPlan> {
         const { bundle, source } = this.resourceBundle(tenantId, kind, id);
         return this.applyService.apply(
@@ -152,7 +153,7 @@ export class ConfigFolderBundleService {
             "upsert",
             source,
             planFingerprint,
-            { reattach: true },
+            { reattach: true, callerRoles },
         );
     }
 

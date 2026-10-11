@@ -277,7 +277,7 @@ export type CreateTenantDto = {
      */
     description?: string;
     /**
-     * Optional default role assignments for the tenant.
+     * Roles of the tenant's admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.
      */
     roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
     /**
@@ -5996,6 +5996,13 @@ export type TenantControllerInitTenantData = {
     url: '/api/tenant';
 };
 
+export type TenantControllerInitTenantErrors = {
+    /**
+     * The admin client ID `<id>-admin` is used by another tenant or the root client
+     */
+    409: unknown;
+};
+
 export type TenantControllerInitTenantResponses = {
     201: TenantCreateResponseDto;
 };
@@ -6097,6 +6104,17 @@ export type ClientControllerCreateClientData = {
     url: '/api/client';
 };
 
+export type ClientControllerCreateClientErrors = {
+    /**
+     * The caller may not grant one of the requested roles
+     */
+    403: unknown;
+    /**
+     * The client ID is already in use
+     */
+    409: unknown;
+};
+
 export type ClientControllerCreateClientResponses = {
     201: ClientEntity;
 };
@@ -6112,9 +6130,16 @@ export type ClientControllerDeleteClientData = {
     url: '/api/client/{id}';
 };
 
+export type ClientControllerDeleteClientErrors = {
+    /**
+     * The client has a role the caller neither holds nor may grant
+     */
+    403: unknown;
+};
+
 export type ClientControllerDeleteClientResponses = {
     /**
-     * Client deleted
+     * Client deleted, or the tenant has no such client
      */
     204: void;
 };
@@ -6154,6 +6179,10 @@ export type ClientControllerUpdateClientData = {
 
 export type ClientControllerUpdateClientErrors = {
     /**
+     * The caller may not grant one of the requested roles. The client has a role the caller neither holds nor may grant
+     */
+    403: unknown;
+    /**
      * Client not found
      */
     404: unknown;
@@ -6172,6 +6201,17 @@ export type ClientControllerRotateClientSecretData = {
     };
     query?: never;
     url: '/api/client/{id}/rotate-secret';
+};
+
+export type ClientControllerRotateClientSecretErrors = {
+    /**
+     * The client has a role the caller neither holds nor may grant
+     */
+    403: unknown;
+    /**
+     * Client not found
+     */
+    404: unknown;
 };
 
 export type ClientControllerRotateClientSecretResponses = {
@@ -6337,6 +6377,13 @@ export type UserControllerCreateUserData = {
     url: '/api/user';
 };
 
+export type UserControllerCreateUserErrors = {
+    /**
+     * The caller may not grant one of the requested roles
+     */
+    403: unknown;
+};
+
 export type UserControllerCreateUserResponses = {
     201: ManagedUserDto;
 };
@@ -6352,9 +6399,16 @@ export type UserControllerDeleteUserData = {
     url: '/api/user/{id}';
 };
 
+export type UserControllerDeleteUserErrors = {
+    /**
+     * The user has a role the caller neither holds nor may grant
+     */
+    403: unknown;
+};
+
 export type UserControllerDeleteUserResponses = {
     /**
-     * User deleted
+     * User deleted, or the tenant has no such user
      */
     204: void;
 };
@@ -6383,6 +6437,17 @@ export type UserControllerUpdateUserData = {
     };
     query?: never;
     url: '/api/user/{id}';
+};
+
+export type UserControllerUpdateUserErrors = {
+    /**
+     * The caller may not grant one of the requested roles. The user has a role the caller neither holds nor may grant
+     */
+    403: unknown;
+    /**
+     * User not found
+     */
+    404: unknown;
 };
 
 export type UserControllerUpdateUserResponses = {

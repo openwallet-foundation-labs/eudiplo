@@ -1,22 +1,8 @@
 import { Injectable } from '@angular/core';
-import { RoleDto } from '@eudiplo/sdk-core';
 import { ApiService } from '../core';
+import { canManageRoles, grantableRoles, grantHint, type Role } from './role-grants';
 
-// Extend RoleDto to include registrar:manage which may not be in the SDK yet
-export type Role =
-  RoleDto['role'] | 'registrar:manage' | 'tenant:admin' | 'tenants:manage' | 'users:manage';
-
-export const roles: Role[] = [
-  'clients:manage',
-  'issuance:manage',
-  'issuance:offer',
-  'presentation:manage',
-  'presentation:request',
-  'registrar:manage',
-  'tenant:admin',
-  'tenants:manage',
-  'users:manage',
-];
+export { type Role, roles } from './role-grants';
 
 export function getRole(role: Role) {
   return role;
@@ -80,16 +66,32 @@ export class JwtService {
    * @returns
    */
   hasRole(role: Role | Role[]): boolean {
-    const jwt = this.decodeToken(this.apiService.accessToken);
-    if (!jwt) return false;
-
     const requiredRoles = Array.isArray(role) ? role : [role];
-    if (jwt.roles) {
-      return requiredRoles.some((requiredRole) => jwt.roles.includes(requiredRole));
-    } else if (jwt.realm_access?.roles) {
-      return requiredRoles.some((requiredRole) => jwt.realm_access!.roles.includes(requiredRole));
-    }
-    return false;
+    const tokenRoles = this.getRoles();
+    return requiredRoles.some((requiredRole) => tokenRoles.includes(requiredRole));
+  }
+
+  /**
+   * Roles of the signed-in caller, from `roles` or Keycloak's `realm_access.roles`.
+   */
+  getRoles(): string[] {
+    const jwt = this.decodeToken(this.apiService.accessToken);
+    return jwt?.roles ?? jwt?.realm_access?.roles ?? [];
+  }
+
+  /** Roles the signed-in caller may grant to clients and users. */
+  grantableRoles(): Role[] {
+    return grantableRoles(this.getRoles());
+  }
+
+  /** Explains to the signed-in caller which roles it can grant. */
+  grantHint(): string {
+    return grantHint(this.getRoles());
+  }
+
+  /** Whether the signed-in caller may change a client or user with these roles. */
+  canManageRoles(targetRoles: string[]): boolean {
+    return canManageRoles(this.getRoles(), targetRoles);
   }
 
   hasTenantContext(): boolean {

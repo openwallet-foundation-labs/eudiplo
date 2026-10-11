@@ -515,7 +515,7 @@ export const CreateTenantDtoSchema = {
         },
         roles: {
             type: 'array',
-            description: 'Optional default role assignments for the tenant.',
+            description: 'Roles of the tenant\'s admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.',
             items: {
                 type: 'string',
                 enum: [

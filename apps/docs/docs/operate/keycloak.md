@@ -110,8 +110,11 @@ Realm roles are in `realm_access.roles` by default.
   the client credentials grant.
 
 Choose the roles from the [roles reference](../reference/roles.md), for example
-`issuance:manage` and `presentation:manage` for people who configure a tenant,
-and `clients:manage` and `users:manage` for tenant administrators.
+`issuance:manage` and `presentation:manage` for people who configure a tenant.
+Tenant administrators need `clients:manage` and `users:manage` plus every role
+they hand out ([granting roles](../reference/roles.md#granting-roles)), or
+`tenant:admin`, which also allows key export and KMS settings. Roles you assign
+in Keycloak, also through groups, count for that check.
 
 **Checkpoint:** sign in to the web client as a tenant user. The dashboard loads
 and shows only that tenant's data.
@@ -124,3 +127,4 @@ and shows only that tenant's data.
 | API calls return 401 after login                     | Token `iss` differs from `OIDC_INTERNAL_ISSUER_URL`/`OIDC`, or wrong `OIDC_ALGORITHM` | Compare the `iss` and `alg` of a token with the configuration |
 | `This endpoint requires a tenant context`            | User token has no `tenant_id` claim                         | Add the mapper from [step 3](#3-put-the-tenant-into-user-tokens)                       |
 | `403` on an endpoint                                 | Missing realm role                                          | Assign the role listed for the endpoint in the [roles reference](../reference/roles.md#endpoints) |
+| `403` "Cannot grant …" or "Cannot manage …"          | The roles involved go beyond the caller's own               | Assign the realm role to the caller in Keycloak ([granting roles](../reference/roles.md#granting-roles)). A target with a `realm-management` role or another client role can only be managed in Keycloak |

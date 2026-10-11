@@ -51,15 +51,32 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let user">
+          @let manageable = canManage(user);
           <button matIconButton [routerLink]="[user.id]" matTooltip="View User Details">
             <mat-icon>visibility</mat-icon>
           </button>
-          <button matIconButton [routerLink]="[user.id, 'edit']" matTooltip="Edit User">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button matIconButton (click)="deleteUser(user)" matTooltip="Delete User">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <span [matTooltip]="manageDeniedHint" [matTooltipDisabled]="manageable">
+            <button
+              matIconButton
+              [routerLink]="[user.id, 'edit']"
+              [disabled]="!manageable"
+              matTooltip="Edit User"
+              [attr.aria-label]="manageable ? 'Edit User' : 'Edit User: ' + manageDeniedHint"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </span>
+          <span [matTooltip]="manageDeniedHint" [matTooltipDisabled]="manageable">
+            <button
+              matIconButton
+              (click)="deleteUser(user)"
+              [disabled]="!manageable"
+              matTooltip="Delete User"
+              [attr.aria-label]="manageable ? 'Delete User' : 'Delete User: ' + manageDeniedHint"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </span>
         </td>
       </ng-container>
 

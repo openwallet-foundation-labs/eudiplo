@@ -11,13 +11,13 @@ export enum Role {
     Issuances = "issuance:manage",
     // to create credential offers, complete or fail deferred issuance, revoke or suspend credentials, and read or delete issuance sessions
     IssuanceOffer = "issuance:offer",
-    // to manage the tenant's API clients and read its audit log
+    // to manage the tenant's API clients with the roles the caller may grant, and read its audit log
     Clients = "clients:manage",
-    // to manage the tenant's human users
+    // to manage the tenant's human users with the roles the caller may grant
     Users = "users:manage",
     // platform operator role, needs no tenant: to create, change and delete any tenant, rotate client secrets, and use a tenant's configuration bundles, key export and KMS provider settings
     Tenants = "tenants:manage",
-    // to manage the current tenant's full configuration: configuration bundles, key export and KMS provider settings
+    // to manage the current tenant's full configuration: configuration bundles, key export and KMS provider settings; a caller with it may grant every role except tenants:manage and tenant:admin
     TenantAdmin = "tenant:admin",
     // to manage the registrar configuration, enroll access certificates, and list, update, deprecate and delete schema metadata at the registrar; publishing it also needs issuance:manage
     Registrar = "registrar:manage",

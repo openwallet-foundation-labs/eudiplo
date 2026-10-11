@@ -520,6 +520,25 @@ export class ConfigBundleService {
                         });
                 }
             }
+            if (
+                !exists &&
+                result.document.kind === "Client" &&
+                (await this.clients.countBy({
+                    clientId: resourceId(result.document),
+                })) > 0
+            ) {
+                itemIssues.push({
+                    severity: "error",
+                    code: "CLIENT_ID_TAKEN",
+                    path: "/spec/clientId",
+                    message:
+                        "Client IDs are unique across tenants, and another tenant or the root client already uses this one.",
+                    resource: {
+                        kind: "Client",
+                        id: resourceId(result.document),
+                    },
+                });
+            }
             const skipExisting = exists && mode === "create" && !skipDiverged;
             if (skipExisting) {
                 itemIssues.push({

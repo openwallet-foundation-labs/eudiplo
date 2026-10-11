@@ -167,7 +167,9 @@ eudiplo config import acme-upgraded.zip --instance staging --mode upsert --plan 
 The plan lists every resource as `create`, `update`, `unchanged`, `skip`,
 `delete` or `blocked`, with redacted field changes. A plan with a `blocked` item
 cannot be applied: fix the reported issue (missing secret, stale generation,
-unknown reference) and plan again. The import sends the plan's fingerprint; if
+unknown reference, client ID used by another tenant) and plan again. A plan
+that grants roles beyond the caller's own, or changes a client with more
+roles, answers `403` ([granting roles](../reference/roles.md#granting-roles)). The import sends the plan's fingerprint; if
 the bundle, the mode or the target configuration changed in between, it fails
 with `CONFIG_PLAN_STALE` before writing anything.
 

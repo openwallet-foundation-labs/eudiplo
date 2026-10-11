@@ -173,7 +173,9 @@ describe("startup configuration reconciliation", () => {
             .send(bundle)
             .expect(403)
             .expect((response) => {
-                expect(response.body.message).toContain("tenant:manage");
+                expect(response.body.message).toContain(
+                    "Cannot grant tenants:manage",
+                );
             });
     });
 

@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { Role } from "../../src/auth/roles/role.enum.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
-import { clientToken, getToken } from "../utils.js";
+import { clientToken, getTenantAdminToken } from "../utils.js";
 
 /**
  * Publishing schema metadata uses the tenant's registrar credentials and can
@@ -29,7 +29,8 @@ describe("Schema metadata publish roles (e2e)", () => {
         await app.init();
 
         const configService = app.get(ConfigService);
-        const adminToken = await getToken(
+        // tenant:admin lets the tenant's admin client grant registrar:manage.
+        const adminToken = await getTenantAdminToken(
             app,
             configService.getOrThrow<string>("AUTH_CLIENT_ID"),
             configService.getOrThrow<string>("AUTH_CLIENT_SECRET"),
