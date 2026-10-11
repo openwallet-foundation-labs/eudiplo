@@ -280,6 +280,21 @@ describe('AppComponent navigation toggle', () => {
     expect(backdrop.classList).toContain('mat-drawer-shown');
   });
 
+  it('collapses and reopens the side-mode navigation', () => {
+    const { fixture, element, toggle } = render(false);
+    const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(sidenav.classList).not.toContain('mat-drawer-opened');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(sidenav.classList).toContain('mat-drawer-opened');
+  });
+
   it('keeps the side-mode navigation open on Escape', async () => {
     const { fixture, element, toggle } = render(false);
     const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
