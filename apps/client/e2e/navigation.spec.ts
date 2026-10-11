@@ -51,6 +51,30 @@ test('a collapsed navigation section stays collapsed until the user needs it', a
   await expect(entry).toBeVisible();
 });
 
+test('the skip link moves keyboard focus past the navigation to the page content', async ({
+  page,
+}) => {
+  await page.goto('/dashboard');
+  const skipLink = page.getByRole('link', { name: 'Skip to main content' });
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeVisible();
+  // Hidden, the link is a 1x1 box, which toBeVisible() would also accept.
+  const width = async () => (await skipLink.boundingBox())?.width ?? 0;
+  expect(await width()).toBeLessThanOrEqual(1);
+
+  await page.keyboard.press('Tab');
+  await expect(skipLink).toBeFocused();
+  await expect.poll(width).toBeGreaterThan(1);
+
+  await page.keyboard.press('Enter');
+  await expect(main).toBeFocused();
+  await expect(page).toHaveURL(/\/dashboard$/);
+
+  // The next Tab stays in the page content instead of returning to the toolbar.
+  await page.keyboard.press('Tab');
+  await expect(main.locator(':focus')).toHaveCount(1);
+});
+
 test('opens an entry with Enter', async ({ page }) => {
   await page.goto('/dashboard');
   await expect(page.locator('mat-sidenav')).toBeVisible();

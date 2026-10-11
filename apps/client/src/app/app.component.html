@@ -1,4 +1,8 @@
 @if (shouldShowToolbar) {
+  <!-- First focusable element: lets keyboard users jump past the toolbar and the navigation -->
+  <a class="skip-link" href="#main-content" (click)="skipToMainContent($event)"
+    >Skip to main content</a
+  >
   <mat-toolbar class="app-toolbar">
     <button
       matIconButton
@@ -409,7 +413,13 @@
     </mat-sidenav>
 
     <!-- Main Content -->
-    <mat-sidenav-content class="main-content">
+    <mat-sidenav-content
+      #mainContent
+      id="main-content"
+      class="main-content"
+      role="main"
+      tabindex="-1"
+    >
       @if (versionService.showWarning) {
         <div class="version-warning" role="alert">
           <mat-icon>warning</mat-icon>

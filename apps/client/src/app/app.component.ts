@@ -1,5 +1,12 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, type OnDestroy, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  type OnDestroy,
+  type OnInit,
+  ChangeDetectionStrategy,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -52,6 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
   shouldShowToolbar = true;
   sidenavOpened = false;
   sidenavMode: 'over' | 'side' = 'side';
+  @ViewChild('mainContent', { read: ElementRef }) private mainContent?: ElementRef<HTMLElement>;
   private routerSubscription?: Subscription;
   private breakpointSubscription?: Subscription;
 
@@ -116,6 +124,15 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.shouldShowToolbar && this.apiService.getAuthenticationStatus()) {
       this.versionService.check(this.apiService.getBaseUrl());
     }
+  }
+
+  /**
+   * Move focus to the main content. The link's own fragment would resolve against
+   * `<base href="/">` and leave the current page, so it is not followed.
+   */
+  skipToMainContent(event: Event): void {
+    event.preventDefault();
+    this.mainContent?.nativeElement.focus();
   }
 
   toggleSidenav(): void {
