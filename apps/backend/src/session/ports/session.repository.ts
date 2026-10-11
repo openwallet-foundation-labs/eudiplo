@@ -15,7 +15,12 @@ import type {
     SessionStateUpdate,
     SessionStatus,
 } from "../domain/session-state.js";
-import type { SessionTypeStatusCount } from "../domain/session-stats.js";
+import type {
+    MAX_FAILURE_CODE_LENGTH,
+    SessionCountFilter,
+    SessionFailureCodeCount,
+    SessionTypeStatusCount,
+} from "../domain/session-stats.js";
 
 export const SESSION_REPOSITORY = Symbol("SESSION_REPOSITORY");
 
@@ -110,13 +115,25 @@ export interface SessionRepository {
     /** The tenant's session counts per type and status; empty ones are omitted. */
     countForTenant(
         tenantId: string,
-        type?: SessionType,
+        filter: SessionCountFilter,
     ): Promise<SessionTypeStatusCount[]>;
+    /**
+     * The `limit` most frequent failure codes of the tenant's failed sessions of
+     * one type, most frequent first. Sessions without a code are omitted, and
+     * codes are cut to {@link MAX_FAILURE_CODE_LENGTH} characters.
+     */
+    topFailureCodesForTenant(
+        tenantId: string,
+        filter: SessionCountFilter & { type: SessionType },
+        limit: number,
+    ): Promise<SessionFailureCodeCount[]>;
     /** Last update of the tenant's most recently updated session of this type and status. */
     lastUpdatedForTenant(
         tenantId: string,
-        type: SessionType,
-        status: SessionStatus,
+        filter: SessionCountFilter & {
+            type: SessionType;
+            status: SessionStatus;
+        },
     ): Promise<Date | null>;
     /**
      * Missing sessions, sessions owned by another tenant and, with `type`,

@@ -1,0 +1,164 @@
+// Outcome colours, checked for colour-vision deficiency against the card surface.
+// Failed and completed never touch: the neutral segment sits between them.
+:host {
+  display: block;
+  --activity-completed: #2e7d32;
+  --activity-not-completed: #8a8a8a;
+  --activity-failed: #c62828;
+}
+
+:host-context(.dark-theme) {
+  --activity-completed: #43a047;
+  --activity-not-completed: #5f6368;
+  --activity-failed: #e53935;
+}
+
+.activity-chart {
+  margin: 0;
+}
+
+.empty {
+  margin: 0;
+  padding: 24px 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 13px;
+
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .completed .swatch {
+    background: var(--activity-completed);
+  }
+
+  .not-completed .swatch {
+    background: var(--activity-not-completed);
+  }
+
+  .failed .swatch {
+    background: var(--activity-failed);
+  }
+}
+
+.plot,
+.axis {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+}
+
+.plot {
+  height: 160px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  // Room for the total above the busiest column
+  padding-top: 20px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+  border-radius: 4px;
+  cursor: default;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--mat-sys-primary);
+  }
+}
+
+// Hourly columns are narrow, so their totals use a smaller size.
+.plot.hourly .total {
+  font-size: 10px;
+}
+
+.plot.hourly .stack {
+  width: 12px;
+}
+
+.total {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  color: var(--mat-sys-on-surface);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stack {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 24px;
+  max-width: 60%;
+}
+
+.segment {
+  flex-basis: 0;
+  min-height: 2px;
+
+  &:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &.completed {
+    background: var(--activity-completed);
+  }
+
+  &.not-completed {
+    background: var(--activity-not-completed);
+  }
+
+  &.failed {
+    background: var(--activity-failed);
+  }
+}
+
+.axis span {
+  padding-top: 6px;
+  overflow: hidden;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 12px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Hour labels sit on every third column and may use the space of their neighbours.
+.axis.hourly span {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

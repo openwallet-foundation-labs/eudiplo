@@ -22,4 +22,8 @@
     width: 18px;
     height: 18px;
   }
+
+  &.warning {
+    color: var(--eudiplo-warning);
+  }
 }

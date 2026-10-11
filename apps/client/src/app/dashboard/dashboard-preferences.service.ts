@@ -3,15 +3,20 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../core';
 import { JwtService } from '../services/jwt.service';
 
-export type DashboardFocus = 'balanced' | 'issuance' | 'verification' | 'operations';
-export type DashboardSection = 'recentActivity' | 'sessionOverview' | 'quickActions' | 'resources';
+export type DashboardSection = 'activity' | 'recentActivity' | 'sessionOverview' | 'quickActions';
+export type DashboardSections = Record<DashboardSection, boolean>;
 
-export interface DashboardPreferences {
-  focus: DashboardFocus;
-  visibleSections: Record<DashboardSection, boolean>;
-}
+/** Every section starts visible; a section the user's roles cannot fill stays hidden anyway. */
+export const DEFAULT_DASHBOARD_SECTIONS: DashboardSections = {
+  activity: true,
+  recentActivity: true,
+  sessionOverview: true,
+  quickActions: true,
+};
 
-const storagePrefix = 'eudiplo.dashboard.preferences.v1';
+const storagePrefix = 'eudiplo.dashboard.sections.v2';
+// v1 also stored focus presets; only its section choices carry over.
+const legacyStoragePrefix = 'eudiplo.dashboard.preferences.v1';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardPreferencesService {
@@ -20,34 +25,31 @@ export class DashboardPreferencesService {
     private readonly jwtService: JwtService
   ) {}
 
-  load(defaults: DashboardPreferences): DashboardPreferences {
+  load(): DashboardSections {
     try {
-      const raw = localStorage.getItem(this.storageKey);
-      if (!raw) return defaults;
+      const raw = localStorage.getItem(this.storageKey(storagePrefix));
+      const legacy = raw ? null : localStorage.getItem(this.storageKey(legacyStoragePrefix));
+      if (!raw && !legacy) return { ...DEFAULT_DASHBOARD_SECTIONS };
 
-      const saved = JSON.parse(raw) as Partial<DashboardPreferences>;
-      if (!this.isFocus(saved.focus)) return defaults;
-
-      return {
-        focus: saved.focus,
-        visibleSections: {
-          recentActivity:
-            saved.visibleSections?.recentActivity ?? defaults.visibleSections.recentActivity,
-          sessionOverview:
-            saved.visibleSections?.sessionOverview ?? defaults.visibleSections.sessionOverview,
-          quickActions:
-            saved.visibleSections?.quickActions ?? defaults.visibleSections.quickActions,
-          resources: saved.visibleSections?.resources ?? defaults.visibleSections.resources,
-        },
-      };
+      const saved = (raw ? JSON.parse(raw) : JSON.parse(legacy!)?.visibleSections) as Partial<
+        Record<DashboardSection, unknown>
+      >;
+      return Object.fromEntries(
+        Object.entries(DEFAULT_DASHBOARD_SECTIONS).map(([section, visible]) => [
+          section,
+          typeof saved?.[section as DashboardSection] === 'boolean'
+            ? saved[section as DashboardSection]
+            : visible,
+        ])
+      ) as DashboardSections;
     } catch {
-      return defaults;
+      return { ...DEFAULT_DASHBOARD_SECTIONS };
     }
   }
 
-  save(preferences: DashboardPreferences): void {
+  save(sections: DashboardSections): void {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(preferences));
+      localStorage.setItem(this.storageKey(storagePrefix), JSON.stringify(sections));
     } catch {
       // The dashboard remains usable when storage is blocked or unavailable.
     }
@@ -55,20 +57,17 @@ export class DashboardPreferencesService {
 
   reset(): void {
     try {
-      localStorage.removeItem(this.storageKey);
+      localStorage.removeItem(this.storageKey(storagePrefix));
+      localStorage.removeItem(this.storageKey(legacyStoragePrefix));
     } catch {
       // The in-memory reset still applies when storage is unavailable.
     }
   }
 
-  private get storageKey(): string {
+  private storageKey(prefix: string): string {
     const payload = this.jwtService.decodeToken(this.apiService.accessToken);
     const tenant = payload?.tenant_id || 'default';
     const user = payload?.sub || payload?.preferred_username || 'anonymous';
-    return `${storagePrefix}.${encodeURIComponent(tenant)}.${encodeURIComponent(user)}`;
-  }
-
-  private isFocus(value: unknown): value is DashboardFocus {
-    return ['balanced', 'issuance', 'verification', 'operations'].includes(String(value));
+    return `${prefix}.${encodeURIComponent(tenant)}.${encodeURIComponent(user)}`;
   }
 }

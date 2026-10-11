@@ -127,15 +127,29 @@ Once a wallet request has resolved its session (by offer ID, `walletNonce`, `iss
 
 ### Counting sessions
 
-`GET /api/session/stats` counts the tenant's sessions over all pages, with the same role scope as the list. It has one entry per session type the client may read, `issuance` and `presentation`, each with the `total`, a count for every state in `byStatus` (`0` when there is none) and `lastCompletedAt`, the last update of the most recently updated completed session (`null` when none completed). Only stored sessions count: in the default `full` [cleanup](#session-cleanup) mode, sessions older than the TTL are deleted and drop out. The web client's dashboard shows these numbers.
+`GET /api/session/stats` counts the tenant's sessions over all pages, with the same role scope as the list. `createdFrom` and `createdTo` limit it to sessions created in a time range, with the same format and checks as in the list. The response has one entry per session type the client may read, `issuance` and `presentation`, each with:
+
+- `total` and a count for every state in `byStatus` (`0` when there is none),
+- `failureCodes`, the [failure codes](../reference/session-outcome.md#failure-codes) of the failed sessions, most frequent first, at most 10 and cut to 255 characters; failed sessions without a code are not listed, and only presentations record codes, so `issuance` lists none,
+- `lastCompletedAt`, the last update of the most recently updated completed session (`null` when none completed).
+
+Only stored sessions count: in the default `full` [cleanup](#session-cleanup) mode, sessions older than the TTL are deleted and drop out. `retention` reports the tenant's effective `ttlSeconds` and `cleanupMode`, so a client can tell how far back the counts reach.
+
+The web client's dashboard shows these numbers for all stored sessions and for an activity window that retention allows: the last seven days by day when sessions are kept for a week or anonymized, fewer days when they are kept for two to six days, and otherwise the last hours by hour, for example the last 24 hours with the default TTL.
+
+```http
+GET /api/session/stats?createdFrom=2026-10-04T00:00:00%2B02:00&createdTo=2026-10-10T23:59:59%2B02:00
+```
 
 ```json
 {
   "presentation": {
     "total": 42,
     "byStatus": { "active": 3, "fetched": 1, "completed": 35, "expired": 2, "failed": 1, "cancelled": 0 },
+    "failureCodes": [{ "code": "trust_chain_not_trusted", "count": 1 }],
     "lastCompletedAt": "2026-10-10T08:12:44.000Z"
-  }
+  },
+  "retention": { "ttlSeconds": 86400, "cleanupMode": "full" }
 }
 ```
 
