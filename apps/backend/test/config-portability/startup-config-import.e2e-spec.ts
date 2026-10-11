@@ -6,6 +6,7 @@ import {
     readdirSync,
     readFileSync,
     rmSync,
+    writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -1018,6 +1019,109 @@ describe("startup configuration reconciliation", () => {
                     kind: "KeyChain",
                     resourceId: imported.id,
                 });
+        }
+    });
+
+    it("imports a private CA key with type internalChain as an internal chain without rotation", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Key chain CA", true);
+        const document = {
+            id: "imported-internal-chain",
+            usageType: "attestation",
+            kmsProvider: "db",
+            type: "internalChain",
+            keySource: { type: "private-jwk", jwk: ca.jwk },
+            crt: [ca.certificate],
+        };
+
+        try {
+            await apply.apply("demo", keyChainBundle(document), "upsert");
+            const stored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id: document.id,
+            });
+            expect(stored.hasInternalCa()).toBe(true);
+            expect(stored).toMatchObject({
+                rootJwk: expect.objectContaining({ d: ca.jwk.d }),
+                rootCertificate: ca.certificate,
+                rotationEnabled: false,
+            });
+            expect(stored.activeJwk.d).not.toBe(ca.jwk.d);
+
+            // The plan compares the type the import creates with the stored one.
+            const changes = (
+                await service.plan("demo", keyChainBundle(document), "upsert")
+            ).items.find((item) => item.kind === "KeyChain")?.changes;
+            expect(changes?.map(({ path }) => path)).not.toContain(
+                "/spec/type",
+            );
+            // Without type and rotation, the import makes the CA key the
+            // signing key, as in exports before key chain format v2.
+            const { type: _, ...untyped } = document;
+            const withoutType = (
+                await service.plan("demo", keyChainBundle(untyped), "upsert")
+            ).items.find((item) => item.kind === "KeyChain")?.changes;
+            expect(withoutType).toContainEqual(
+                expect.objectContaining({
+                    path: "/spec/type",
+                    before: "internalChain",
+                    after: "standalone",
+                }),
+            );
+        } finally {
+            await keyChains.delete({ tenantId: "demo", id: document.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: document.id,
+                });
+        }
+    });
+
+    it("imports a bare key chain export with type from a config folder as KeyChain v2", async () => {
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await keyWithCertificate("Key chain CA", true);
+        const id = "bare-internal-chain";
+        const folder = join(runtimeFolder, "bare-key-chain-export");
+        mkdirSync(join(folder, "key-chains"), { recursive: true });
+        // The form of GET /api/key-chain/{id}/export.
+        writeFileSync(
+            join(folder, "key-chains", `${id}.json`),
+            JSON.stringify({
+                id,
+                usageType: "attestation",
+                type: "internalChain",
+                key: ca.jwk,
+                crt: [ca.certificate],
+            }),
+        );
+
+        try {
+            const bundle = app
+                .get(ConfigFolderBundleService)
+                .buildBundle("demo", folder);
+            expect(bundle.documents[0].$schema).toBe(schemaUrl("KeyChain", 2));
+            await apply.apply("demo", bundle, "upsert");
+
+            const stored = await keyChains.findOneByOrFail({
+                tenantId: "demo",
+                id,
+            });
+            expect(stored.hasInternalCa()).toBe(true);
+            expect(stored.rootCertificate).toBe(ca.certificate);
+        } finally {
+            rmSync(folder, { recursive: true, force: true });
+            await keyChains.delete({ tenantId: "demo", id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "KeyChain", resourceId: id });
         }
     });
 

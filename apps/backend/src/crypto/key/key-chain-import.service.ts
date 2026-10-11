@@ -18,6 +18,7 @@ import {
 } from "./cert/certificate-builder.service.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
+import { importedKeyChainType } from "./domain/key-chain-import-type.js";
 import { importedRotationIntervals } from "./key-chain-import-rotation.js";
 import type { KmsAdapter, KmsKeyRef } from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
@@ -114,13 +115,11 @@ export class KeyChainImportService {
         const normalizedCertificates = this.resolveCertificateChain(dto);
         const rotationEnabled = dto.rotationPolicy?.enabled ?? false;
 
-        // With rotation, the key is a CA key unless the certificate is the
-        // self-signed one of a standalone key chain, as in its export.
         if (
-            rotationEnabled &&
-            !this.isStandaloneCertificate(normalizedCertificates)
+            importedKeyChainType({ ...dto, crt: normalizedCertificates }) ===
+            "internalChain"
         ) {
-            return this.importKeyChainWithRotation(
+            return this.importInternalChain(
                 id,
                 tenantId,
                 tenant.name,
@@ -185,26 +184,6 @@ export class KeyChainImportService {
         return id;
     }
 
-    /**
-     * True for a single self-signed certificate that is not a CA, as a
-     * standalone key chain has. It cannot sign the leaves of a CA chain.
-     */
-    private isStandaloneCertificate(certificates?: string[]): boolean {
-        if (certificates?.length !== 1) return false;
-        let certificate: X509Certificate;
-        try {
-            certificate = new X509Certificate(certificates[0]);
-        } catch {
-            // The CA path reports the parse error.
-            return false;
-        }
-        return (
-            !certificate.ca &&
-            certificate.issuer === certificate.subject &&
-            certificate.verify(certificate.publicKey)
-        );
-    }
-
     private async resolvePrivateKey(dto: KeyChainImportDto): Promise<JWK> {
         if (dto.key) {
             return { ...dto.key };
@@ -228,7 +207,11 @@ export class KeyChainImportService {
         }
     }
 
-    private async importKeyChainWithRotation(
+    /**
+     * Imports `key` as the CA key of an internal chain and generates a new
+     * signing key with a certificate issued by it.
+     */
+    private async importInternalChain(
         id: string,
         tenantId: string,
         subjectCN: string,
@@ -238,8 +221,10 @@ export class KeyChainImportService {
         dto: KeyChainImportDto,
     ): Promise<string> {
         const now = new Date();
-        const { intervalDays: rotationIntervalDays, certValidityDays } =
-            importedRotationIntervals(dto.rotationPolicy);
+        const rotationEnabled = dto.rotationPolicy?.enabled ?? false;
+        const { intervalDays, certValidityDays } = importedRotationIntervals(
+            dto.rotationPolicy,
+        );
         const notAfter = new Date(
             now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
         );
@@ -253,8 +238,8 @@ export class KeyChainImportService {
         let rootCertificate: string;
         const normalizedCertificates = this.resolveCertificateChain(dto);
         if (normalizedCertificates && normalizedCertificates.length > 0) {
-            // `crt` is modeled as leaf-first. In rotation mode we need the root CA
-            // certificate that will sign newly generated leaf certificates.
+            // `crt` is modeled as leaf-first. An internal chain needs the root
+            // CA certificate that will sign newly generated leaf certificates.
             rootCertificate = normalizedCertificates.at(-1)!;
         } else {
             const rootNotAfter = new Date(
@@ -270,10 +255,7 @@ export class KeyChainImportService {
             );
         }
 
-        this.validateRotationRootCertificate(
-            rootCertificate,
-            rootMat.ref.publicJwk,
-        );
+        this.validateRootCertificate(rootCertificate, rootMat.ref.publicJwk);
 
         const activeMat = await adapter.generateKey({
             kid: `${id}-active-${Date.now()}`,
@@ -302,13 +284,18 @@ export class KeyChainImportService {
             activeJwk: this.storedKeyForEntity(adapter, activeMat.ref),
             activeCertificate: chain.join("\n"),
             externalKeyId: activeMat.ref.externalKeyId ?? (null as any),
-            rotationEnabled: true,
-            rotationIntervalDays,
-            certValidityDays,
+            rotationEnabled,
+            // Without rotation no intervals are stored, as for a standalone import.
+            rotationIntervalDays: rotationEnabled
+                ? intervalDays
+                : (null as any),
+            certValidityDays: rotationEnabled
+                ? certValidityDays
+                : (null as any),
         });
 
         this.logger.log(
-            `Imported key chain ${id} with rotation for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId})`,
+            `Imported internal key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId}, rotation: ${rotationEnabled})`,
         );
         return id;
     }
@@ -384,7 +371,7 @@ export class KeyChainImportService {
         );
     }
 
-    private validateRotationRootCertificate(
+    private validateRootCertificate(
         rootCertificatePem: string,
         expectedPublicJwk: JWK,
     ): void {
@@ -393,13 +380,13 @@ export class KeyChainImportService {
             certificate = new X509Certificate(rootCertificatePem);
         } catch (error) {
             throw new BadRequestException(
-                `Invalid rotation root certificate: ${String(error)}`,
+                `Invalid root CA certificate: ${String(error)}`,
             );
         }
 
         if (!certificate.ca) {
             throw new BadRequestException(
-                "Invalid rotation root certificate: certificate must be a CA (basicConstraints CA=true)",
+                "Invalid root CA certificate: certificate must be a CA (basicConstraints CA=true)",
             );
         }
 
@@ -414,7 +401,7 @@ export class KeyChainImportService {
             )
         ) {
             throw new BadRequestException(
-                "Invalid rotation root certificate: certificate public key does not match the provided private key",
+                "Invalid root CA certificate: certificate public key does not match the provided private key",
             );
         }
     }

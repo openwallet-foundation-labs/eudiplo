@@ -1,5 +1,9 @@
 import { createPrivateKey, type KeyObject, X509Certificate } from "node:crypto";
 import type { KeyChainEntity } from "../../crypto/key/entities/key-chain.entity.js";
+import {
+    type ImportedKeyChainType,
+    importedKeyChainType,
+} from "../../crypto/key/domain/key-chain-import-type.js";
 import { importedRotationIntervals } from "../../crypto/key/key-chain-import-rotation.js";
 
 type Spec = Record<string, any>;
@@ -180,6 +184,45 @@ export function appliedRotationPolicy(spec: Spec): RotationPolicy {
 }
 
 /**
+ * The key chain type that a key source fixes: an active key besides the root
+ * key makes an internal chain. Undefined when the document's `type` decides,
+ * as for a private key without `activeJwk`.
+ */
+export function keySourceKeyChainType(
+    spec: Spec,
+): ImportedKeyChainType | undefined {
+    const source = spec.keySource;
+    switch (source?.type) {
+        case "private-jwk":
+            return isInternalChainWithPrivateKeys(spec)
+                ? "internalChain"
+                : undefined;
+        case "external-reference":
+            return source.activeExternalKeyId ? "internalChain" : "standalone";
+        case "regenerate":
+            return source.keyChainType;
+        default:
+            return undefined;
+    }
+}
+
+/**
+ * The key chain type that applying a key chain document creates, so the plan
+ * and the importers agree. A private key without `activeJwk` goes through the
+ * key chain importer; a document without key material falls back to whether
+ * it has an active certificate.
+ */
+export function appliedKeyChainType(spec: Spec): ImportedKeyChainType {
+    const fixed = keySourceKeyChainType(spec);
+    if (fixed) return fixed;
+    if (spec.keySource?.type === "private-jwk")
+        return importedKeyChainType(spec);
+    return (
+        spec.type ?? (spec.activeCertificate ? "internalChain" : "standalone")
+    );
+}
+
+/**
  * The columns besides key material that a key chain document replaces. An
  * unset value is null, which clears the column on save; the entity types
  * these nullable columns without null.
@@ -202,9 +245,13 @@ export function keyChainSettingsColumns(
     };
 }
 
-/** The spec of those columns, for exports and plans; unset values are left out. */
+/**
+ * The spec of those columns and of the key chain type, for exports and plans;
+ * unset values are left out.
+ */
 export function keyChainSettingsSpec(keyChain: KeyChainEntity) {
     return {
+        type: keyChain.hasInternalCa() ? "internalChain" : "standalone",
         description: keyChain.description ?? undefined,
         rotationPolicy: {
             enabled: keyChain.rotationEnabled,

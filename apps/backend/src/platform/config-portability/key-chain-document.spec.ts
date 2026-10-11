@@ -1,6 +1,7 @@
 import * as x509 from "@peculiar/x509";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
+    appliedKeyChainType,
     internalChainProblems,
     isInternalChainWithPrivateKeys,
 } from "./key-chain-document.js";
@@ -140,5 +141,107 @@ describe("internal chain documents with private keys", () => {
                 path: "/spec/activeCertificate",
             },
         ]);
+    });
+});
+
+/** A self-signed certificate in base64 DER, as bundle documents may carry it. */
+async function selfSignedCertificate(ca: boolean): Promise<string> {
+    const keys = (await crypto.subtle.generateKey(algorithm, true, [
+        "sign",
+        "verify",
+    ])) as CryptoKeyPair;
+    const certificate = await x509.X509CertificateGenerator.createSelfSigned(
+        {
+            serialNumber: "01",
+            name: "CN=Key chain",
+            notBefore: new Date(Date.now() - 60_000),
+            notAfter: new Date(Date.now() + 3_600_000),
+            signingAlgorithm: algorithm,
+            keys,
+            extensions: [
+                new x509.BasicConstraintsExtension(ca, undefined, true),
+            ],
+        },
+        crypto,
+    );
+    return certificate.toString("base64");
+}
+
+describe("appliedKeyChainType", () => {
+    const jwk = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+    let standaloneCertificate: string;
+    let caCertificate: string;
+
+    beforeAll(async () => {
+        standaloneCertificate = await selfSignedCertificate(false);
+        caCertificate = await selfSignedCertificate(true);
+    });
+
+    it.each(["standalone", "internalChain"])(
+        "follows type %s for a private key without activeJwk",
+        (type) => {
+            expect(
+                appliedKeyChainType({
+                    type,
+                    keySource: { type: "private-jwk", jwk },
+                    crt: [caCertificate],
+                    rotationPolicy: { enabled: type === "standalone" },
+                }),
+            ).toBe(type);
+        },
+    );
+
+    it("imports a private key without type as the importer does", () => {
+        const spec = (crt: string[], enabled: boolean) => ({
+            keySource: { type: "private-jwk", jwk },
+            crt,
+            rotationPolicy: { enabled, intervalDays: null },
+        });
+
+        expect(appliedKeyChainType(spec([caCertificate], false))).toBe(
+            "standalone",
+        );
+        expect(appliedKeyChainType(spec([caCertificate], true))).toBe(
+            "internalChain",
+        );
+        expect(appliedKeyChainType(spec([standaloneCertificate], true))).toBe(
+            "standalone",
+        );
+    });
+
+    it.each([
+        [{ type: "private-jwk", jwk, activeJwk: jwk }, "internalChain"],
+        [
+            {
+                type: "external-reference",
+                provider: "vault",
+                externalKeyId: "root",
+                activeExternalKeyId: "leaf",
+            },
+            "internalChain",
+        ],
+        [
+            {
+                type: "external-reference",
+                provider: "vault",
+                externalKeyId: "key",
+            },
+            "standalone",
+        ],
+        [{ type: "regenerate", keyChainType: "standalone" }, "standalone"],
+    ])("takes the type a key source fixes (%o)", (keySource, type) => {
+        expect(appliedKeyChainType({ keySource })).toBe(type);
+    });
+
+    it("falls back to type, then to the active certificate", () => {
+        const keySource = { type: "regenerate" };
+
+        expect(appliedKeyChainType({ keySource, type: "internalChain" })).toBe(
+            "internalChain",
+        );
+        expect(
+            appliedKeyChainType({ keySource, activeCertificate: "leaf" }),
+        ).toBe("internalChain");
+        expect(appliedKeyChainType({ keySource })).toBe("standalone");
     });
 });

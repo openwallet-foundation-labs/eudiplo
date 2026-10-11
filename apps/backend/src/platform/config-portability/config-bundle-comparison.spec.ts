@@ -166,8 +166,8 @@ describe("configuration comparisons", () => {
                 ),
             ).toEqual({ unchanged: true, changes: [] });
         });
-        it("plans an exported key chain without rotation values as unchanged", async () => {
-            const result = storedKeyChain() as any;
+        /** Exports the stored key chain as the only resource of a bundle. */
+        async function exportedKeyChain(result: any) {
             const none = { find: async () => [], findOneBy: async () => null };
             Object.assign(result.repos, {
                 tenants: { findOneByOrFail: async () => ({ name: "Tenant" }) },
@@ -187,12 +187,40 @@ describe("configuration comparisons", () => {
             };
 
             const { documents } = await result.exportBundle("tenant");
-            const exported = documents.find(
+            return documents.find(
                 (document: ConfigDocument) =>
                     document.$schema === schemaUrl("KeyChain"),
             );
+        }
+
+        it("plans an exported key chain without rotation values as unchanged", async () => {
+            const result = storedKeyChain() as any;
+            const exported = await exportedKeyChain(result);
 
             expect(exported.spec.rotationPolicy).toEqual({ enabled: false });
+            expect(exported.spec.type).toBe("standalone");
+            expect(
+                await result.compareDocument("tenant", {
+                    ...exported,
+                    kind: "KeyChain",
+                }),
+            ).toEqual({ unchanged: true, changes: [] });
+        });
+
+        it("exports the type of an internal chain and plans it as unchanged", async () => {
+            const result = storedKeyChain({
+                rootJwk: publicJwk,
+                rootExternalKeyId: "vault-root",
+                rootCertificate: "root",
+                hasInternalCa: () => true,
+            }) as any;
+            const exported = await exportedKeyChain(result);
+
+            expect(exported.spec).toMatchObject({
+                type: "internalChain",
+                keySource: { activeExternalKeyId: "vault-key" },
+                crt: ["root"],
+            });
             expect(
                 await result.compareDocument("tenant", {
                     ...exported,

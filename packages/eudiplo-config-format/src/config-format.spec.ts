@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+    bareFileVersion,
     CONFIG_FORMATS,
     CONFIG_RESOURCE_KINDS,
     CONFIG_SINGLETON_IDS,
@@ -170,6 +171,102 @@ describe("portable schema identity and migrations", () => {
                 }),
             ).map((issue) => issue.message),
         ).toContain("Unknown property: verifierKeyPem");
+    });
+
+    it("upgrades a v1 key chain to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("KeyChain", 1),
+            metadata: { generation: 2 },
+            spec: {
+                id: "issuer",
+                usageType: "attestation",
+                keySource: { type: "regenerate" },
+            },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual(["key-chain-v2-type"]);
+        expect(result.document.$schema).toBe(schemaUrl("KeyChain", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(result.document.metadata).toEqual({ generation: 2 });
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it("accepts a key chain type only from v2 on", () => {
+        const document = (version: number, type: string) =>
+            normalizeDocument({
+                $schema: schemaUrl("KeyChain", version),
+                metadata: { generation: 1 },
+                spec: {
+                    id: "issuer",
+                    usageType: "attestation",
+                    type,
+                    keySource: { type: "regenerate" },
+                },
+            });
+        expect(validateConfigDocument(document(2, "internalChain"))).toEqual(
+            [],
+        );
+        expect(
+            validateConfigDocument(document(1, "internalChain")).map(
+                (issue) => issue.message,
+            ),
+        ).toContain("Unknown property: type");
+        expect(validateConfigDocument(document(2, "external"))).not.toEqual(
+            [],
+        );
+    });
+
+    it("keeps every version and the bare form in the editor schema of a key chain", async () => {
+        const { readFile } = await import("node:fs/promises");
+        const { Ajv2020 } = await import("ajv/dist/2020.js");
+        // The unversioned file that editors associate with key-chains/*.json.
+        const validate = new Ajv2020({
+            strict: false,
+            validateFormats: false,
+        }).compile(
+            JSON.parse(
+                await readFile(
+                    new URL(
+                        "../../../schemas/KeyChainConfigFile.schema.json",
+                        import.meta.url,
+                    ),
+                    "utf8",
+                ),
+            ),
+        );
+        const jwk = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        const spec = {
+            id: "issuer",
+            usageType: "attestation",
+            keySource: { type: "private-jwk", jwk },
+        };
+        const envelope = (version: number, type?: string) => ({
+            $schema: schemaUrl("KeyChain", version),
+            metadata: { generation: 1 },
+            spec: { ...spec, ...(type ? { type } : {}) },
+        });
+        expect(validate(envelope(1))).toBe(true);
+        expect(validate(envelope(2, "internalChain"))).toBe(true);
+        expect(validate(envelope(1, "internalChain"))).toBe(false);
+        expect(
+            validate({
+                id: "issuer",
+                usageType: "attestation",
+                type: "internalChain",
+                key: jwk,
+            }),
+        ).toBe(true);
+    });
+
+    it.each([
+        ["KeyChain", { type: "standalone" }, 2],
+        ["KeyChain", {}, 1],
+        ["Client", { type: "standalone" }, 1],
+    ] as const)("reads a bare %s file %o as v%i", (kind, spec, version) => {
+        expect(bareFileVersion(kind, spec)).toBe(version);
     });
 
     it("upgrades a v1 credential configuration to v2 unchanged", () => {

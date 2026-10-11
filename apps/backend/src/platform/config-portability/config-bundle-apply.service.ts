@@ -50,6 +50,7 @@ import type {
 } from "./config-resource.types.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
 import {
+    appliedKeyChainType,
     appliedKmsProvider,
     internalChainProblems,
     isInternalChainWithPrivateKeys,
@@ -681,11 +682,7 @@ export class ConfigBundleApplyService {
                 resourceId(document),
                 {
                     usageType: spec.usageType,
-                    type:
-                        spec.keySource.keyChainType ??
-                        (spec.activeCertificate
-                            ? KeyChainType.InternalChain
-                            : KeyChainType.Standalone),
+                    type: appliedKeyChainType(spec) as KeyChainType,
                     description: spec.description,
                     kmsProvider:
                         spec.keySource.provider ?? spec.kmsProvider ?? "db",

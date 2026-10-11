@@ -45,6 +45,7 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import {
+    appliedKeyChainType,
     appliedKmsProvider,
     appliedRotationPolicy,
     keyChainSettingsSpec,
@@ -1294,6 +1295,7 @@ export class ConfigBundleService {
         if (document.kind === "KeyChain") {
             desired.rotationPolicy = appliedRotationPolicy(desired);
             desired.kmsProvider = appliedKmsProvider(desired);
+            desired.type = appliedKeyChainType(desired);
         }
         if (
             document.kind === "Client" &&

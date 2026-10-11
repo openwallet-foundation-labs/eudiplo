@@ -249,7 +249,13 @@ async function normalizeConfigSchema(
           ),
         );
       }
-      storedSchema.oneOf = [canonical, ...historical];
+      // A bare form from a Zod union stays accepted next to every version;
+      // an anyOf that pins the current URL would reject older versions.
+      const bare = alternatives.filter(
+        (item: Record<string, any>) => !item.properties?.$schema,
+      );
+      storedSchema.oneOf = [canonical, ...historical, ...bare];
+      delete storedSchema.anyOf;
     } else {
       storedSchema.oneOf = alternatives.filter(
         (item: Record<string, any>) => item.properties?.$schema,
