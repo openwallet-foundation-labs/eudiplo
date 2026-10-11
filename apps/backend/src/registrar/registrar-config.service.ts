@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    Logger,
+    NotFoundException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -145,7 +150,8 @@ export class RegistrarConfigService {
 
     /**
      * Create or replace the registrar configuration for a tenant.
-     * Credentials are validated before saving.
+     * Credentials are validated before saving. A client secret missing from
+     * `dto` removes the stored one, so only the tested credentials are kept.
      */
     async saveConfig(
         tenantId: string,
@@ -156,6 +162,8 @@ export class RegistrarConfigService {
         const config = await this.configRepository.save({
             tenantId,
             ...dto,
+            // `save` skips undefined columns and would keep the stored secret.
+            clientSecret: dto.clientSecret ?? null,
         });
 
         this.authService.invalidateToken(tenantId);
@@ -166,6 +174,9 @@ export class RegistrarConfigService {
     /**
      * Partially update the registrar configuration for a tenant.
      * Credentials are re-validated only when auth-related fields are changed.
+     *
+     * @throws BadRequestException when `oidcUrl` or `registrarUrl` changes
+     * and `dto` does not send the stored credentials again.
      */
     async updateConfig(
         tenantId: string,
@@ -177,6 +188,8 @@ export class RegistrarConfigService {
                 `No registrar configuration found for tenant ${tenantId}`,
             );
         }
+
+        this.assertCredentialsForChangedDestination(existing, dto);
 
         const hasAuthChanges =
             dto.oidcUrl !== undefined ||
@@ -201,6 +214,35 @@ export class RegistrarConfigService {
         this.authService.invalidateToken(tenantId);
 
         return this.configRepository.findOneByOrFail({ tenantId });
+    }
+
+    /**
+     * The password and client secret are sent to the token endpoint of
+     * `oidcUrl`, and the token they obtain to `registrarUrl`. A stored
+     * credential is kept only while both stay the same; otherwise whoever may
+     * edit the configuration could send it to a server of their choice
+     * without knowing it.
+     */
+    private assertCredentialsForChangedDestination(
+        existing: RegistrarConfigEntity,
+        dto: UpdateRegistrarConfig,
+    ): void {
+        const changed = (["oidcUrl", "registrarUrl"] as const).filter(
+            (field) =>
+                dto[field] !== undefined && dto[field] !== existing[field],
+        );
+        if (!changed.length) return;
+        const missing = [
+            dto.password === undefined ? "password" : undefined,
+            existing.clientSecret && dto.clientSecret === undefined
+                ? "clientSecret"
+                : undefined,
+        ].filter((field) => field !== undefined);
+        if (missing.length) {
+            throw new BadRequestException(
+                `${changed.join(" and ")} changes; send ${missing.join(" and ")} again, a stored credential is not sent to a new address`,
+            );
+        }
     }
 
     /**

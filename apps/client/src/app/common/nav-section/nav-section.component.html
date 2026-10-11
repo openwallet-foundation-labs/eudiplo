@@ -1,0 +1,16 @@
+<mat-divider></mat-divider>
+<button
+  type="button"
+  mat-subheader
+  class="nav-section-toggle"
+  (click)="navSections.toggle(section)"
+  [attr.aria-expanded]="!navSections.isCollapsed(section)"
+  [attr.aria-controls]="groupId"
+>
+  <mat-icon class="subheader-icon">{{ icon }}</mat-icon>
+  <span>{{ label }}</span>
+  <mat-icon class="nav-section-chevron">expand_more</mat-icon>
+</button>
+<div [id]="groupId" [hidden]="navSections.isCollapsed(section)">
+  <ng-content />
+</div>

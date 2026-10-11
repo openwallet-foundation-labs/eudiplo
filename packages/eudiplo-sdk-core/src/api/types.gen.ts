@@ -6198,7 +6198,7 @@ export type RegistrarControllerUpdateConfigData = {
 
 export type RegistrarControllerUpdateConfigErrors = {
     /**
-     * Invalid credentials
+     * Invalid credentials, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again
      */
     400: unknown;
     /**
