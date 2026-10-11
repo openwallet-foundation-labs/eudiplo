@@ -407,13 +407,16 @@ describe('ApiService token refresh', () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('is not taken when it belongs to another client or backend, or is older', async () => {
+    it('is not taken when it belongs to another client or backend, is older or has no expiry', async () => {
       storeSession(30 * 60_000);
       const service = TestBed.inject(ApiService);
 
       storeFromOtherTab('other-client', 60 * 60_000, { clientId: 'other' });
       storeFromOtherTab('other-backend', 60 * 60_000, { baseUrl: 'http://other.test' });
       storeFromOtherTab('older', 10 * 60_000);
+      store.set('access_token', 'no-expiry');
+      store.delete('token_expiration');
+      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
 
       expect(service.accessToken).toBe('stored');
     });
