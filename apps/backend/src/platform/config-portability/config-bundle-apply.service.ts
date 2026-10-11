@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import {
     normalizeDocument,
     resourceId,
@@ -48,6 +48,7 @@ import type {
     ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { documentSourceHash } from "./config-source-hash.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
 import {
     appliedKmsProvider,
@@ -316,9 +317,7 @@ export class ConfigBundleApplyService {
                 ownership: "file-managed" as const,
                 generation: document.metadata.generation ?? 1,
                 source: ownershipSource,
-                sourceHash: createHash("sha256")
-                    .update(JSON.stringify(document))
-                    .digest("hex"),
+                sourceHash: documentSourceHash(document),
             };
             if (write && document.kind === "Tenant") {
                 // These writes share a database, so commit the config and ownership together.

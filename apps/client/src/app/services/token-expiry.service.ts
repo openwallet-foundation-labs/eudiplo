@@ -2,17 +2,18 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, merge, Subscription } from 'rxjs';
-import { ApiService } from '../core';
+import { ApiRefusalService, ApiService } from '../core';
 
 const checkIntervalMs = 30_000;
 const warnBeforeMs = 5 * 60_000;
 
-type NoticeKind = 'expired' | 'unreachable';
+type NoticeKind = 'expired' | 'unreachable' | 'revoked';
 
 /**
  * Tells the user on every page when a token that cannot be refreshed is about
- * to expire, when the session has expired for good, and when it cannot be
- * renewed because the backend is unreachable.
+ * to expire, when the session has expired for good, when the API client lost
+ * its access, and when the session cannot be renewed because the backend is
+ * unreachable.
  */
 @Injectable({ providedIn: 'root' })
 export class TokenExpiryService implements OnDestroy {
@@ -26,6 +27,7 @@ export class TokenExpiryService implements OnDestroy {
 
   constructor(
     private readonly apiService: ApiService,
+    private readonly refusals: ApiRefusalService,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar
   ) {}
@@ -37,6 +39,7 @@ export class TokenExpiryService implements OnDestroy {
     // Update the notice at once when the session resumes or the user moves to another page.
     this.events = merge(
       this.apiService.tokenRenewed$,
+      this.refusals.accessRevoked$,
       this.router.events.pipe(filter((event) => event instanceof NavigationEnd))
     ).subscribe(() => void this.check());
   }
@@ -75,6 +78,11 @@ export class TokenExpiryService implements OnDestroy {
       return;
     }
     this.hadToken = true;
+    if (this.refusals.isAccessRevoked()) {
+      // The token has not expired, but the backend refuses it.
+      this.showRevoked();
+      return;
+    }
 
     // A session that can refresh its token renews itself, for example after the
     // laptop slept; it has only expired when the refresh fails.
@@ -89,6 +97,8 @@ export class TokenExpiryService implements OnDestroy {
     if (!authenticated) {
       if (this.apiService.isReconnecting()) {
         this.showUnreachable();
+      } else if (this.apiService.areCredentialsRejected()) {
+        this.showRevoked();
       } else {
         this.showExpired();
       }
@@ -119,10 +129,23 @@ export class TokenExpiryService implements OnDestroy {
       'Your session has expired. Log in again; unsaved changes on this page will be lost.',
       'Log in'
     );
-    notice?.onAction().subscribe(() => {
-      this.apiService.logout();
-      this.router.navigate(['/login']);
+    notice?.onAction().subscribe(() => this.logInAgain());
+  }
+
+  /**
+   * The client was deleted, or its secret changed: logging in with it again
+   * fails. Another message that replaces the notice brings it back at once.
+   */
+  private showRevoked(): void {
+    const notice = this.showNotice(
+      'revoked',
+      'Your API client no longer has access, for example because it was deleted or its secret changed. Log in with a client that has access; unsaved changes on this page will be lost.',
+      'Log in'
+    );
+    notice?.afterDismissed().subscribe((dismissal) => {
+      if (!dismissal?.dismissedByAction && !this.notice) void this.check();
     });
+    notice?.onAction().subscribe(() => this.logInAgain());
   }
 
   /**
@@ -136,7 +159,12 @@ export class TokenExpiryService implements OnDestroy {
     );
   }
 
-  /** Opens a notice of this kind unless one is open, replacing a notice of the other kind. */
+  private logInAgain(): void {
+    this.apiService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  /** Opens a notice of this kind unless one is open, replacing a notice of another kind. */
   private showNotice(
     kind: NoticeKind,
     message: string,

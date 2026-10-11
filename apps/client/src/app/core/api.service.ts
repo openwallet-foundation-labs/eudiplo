@@ -66,6 +66,8 @@ export class ApiService {
    * endpoint rejects them, and when the first token request of a sign-in fails.
    */
   readonly sessionEnded$ = this.ended.asObservable();
+  /** The token endpoint rejected the credentials of this session. */
+  private credentialsRejected = false;
   /** A started session whose credentials the token endpoint rejected, until the login page reports it. */
   private rejectedSession?: { clientId: string; baseUrl?: string };
 
@@ -78,6 +80,11 @@ export class ApiService {
     this.setClient(defaultApiUrl(runtimeEnv.env?.apiUrl, environment.api?.baseUrl));
     // Then try to load stored config (may override the default)
     this.loadTokenFromStorage();
+  }
+
+  /** True after the token endpoint rejected the credentials, for example of a deleted client. */
+  areCredentialsRejected(): boolean {
+    return this.credentialsRejected;
   }
 
   /** Returns the access token, preferring the OIDC token in OIDC mode. */
@@ -148,6 +155,7 @@ export class ApiService {
     // New credentials start a new session, even if discovery fails: the previous
     // session stops renewing, and a failure of the first token request ends the new one.
     this.resetRefresh();
+    this.credentialsRejected = false;
     this.rejectedSession = undefined;
     const discovery = tokenEndpoint ? undefined : await this.fetchDiscovery(baseUrl);
     const oidcUrl = issuerUrl ?? discovery?.issuer;
@@ -276,9 +284,10 @@ export class ApiService {
         console.warn(`Failed to refresh access token, retrying in ${delay / 1000} s:`, error);
       } else {
         console.error('Failed to refresh access token:', error);
+        // Before forgetCredentials announces the end, so listeners see why it ended.
+        this.credentialsRejected = rejected;
         const clientId = this.oauth2Client?.settings.clientId;
         if (rejected && this.sessionStarted && clientId) {
-          // Before forgetCredentials announces the end, so listeners can report it.
           this.rejectedSession = { clientId, baseUrl: this.baseUrl };
         }
         this.forgetCredentials();
@@ -499,6 +508,7 @@ export class ApiService {
     }
 
     this.forgetCredentials();
+    this.credentialsRejected = false;
     this.oauth2Client = undefined;
     this._localAccessToken = '';
     this.tokenExpirationTime = undefined;

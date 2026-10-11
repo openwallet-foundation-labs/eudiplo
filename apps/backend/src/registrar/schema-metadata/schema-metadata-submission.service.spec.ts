@@ -1,6 +1,11 @@
 import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+    OTHER_TEST_ROOT_CERTIFICATE_PEM,
+    pemToBase64Der,
+    TEST_ROOT_CERTIFICATE_PEM,
+} from "../../../test/fixtures/test-certificates.js";
+import {
     SignSchemaMetaConfigDto,
     SignVersionSchemaMetaConfigDto,
 } from "../../issuer/configuration/credentials/dto/schema-meta-config.dto.js";
@@ -123,8 +128,7 @@ describe("SchemaMetadataSubmissionService registrar catalogue fields", () => {
             keyChainId: "kc-1",
         });
         keyChainService.getEntity.mockResolvedValue({
-            activeCertificate:
-                "-----BEGIN CERTIFICATE-----\nMIIBszCCAVmgAwIBAgIU\n-----END CERTIFICATE-----",
+            activeCertificate: TEST_ROOT_CERTIFICATE_PEM,
         });
         configService.getOrThrow.mockReturnValue("https://eudiplo.example");
         outbound.getFollowingRedirects.mockResolvedValue({
@@ -292,7 +296,7 @@ describe("SchemaMetadataSubmissionService credential config link", () => {
         vct: "urn:example:pid",
         fields: [{ path: ["given_name"], type: "string" }],
     };
-    const rootCertificate = Buffer.from("root certificate").toString("base64");
+    const rootCertificate = pemToBase64Der(TEST_ROOT_CERTIFICATE_PEM);
     const publishedConfig: SignSchemaMetaConfigDto["config"] = {
         name: "PID",
         version: "1.0.0",
@@ -389,4 +393,247 @@ describe("SchemaMetadataSubmissionService credential config link", () => {
             expect(result.error?.issues).toBeUndefined();
         },
     );
+});
+
+describe("SchemaMetadataSubmissionService trusted authority certificates", () => {
+    const credentials = { getById: vi.fn() };
+    const schemaMetadata = {
+        createSchemaMetadata: vi.fn(),
+        updateMetadata: vi.fn(),
+    };
+    const trustLists = { findOne: vi.fn() };
+    const keyChains = { getEntity: vi.fn() };
+    const config = { getOrThrow: vi.fn() };
+    const outbound = { getFollowingRedirects: vi.fn() };
+    const service = new SchemaMetadataSubmissionService(
+        credentials as never,
+        schemaMetadata as never,
+        trustLists as never,
+        keyChains as never,
+        config as never,
+        outbound as never,
+    );
+    const root = pemToBase64Der(TEST_ROOT_CERTIFICATE_PEM);
+    const other = pemToBase64Der(OTHER_TEST_ROOT_CERTIFICATE_PEM);
+
+    const publish = (
+        trustedAuthorities: SignSchemaMetaConfigDto["config"]["trustedAuthorities"],
+    ) =>
+        service.submitSchemaMetadata("tenant", {
+            config: {
+                name: "PID",
+                version: "1.0.0",
+                rulebookURI: "https://rules.example/pid.md",
+                attestationLoS: "iso_18045_high",
+                bindingType: "key",
+                schemaURIs: [{ credentialConfigId: "pid" }],
+                trustedAuthorities,
+            },
+        });
+    const sentToRegistrar = () =>
+        schemaMetadata.createSchemaMetadata.mock.calls[0][1];
+
+    beforeEach(() => {
+        vi.resetAllMocks();
+        credentials.getById.mockResolvedValue({
+            id: "pid",
+            config: { format: "dc+sd-jwt", display: [] },
+            vct: "urn:example:pid",
+            fields: [{ path: ["given_name"], type: "string" }],
+        });
+        schemaMetadata.createSchemaMetadata.mockResolvedValue({
+            id: "https://schemas.example/pid",
+            version: "1.0.0",
+        });
+        trustLists.findOne.mockResolvedValue({
+            id: "tl-1",
+            keyChainId: "kc-1",
+        });
+        keyChains.getEntity.mockResolvedValue({
+            activeCertificate: TEST_ROOT_CERTIFICATE_PEM,
+        });
+        config.getOrThrow.mockReturnValue("https://eudiplo.example");
+        outbound.getFollowingRedirects.mockResolvedValue({
+            status: 200,
+            contentType: "text/markdown",
+            bytes: Buffer.from("# Rules"),
+        });
+    });
+
+    it("sends a PEM root certificate as base64 DER, in the metadata and as the certificate file", async () => {
+        await publish([
+            { frameworkType: "x509", value: TEST_ROOT_CERTIFICATE_PEM },
+        ]);
+
+        const { metadata, trustListCertificateFile } = sentToRegistrar();
+        expect(metadata.trustedAuthorities).toEqual([
+            { frameworkType: "x509", value: root },
+        ]);
+        expect((await trustListCertificateFile.text()).replace(/\s/g, "")).toBe(
+            TEST_ROOT_CERTIFICATE_PEM.replace(/\s/g, ""),
+        );
+    });
+
+    it.each([
+        [
+            "a PEM chain whose first certificate has no base64 padding",
+            TEST_ROOT_CERTIFICATE_PEM + OTHER_TEST_ROOT_CERTIFICATE_PEM,
+        ],
+        [
+            "a PEM chain whose first certificate has base64 padding",
+            OTHER_TEST_ROOT_CERTIFICATE_PEM + TEST_ROOT_CERTIFICATE_PEM,
+        ],
+        ["two base64 DER certificates written together", root + other],
+    ])("rejects %s as more than one certificate", async (_, value) => {
+        await expect(
+            publish([
+                { trustListId: "tl-1" },
+                { frameworkType: "x509", value },
+            ]),
+        ).rejects.toThrow(
+            new BadRequestException(
+                "trustedAuthorities[1].value contains 2 certificates; an x509 authority takes only its root certificate.",
+            ),
+        );
+        expect(schemaMetadata.createSchemaMetadata).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        [
+            "base64 that is not DER",
+            Buffer.from("root certificate").toString("base64"),
+        ],
+        [
+            "DER with only the outer shape of a certificate",
+            Buffer.from([
+                0x30, 0x06, 0x30, 0x00, 0x30, 0x00, 0x03, 0x00,
+            ]).toString("base64"),
+        ],
+    ])("rejects %s as not a certificate", async (_, value) => {
+        await expect(
+            publish([{ frameworkType: "x509", value }]),
+        ).rejects.toThrow(
+            new BadRequestException(
+                "trustedAuthorities[0].value must be an X.509 certificate in PEM or base64 DER for x509 authorities.",
+            ),
+        );
+        expect(schemaMetadata.createSchemaMetadata).not.toHaveBeenCalled();
+    });
+
+    it("names a trust list by the certificate that signs it, the first of its key chain", async () => {
+        keyChains.getEntity.mockResolvedValue({
+            activeCertificate: `${OTHER_TEST_ROOT_CERTIFICATE_PEM}\n${TEST_ROOT_CERTIFICATE_PEM}`,
+        });
+
+        await publish([{ trustListId: "tl-1" }]);
+
+        const { metadata, trustListCertificateFile } = sentToRegistrar();
+        expect(metadata.trustedAuthorities).toEqual([
+            {
+                frameworkType: "etsi_tl",
+                value: "https://eudiplo.example/issuers/tenant/trust-list/tl-1",
+                verificationMethod: {
+                    type: "X509Certificate",
+                    x509Certificate: other,
+                },
+            },
+        ]);
+        expect((await trustListCertificateFile.text()).replace(/\s/g, "")).toBe(
+            OTHER_TEST_ROOT_CERTIFICATE_PEM.replace(/\s/g, ""),
+        );
+    });
+
+    it("names a trust list given by its URL by the certificate that signs it", async () => {
+        keyChains.getEntity.mockResolvedValue({
+            activeCertificate: `${OTHER_TEST_ROOT_CERTIFICATE_PEM}\n${TEST_ROOT_CERTIFICATE_PEM}`,
+        });
+        const value = "https://eudiplo.example/issuers/tenant/trust-list/tl-1";
+
+        await publish([{ frameworkType: "etsi_tl", value }]);
+
+        const { metadata, trustListCertificateFile } = sentToRegistrar();
+        expect(metadata.trustedAuthorities).toEqual([
+            {
+                frameworkType: "etsi_tl",
+                value,
+                verificationMethod: {
+                    type: "X509Certificate",
+                    x509Certificate: other,
+                },
+            },
+        ]);
+        expect((await trustListCertificateFile.text()).replace(/\s/g, "")).toBe(
+            OTHER_TEST_ROOT_CERTIFICATE_PEM.replace(/\s/g, ""),
+        );
+    });
+
+    it("rejects a trust list whose key chain certificate cannot be read", async () => {
+        keyChains.getEntity.mockResolvedValue({
+            activeCertificate:
+                Buffer.from("root certificate").toString("base64"),
+        });
+
+        await expect(publish([{ trustListId: "tl-1" }])).rejects.toThrow(
+            "Trust list tl-1 key chain has no active certificate.",
+        );
+        expect(schemaMetadata.createSchemaMetadata).not.toHaveBeenCalled();
+    });
+
+    it("does not resolve the trust list URL of another tenant", async () => {
+        await expect(
+            publish([
+                {
+                    frameworkType: "etsi_tl",
+                    value: "https://eudiplo.example/issuers/other/trust-list/tl-1",
+                },
+            ]),
+        ).rejects.toThrow(
+            "trustedAuthorities[0] requires verificationMethod for external authorities.",
+        );
+        expect(trustLists.findOne).not.toHaveBeenCalled();
+    });
+
+    describe("an external trust list whose verification certificate is a chain", () => {
+        const external = {
+            frameworkType: "etsi_tl" as const,
+            value: "https://tl.example/list",
+            verificationMethod: {
+                type: "X509Certificate",
+                x509Certificate: root + other,
+            },
+        };
+
+        it("is not used as the certificate file, nor a value that is not a certificate", async () => {
+            await expect(
+                publish([
+                    {
+                        ...external,
+                        verificationMethod: {
+                            type: "X509Certificate",
+                            x509Certificate:
+                                Buffer.from("root certificate").toString(
+                                    "base64",
+                                ),
+                        },
+                    },
+                ]),
+            ).rejects.toThrow(
+                "At least one trusted authority must provide an X.509 certificate for the registrar.",
+            );
+
+            await expect(publish([external])).rejects.toThrow(
+                "At least one trusted authority must provide an X.509 certificate for the registrar.",
+            );
+            expect(schemaMetadata.createSchemaMetadata).not.toHaveBeenCalled();
+        });
+
+        it("leaves the certificate file to the next authority", async () => {
+            await publish([external, { frameworkType: "x509", value: root }]);
+
+            const { trustListCertificateFile } = sentToRegistrar();
+            expect(
+                (await trustListCertificateFile.text()).replace(/\s/g, ""),
+            ).toBe(TEST_ROOT_CERTIFICATE_PEM.replace(/\s/g, ""));
+        });
+    });
 });

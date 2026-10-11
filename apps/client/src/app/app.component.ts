@@ -24,6 +24,7 @@ import { filter } from 'rxjs/operators';
 import { JwtService, Role } from './services/jwt.service';
 import { ThemeService } from './services/theme.service';
 import { VersionService } from './services/version.service';
+import { RoleChangeService } from './services/role-change.service';
 import { TokenExpiryService } from './services/token-expiry.service';
 import { NavSectionsService } from './services/nav-sections.service';
 import { NavSectionComponent } from './common/nav-section/nav-section.component';
@@ -71,6 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public themeService: ThemeService,
     public versionService: VersionService,
     private readonly tokenExpiry: TokenExpiryService,
+    private readonly roleChange: RoleChangeService,
     private navSections: NavSectionsService
   ) {}
 
@@ -90,6 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Warn about an expiring session on every page
     this.tokenExpiry.start();
+    this.roleChange.start();
 
     // Set up responsive behavior for sidenav
     this.breakpointSubscription = this.breakpointObserver
@@ -109,6 +112,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.tokenExpiry.stop();
+    this.roleChange.stop();
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }

@@ -1,0 +1,21 @@
+name: Pull Docker Hub images through mirror.gcr.io
+description: >-
+  Points the runner's Docker daemon at Google's Docker Hub mirror, so
+  concurrent CI runs do not use up the Docker Hub pull limit. The daemon falls
+  back to Docker Hub for images the mirror lacks. Do not combine with a Docker
+  Hub login: the daemon would send those credentials to the mirror as well.
+
+runs:
+  using: composite
+  steps:
+    - name: Add mirror.gcr.io to the Docker daemon
+      shell: bash
+      run: |
+        cfg=/etc/docker/daemon.json
+        mirror=https://mirror.gcr.io
+        if sudo test -s "$cfg"; then sudo cat "$cfg"; else echo '{}'; fi \
+          | jq --arg m "$mirror" '."registry-mirrors" = ((."registry-mirrors" // []) + [$m] | unique)' \
+          > "$RUNNER_TEMP/daemon.json"
+        sudo cp "$RUNNER_TEMP/daemon.json" "$cfg"
+        sudo systemctl restart docker
+        docker info --format '{{json .RegistryConfig.Mirrors}}' | grep -q "$mirror"
