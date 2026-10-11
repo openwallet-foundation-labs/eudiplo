@@ -953,11 +953,12 @@ export class ConfigBundleService {
                     registrarUrl: entity.registrarUrl,
                     oidcUrl: entity.oidcUrl,
                     clientId: entity.clientId,
-                    clientSecret: entity.clientSecret,
+                    // Unset columns are null; the schema has them optional.
+                    clientSecret: entity.clientSecret ?? undefined,
                     username: entity.username,
                     password: entity.password,
                     registrationCertificateDefaults:
-                        entity.registrationCertificateDefaults,
+                        entity.registrationCertificateDefaults ?? undefined,
                 };
             case "IssuanceConfig":
                 return {
@@ -1264,6 +1265,12 @@ export class ConfigBundleService {
             desired.clientId ??= resourceId(document);
         else if (!this.registry.get(document.kind).singletonId)
             desired.id ??= resourceId(document);
+        // No defaults are stored as null, and 9.x exports wrote that null.
+        if (
+            document.kind === "RegistrarConfig" &&
+            desired.registrationCertificateDefaults === null
+        )
+            delete desired.registrationCertificateDefaults;
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&
@@ -1282,13 +1289,14 @@ export class ConfigBundleService {
             spec: current,
         });
         const replacesSpec =
-            document.kind === "KmsConfig" || document.kind === "KeyChain";
+            document.kind === "KmsConfig" ||
+            document.kind === "KeyChain" ||
+            document.kind === "RegistrarConfig";
         const after = this.documentValidationService.normalizeForComparison({
             ...document,
             spec: replacesSpec ? desired : { ...current, ...desired },
         });
-        // Omitted top-level fields retain their existing values in the importers,
-        // except the registrar client secret, which a write removes.
+        // Omitted top-level fields retain their existing values in the importers.
         const previous = replacesSpec
             ? before
             : Object.fromEntries(

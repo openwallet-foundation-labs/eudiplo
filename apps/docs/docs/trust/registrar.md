@@ -31,12 +31,12 @@ The same configuration via the API (`POST /api/registrar/config` creates or repl
 }
 ```
 
-File imports are not checked against the registrar, because it may be unreachable at startup.
+A `POST`, and a configuration bundle or file imported in `upsert` or `replace` mode, replace the whole configuration: a `clientSecret` or `registrationCertificateDefaults` they leave out is removed. A `PATCH` keeps the fields it leaves out. File and bundle imports are not checked against the registrar, because it may be unreachable at startup; wrong credentials fail when EUDIPLO first uses them, for example when requesting an access certificate (`400`).
 
 :::warning[Stored credentials]
 The password and client secret are encrypted in the database with the [data-at-rest key](../operate/encryption-keys.md). The API returns neither; `hasPassword` and `hasClientSecret` show whether they are set. Use a registrar account dedicated to this tenant.
 
-A stored credential is never sent to a new address. A `PATCH` that changes `oidcUrl` or `registrarUrl` must send `password` again, and `clientSecret` if one is stored; otherwise it fails with `400`. A `POST` without `clientSecret` removes the stored client secret; so does a configuration bundle or `registrar.json` file without it that changes the configuration.
+A stored credential is never sent to a new address. A `PATCH` that changes `oidcUrl` or `registrarUrl` must send `password` again, and `clientSecret` if one is stored; otherwise it fails with `400`.
 :::
 
 EUDIPLO acts as one relying party at the registrar. If the account has none yet, EUDIPLO registers one on first use; otherwise it uses the first relying party of the account.

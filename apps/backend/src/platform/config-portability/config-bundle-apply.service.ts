@@ -507,7 +507,7 @@ export class ConfigBundleApplyService {
                 await this.applyKeyChain(tenantId, document);
                 return;
             case "RegistrarConfig":
-                await this.registrarConfigService.saveConfig(
+                await this.registrarConfigService.replaceConfig(
                     tenantId,
                     spec as any,
                 );
