@@ -32,4 +32,16 @@ test.describe('verifier admin', () => {
     expect((await lists).ok(), 'GET /api/trust-list').toBe(true);
     await expect(page.getByRole('heading', { name: 'Trust lists' })).toBeVisible();
   });
+
+  test('is told that credential config references need issuance:manage', async ({ page }) => {
+    await signInOnKeys(page);
+    const lists = page.waitForResponse(isTrustListRequest);
+    await page.goto('/trust-list');
+    // The demo tenant has a trust list; a development tenant may have none.
+    test.skip(((await (await lists).json()) as unknown[]).length === 0, 'No trust list to open.');
+
+    await page.locator('button[mattooltip="View details"]').first().click();
+    await expect(page.getByText('You need the issuance:manage role')).toBeVisible();
+    await expect(page.getByText('No credential configs reference this trust list.')).toHaveCount(0);
+  });
 });
