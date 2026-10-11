@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
 import type {
   CredentialConfig,
+  PublishSchemaMetaConfig,
   SchemaMetaConfig,
   UpdateSchemaMetadataDto,
   VocabularyEntryDto,
@@ -26,6 +27,10 @@ import { getApiErrorMessage } from '../../utils/error-message';
 
 const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
+function formatNotCarriedOver(values: string[]): string {
+  return `Not in the registrar vocabulary, so not carried over: ${values.join(', ')}.`;
+}
 
 @Component({
   selector: 'app-schema-show',
@@ -119,10 +124,8 @@ export class SchemaShowComponent implements OnInit {
         this.schemaService.getVocabularies(),
       ]);
 
-      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
-        ? vocabularies.categories
-        : [];
-      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
+      this.categoryVocabularies = vocabularies.categories;
+      this.tagVocabularies = vocabularies.tags;
 
       this.availableVersions = versions
         .map((entry) => entry.version)
@@ -152,6 +155,7 @@ export class SchemaShowComponent implements OnInit {
         category: this.item.category || '',
         tags: (this.item.tags ?? []) as string[],
       });
+      this.metadataForm.markAsPristine();
       this.publishForm.patchValue({
         newVersion: this.bumpMinorVersion(this.item.version),
         rulebookURI: this.item.rulebookURI || '',
@@ -198,21 +202,25 @@ export class SchemaShowComponent implements OnInit {
   async saveMetadata(): Promise<void> {
     if (!this.id) return;
     try {
-      const tags = (this.metadataForm.get('tags')?.value ?? []) as UpdateSchemaMetadataDto['tags'];
-
+      // Only the fields the user changed are sent: a category or tag outside
+      // the registrar vocabulary has no option in the selects, and sending it
+      // back unchanged would fail validation.
+      const { displayName, category, tags } = this.metadataForm.controls;
       this.item = await this.schemaService.updateMetadata(this.id, this.item?.version ?? '', {
-        displayName:
-          (this.metadataForm.get('displayName')?.value as string | undefined)?.trim() || undefined,
-        category:
-          (this.metadataForm.get('category')?.value as
-            UpdateSchemaMetadataDto['category'] | undefined) || undefined,
-        tags,
+        ...(displayName.dirty ? { displayName: displayName.value?.trim() || undefined } : {}),
+        ...(category.dirty
+          ? { category: (category.value || undefined) as UpdateSchemaMetadataDto['category'] }
+          : {}),
+        ...(tags.dirty ? { tags: (tags.value ?? []) as UpdateSchemaMetadataDto['tags'] } : {}),
       });
 
+      this.metadataForm.markAsPristine();
       this.snackBar.open('Metadata updated', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Failed to update metadata:', error);
-      this.snackBar.open('Failed to update metadata', 'Close', { duration: 3000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to update metadata'), 'Close', {
+        duration: 6000,
+      });
     }
   }
 
@@ -387,52 +395,62 @@ export class SchemaShowComponent implements OnInit {
       return;
     }
 
-    const schemaMetadataName = (this.item as { name?: string } | undefined)?.name ?? this.id;
-
-    const config = {
-      id: catalogId,
-      name: schemaMetadataName,
-      version: newVersion,
-      rulebookURI: rulebookURI ?? undefined,
-      attestationLoS: this.item.attestationLoS,
-      bindingType: this.item.bindingType,
-      schemaURIs: (this.item.schemaURIs ?? []).map((s) => ({
-        format: s.formatIdentifier,
-        uri: s.uri,
-        meta: this.deriveSchemaUriMetadata(
-          (() => {
-            const cfg = this.findRelatedCredentialConfigForSchemaUri(s.uri);
-            if (!cfg) {
-              throw new Error(
-                `Unable to derive schemaURIs metadata for ${s.uri ?? 'unknown URI'}. ` +
-                  'Ensure the schema is linked to a credential config in EUDIPLO.'
-              );
-            }
-            return cfg;
-          })()
-        ),
-      })),
-      trustedAuthorities: (this.item.trustedAuthorities ?? []).map((t) => ({
-        frameworkType: t.frameworkType,
-        value: t.value,
-      })),
-    };
-
+    const current = this.item;
     this.publishing = true;
     try {
+      const { category, tags, notCarriedOver } = this.knownClassification(current);
+      const config: PublishSchemaMetaConfig = {
+        id: catalogId,
+        // The registrar does not copy the display name, category or tags to a
+        // new version, so they are sent again. The name is required; entries
+        // without a display name keep showing their ID.
+        name: this.displayName,
+        version: newVersion,
+        rulebookURI: rulebookURI ?? undefined,
+        attestationLoS: current.attestationLoS,
+        bindingType: current.bindingType,
+        ...(category ? { category } : {}),
+        ...(tags.length > 0 ? { tags } : {}),
+        schemaURIs: (current.schemaURIs ?? []).map((s) => ({
+          format: s.formatIdentifier,
+          uri: s.uri,
+          meta: this.deriveSchemaUriMetadata(
+            (() => {
+              const cfg = this.findRelatedCredentialConfigForSchemaUri(s.uri);
+              if (!cfg) {
+                throw new Error(
+                  `Unable to derive schemaURIs metadata for ${s.uri ?? 'unknown URI'}. ` +
+                    'Ensure the schema is linked to a credential config in EUDIPLO.'
+                );
+              }
+              return cfg;
+            })()
+          ),
+        })),
+        trustedAuthorities: (current.trustedAuthorities ?? []).map((t) => ({
+          frameworkType: t.frameworkType,
+          value: t.value,
+        })),
+      };
+
       const newEntry = await this.schemaService.publishSchemaMetadataVersion(config);
 
+      const notes: string[] = [];
+      if (notCarriedOver.length > 0) {
+        notes.push(formatNotCarriedOver(notCarriedOver));
+      }
       if (deprecateCurrent) {
-        await this.schemaService.deprecateVersion(this.item.id, this.item.version, {
-          deprecated: true,
-          message: `Superseded by version ${newVersion}`,
-          supersededByVersion: newVersion,
-        });
+        const deprecationError = await this.deprecateSupersededVersion(current, newVersion);
+        if (deprecationError) {
+          notes.push(`${deprecationError}.`);
+        }
       }
 
-      this.snackBar.open(`Version ${newVersion} published successfully`, 'Close', {
-        duration: 4000,
-      });
+      this.snackBar.open(
+        [`Version ${newVersion} published successfully.`, ...notes].join(' '),
+        'Close',
+        { duration: notes.length > 0 ? 10000 : 4000 }
+      );
       this.showPublishForm = false;
       this.router.navigate(['/schema', newEntry.id], {
         queryParams: { version: newEntry.version },
@@ -444,6 +462,73 @@ export class SchemaShowComponent implements OnInit {
       });
     } finally {
       this.publishing = false;
+    }
+  }
+
+  /** Names the category and tag values of the shown version that a new version would leave out. */
+  get notCarriedOverNote(): string {
+    const values = this.item ? this.knownClassification(this.item).notCarriedOver : [];
+    return values.length > 0 ? formatNotCarriedOver(values) : '';
+  }
+
+  /**
+   * Category and tags of an entry that the registrar vocabulary lists. The
+   * registrar returns tags as free-form strings, but a publish request with a
+   * value outside the vocabulary fails with 400, so such values are left out
+   * and reported. Deprecated codes are carried over: they stay valid, the forms
+   * only stop offering them for new selections.
+   */
+  private knownClassification(entry: SchemaMetadata): {
+    category?: PublishSchemaMetaConfig['category'];
+    tags: NonNullable<PublishSchemaMetaConfig['tags']>;
+    notCarriedOver: string[];
+  } {
+    const categoryCodes = new Set(this.categoryVocabularies.map((v) => v.code));
+    const tagCodes = new Set(this.tagVocabularies.map((v) => v.code));
+    const notCarriedOver: string[] = [];
+
+    let category: PublishSchemaMetaConfig['category'];
+    if (entry.category && categoryCodes.has(entry.category)) {
+      category = entry.category;
+    } else if (entry.category) {
+      notCarriedOver.push(entry.category);
+    }
+
+    const tags: string[] = [];
+    for (const tag of entry.tags ?? []) {
+      if (tagCodes.has(tag)) {
+        tags.push(tag);
+      } else {
+        notCarriedOver.push(tag);
+      }
+    }
+
+    return {
+      category,
+      tags: tags as NonNullable<PublishSchemaMetaConfig['tags']>,
+      notCarriedOver,
+    };
+  }
+
+  /**
+   * Deprecates the version a new one supersedes. The new version is already
+   * published at this point, so a failure is returned as a message instead of
+   * failing the publish.
+   */
+  private async deprecateSupersededVersion(
+    entry: SchemaMetadata,
+    newVersion: string
+  ): Promise<string | undefined> {
+    try {
+      await this.schemaService.deprecateVersion(entry.id, entry.version, {
+        deprecated: true,
+        message: `Superseded by version ${newVersion}`,
+        supersededByVersion: newVersion,
+      });
+      return undefined;
+    } catch (error) {
+      console.error('Failed to deprecate the superseded version:', error);
+      return getApiErrorMessage(error, `Failed to deprecate version ${entry.version}`);
     }
   }
 

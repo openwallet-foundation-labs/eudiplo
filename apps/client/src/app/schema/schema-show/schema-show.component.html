@@ -31,6 +31,20 @@
           >
         </mat-card-header>
         <mat-card-content>
+          <p class="mat-body-small">
+            @if (item.displayName?.trim()) {
+              The new version keeps the name, category and tags of version
+              <strong>{{ item.version }}</strong
+              >.
+            } @else {
+              The new version keeps the category and tags of version
+              <strong>{{ item.version }}</strong> and uses its ID as name.
+            }
+            {{ notCarriedOverNote }}
+            @if (metadataForm.dirty) {
+              Unsaved changes under Catalog Metadata are not included; save them first.
+            }
+          </p>
           <form [formGroup]="publishForm" fxLayout="column" fxLayoutGap="12px" class="publish-form">
             <mat-form-field appearance="outline">
               <mat-label>New Version (SemVer)</mat-label>

@@ -71,6 +71,11 @@ export class SchemaCreateComponent implements OnInit {
   categoryVocabularies: VocabularyEntryDto[] = [];
   /** Predefined vocabulary entries for tag selection */
   tagVocabularies: VocabularyEntryDto[] = [];
+  /** Load state of each source, so an empty select is not mistaken for "none exist" */
+  readonly loadState: Record<
+    'credentialConfigs' | 'trustLists' | 'vocabularies',
+    'loading' | 'loaded' | 'failed'
+  > = { credentialConfigs: 'loading', trustLists: 'loading', vocabularies: 'loading' };
 
   readonly attestationLoSOptions = [
     { value: 'iso_18045_high', label: 'High (ISO 18045)' },
@@ -286,29 +291,62 @@ export class SchemaCreateComponent implements OnInit {
     }
   }
 
+  /**
+   * Loads the three sources independently: each select fills in as soon as
+   * its source answers, and one that fails (registrar not configured or
+   * unreachable, or a missing role) leaves the others usable. Failed sources
+   * are named in a snackbar and in the hint of their select.
+   */
   async loadData(): Promise<void> {
+    const failures = await Promise.all([
+      this.loadSource('credentialConfigs', 'Failed to load credential configs', async () => {
+        const configs = await this.credentialConfigService.loadConfigurations();
+        this.credentialConfigs = configs;
+        // Auto-select linked credential config when provided via query param.
+        if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
+          this.importSchemaConfigIds.setValue([this.credentialConfigId]);
+        }
+        this.syncSchemaURIsFromSelection();
+      }),
+      this.loadSource('trustLists', 'Failed to load trust lists', async () => {
+        const response = await trustListControllerGetAllTrustLists();
+        this.trustLists = Array.isArray(response.data) ? response.data : [];
+        this.syncTrustedAuthoritiesFromSelection();
+      }),
+      this.loadSource(
+        'vocabularies',
+        'Failed to load categories and tags from the registrar',
+        async () => {
+          const vocabularies = await this.schemaService.getVocabularies();
+          this.categoryVocabularies = vocabularies.categories;
+          this.tagVocabularies = vocabularies.tags;
+        }
+      ),
+    ]);
+
+    const messages = failures.filter((message): message is string => !!message);
+    if (messages.length > 0) {
+      this.snackBar.open(messages.join('; '), 'Close', { duration: 10000 });
+    }
+  }
+
+  /** Runs the loader of one source and records its state; returns the error message on failure. */
+  private async loadSource(
+    source: keyof SchemaCreateComponent['loadState'],
+    fallback: string,
+    load: () => Promise<void>
+  ): Promise<string | undefined> {
+    this.loadState[source] = 'loading';
     try {
-      const [configs, tlResponse, vocabularies] = await Promise.all([
-        this.credentialConfigService.loadConfigurations(),
-        trustListControllerGetAllTrustLists(),
-        this.schemaService.getVocabularies(),
-      ]);
-      this.credentialConfigs = configs;
-      this.trustLists = Array.isArray(tlResponse.data) ? tlResponse.data : [];
-      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
-        ? vocabularies.categories
-        : [];
-      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
-
-      // Auto-select linked credential config when provided via query param.
-      if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
-        this.importSchemaConfigIds.setValue([this.credentialConfigId]);
-      }
-
-      this.syncSchemaURIsFromSelection();
-      this.syncTrustedAuthoritiesFromSelection();
-    } catch {
-      // non-fatal — selects will simply be empty
+      await load();
+      this.loadState[source] = 'loaded';
+      return undefined;
+    } catch (error) {
+      console.error(`${fallback}:`, error);
+      this.loadState[source] = 'failed';
+      // A message such as "Failed to fetch" replaces the fallback, so name the source again.
+      const message = getApiErrorMessage(error, fallback);
+      return message.startsWith(fallback) ? message : `${fallback}: ${message}`;
     }
   }
 

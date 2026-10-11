@@ -94,7 +94,11 @@
               </mat-option>
             }
           </mat-select>
-          @if (categoryVocabularies.length === 0) {
+          @if (loadState.vocabularies === 'loading') {
+            <mat-hint role="status">Loading categories…</mat-hint>
+          } @else if (loadState.vocabularies === 'failed') {
+            <mat-hint>Could not load categories from the registrar.</mat-hint>
+          } @else if (categoryVocabularies.length === 0) {
             <mat-hint>No predefined categories available.</mat-hint>
           }
         </mat-form-field>
@@ -108,7 +112,11 @@
               </mat-option>
             }
           </mat-select>
-          @if (tagVocabularies.length === 0) {
+          @if (loadState.vocabularies === 'loading') {
+            <mat-hint role="status">Loading tags…</mat-hint>
+          } @else if (loadState.vocabularies === 'failed') {
+            <mat-hint>Could not load tags from the registrar.</mat-hint>
+          } @else if (tagVocabularies.length === 0) {
             <mat-hint>No predefined tags available.</mat-hint>
           }
         </mat-form-field>
@@ -131,7 +139,11 @@
               <mat-option [value]="c.id">{{ configLabel(c) }}</mat-option>
             }
           </mat-select>
-          @if (credentialConfigs.length === 0) {
+          @if (loadState.credentialConfigs === 'loading') {
+            <mat-hint role="status">Loading credential configs…</mat-hint>
+          } @else if (loadState.credentialConfigs === 'failed') {
+            <mat-hint>Could not load credential configs.</mat-hint>
+          } @else if (credentialConfigs.length === 0) {
             <mat-hint>No credential configs available.</mat-hint>
           }
           @if (schemaURIs.length === 0) {
@@ -177,7 +189,11 @@
               <mat-option [value]="tl.id">{{ trustListLabel(tl) }}</mat-option>
             }
           </mat-select>
-          @if (trustLists.length === 0) {
+          @if (loadState.trustLists === 'loading') {
+            <mat-hint role="status">Loading trust lists…</mat-hint>
+          } @else if (loadState.trustLists === 'failed') {
+            <mat-hint>Could not load trust lists.</mat-hint>
+          } @else if (trustLists.length === 0) {
             <mat-hint>No trust lists available.</mat-hint>
           }
           @if (trustedAuthorities.length === 0) {

@@ -30,17 +30,43 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   };
 
   const extracted = firstString(error);
-  if (!extracted) {
-    return fallback;
+  const issue = firstValidationIssue(error);
+  if (!extracted || extracted.toLowerCase() === '[object object]') {
+    return issue ? `${fallback}: ${issue}` : fallback;
   }
 
-  if (extracted.toLowerCase() === '[object object]') {
-    return fallback;
-  }
-
+  const message = issue ? `${extracted} (${issue})` : extracted;
   if (extracted.toLowerCase().startsWith('failed to')) {
-    return extracted;
+    return message;
   }
 
-  return `${fallback}: ${extracted}`;
+  return `${fallback}: ${message}`;
+}
+
+/**
+ * The first issue of a backend validation error body
+ * (`{ message: 'Validation failed', errors: [{ path, message, code }] }`) as
+ * `path: message`, so the user sees which field was rejected.
+ */
+function firstValidationIssue(error: unknown): string | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+
+  const issues = (error as Record<string, unknown>)['errors'];
+  if (!Array.isArray(issues)) return undefined;
+
+  const issue = issues.find(
+    (entry): entry is { path?: unknown; message: string } =>
+      !!entry &&
+      typeof entry === 'object' &&
+      typeof (entry as Record<string, unknown>)['message'] === 'string'
+  );
+  if (!issue) return undefined;
+
+  const path = Array.isArray(issue.path)
+    ? issue.path.join('.')
+    : typeof issue.path === 'string'
+      ? issue.path
+      : '';
+  const more = issues.length > 1 ? `; ${issues.length - 1} more` : '';
+  return `${path ? `${path}: ` : ''}${issue.message}${more}`;
 }

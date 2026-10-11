@@ -29,10 +29,16 @@ export type SchemaMetadataVocabularies = SchemaMetadataVocabulariesDto;
   providedIn: 'root',
 })
 export class SchemaService {
+  /** The registrar's category and tag vocabularies, with empty lists for missing ones. */
   async getVocabularies(): Promise<SchemaMetadataVocabularies> {
     const response = await schemaMetadataControllerGetVocabularies();
+    const vocabularies = response.data as Partial<SchemaMetadataVocabularies> | undefined;
 
-    return response.data as SchemaMetadataVocabularies;
+    return {
+      version: vocabularies?.version ?? '',
+      categories: Array.isArray(vocabularies?.categories) ? vocabularies.categories : [],
+      tags: Array.isArray(vocabularies?.tags) ? vocabularies.tags : [],
+    };
   }
 
   async list(params?: { attestationId?: string; version?: string }): Promise<SchemaMetadata[]> {
