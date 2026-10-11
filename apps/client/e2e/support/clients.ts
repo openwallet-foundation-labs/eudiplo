@@ -4,7 +4,7 @@ import { expect, test } from './test';
 import { hasAuthCredentials, resolvedE2EConfig } from './e2e-config';
 
 /** Access token of the tenant client the other specs sign in with. */
-async function tenantToken(request: APIRequestContext): Promise<string> {
+export async function tenantToken(request: APIRequestContext): Promise<string> {
   const response = await request.post(`${resolvedE2EConfig.apiBaseUrl}/api/oauth2/token`, {
     form: {
       grant_type: 'client_credentials',
@@ -20,7 +20,7 @@ async function tenantToken(request: APIRequestContext): Promise<string> {
  * Sends a config write and repeats it while another spec file holds the tenant's config writer
  * lock: the backend allows one config write per tenant at a time (409 CONFIG_WRITER_ACTIVE).
  */
-async function writeConfig(send: () => Promise<APIResponse>, label: string): Promise<void> {
+export async function writeConfig(send: () => Promise<APIResponse>, label: string): Promise<void> {
   let response!: APIResponse;
   await expect(async () => {
     response = await send();

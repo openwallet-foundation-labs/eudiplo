@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioButton, MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -62,6 +63,7 @@ export interface EnrollmentError {
     MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatStepperModule,
     MatTooltipModule,
@@ -148,9 +150,13 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       value: 'internalChain' as KeyChainTypeSelection,
       label: 'Create Key Chain (Recommended)',
       icon: 'account_tree',
-      description: 'Create a key chain with embedded root CA and rotating signing key.',
+      description: 'Create a key chain with embedded root CA and a signing key under it.',
       hint: 'Recommended for production. Each credential type gets its own isolated trust chain.',
-      features: ['Automatic certificate rotation', 'Embedded root CA', 'Full lifecycle management'],
+      features: [
+        'Optional rotation (on by default)',
+        'Embedded root CA',
+        'Full lifecycle management',
+      ],
     },
     {
       value: 'standalone' as KeyChainTypeSelection,
@@ -164,9 +170,13 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       value: 'externalCaChain' as KeyChainTypeSelection,
       label: 'External CA Chain',
       icon: 'verified',
-      description: 'Use an external CA certificate to sign rotating leaf certificates.',
-      hint: 'EUDIPLO manages leaf-key rotation while your CA key remains the signing anchor.',
-      features: ['External CA certificate', 'Automatic leaf rotation', 'CA key remains managed'],
+      description: 'Import your CA key and certificate to issue the signing certificate.',
+      hint: 'EUDIPLO creates the signing key under your CA and can rotate it, while your CA certificate stays the trust anchor.',
+      features: [
+        'External CA certificate',
+        'Optional rotation (on by default)',
+        'CA key remains managed',
+      ],
     },
   ];
 
@@ -191,7 +201,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       label: 'External Certificate',
       icon: 'upload_file',
       description: 'Use a certificate issued by an external CA or PKI.',
-      hint: 'Provide the matching private JWK and certificate chain below.',
+      hint: 'Provide the JWK or PEM private key and certificate chain in the next step.',
     },
   ];
 
@@ -225,14 +235,22 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       description: [''],
       // KMS provider for key storage/signing
       kmsProvider: ['db', Validators.required],
-      // Rotation settings (only for internal chain)
+      // Rotation settings (only for internal and external CA chains)
       rotationEnabled: [true],
-      rotationIntervalDays: [30, [Validators.min(1)]],
-      certValidityDays: [365, [Validators.min(1)]],
+      rotationIntervalDays: [30, [Validators.required, Validators.min(1), Validators.max(3650)]],
+      certValidityDays: [365, [Validators.required, Validators.min(1), Validators.max(3650)]],
       externalPrivateKey: [''],
       externalCertificate: [''],
       useExternalCertificate: [false],
     });
+
+    // Fields of the hidden Rotation Policy card must not block the form.
+    this.usageForm.valueChanges.subscribe(() => this.syncRotationControls());
+    this.caSourceForm.valueChanges.subscribe(() => this.syncRotationControls());
+    this.configForm
+      .get('rotationEnabled')!
+      .valueChanges.subscribe(() => this.syncRotationControls());
+    this.syncRotationControls();
 
     // A refusal belongs to the registrar enrollment it reports.
     merge(this.usageForm.valueChanges, this.accessSourceForm.valueChanges).subscribe(() => {
@@ -242,6 +260,17 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+  }
+
+  /** Enables the interval and validity fields only while the Rotation Policy card shows them. */
+  private syncRotationControls(): void {
+    const toggle = (name: string, enabled: boolean) => {
+      const control = this.configForm.get(name)!;
+      if (enabled) control.enable({ emitEvent: false });
+      else control.disable({ emitEvent: false });
+    };
+    toggle('certValidityDays', this.isInternalChain);
+    toggle('rotationIntervalDays', this.rotationEnabled);
   }
 
   ngOnInit(): void {
@@ -380,8 +409,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   get rotationEnabled(): boolean {
-    // Rotation can be enabled for internal chain keys
-    return this.isInternalChain && this.configForm.value.rotationEnabled;
+    // Rotation is optional for internal and external CA chains
+    return this.isInternalChain && !!this.configForm.value.rotationEnabled;
   }
 
   get isExternalCertificate(): boolean {
@@ -467,29 +496,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       const isRegistrarEnrollment = usage === 'access' && this.selectedAccessSource === 'registrar';
 
       if (this.isExternalCertificate) {
-        const externalKey = this.parseExternalPrivateKey();
-        const externalCertificates = this.parseCertificateChain(
-          this.configForm.value.externalCertificate
-        );
-        const importDto: KeyChainImportDto = {
-          ...externalKey,
-          usageType: usage,
-          description: description || this.getDefaultDescription(),
-          kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
-          crt: externalCertificates,
-          rotationPolicy: this.isExternalCaChain
-            ? {
-                enabled: true,
-                intervalDays: this.configForm.value.rotationIntervalDays,
-                certValidityDays: this.configForm.value.certValidityDays,
-              }
-            : undefined,
-        };
-        const result = await this.keyChainService.import(importDto);
-        this.snackBar.open('External certificate imported successfully!', 'View Key', {
-          duration: 5000,
-        });
-        this.router.navigate(['/keys', result.id]);
+        await this.importExternalKey(usage, description);
         return;
       }
 
@@ -499,13 +506,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
         type: usage === 'access' || !this.isInternalChain ? 'standalone' : 'internalChain',
         description: description || this.getDefaultDescription(),
         kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
-        rotationPolicy: {
-          enabled: this.rotationEnabled,
-          intervalDays: this.rotationEnabled
-            ? this.configForm.value.rotationIntervalDays
-            : undefined,
-          certValidityDays: this.configForm.value.certValidityDays,
-        },
+        rotationPolicy: this.rotationPolicy(),
       };
 
       const result = await this.keyChainService.create(createDto);
@@ -520,10 +521,46 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       this.router.navigate(['/keys', result.id]);
     } catch (error) {
       console.error('Error creating key chain:', error);
-      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to create key chain'));
+      const fallback = this.isExternalCertificate
+        ? 'Failed to import key chain'
+        : 'Failed to create key chain';
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, fallback));
     } finally {
       this.isSubmitting = false;
     }
+  }
+
+  /** Imports the pasted key and certificate chain and opens the imported key chain. */
+  private async importExternalKey(usage: KeyUsageSelection, description?: string): Promise<void> {
+    const importDto: KeyChainImportDto = {
+      ...this.parseExternalPrivateKey(),
+      usageType: usage,
+      // Without type, the backend guesses from rotationPolicy and the certificate.
+      type: this.isExternalCaChain ? 'internalChain' : 'standalone',
+      description: description || this.getDefaultDescription(),
+      kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+      crt: this.parseCertificateChain(this.configForm.value.externalCertificate),
+      // certValidityDays also sets the validity of the first signing certificate.
+      rotationPolicy: this.isExternalCaChain ? this.rotationPolicy() : undefined,
+    };
+    const result = await this.keyChainService.import(importDto);
+    this.snackBar.open(
+      this.isExternalCaChain
+        ? 'CA imported and signing key created.'
+        : 'Key and certificate imported.',
+      'Close',
+      { duration: 5000 }
+    );
+    this.router.navigate(['/keys', result.id]);
+  }
+
+  /** The rotation policy of the Rotation Policy card; the interval only with rotation. */
+  private rotationPolicy(): NonNullable<KeyChainCreateDto['rotationPolicy']> {
+    return {
+      enabled: this.rotationEnabled,
+      intervalDays: this.rotationEnabled ? this.configForm.value.rotationIntervalDays : undefined,
+      certValidityDays: this.configForm.value.certValidityDays,
+    };
   }
 
   /**
@@ -707,7 +744,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       summary.push({
         label: 'Type',
         value: this.isExternalCaChain
-          ? 'External CA Chain (Rotating Signing Key)'
+          ? 'External CA Chain (Your CA + Signing Key)'
           : 'Internal Chain (Root CA + Signing Key)',
       });
       if (this.rotationEnabled) {
@@ -715,6 +752,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
           label: 'Rotation Interval',
           value: `${this.configForm.value.rotationIntervalDays} days`,
         });
+      } else {
+        summary.push({ label: 'Rotation', value: 'Off' });
       }
       summary.push({
         label: 'Certificate Validity',
