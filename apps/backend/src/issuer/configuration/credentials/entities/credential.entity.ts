@@ -158,8 +158,7 @@ export class CredentialConfig {
     attributeProvider?: AttributeProviderEntity;
 
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     @Column("varchar", { nullable: true })
     webhookEndpointId?: string | null;

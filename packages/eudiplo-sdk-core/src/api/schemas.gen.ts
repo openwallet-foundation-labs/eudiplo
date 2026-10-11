@@ -4146,6 +4146,28 @@ export const PaginatedSessionResponseDtoSchema = {
     ]
 } as const;
 
+export const SessionRetentionDtoSchema = {
+    type: 'object',
+    properties: {
+        ttlSeconds: {
+            type: 'number',
+            description: 'Seconds after creation when the maintenance job processes a session'
+        },
+        cleanupMode: {
+            enum: [
+                'full',
+                'anonymize'
+            ],
+            type: 'string',
+            description: 'full: processed sessions are deleted and no longer counted; anonymize: they are kept with their status and still counted'
+        }
+    },
+    required: [
+        'ttlSeconds',
+        'cleanupMode'
+    ]
+} as const;
+
 export const SessionStatusCountsDtoSchema = {
     type: 'object',
     properties: {
@@ -4184,6 +4206,24 @@ export const SessionStatusCountsDtoSchema = {
     ]
 } as const;
 
+export const SessionFailureCodeCountDtoSchema = {
+    type: 'object',
+    properties: {
+        code: {
+            type: 'string',
+            description: 'Failure code, see the session outcome reference; presentation errors a wallet sent keep their own code'
+        },
+        count: {
+            type: 'number',
+            description: 'Number of failed sessions with this code'
+        }
+    },
+    required: [
+        'code',
+        'count'
+    ]
+} as const;
+
 export const SessionTypeStatsDtoSchema = {
     type: 'object',
     properties: {
@@ -4199,6 +4239,13 @@ export const SessionTypeStatsDtoSchema = {
                 }
             ]
         },
+        failureCodes: {
+            description: 'Failure codes of the failed sessions, most frequent first, at most 10, cut to 255 characters. Failed sessions without a code are not listed.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SessionFailureCodeCountDto'
+            }
+        },
         lastCompletedAt: {
             type: [
                 'string',
@@ -4211,6 +4258,7 @@ export const SessionTypeStatsDtoSchema = {
     required: [
         'total',
         'byStatus',
+        'failureCodes',
         'lastCompletedAt'
     ]
 } as const;
@@ -4218,6 +4266,14 @@ export const SessionTypeStatsDtoSchema = {
 export const SessionStatsResponseDtoSchema = {
     type: 'object',
     properties: {
+        retention: {
+            description: 'Effective session retention of the tenant; tells how far back the counts reach',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SessionRetentionDto'
+                }
+            ]
+        },
         issuance: {
             description: 'Issuance sessions; present only when the caller may read them, as in GET /api/session',
             allOf: [
@@ -4234,7 +4290,10 @@ export const SessionStatsResponseDtoSchema = {
                 }
             ]
         }
-    }
+    },
+    required: [
+        'retention'
+    ]
 } as const;
 
 export const CancelSessionDtoSchema = {
@@ -5887,7 +5946,7 @@ export const CredentialConfigSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         webhookEndpoint: {
             $ref: '#/components/schemas/WebhookEndpointEntity'
@@ -6042,7 +6101,7 @@ export const CredentialConfigCreateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'
@@ -6190,7 +6249,7 @@ export const CredentialConfigUpdateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'

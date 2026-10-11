@@ -496,7 +496,7 @@ export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = t
 /**
  * Get session counts per type and status
  *
- * Counts all stored sessions of the tenant, not one page. Only the session types the caller may read are included.
+ * Counts all stored sessions of the tenant, not one page, optionally only those created in a time range. Only the session types the caller may read are included.
  */
 export const sessionControllerGetSessionStats = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetSessionStatsData, ThrowOnError>): RequestResult<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetSessionStatsResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -948,7 +948,7 @@ export const trustListControllerUpdateTrustList = <ThrowOnError extends boolean 
 });
 
 /**
- * Exports the trust list in LoTE format
+ * Exports the trust list in the format accepted by create and config import
  */
 export const trustListControllerExportTrustList = <ThrowOnError extends boolean = true>(options: Options<TrustListControllerExportTrustListData, ThrowOnError>): RequestResult<TrustListControllerExportTrustListResponses, unknown, ThrowOnError> => (options.client ?? client).get<TrustListControllerExportTrustListResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

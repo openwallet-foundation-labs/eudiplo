@@ -82,7 +82,7 @@ export class TrustListController {
     }
 
     /**
-     * Exports the trust list in LoTE format
+     * Exports the trust list in the format accepted by create and config import
      * @param token
      * @param id
      * @returns

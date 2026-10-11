@@ -91,7 +91,7 @@ test('issue and verify cookbook', async ({ page }) => {
     await dialog.getByRole('button', { name: 'Login as this Client' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 
-    await page.getByRole('button', { name: 'Example icon-button with a menu' }).click();
+    await page.getByRole('button', { name: 'Account menu' }).click();
     await expect(page.getByText(`Client ID: ${tenantId}-admin`)).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.locator('mat-sidenav').getByText('Credential Issuance')).toBeVisible();

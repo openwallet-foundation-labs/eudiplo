@@ -24,6 +24,7 @@ function createStore(
         consumeRequestUri: vi.fn().mockResolvedValue(true),
         listForTenant: vi.fn(),
         countForTenant: vi.fn().mockResolvedValue([]),
+        topFailureCodesForTenant: vi.fn().mockResolvedValue([]),
         lastUpdatedForTenant: vi.fn().mockResolvedValue(null),
         deleteForTenant: vi.fn().mockResolvedValue(undefined),
         findCredentialOffer: vi.fn(),
@@ -236,11 +237,16 @@ describe("SessionStore", () => {
                 { type: "issuance", status: SessionStatus.Active, count: 2 },
                 {
                     type: "presentation",
-                    status: SessionStatus.Completed,
+                    status: SessionStatus.Failed,
                     count: 4,
                 },
             ]),
-            lastUpdatedForTenant: vi.fn(async (_tenant, type) =>
+            topFailureCodesForTenant: vi.fn(async (_tenant, { type }) =>
+                type === "presentation"
+                    ? [{ code: "invalid_proof", count: 4 }]
+                    : [],
+            ),
+            lastUpdatedForTenant: vi.fn(async (_tenant, { type }) =>
                 type === "presentation" ? lastPresentation : null,
             ),
         });
@@ -249,44 +255,52 @@ describe("SessionStore", () => {
 
         expect(stats.issuance).toMatchObject({
             total: 2,
-            byStatus: { active: 2, completed: 0 },
+            byStatus: { active: 2, failed: 0 },
+            failureCodes: [],
             lastCompletedAt: null,
         });
         expect(stats.presentation).toMatchObject({
             total: 4,
-            byStatus: { active: 0, completed: 4 },
+            byStatus: { active: 0, failed: 4 },
+            failureCodes: [{ code: "invalid_proof", count: 4 }],
             lastCompletedAt: lastPresentation,
         });
         expect(repository.countForTenant).toHaveBeenCalledExactlyOnceWith(
             "tenant-a",
-            undefined,
+            { type: undefined },
         );
-        expect(repository.lastUpdatedForTenant).toHaveBeenCalledWith(
-            "tenant-a",
-            "issuance",
-            SessionStatus.Completed,
-        );
-        expect(repository.lastUpdatedForTenant).toHaveBeenCalledWith(
-            "tenant-a",
-            "presentation",
-            SessionStatus.Completed,
-        );
+        for (const type of ["issuance", "presentation"])
+            expect(repository.lastUpdatedForTenant).toHaveBeenCalledWith(
+                "tenant-a",
+                { type, status: SessionStatus.Completed },
+            );
     });
 
-    it("counts only the scoped type", async () => {
+    it("counts only the scoped type, within the creation time range", async () => {
         const { store, repository } = createStore();
+        const range = {
+            createdFrom: new Date("2026-10-10T00:00:00Z"),
+            createdTo: new Date("2026-10-10T23:59:59Z"),
+        };
 
-        const stats = await store.statsForTenant("tenant-a", "presentation");
+        const stats = await store.statsForTenant(
+            "tenant-a",
+            "presentation",
+            range,
+        );
 
         expect(Object.keys(stats)).toEqual(["presentation"]);
+        const scoped = { ...range, type: "presentation" };
         expect(repository.countForTenant).toHaveBeenCalledExactlyOnceWith(
             "tenant-a",
-            "presentation",
+            scoped,
         );
+        expect(
+            repository.topFailureCodesForTenant,
+        ).toHaveBeenCalledExactlyOnceWith("tenant-a", scoped, 10);
         expect(repository.lastUpdatedForTenant).toHaveBeenCalledExactlyOnceWith(
             "tenant-a",
-            "presentation",
-            SessionStatus.Completed,
+            { ...scoped, status: SessionStatus.Completed },
         );
     });
 });

@@ -157,6 +157,33 @@ describe("OpenAPI contract", () => {
         );
     });
 
+    test("documents the roles the RolesGuard accepts as security", () => {
+        // Requirement objects are alternatives; the scopes inside one are all required.
+        // Two handlers of one controller: the second must not repeat the first's.
+        for (const path of ["/api/session", "/api/session/stats"]) {
+            expect(getOperation(document, path, "get").security).toEqual([
+                { oauth2: ["issuance:offer"] },
+                { oauth2: ["presentation:request"] },
+            ]);
+        }
+        // A handler's roles replace the controller's instead of adding to them.
+        expect(
+            getOperation(document, "/api/session/{id}/credential-status", "get")
+                .security,
+        ).toEqual([
+            { oauth2: ["issuance:offer"] },
+            { oauth2: ["issuance:manage"] },
+        ]);
+        expect(
+            getOperation(document, "/api/schema-metadata/publish", "post")
+                .security,
+        ).toEqual([{ oauth2: ["issuance:manage"] }]);
+        expect(
+            getOperation(document, "/api/schema-metadata/vocabularies", "get")
+                .security,
+        ).toEqual([{ oauth2: ["registrar:manage"] }]);
+    });
+
     test("documents every field of the access certificate response", () => {
         const operation = getOperation(
             document,

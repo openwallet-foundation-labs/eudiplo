@@ -69,7 +69,12 @@ export class ConfigOwnershipNoticeComponent implements OnChanges {
     void this.refresh();
   }
 
-  private async refresh(): Promise<void> {
+  /**
+   * Loads the ownership again, for example after the resource was deleted on
+   * the same screen. Call `ConfigOwnershipService.invalidate()` first, or the
+   * cached list is used.
+   */
+  async refresh(): Promise<void> {
     const request = ++this.request;
     if (!this.kind || !this.resourceId) {
       this.metadata = undefined;

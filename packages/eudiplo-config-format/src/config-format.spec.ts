@@ -172,6 +172,66 @@ describe("portable schema identity and migrations", () => {
         ).toContain("Unknown property: verifierKeyPem");
     });
 
+    it("upgrades a v1 credential configuration to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("CredentialConfig", 1),
+            metadata: { generation: 2 },
+            spec: {
+                id: "pid",
+                config: { format: "dc+sd-jwt", display: [] },
+                fields: [],
+            },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual([
+            "credential-config-v2-x509-trusted-authority",
+        ]);
+        expect(result.document.$schema).toBe(schemaUrl("CredentialConfig", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(result.document.metadata).toEqual({ generation: 2 });
+        // Repeating the upgrade on the result is a no-op.
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it("accepts an x509 schema metadata trusted authority only from v2 on", () => {
+        const spec = {
+            id: "pid",
+            config: { format: "dc+sd-jwt", display: [] },
+            fields: [],
+            schemaMeta: {
+                id: "https://schemas.example/pid",
+                version: "1.0.0",
+                attestationLoS: "iso_18045_high",
+                bindingType: "key",
+                trustedAuthorities: [
+                    {
+                        frameworkType: "x509",
+                        value: "cm9vdCBjZXJ0aWZpY2F0ZQ==",
+                    },
+                ],
+            },
+        };
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("CredentialConfig", 2),
+                    spec,
+                }),
+            ),
+        ).toEqual([]);
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("CredentialConfig", 1),
+                    spec,
+                }),
+            ).map((issue) => issue.path),
+        ).toContain("/spec/schemaMeta/trustedAuthorities/0/frameworkType");
+    });
+
     it("refuses missing migration steps", () =>
         expect(() => migrateDocument(file, () => [], [], 2)).toThrow(
             "No unique migration",

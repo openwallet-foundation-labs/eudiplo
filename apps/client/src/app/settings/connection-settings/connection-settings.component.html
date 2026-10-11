@@ -3,7 +3,7 @@
     <mat-card-header>
       <mat-icon mat-card-avatar>settings_ethernet</mat-icon>
       <mat-card-title>Connection Details</mat-card-title>
-      <mat-card-subtitle>Current API and authentication configuration</mat-card-subtitle>
+      <mat-card-subtitle>Current API, authentication and version information</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -82,6 +82,42 @@
           <mat-icon>info</mat-icon>
           <span>Automatic token refresh: {{ canAutoRefresh ? 'enabled' : 'disabled' }}</span>
         </div>
+
+        <div fxLayout="row wrap" fxLayoutGap="8px" class="config-row">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Backend version</mat-label>
+            <input matInput [value]="backendVersion" readonly aria-label="Backend version" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Client version</mat-label>
+            <input matInput [value]="clientVersion" readonly aria-label="Client version" />
+          </mat-form-field>
+        </div>
+
+        @if (versionService.compatibility === 'mismatch') {
+          <div
+            class="hint-row warning"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="8px"
+          >
+            <mat-icon>warning</mat-icon>
+            <span
+              >Client and backend come from different builds. Use the client image with the same tag
+              as the backend.</span
+            >
+          </div>
+        }
+
+        <mat-form-field appearance="outline">
+          <mat-label>Startup configuration import</mat-label>
+          <input
+            matInput
+            [value]="importMode"
+            readonly
+            aria-label="Startup configuration import mode"
+          />
+        </mat-form-field>
       </div>
     </mat-card-content>
 

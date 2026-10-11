@@ -13,8 +13,9 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
-import { client as registrarClient } from "./generated/client.gen.js";
+import { createClient, createConfig } from "./generated/client/index.js";
 import {
+    type ClientOptions,
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from "./generated/index.js";
@@ -25,6 +26,23 @@ import {
 interface CachedToken {
     token: string;
     expiresAt: number;
+    /** {@link tokenDestination} of the configuration the token was obtained with. */
+    destination: string;
+}
+
+/**
+ * The account a token belongs to and the addresses it is obtained from and
+ * sent to. A cached token is only used for the same destination, so a token
+ * that a request still in flight caches after the configuration changed
+ * never reaches a new registrar URL.
+ */
+function tokenDestination(config: RegistrarConfigEntity): string {
+    return JSON.stringify([
+        config.oidcUrl,
+        config.clientId,
+        config.username,
+        config.registrarUrl,
+    ]);
 }
 
 /**
@@ -50,16 +68,11 @@ export class RegistrarAuthService {
     async testCredentials(config: {
         oidcUrl: string;
         clientId: string;
-        clientSecret?: string;
+        clientSecret?: string | null;
         username: string;
         password: string;
     }): Promise<void> {
-        const oauth2Client = new OAuth2Client({
-            server: `${config.oidcUrl}/protocol/openid-connect/token`,
-            clientId: config.clientId,
-            clientSecret: config.clientSecret,
-            discoveryEndpoint: `${config.oidcUrl}/.well-known/openid-configuration`,
-        });
+        const oauth2Client = this.createOAuth2Client(config);
 
         try {
             await oauth2Client.password({
@@ -86,28 +99,38 @@ export class RegistrarAuthService {
         }
     }
 
+    /** OAuth2 client for the token endpoint of the configured OIDC realm. */
+    private createOAuth2Client(config: {
+        oidcUrl: string;
+        clientId: string;
+        clientSecret?: string | null;
+    }): OAuth2Client {
+        return new OAuth2Client({
+            server: `${config.oidcUrl}/protocol/openid-connect/token`,
+            clientId: config.clientId,
+            clientSecret: config.clientSecret ?? undefined,
+            discoveryEndpoint: `${config.oidcUrl}/.well-known/openid-configuration`,
+        });
+    }
+
     /**
-     * Get or refresh the access token for a tenant using the ROPC flow.
+     * Get or refresh the access token for a tenant configuration using the
+     * ROPC flow.
      */
-    async getAccessToken(tenantId: string): Promise<string> {
+    private async getAccessToken(
+        config: RegistrarConfigEntity,
+    ): Promise<string> {
+        const { tenantId } = config;
+        const destination = tokenDestination(config);
         const cached = this.tokenCache.get(tenantId);
-        if (cached && cached.expiresAt > Date.now() + 5000) {
+        if (
+            cached?.destination === destination &&
+            cached.expiresAt > Date.now() + 5000
+        ) {
             return cached.token;
         }
 
-        const config = await this.configRepository.findOneBy({ tenantId });
-        if (!config) {
-            throw new NotFoundException(
-                `No registrar configuration found for tenant ${tenantId}`,
-            );
-        }
-
-        const oauth2Client = new OAuth2Client({
-            server: `${config.oidcUrl}/protocol/openid-connect/token`,
-            clientId: config.clientId,
-            clientSecret: config.clientSecret,
-            discoveryEndpoint: `${config.oidcUrl}/.well-known/openid-configuration`,
-        });
+        const oauth2Client = this.createOAuth2Client(config);
 
         let tokenResponse: OAuth2Token;
         try {
@@ -132,13 +155,16 @@ export class RegistrarAuthService {
         this.tokenCache.set(tenantId, {
             token: tokenResponse.accessToken,
             expiresAt,
+            destination,
         });
 
         return tokenResponse.accessToken;
     }
 
     /**
-     * Create a configured registrar API client for the given tenant.
+     * Create a registrar API client for the given tenant. Each call gets its
+     * own client, so concurrent requests of other tenants cannot change its
+     * URL or token.
      */
     async getClient(tenantId: string) {
         const config = await this.configRepository.findOneBy({ tenantId });
@@ -148,15 +174,14 @@ export class RegistrarAuthService {
             );
         }
 
-        const client = registrarClient;
-        const accessToken = await this.getAccessToken(tenantId);
+        const accessToken = await this.getAccessToken(config);
 
-        client.setConfig({
-            baseUrl: config.registrarUrl,
-            auth: () => accessToken,
-        });
-
-        return client;
+        return createClient(
+            createConfig<ClientOptions>({
+                baseUrl: config.registrarUrl,
+                auth: () => accessToken,
+            }),
+        );
     }
 
     /**

@@ -14,9 +14,9 @@ EUDIPLO can talk to the German EUDI wallet registrar to obtain access certificat
 
 ## 1. Connect the registrar
 
-In the Web Client, open **Registrar → Registrar Config**. Pick the **German Sandbox** preset or enter the URLs, then the account credentials. Optionally set **Registration Certificate Defaults**: privacy policy URL, support URI and intermediary RP ID, used for every registration certificate of the tenant. Saving checks the credentials against the OIDC endpoint and fails if they are rejected (`400`) or the endpoint is unreachable (`503`).
+In the Web Client, open **Registrar → Registrar Config**. Pick the **German Sandbox** preset or enter the URLs, then the account credentials. Optionally set **Registration Certificate Defaults**: privacy policy URL, support URI and intermediary RP ID, used for every registration certificate of the tenant. Other defaults set through the API or `registrar.json`, such as `provides_attestations`, are kept when you save here. Saving a new configuration, a changed URL or changed credentials checks the credentials against the OIDC endpoint and fails if they are rejected (`400`) or the endpoint is unreachable (`503`); saving only the defaults does not contact it. After you change the registrar URL or the OIDC URL, enter the password again. Saving then replaces the configuration: enter the client secret again if the registrar needs one, an empty field removes it.
 
-The same configuration via the API (`POST /api/registrar/config` creates or replaces it, `PATCH` changes fields, `DELETE` removes it) or as file:
+The same configuration via the API (`POST /api/registrar/config` creates or replaces it, `PATCH` changes fields and checks the credentials only when it sends the OIDC URL, the client ID, the username, the password or the client secret, `DELETE` removes it) or as file:
 
 ```json title="config/<tenant>/registrar.json"
 {
@@ -32,10 +32,12 @@ The same configuration via the API (`POST /api/registrar/config` creates or repl
 }
 ```
 
-File imports are not checked against the registrar, because it may be unreachable at startup.
+A `POST`, and a configuration bundle or file imported in `upsert` or `replace` mode, replace the whole configuration: a `clientSecret` or `registrationCertificateDefaults` they leave out is removed. A `PATCH` keeps the fields it leaves out. File and bundle imports are not checked against the registrar, because it may be unreachable at startup; wrong credentials fail when EUDIPLO first uses them, for example when requesting an access certificate (`400`).
 
 :::warning[Stored credentials]
 The password and client secret are encrypted in the database with the [data-at-rest key](../operate/encryption-keys.md). The API returns neither; `hasPassword` and `hasClientSecret` show whether they are set. Use a registrar account dedicated to this tenant.
+
+A stored credential is never sent to a new address. A `PATCH` that changes `oidcUrl` or `registrarUrl` must send `password` again, and `clientSecret` if one is stored; otherwise it fails with `400`.
 :::
 
 EUDIPLO acts as one relying party at the registrar. If the account has none yet, EUDIPLO registers one on first use; otherwise it uses the first relying party of the account.

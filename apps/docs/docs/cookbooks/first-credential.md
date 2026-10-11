@@ -32,7 +32,7 @@ A tenant `membership-demo` that issues an SD-JWT VC of type `urn:example:members
 4. Choose **Create tenant**. The dialog **Client Secret Generated** shows the client ID `membership-demo-admin` and its secret. Copy both and store them; the secret is not shown again.
 5. Choose **Login as this Client**.
 
-**Checkpoint:** the menu at the top right shows **Client ID: membership-demo-admin**, and the navigation shows **Credential Issuance** and **Credential Verification**. Create everything that follows in this tenant. All roles are listed in the [roles reference](../reference/roles.md).
+**Checkpoint:** the account menu (⋮) at the top right shows **Client ID: membership-demo-admin**, and the navigation shows **Credential Issuance** and **Credential Verification**. Create everything that follows in this tenant. All roles are listed in the [roles reference](../reference/roles.md).
 
 ## Step 2: Create the signing and access keys
 
@@ -126,7 +126,7 @@ It keeps status lists out of the first run. [Revocable credentials](revocable-cr
 
 | Symptom                                          | Cause                                                                  | Fix                                                                                                    |
 | ------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `membership` is missing in the offer form        | Created in another tenant, or saved with authorization actions         | Check the client ID in the top-right menu; remove interactive authorization actions for this recipe.  |
+| `membership` is missing in the offer form        | Created in another tenant, or saved with authorization actions         | Check the client ID in the account menu (⋮) at the top right; remove interactive authorization actions for this recipe.  |
 | **Credential Issuance** is missing in the menu   | The tenant client lacks `issuance:manage` or `issuance:offer`          | Open **Administration → API Clients**, add the roles to `membership-demo-admin`, then sign in again.  |
 | Wallet asks for an attestation                   | Proof type **Attestation** or required wallet attestation is set       | Use proof type **JWT** only and keep wallet attestation optional.                                      |
 | Wallet shows other claim values                  | The offer overrode the defaults, or the credential is an older one     | Generate a new offer with the default values; a wallet keeps the claims it was issued with.           |

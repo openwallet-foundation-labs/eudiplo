@@ -1,4 +1,5 @@
-export function getApiErrorMessage(error: unknown, fallback: string): string {
+/** The backend's message from an SDK error body or an `Error`, if it has one. */
+export function apiErrorDetail(error: unknown): string | undefined {
   const firstString = (value: unknown): string | undefined => {
     if (!value) return undefined;
     if (typeof value === 'string' && value.trim()) return value;
@@ -30,8 +31,13 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   };
 
   const extracted = firstString(error);
+  return extracted && extracted.toLowerCase() !== '[object object]' ? extracted : undefined;
+}
+
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  const extracted = apiErrorDetail(error);
   const issue = firstValidationIssue(error);
-  if (!extracted || extracted.toLowerCase() === '[object object]') {
+  if (!extracted) {
     return issue ? `${fallback}: ${issue}` : fallback;
   }
 
@@ -44,29 +50,57 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * The first issue of a backend validation error body
- * (`{ message: 'Validation failed', errors: [{ path, message, code }] }`) as
- * `path: message`, so the user sees which field was rejected.
+ * The first issue of a `400 Validation failed` response as `path: message`,
+ * so the user sees which field was rejected.
  */
 function firstValidationIssue(error: unknown): string | undefined {
-  if (!error || typeof error !== 'object') return undefined;
+  const issues = getValidationIssues(error);
+  if (issues.length === 0) return undefined;
 
-  const issues = (error as Record<string, unknown>)['errors'];
-  if (!Array.isArray(issues)) return undefined;
+  const [{ path, message }] = issues;
+  const first = path ? `${path}: ${message}` : message;
+  return issues.length > 1 ? `${first}; ${issues.length - 1} more` : first;
+}
 
-  const issue = issues.find(
-    (entry): entry is { path?: unknown; message: string } =>
-      !!entry &&
-      typeof entry === 'object' &&
-      typeof (entry as Record<string, unknown>)['message'] === 'string'
-  );
-  if (!issue) return undefined;
+/** True when the SDK error is the backend's error body with this HTTP status. */
+export function hasHttpStatus(error: unknown, status: number): boolean {
+  return (error as { statusCode?: unknown } | null | undefined)?.statusCode === status;
+}
 
-  const path = Array.isArray(issue.path)
-    ? issue.path.join('.')
-    : typeof issue.path === 'string'
-      ? issue.path
-      : '';
-  const more = issues.length > 1 ? `; ${issues.length - 1} more` : '';
-  return `${path ? `${path}: ` : ''}${issue.message}${more}`;
+/**
+ * Message for a failed `HttpClient` request: the backend's message, a hint
+ * when the backend could not be reached, else Angular's message, which names
+ * the status.
+ */
+export function getHttpErrorMessage(error: unknown, fallback: string): string {
+  const response = error as { status?: unknown; error?: { message?: unknown } | null } | null;
+  if (response?.status === 0) {
+    return `${fallback}: the backend could not be reached. Check the connection and try again.`;
+  }
+  const body = response?.error;
+  return getApiErrorMessage(typeof body?.message === 'string' ? body : error, fallback);
+}
+
+/** A field the backend rejected in a `400 Validation failed` response. */
+export interface ValidationIssue {
+  /** Dot-separated path of the field in the request body, empty for the body itself. */
+  path: string;
+  message: string;
+}
+
+/**
+ * The `errors` of a `400 Validation failed` response, from an Angular
+ * `HttpErrorResponse` or from the response body the SDK throws; empty for any
+ * other error.
+ */
+export function getValidationIssues(error: unknown): ValidationIssue[] {
+  const record = error as { errors?: unknown; error?: { errors?: unknown } | null } | null;
+  const issues = record?.error?.errors ?? record?.errors;
+  if (!Array.isArray(issues)) return [];
+  return issues.flatMap((issue) => {
+    const { path, message } = (issue ?? {}) as { path?: unknown; message?: unknown };
+    if (typeof message !== 'string') return [];
+    if (Array.isArray(path)) return [{ path: path.join('.'), message }];
+    return [{ path: typeof path === 'string' ? path : '', message }];
+  });
 }
