@@ -28,8 +28,7 @@ export class RotationPolicyCreateDto extends createZodDto(
     intervalDays?: number;
 
     @ApiPropertyOptional({
-        description:
-            "Certificate validity in days. Defaults to rotation interval + 30 days grace period.",
+        description: "Certificate validity in days. Defaults to 365.",
         example: 365,
         minimum: 1,
         maximum: 3650,

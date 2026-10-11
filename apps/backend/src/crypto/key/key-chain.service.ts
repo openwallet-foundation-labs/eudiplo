@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    Logger,
+    NotFoundException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
@@ -407,7 +412,17 @@ export class KeyChainService {
         id: string,
         dto: KeyChainUpdateDto,
     ): Promise<void> {
-        await this.getEntity(tenantId, id);
+        const keyChain = await this.getEntity(tenantId, id);
+
+        // Without an interval the rotation job never rotates the key chain.
+        if (
+            dto.rotationPolicy?.enabled &&
+            !(dto.rotationPolicy.intervalDays ?? keyChain.rotationIntervalDays)
+        ) {
+            throw new BadRequestException(
+                "rotationPolicy.intervalDays is required when rotation is enabled and the key chain has no rotation interval.",
+            );
+        }
 
         const updates: Partial<KeyChainEntity> = {};
 

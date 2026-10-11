@@ -12,7 +12,8 @@ export class RotationPolicyUpdateDto extends createZodDto(
     RotationPolicyUpdateSchema,
 ) {
     @ApiPropertyOptional({
-        description: "Whether automatic key rotation is enabled.",
+        description:
+            "Whether automatic key rotation is enabled. Enabling it needs intervalDays, in the request or already set on the key chain.",
     })
     enabled?: boolean;
 
