@@ -29,14 +29,28 @@ test.describe('kept session', () => {
     'Set E2E_TENANT_CLIENT_ID and E2E_TENANT_CLIENT_SECRET to run the kept session tests.'
   );
 
-  /** Signs in, then lets the stored token expire, as after a long break. */
+  /**
+   * Signs in and moves the page's clock past the token's lifetime, as after a long
+   * break, without a reload: a reload would drop the client secret, which the Web
+   * Client keeps in memory only. The renewal due meanwhile goes to the routes the
+   * test set up before.
+   */
   async function signInAndExpire(page: Page): Promise<void> {
+    await page.clock.install();
     await loginWithClientCredentials(
       page,
       resolvedE2EConfig.clientId!,
       resolvedE2EConfig.clientSecret!
     );
-    await page.evaluate(() => localStorage.setItem('token_expiration', String(Date.now() - 1000)));
+  }
+
+  async function expireToken(page: Page): Promise<void> {
+    await page.clock.fastForward('24:00:00');
+  }
+
+  /** Opens a guarded page from the navigation, without a reload. */
+  async function openConnectionSettings(page: Page): Promise<void> {
+    await page.getByRole('link', { name: 'Connection Settings' }).click();
   }
 
   test('resumes on the page the user was on once the backend answers again', async ({ page }) => {
@@ -45,8 +59,9 @@ test.describe('kept session', () => {
     await page.route('**/api/oauth2/token', (route) =>
       backendDown ? route.abort('connectionrefused') : route.fallback()
     );
+    await expireToken(page);
 
-    await page.goto('/settings/connection');
+    await openConnectionSettings(page);
 
     await expect(page).toHaveURL(/\/login\?returnUrl=%2Fsettings%2Fconnection$/);
     await expect(page.getByRole('status')).toContainText(
@@ -69,7 +84,8 @@ test.describe('kept session', () => {
     await page.route('**/api/oauth2/token', (route) =>
       backendDown ? route.abort('connectionrefused') : route.fallback()
     );
-    await page.goto('/settings/connection');
+    await expireToken(page);
+    await openConnectionSettings(page);
     await expect(page.getByRole('status')).toContainText('Resuming the session of');
 
     await page.getByRole('button', { name: 'Sign out and use other credentials' }).click();
@@ -87,7 +103,7 @@ test.describe('kept session', () => {
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 
-  test('shows the form and names the client when the stored credentials are rejected', async ({
+  test('shows the form and names the client when the kept credentials are rejected', async ({
     page,
   }) => {
     await signInAndExpire(page);
@@ -102,7 +118,8 @@ test.describe('kept session', () => {
       });
     });
 
-    await page.goto('/settings/connection');
+    await expireToken(page);
+    await openConnectionSettings(page);
     await expect(page.getByRole('status')).toContainText('Resuming the session of');
     reject();
 
@@ -111,5 +128,82 @@ test.describe('kept session', () => {
     ).toBeVisible();
     await expect(page.getByLabel('EUDIPLO Instance')).toBeFocused();
     await expect(page.getByRole('button', { name: 'Try again now' })).toHaveCount(0);
+  });
+});
+
+test.describe('reload', () => {
+  test.skip(
+    !hasAuthCredentials,
+    'Set E2E_TENANT_CLIENT_ID and E2E_TENANT_CLIENT_SECRET to run the reload tests.'
+  );
+
+  test('keeps the session until its token expires, without storing the client secret', async ({
+    page,
+  }) => {
+    await loginWithClientCredentials(
+      page,
+      resolvedE2EConfig.clientId!,
+      resolvedE2EConfig.clientSecret!
+    );
+    const storesSecret = () =>
+      page.evaluate(
+        (secret) => Object.values(localStorage).some((value) => value.includes(secret)),
+        resolvedE2EConfig.clientSecret!
+      );
+    expect(await storesSecret()).toBe(false);
+
+    await page.reload();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await page.getByRole('link', { name: 'Connection Settings' }).click();
+    await expect(page.getByLabel('Client Secret')).toHaveValue('Not available in this tab');
+    await expect(page.getByText('Automatic token refresh: disabled')).toBeVisible();
+    expect(await storesSecret()).toBe(false);
+
+    // Without the secret, an expired token is not renewed: the login form asks for it.
+    await page.evaluate(() => localStorage.setItem('token_expiration', String(Date.now() - 1000)));
+    await page.goto('/settings/connection');
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByText('Resuming the session of')).toHaveCount(0);
+    await expect(page.getByLabel('EUDIPLO Instance')).toBeVisible();
+  });
+
+  test('a tab opened later takes over the token that the tab you logged in with renews', async ({
+    page,
+    context,
+  }) => {
+    // The clock belongs to the browser context, so both tabs share it.
+    await page.clock.install();
+    await loginWithClientCredentials(
+      page,
+      resolvedE2EConfig.clientId!,
+      resolvedE2EConfig.clientSecret!
+    );
+    const other = await context.newPage();
+    await other.goto('/dashboard');
+    await expect(other).toHaveURL(/\/dashboard$/);
+    const tokenRequestsOfOther: string[] = [];
+    other.on('request', (request) => {
+      if (request.url().includes('/api/oauth2/token')) tokenRequestsOfOther.push(request.url());
+    });
+    // Registered after the Web Client's listener, so it resolves once the token was taken.
+    const taken = other.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          addEventListener('storage', (event) => event.key === 'token_expiration' && resolve())
+        )
+    );
+
+    // In the token's last five minutes, the tab you logged in with renews it.
+    const renewal = page.waitForResponse('**/api/oauth2/token');
+    await page.clock.fastForward('23:56:00');
+    await renewal;
+    await taken;
+
+    // Past the lifetime of the token it started with, the other tab is still signed in.
+    await page.clock.fastForward('01:00:00');
+    await other.getByRole('link', { name: 'Connection Settings' }).click();
+    await expect(other).toHaveURL(/\/settings\/connection$/);
+    await expect(other.getByText('Your session has expired')).toHaveCount(0);
+    expect(tokenRequestsOfOther).toEqual([]);
   });
 });

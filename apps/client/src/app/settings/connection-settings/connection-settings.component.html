@@ -59,28 +59,44 @@
         <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
           <mat-form-field appearance="outline" fxFlex>
             <mat-label>Client Secret</mat-label>
-            <input
-              matInput
-              [value]="currentClientSecret"
-              readonly
-              type="password"
-              aria-label="Client Secret"
-            />
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
-              matTooltip="Copy to clipboard"
-              aria-label="Copy Client Secret to clipboard"
-            >
-              <mat-icon>content_copy</mat-icon>
-            </button>
+            @if (currentClientSecret; as secret) {
+              <input
+                matInput
+                [value]="secret"
+                readonly
+                type="password"
+                aria-label="Client Secret"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="copyToClipboard(secret, 'Client Secret')"
+                matTooltip="Copy to clipboard"
+                aria-label="Copy Client Secret to clipboard"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            } @else {
+              <input matInput [value]="missingSecretText" readonly aria-label="Client Secret" />
+            }
           </mat-form-field>
         </div>
 
         <div class="hint-row" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
           <mat-icon>info</mat-icon>
-          <span>Automatic token refresh: {{ canAutoRefresh ? 'enabled' : 'disabled' }}</span>
+          @if (canAutoRefresh) {
+            <span>Automatic token refresh: enabled</span>
+          } @else if (apiService.areCredentialsRejected()) {
+            <span>
+              Automatic token refresh: disabled. The token endpoint rejected the credentials; log in
+              again.
+            </span>
+          } @else {
+            <span>
+              Automatic token refresh: disabled. The Web Client keeps the client secret only until
+              the page reloads; log in again when the session expires.
+            </span>
+          }
         </div>
 
         <div fxLayout="row wrap" fxLayoutGap="8px" class="config-row">
