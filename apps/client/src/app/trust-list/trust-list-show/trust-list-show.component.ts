@@ -1,5 +1,13 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -26,6 +34,8 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { focusAfterRenderIfLost } from '../../common/focus-if-lost.util';
+import { LoadErrorComponent } from '../../common/load-error.component';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
@@ -96,6 +106,7 @@ function referenceCheckState(
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './trust-list-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -111,6 +122,10 @@ export class TrustListShowComponent implements OnInit {
   private readonly frontendConfigService = inject(FrontendConfigService);
   private readonly jwtService = inject(JwtService);
   private readonly trustListService = inject(TrustListService);
+  private readonly injector = inject(Injector);
+
+  @ViewChild('pageHeading', { read: ElementRef })
+  private readonly pageHeading?: ElementRef<HTMLElement>;
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
@@ -127,6 +142,8 @@ export class TrustListShowComponent implements OnInit {
   relatedPresentationConfigs: PresentationConfig[] = [];
   relatedPresentationConfigsLoading = false;
   relatedPresentationConfigsFailed = false;
+  /** Set when the list could not be loaded, so the page is not left blank. */
+  loadError = '';
   private readonly id: string;
 
   constructor() {
@@ -134,9 +151,19 @@ export class TrustListShowComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    const retrying = this.loadError !== '';
+    this.loadError = '';
     trustListControllerGetTrustList({ path: { id: this.id } }).then(
       async (res) => {
         this.trustList = res.data;
+        // The retry removed the error card with its focused Retry button.
+        if (retrying) {
+          focusAfterRenderIfLost(this.injector, () => this.pageHeading?.nativeElement);
+        }
         this.parseEntities();
         this.loadVersions(this.id);
         void this.buildPublicUrl();
@@ -146,8 +173,7 @@ export class TrustListShowComponent implements OnInit {
         ]);
       },
       (error) => {
-        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error loading trust list'));
-        this.router.navigate(['/trust-list']);
+        this.loadError = getApiErrorMessage(error, 'Failed to load trust list');
       }
     );
   }

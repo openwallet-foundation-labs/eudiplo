@@ -3,7 +3,7 @@
     <app-config-ownership-notice kind="TrustList" [resourceId]="trustList.id" />
     <!-- Header -->
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Trust List Details</h2>
+      <h2 #pageHeading tabindex="-1">Trust List Details</h2>
       <div>
         <button
           mat-icon-button
@@ -354,4 +354,10 @@
       </mat-card>
     }
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="load()">
+    <a mat-button [routerLink]="['../']">Back to the list</a>
+  </app-load-error>
+} @else {
+  <p><output>Loading trust list…</output></p>
 }
