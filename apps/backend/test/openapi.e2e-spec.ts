@@ -153,10 +153,15 @@ describe("OpenAPI contract", () => {
             { oauth2: ["issuance:offer"] },
             { oauth2: ["issuance:manage"] },
         ]);
-        expect(
-            getOperation(document, "/api/schema-metadata/publish", "post")
-                .security,
-        ).toEqual([{ oauth2: ["issuance:manage"] }]);
+        // match "all": one requirement object with every role.
+        for (const path of [
+            "/api/schema-metadata/publish",
+            "/api/schema-metadata/publish-version",
+        ]) {
+            expect(getOperation(document, path, "post").security).toEqual([
+                { oauth2: ["issuance:manage", "registrar:manage"] },
+            ]);
+        }
         expect(
             getOperation(document, "/api/schema-metadata/vocabularies", "get")
                 .security,
