@@ -43,6 +43,7 @@ import {
 import {
   isCancelConflict,
   isCancellable,
+  isPresentationSession,
   SessionManagementService,
   SessionQueryParams,
 } from '../session-management.service';
@@ -147,6 +148,7 @@ export class SessionManagementListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   dataSource = new MatTableDataSource<Session>([]);
+  readonly isPresentationSession = isPresentationSession;
   filters = new FormGroup({
     q: new FormControl('', { nonNullable: true }),
     type: new FormControl<SessionType>('all', { nonNullable: true }),

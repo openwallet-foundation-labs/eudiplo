@@ -1,7 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { NEVER } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
+import { ApiService } from './core';
 import { JwtService, type Role } from './services/jwt.service';
 
 describe('AppComponent', () => {
@@ -55,5 +58,38 @@ describe('AppComponent navigation', () => {
     expect(menuItems(['issuance:offer', 'presentation:request'])).not.toContain(
       'Webhook Endpoints'
     );
+  });
+});
+
+describe('AppComponent session expiry', () => {
+  it('warns on any page before a token without refresh expires', async () => {
+    const open = vi.fn<(message: string, action: string) => object>(() => ({
+      onAction: () => NEVER,
+      afterDismissed: () => NEVER,
+    }));
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatSnackBar, useValue: { open } },
+        {
+          provide: ApiService,
+          useValue: {
+            accessToken: 'token',
+            getAuthenticationStatus: () => true,
+            getTokenTimeRemaining: () => 4 * 60_000,
+            canRefreshToken: () => false,
+            getBaseUrl: () => undefined,
+            getClientId: () => undefined,
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    await vi.waitFor(() => expect(open).toHaveBeenCalled());
+    expect(open.mock.calls[0][0]).toBe('Your session expires in 4 minutes. Save your work.');
+    fixture.destroy();
   });
 });

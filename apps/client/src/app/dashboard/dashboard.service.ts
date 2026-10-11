@@ -14,23 +14,64 @@ import {
   SessionStatusCountsDto,
 } from '@eudiplo/sdk-core';
 import { JwtService } from '../services/jwt.service';
+import { apiErrorDetail, hasHttpStatus } from '../utils/error-message';
 
 type AccessCertificateStatus = 'missing' | 'expired' | 'expiring' | 'healthy';
+
+/** One backend request of the dashboard. */
+export type DashboardSource =
+  | 'keyChains'
+  | 'credentials'
+  | 'issuance'
+  | 'presentations'
+  | 'trustLists'
+  | 'registrar'
+  | 'sessionStats'
+  | 'recentSessions';
+
+const sourceLabels: Record<DashboardSource, string> = {
+  keyChains: 'key chains',
+  credentials: 'credential configs',
+  issuance: 'issuer settings',
+  presentations: 'presentation configs',
+  trustLists: 'trust lists',
+  registrar: 'registrar config',
+  sessionStats: 'session counts',
+  recentSessions: 'recent sessions',
+};
+
+export interface DashboardWarning {
+  message: string;
+  /** Route to the page that fixes the cause. */
+  action?: { label: string; route: string[] };
+  /** The cause is a failed request that loading again may fix. */
+  retry?: boolean;
+}
+
+/** Network errors, timeouts, rate limits and server errors can pass on a retry. */
+function isRetryable(error: unknown): boolean {
+  const status = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
+  return typeof status !== 'number' || status >= 500 || status === 408 || status === 429;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService {
   private readonly accessCertificateExpiringSoonDays = 30;
+  private readonly loadedSources = new Set<DashboardSource>();
+  /** Why each failed request failed. */
+  private readonly failedSources = new Map<DashboardSource, unknown>();
+  private loadId = 0;
 
   credentialConfigs = 0;
   presentationConfigs = 0;
   /** Only holds the session types the user may read. */
   sessionStats: SessionStatsResponseDto = {};
-  /** False until the session counts arrive, and when their request fails. */
-  sessionStatsLoaded = false;
   totalKeyChains = 0;
   accessKeyChains = 0;
+  /** The access key chain whose certificate needs attention, or the one in use. */
+  accessKeyChainId: string | null = null;
   hasActiveAccessCertificate = false;
   hasUsableAccessCertificate = false;
   accessCertificateStatus: AccessCertificateStatus = 'missing';
@@ -41,131 +82,110 @@ export class DashboardService {
   hasRegistrarConfig = false;
   hasIssuanceConfig = false;
   recentSessions: Session[] = [];
-  recentSessionsLoaded = false;
   isLoading = true;
+  /** When the last load finished. */
+  lastUpdatedAt: Date | null = null;
 
   constructor(private readonly jwtService: JwtService) {}
 
-  async getCounters(): Promise<void> {
+  /**
+   * Loads all dashboard data the user's roles allow. With `keepPrevious` the
+   * previous values stay visible until the new ones arrive; a first load
+   * starts empty, so no data of a previously signed-in user shows.
+   */
+  async getCounters({ keepPrevious = false } = {}): Promise<void> {
+    const loadId = ++this.loadId;
     this.isLoading = true;
-    // Reset counters
-    this.sessionStats = {};
-    this.sessionStatsLoaded = false;
-    this.totalKeyChains = 0;
-    this.accessKeyChains = 0;
-    this.hasActiveAccessCertificate = false;
-    this.hasUsableAccessCertificate = false;
-    this.accessCertificateStatus = 'missing';
-    this.accessCertificateExpiresAt = null;
-    this.accessCertificateDaysUntilExpiry = null;
-    this.trustListCount = 0;
-    this.hasTrustList = false;
-    this.hasRegistrarConfig = false;
-    this.credentialConfigs = 0;
-    this.presentationConfigs = 0;
-    this.hasIssuanceConfig = false;
-    this.recentSessions = [];
-    this.recentSessionsLoaded = false;
-
-    try {
-      // Build list of promises based on user roles
-      const promises: Promise<any>[] = [];
-      const promiseKeys: string[] = [];
-
-      if (this.canManageKeyChains) {
-        promises.push(keyChainControllerGetAll());
-        promiseKeys.push('keyChains');
-      }
-
-      // Credential configs require issuance:manage
-      if (this.jwtService.hasRole('issuance:manage')) {
-        promises.push(credentialConfigControllerGetConfigs());
-        promiseKeys.push('credentials');
-        promises.push(issuanceConfigControllerGetIssuanceConfigurations());
-        promiseKeys.push('issuance');
-      }
-
-      // Presentation configs require presentation:manage OR presentation:request
-      if (this.canReadPresentationConfigs) {
-        promises.push(presentationManagementControllerConfiguration());
-        promiseKeys.push('presentations');
-      }
-
-      // Trust lists require presentation:manage
-      if (this.canManagePresentation) {
-        promises.push(trustListControllerGetAllTrustLists());
-        promiseKeys.push('trustLists');
-      }
-
-      // Sessions require issuance:offer OR presentation:request
-      if (this.canViewSessions) {
-        promises.push(sessionControllerGetSessionStats());
-        promiseKeys.push('sessionStats');
-        promises.push(
-          sessionControllerGetAllSessions({
-            query: { pageSize: 5, sortBy: 'updatedAt', sortOrder: 'desc' },
-          })
-        );
-        promiseKeys.push('recentSessions');
-      }
-
-      if (this.canManageRegistrar) {
-        promises.push(registrarControllerGetConfig());
-        promiseKeys.push('registrar');
-      }
-
-      const results = await Promise.allSettled(promises);
-
-      // Process results based on their keys
-      results.forEach((result, index) => {
-        const key = promiseKeys[index];
-        if (result.status === 'fulfilled') {
-          switch (key) {
-            case 'credentials':
-              this.credentialConfigs = result.value.data.length;
-              break;
-            case 'presentations':
-              this.presentationConfigs = result.value.data.length;
-              break;
-            case 'sessionStats':
-              this.sessionStats = result.value.data;
-              this.sessionStatsLoaded = true;
-              break;
-            case 'recentSessions':
-              this.recentSessions = result.value.data.items;
-              this.recentSessionsLoaded = true;
-              break;
-            case 'keyChains': {
-              this.totalKeyChains = result.value.data.filter(
-                (kc: { usageType: string }) => kc.usageType !== 'encrypt'
-              ).length;
-
-              const accessKeyChains = result.value.data.filter(
-                (kc: { usageType: string }) => kc.usageType === 'access'
-              );
-              this.applyAccessCertificateHealth(accessKeyChains);
-              break;
-            }
-            case 'issuance':
-              this.hasIssuanceConfig = !!result.value.data;
-              break;
-            case 'trustLists':
-              this.trustListCount = result.value.data.length;
-              this.hasTrustList = this.trustListCount > 0;
-              break;
-            case 'registrar':
-              this.hasRegistrarConfig = !!result.value.data;
-              break;
-          }
-        } else if (key === 'registrar') {
-          this.hasRegistrarConfig = false;
-        }
-      });
-    } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
-    } finally {
-      this.isLoading = false;
+    if (!keepPrevious) {
+      this.reset();
+      this.lastUpdatedAt = null;
     }
+
+    // Build list of promises based on user roles
+    const promises: Promise<any>[] = [];
+    const promiseKeys: DashboardSource[] = [];
+
+    if (this.canManageKeyChains) {
+      promises.push(keyChainControllerGetAll());
+      promiseKeys.push('keyChains');
+    }
+
+    // Credential configs require issuance:manage
+    if (this.jwtService.hasRole('issuance:manage')) {
+      promises.push(credentialConfigControllerGetConfigs());
+      promiseKeys.push('credentials');
+      promises.push(issuanceConfigControllerGetIssuanceConfigurations());
+      promiseKeys.push('issuance');
+    }
+
+    // Presentation configs require presentation:manage OR presentation:request
+    if (this.canReadPresentationConfigs) {
+      promises.push(presentationManagementControllerConfiguration());
+      promiseKeys.push('presentations');
+    }
+
+    // Trust lists require presentation:manage
+    if (this.canManagePresentation) {
+      promises.push(trustListControllerGetAllTrustLists());
+      promiseKeys.push('trustLists');
+    }
+
+    // Sessions require issuance:offer OR presentation:request
+    if (this.canViewSessions) {
+      promises.push(sessionControllerGetSessionStats());
+      promiseKeys.push('sessionStats');
+      promises.push(
+        sessionControllerGetAllSessions({
+          query: { pageSize: 5, sortBy: 'updatedAt', sortOrder: 'desc' },
+        })
+      );
+      promiseKeys.push('recentSessions');
+    }
+
+    if (this.canManageRegistrar) {
+      promises.push(registrarControllerGetConfig());
+      promiseKeys.push('registrar');
+    }
+
+    const results = await Promise.allSettled(promises);
+    // A newer load has started; its results win.
+    if (loadId !== this.loadId) return;
+
+    this.reset();
+    results.forEach((result, index) => {
+      const key = promiseKeys[index];
+      if (result.status === 'fulfilled') {
+        try {
+          this.apply(key, result.value.data);
+        } catch (error) {
+          // The response does not have the expected shape; treat it like a failed request.
+          console.error(`Unexpected ${sourceLabels[key]} response for the dashboard:`, error);
+          this.failedSources.set(key, { message: 'the response has an unexpected format' });
+          return;
+        }
+      } else if (!(key === 'registrar' && hasHttpStatus(result.reason, 404))) {
+        // The registrar answers 404 while it is not configured; anything else is a failure.
+        console.error(`Failed to load ${sourceLabels[key]} for the dashboard:`, result.reason);
+        this.failedSources.set(key, result.reason);
+        return;
+      }
+      this.loadedSources.add(key);
+    });
+    this.lastUpdatedAt = new Date();
+    this.isLoading = false;
+  }
+
+  /** At least one load has finished. */
+  get hasLoaded(): boolean {
+    return this.lastUpdatedAt !== null;
+  }
+
+  isLoaded(source: DashboardSource): boolean {
+    return this.loadedSources.has(source);
+  }
+
+  hasFailed(source: DashboardSource): boolean {
+    return this.failedSources.has(source);
   }
 
   // Role-based visibility helpers
@@ -190,10 +210,12 @@ export class DashboardService {
     return !this.canManageIssuance && !this.canManagePresentation;
   }
 
+  get canOfferIssuance(): boolean {
+    return this.jwtService.hasRole('issuance:offer');
+  }
+
   get canViewSessions(): boolean {
-    return (
-      this.jwtService.hasRole('issuance:offer') || this.jwtService.hasRole('presentation:request')
-    );
+    return this.canOfferIssuance || this.jwtService.hasRole('presentation:request');
   }
 
   get canReadPresentationConfigs(): boolean {
@@ -257,7 +279,7 @@ export class DashboardService {
     if (!this.canManageIssuance) {
       return false; // User can't manage issuance
     }
-    return this.hasPrerequisites && this.hasIssuanceConfig && this.credentialConfigs > 0;
+    return this.issueReadinessReason === null;
   }
 
   // Verification readiness
@@ -265,7 +287,7 @@ export class DashboardService {
     if (!this.canReadPresentationConfigs) {
       return false; // User can't see presentation configs
     }
-    return this.hasPrerequisites && this.presentationConfigs > 0;
+    return this.verifyReadinessReason === null;
   }
 
   // Overall setup complete (at least one path is ready)
@@ -280,7 +302,8 @@ export class DashboardService {
 
   // Show setup guide if prerequisites are not met OR neither path is ready
   get showSetupGuide(): boolean {
-    if (this.isReadOnly) {
+    // A failed request would show steps as missing; the warning offers a retry instead.
+    if (this.isReadOnly || this.setupSources.some((source) => this.hasFailed(source))) {
       return false;
     }
 
@@ -289,14 +312,23 @@ export class DashboardService {
 
   get issueReadinessReason(): string | null {
     if (!this.canManageIssuance) {
-      return 'Read-only: missing issuance:manage role';
+      // The issuance form lists credential configs, which need issuance:manage.
+      return this.canOfferIssuance
+        ? 'The issuance form needs the issuance:manage role'
+        : 'Read-only: missing issuance:manage role';
     }
     const prerequisite = this.prerequisiteReason;
     if (prerequisite) {
       return prerequisite;
     }
+    if (this.hasFailed('issuance')) {
+      return 'Issuer settings could not be loaded';
+    }
+    if (this.hasFailed('credentials')) {
+      return 'Credential configs could not be loaded';
+    }
     if (!this.hasIssuanceConfig) {
-      return 'No issuance config';
+      return 'No issuer settings';
     }
     if (this.credentialConfigs === 0) {
       return 'No credential config';
@@ -312,6 +344,9 @@ export class DashboardService {
     if (prerequisite) {
       return prerequisite;
     }
+    if (this.hasFailed('presentations')) {
+      return 'Presentation configs could not be loaded';
+    }
     if (this.presentationConfigs === 0) {
       return this.canManagePresentation
         ? 'No presentation config'
@@ -324,6 +359,9 @@ export class DashboardService {
   private get prerequisiteReason(): string | null {
     if (!this.canManageKeyChains) {
       return null;
+    }
+    if (this.hasFailed('keyChains')) {
+      return 'Key chains could not be loaded';
     }
     if (this.totalKeyChains === 0) {
       return 'No key chain configured';
@@ -340,6 +378,20 @@ export class DashboardService {
     return null;
   }
 
+  /** The requests the setup guide relies on. */
+  private get setupSources(): DashboardSource[] {
+    const sources: DashboardSource[] = [];
+    if (this.canManageKeyChains) sources.push('keyChains');
+    if (this.canManageIssuance) sources.push('credentials', 'issuance');
+    if (this.canManagePresentation) sources.push('presentations');
+    return sources;
+  }
+
+  /** Where to fix the access certificate: the affected key chain, or a new one. */
+  get accessCertificateRoute(): string[] {
+    return this.accessKeyChainId ? ['/keys', this.accessKeyChainId] : ['/keys/create'];
+  }
+
   get accessCertificateStatusLabel(): string {
     switch (this.accessCertificateStatus) {
       case 'healthy':
@@ -353,104 +405,126 @@ export class DashboardService {
     }
   }
 
-  get accessCertificateStatusColor(): 'primary' | 'accent' | 'warn' {
-    switch (this.accessCertificateStatus) {
-      case 'healthy':
-        return 'primary';
-      case 'expiring':
-        return 'accent';
-      case 'expired':
-      case 'missing':
-      default:
-        return 'warn';
+  get warnings(): DashboardWarning[] {
+    const warnings: DashboardWarning[] = [];
+    for (const [source, reason] of this.failedSources) {
+      const detail = apiErrorDetail(reason);
+      warnings.push({
+        message: detail
+          ? `Could not load ${sourceLabels[source]}: ${detail}`
+          : `Could not load ${sourceLabels[source]}.`,
+        retry: isRetryable(reason),
+      });
     }
-  }
 
-  get warningMessages(): string[] {
-    const warnings: string[] = [];
     const certificateWarning = this.accessCertificateWarning;
     if (certificateWarning) {
       warnings.push(certificateWarning);
     }
 
-    if (this.canManagePresentation && !this.hasTrustList) {
-      warnings.push('No trust list configured. Presentation trust-chain validation may fail.');
+    if (this.canManagePresentation && this.isLoaded('trustLists') && !this.hasTrustList) {
+      warnings.push({
+        message: 'No trust list configured. Presentation trust-chain validation may fail.',
+        action: { label: 'Add Trust List', route: ['/trust-list/create'] },
+      });
     }
 
-    if (this.canManageRegistrar && !this.hasRegistrarConfig) {
-      warnings.push(
-        'Registrar is not configured. Access certificate enrollment via registrar is unavailable.'
-      );
-    }
-
-    if (this.canViewSessions && this.sessionStatsLoaded && this.totalSessions === 0) {
-      warnings.push(
-        'No sessions recorded yet. Run an issuance or presentation flow to validate end-to-end setup.'
-      );
+    if (this.canManageRegistrar && this.isLoaded('registrar') && !this.hasRegistrarConfig) {
+      warnings.push({
+        message:
+          'Registrar is not configured. Access certificate enrollment via registrar is unavailable.',
+        action: { label: 'Configure Registrar', route: ['/registrar'] },
+      });
     }
 
     return warnings;
   }
 
-  private get accessCertificateWarning(): string | null {
+  // A missing or expired certificate blocks the setup, so the setup guide shows it with a link.
+  private get accessCertificateWarning(): DashboardWarning | null {
     // Key chains are only loaded for users who can manage them.
-    if (!this.canManageKeyChains) {
+    if (!this.canManageKeyChains || !this.isLoaded('keyChains')) {
       return null;
     }
-    if (!this.hasActiveAccessCertificate) {
-      return 'No access certificate configured. Issuance and presentation flows cannot start.';
-    }
-    if (!this.hasUsableAccessCertificate) {
-      return 'Access certificate is expired. Renew it before issuing or requesting presentations.';
-    }
     if (this.accessCertificateStatus === 'expiring') {
-      return `Access certificate expires within ${this.accessCertificateExpiringSoonDays} days. Plan renewal to avoid interruptions.`;
+      return {
+        message: `Access certificate expires within ${this.accessCertificateExpiringSoonDays} days. Plan renewal to avoid interruptions.`,
+        action: { label: 'Open Access Key Chain', route: this.accessCertificateRoute },
+      };
     }
     return null;
   }
 
   get hasWarnings(): boolean {
-    return this.warningMessages.length > 0;
+    return this.warnings.length > 0;
   }
 
-  get setupProgress(): number {
-    const weights = {
-      keyChain: 20,
-      accessCertificate: 35,
-      issuancePath: this.canManageIssuance ? 25 : 0,
-      presentationPath: this.canManagePresentation ? 20 : 0,
-    };
+  private reset(): void {
+    this.loadedSources.clear();
+    this.failedSources.clear();
+    this.sessionStats = {};
+    this.totalKeyChains = 0;
+    this.accessKeyChains = 0;
+    this.accessKeyChainId = null;
+    this.hasActiveAccessCertificate = false;
+    this.hasUsableAccessCertificate = false;
+    this.accessCertificateStatus = 'missing';
+    this.accessCertificateExpiresAt = null;
+    this.accessCertificateDaysUntilExpiry = null;
+    this.trustListCount = 0;
+    this.hasTrustList = false;
+    this.hasRegistrarConfig = false;
+    this.credentialConfigs = 0;
+    this.presentationConfigs = 0;
+    this.hasIssuanceConfig = false;
+    this.recentSessions = [];
+  }
 
-    const totalWeight =
-      weights.keyChain +
-      weights.accessCertificate +
-      weights.issuancePath +
-      weights.presentationPath;
-
-    if (totalWeight === 0) {
-      return 100;
+  private apply(source: DashboardSource, data: any): void {
+    switch (source) {
+      case 'credentials':
+        this.credentialConfigs = data.length;
+        break;
+      case 'presentations':
+        this.presentationConfigs = data.length;
+        break;
+      case 'sessionStats':
+        this.sessionStats = data;
+        break;
+      case 'recentSessions':
+        this.recentSessions = data.items;
+        break;
+      case 'keyChains':
+        this.totalKeyChains = data.filter(
+          (kc: KeyChainResponseDto) => kc.usageType !== 'encrypt'
+        ).length;
+        this.applyAccessCertificateHealth(
+          data.filter((kc: KeyChainResponseDto) => kc.usageType === 'access')
+        );
+        break;
+      case 'issuance':
+        this.hasIssuanceConfig = !!data;
+        break;
+      case 'trustLists':
+        this.trustListCount = data.length;
+        this.hasTrustList = this.trustListCount > 0;
+        break;
+      case 'registrar':
+        this.hasRegistrarConfig = !!data;
+        break;
     }
-
-    let achieved = 0;
-    if (this.totalKeyChains > 0) achieved += weights.keyChain;
-    if (this.hasUsableAccessCertificate) achieved += weights.accessCertificate;
-    if (this.hasIssuanceConfig && this.credentialConfigs > 0) achieved += weights.issuancePath;
-    if (this.presentationConfigs > 0) achieved += weights.presentationPath;
-
-    return Math.round((achieved / totalWeight) * 100);
   }
 
   private applyAccessCertificateHealth(accessKeyChains: KeyChainResponseDto[]): void {
     this.accessKeyChains = accessKeyChains.length;
+    this.accessKeyChainId = accessKeyChains[0]?.id ?? null;
 
     const now = Date.now();
-    const certs = accessKeyChains
-      .map((kc) => kc.activeCertificate)
-      .filter((cert): cert is NonNullable<KeyChainResponseDto['activeCertificate']> => !!cert?.pem);
+    const withCertificate = accessKeyChains.filter((kc) => !!kc.activeCertificate?.pem);
 
-    this.hasActiveAccessCertificate = certs.length > 0;
+    this.hasActiveAccessCertificate = withCertificate.length > 0;
 
-    if (certs.length === 0) {
+    if (withCertificate.length === 0) {
       this.hasUsableAccessCertificate = false;
       this.accessCertificateStatus = 'missing';
       this.accessCertificateExpiresAt = null;
@@ -461,8 +535,9 @@ export class DashboardService {
     let nearestValidExpiry: number | null = null;
     let hasNonExpired = false;
 
-    for (const cert of certs) {
-      const expiryMs = cert.notAfter ? Date.parse(cert.notAfter) : Number.NaN;
+    for (const keyChain of withCertificate) {
+      const notAfter = keyChain.activeCertificate?.notAfter;
+      const expiryMs = notAfter ? Date.parse(notAfter) : Number.NaN;
       if (Number.isNaN(expiryMs)) {
         continue;
       }
@@ -471,6 +546,7 @@ export class DashboardService {
         hasNonExpired = true;
         if (nearestValidExpiry === null || expiryMs < nearestValidExpiry) {
           nearestValidExpiry = expiryMs;
+          this.accessKeyChainId = keyChain.id;
         }
       }
     }
@@ -478,6 +554,7 @@ export class DashboardService {
     this.hasUsableAccessCertificate = hasNonExpired;
 
     if (!hasNonExpired) {
+      this.accessKeyChainId = withCertificate[0].id;
       this.accessCertificateStatus = 'expired';
       this.accessCertificateExpiresAt = null;
       this.accessCertificateDaysUntilExpiry = null;

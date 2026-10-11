@@ -31,8 +31,17 @@ mat-icon[mat-card-avatar] {
 
 // Welcome Header
 .welcome-header {
+  position: relative;
   width: 100%;
   margin-bottom: 8px;
+
+  // Overlays the gap below the header, so showing it does not move the page.
+  .loading-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -14px;
+  }
 
   .dashboard-heading {
     min-width: 220px;
@@ -79,16 +88,10 @@ mat-icon[mat-card-avatar] {
     gap: 12px;
   }
 
-  .version-chips mat-chip {
-    background: var(--mat-sys-surface-container-high);
-
-    &.version-mismatch {
-      background: var(--eudiplo-warning-soft);
-
-      mat-icon {
-        color: var(--eudiplo-warning);
-      }
-    }
+  .updated-at {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 13px;
+    white-space: nowrap;
   }
 
   .customize-button {
@@ -216,16 +219,6 @@ mat-icon[mat-card-avatar] {
   .setup-icon {
     color: var(--mat-sys-on-tertiary-container);
     background: var(--mat-sys-tertiary-container);
-  }
-
-  &.readonly-card {
-    border-left-color: var(--eudiplo-info);
-    background: var(--mat-sys-surface-container);
-
-    .setup-icon {
-      color: var(--mat-sys-on-primary-container);
-      background: var(--mat-sys-primary-container);
-    }
   }
 
   &.warnings-card {
@@ -731,16 +724,7 @@ mat-icon[mat-card-avatar] {
     }
 
     .header-actions {
-      align-items: stretch;
-      flex-direction: column;
-    }
-
-    .version-chips {
       flex-wrap: wrap;
-    }
-
-    .customize-button {
-      align-self: flex-start;
     }
   }
 

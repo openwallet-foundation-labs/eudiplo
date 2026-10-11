@@ -11,28 +11,32 @@
       </p>
     </div>
     <div class="header-actions">
-      <div class="version-chips" fxLayout="row" fxLayoutGap="8px">
-        <mat-chip
-          [matTooltip]="versionTooltip('Backend', versionService.backend?.revision)"
-          [class.version-mismatch]="versionService.compatibility === 'mismatch'"
+      @if (dashboardService.lastUpdatedAt) {
+        <span class="updated-at">
+          Updated {{ dashboardService.lastUpdatedAt | date: 'HH:mm' }}
+        </span>
+      }
+      @if (grafanaEnabled) {
+        <button
+          mat-icon-button
+          type="button"
+          (click)="openGrafana()"
+          matTooltip="Open Grafana"
+          aria-label="Open Grafana"
         >
-          <mat-icon matChipAvatar>dns</mat-icon>
-          Backend: {{ versionService.backend?.version || '...' }}
-        </mat-chip>
-        <mat-chip
-          [matTooltip]="versionTooltip('Client', versionService.client.revision)"
-          [class.version-mismatch]="versionService.compatibility === 'mismatch'"
-        >
-          <mat-icon matChipAvatar>{{
-            versionService.compatibility === 'mismatch' ? 'warning' : 'web'
-          }}</mat-icon>
-          Client: {{ versionService.client.version }}
-        </mat-chip>
-        <mat-chip matTooltip="Startup configuration import mode">
-          <mat-icon matChipAvatar>sync</mat-icon>
-          Import: {{ frontendConfigService.configImportMode || '...' }}
-        </mat-chip>
-      </div>
+          <mat-icon>monitoring</mat-icon>
+        </button>
+      }
+      <button
+        mat-icon-button
+        type="button"
+        (click)="refresh()"
+        [disabled]="dashboardService.isLoading"
+        matTooltip="Refresh"
+        aria-label="Refresh dashboard"
+      >
+        <mat-icon>refresh</mat-icon>
+      </button>
       <button
         mat-stroked-button
         type="button"
@@ -45,6 +49,13 @@
         Customize
       </button>
     </div>
+    @if (dashboardService.isLoading) {
+      <mat-progress-bar
+        class="loading-bar"
+        mode="indeterminate"
+        aria-label="Loading dashboard"
+      ></mat-progress-bar>
+    }
   </div>
 
   @if (customizePanelOpen) {
@@ -130,21 +141,8 @@
     </mat-card>
   }
 
-  @if (dashboardService.isReadOnly && !dashboardService.isLoading) {
-    <mat-card class="setup-card readonly-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="setup-icon">visibility</mat-icon>
-        <mat-card-title>Read-only Dashboard</mat-card-title>
-        <mat-card-subtitle
-          >Your role allows monitoring, but not setup changes for
-          issuance/presentation</mat-card-subtitle
-        >
-      </mat-card-header>
-    </mat-card>
-  }
-
   <!-- Setup Guide (shown if setup not complete) -->
-  @if (dashboardService.showSetupGuide && !dashboardService.isLoading) {
+  @if (dashboardService.showSetupGuide && dashboardService.hasLoaded) {
     <mat-card class="setup-card">
       <mat-card-header>
         <mat-icon mat-card-avatar class="setup-icon">rocket_launch</mat-icon>
@@ -216,7 +214,11 @@
                   </p>
                 </div>
                 @if (!dashboardService.hasUsableAccessCertificate) {
-                  <a mat-stroked-button color="primary" routerLink="/keys/create">
+                  <a
+                    mat-stroked-button
+                    color="primary"
+                    [routerLink]="dashboardService.accessCertificateRoute"
+                  >
                     <mat-icon>verified</mat-icon> Configure
                   </a>
                 } @else {
@@ -262,7 +264,7 @@
                       }}
                     </mat-icon>
                     <div fxFlex>
-                      <strong>Issuance Config</strong>
+                      <strong>Issuer Settings</strong>
                       <p>Configure your issuer identity</p>
                     </div>
                     @if (!dashboardService.hasIssuanceConfig) {
@@ -304,7 +306,7 @@
                     <div class="track-actions" fxLayout="row" fxLayoutGap="8px">
                       @if (!dashboardService.hasIssuanceConfig) {
                         <a mat-flat-button color="primary" routerLink="/issuance-config">
-                          <mat-icon>settings</mat-icon> Configure Issuance
+                          <mat-icon>settings</mat-icon> Open Issuer Settings
                         </a>
                       } @else if (dashboardService.credentialConfigs === 0) {
                         <a mat-flat-button color="primary" routerLink="/credential-config/create">
@@ -381,66 +383,58 @@
     </mat-card>
   }
 
+  @if (dashboardService.hasWarnings) {
+    <mat-card class="setup-card warnings-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="setup-icon">warning</mat-icon>
+        <mat-card-title>Needs attention</mat-card-title>
+        <mat-card-subtitle>Signals that may affect issuance and verification</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+          @for (warning of dashboardService.warnings; track warning.message) {
+            <div class="setup-step" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+              <mat-icon>warning_amber</mat-icon>
+              <div fxFlex>{{ warning.message }}</div>
+              @if (warning.retry) {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="refresh()"
+                  [disabled]="dashboardService.isLoading"
+                >
+                  <mat-icon>refresh</mat-icon> Retry
+                </button>
+              } @else if (warning.action) {
+                <a mat-stroked-button color="primary" [routerLink]="warning.action.route">
+                  {{ warning.action.label }}
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
   <!-- Stats Cards -->
   <div class="stats-grid">
-    @if (dashboardService.canManageIssuance) {
-      <a
-        class="stat-card-link"
-        routerLink="/credential-config"
-        aria-label="View credential configurations"
-      >
+    @for (card of statCards; track card.source) {
+      <a class="stat-card-link" [routerLink]="card.route">
         <mat-card class="stat-card">
           <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-            <mat-icon class="stat-icon credential">badge</mat-icon>
-            <span class="stat-value">{{ dashboardService.credentialConfigs }}</span>
-            <span class="stat-label">Credential Configs</span>
-          </mat-card-content>
-        </mat-card>
-      </a>
-    }
-
-    @if (dashboardService.canManagePresentation) {
-      <a
-        class="stat-card-link"
-        routerLink="/presentation-config"
-        aria-label="View presentation configurations"
-      >
-        <mat-card class="stat-card">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-            <mat-icon class="stat-icon presentation">verified_user</mat-icon>
-            <span class="stat-value">{{ dashboardService.presentationConfigs }}</span>
-            <span class="stat-label">Presentation Configs</span>
-          </mat-card-content>
-        </mat-card>
-      </a>
-    }
-
-    @if (dashboardService.canManageKeyChains) {
-      <a class="stat-card-link" routerLink="/keys" aria-label="View key management">
-        <mat-card class="stat-card">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-            <mat-icon class="stat-icon keys">vpn_key</mat-icon>
-            <span class="stat-value">{{ dashboardService.totalKeyChains }}</span>
-            <span class="stat-label">Key Chains</span>
-          </mat-card-content>
-        </mat-card>
-      </a>
-    }
-
-    @if (dashboardService.canViewSessions) {
-      <a
-        class="stat-card-link"
-        routerLink="/session-management"
-        aria-label="View session management"
-      >
-        <mat-card class="stat-card">
-          <mat-card-content fxLayout="column" fxLayoutAlign="center center">
-            <mat-icon class="stat-icon sessions">sync</mat-icon>
-            <span class="stat-value">{{
-              dashboardService.sessionStatsLoaded ? dashboardService.totalSessions : '–'
-            }}</span>
-            <span class="stat-label">Total Sessions</span>
-            @if (!dashboardService.isLoading && !dashboardService.sessionStatsLoaded) {
+            <mat-icon [class]="'stat-icon ' + card.iconClass">{{ card.icon }}</mat-icon>
+            <span class="stat-value">
+              @if (dashboardService.isLoaded(card.source)) {
+                {{ card.value }}
+              } @else if (dashboardService.hasFailed(card.source)) {
+                –
+              } @else {
+                <mat-spinner diameter="28" aria-label="Loading"></mat-spinner>
+              }
+            </span>
+            <span class="stat-label">{{ card.label }}</span>
+            @if (dashboardService.hasFailed(card.source)) {
               <span class="stat-note">Could not be loaded</span>
             }
           </mat-card-content>
@@ -450,118 +444,141 @@
   </div>
 
   @if (dashboardService.hasHealthSignals) {
-    <mat-card class="session-breakdown-card">
+    <mat-card class="session-breakdown-card health-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>health_and_safety</mat-icon>
         <mat-card-title>Operational Health</mat-card-title>
         <mat-card-subtitle>Readiness and integration health signals</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
-          @if (dashboardService.canManageKeyChains) {
-            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-icon class="status-completed">verified</mat-icon>
-              <span
-                ><strong>Access Certificate:</strong>
-                {{ dashboardService.accessCertificateStatusLabel }}</span
-              >
-            </div>
-            @if (dashboardService.accessCertificateExpiresAt) {
+        @if (
+          dashboardService.canManageKeyChains ||
+          dashboardService.canManagePresentation ||
+          dashboardService.canManageRegistrar
+        ) {
+          <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
+            @if (dashboardService.canManageKeyChains) {
               <div
                 class="session-stat"
                 fxLayout="row"
                 fxLayoutAlign="start center"
                 fxLayoutGap="8px"
               >
-                <mat-icon class="status-expired">event</mat-icon>
+                <mat-icon class="status-completed">verified</mat-icon>
                 <span
-                  ><strong>Expires:</strong>
-                  {{ dashboardService.accessCertificateExpiresAt | date: 'yyyy-MM-dd HH:mm' }}</span
+                  ><strong>Access Certificate:</strong>
+                  {{
+                    loadedValue('keyChains', dashboardService.accessCertificateStatusLabel)
+                  }}</span
                 >
               </div>
-              @if (dashboardService.accessCertificateDaysUntilExpiry !== null) {
+              @if (dashboardService.accessCertificateExpiresAt) {
                 <div
                   class="session-stat"
                   fxLayout="row"
                   fxLayoutAlign="start center"
                   fxLayoutGap="8px"
                 >
-                  <mat-icon class="status-expired">hourglass_top</mat-icon>
+                  <mat-icon class="status-expired">event</mat-icon>
                   <span
-                    ><strong>Days Remaining:</strong>
-                    {{ dashboardService.accessCertificateDaysUntilExpiry }}</span
+                    ><strong>Expires:</strong>
+                    {{
+                      dashboardService.accessCertificateExpiresAt | date: 'yyyy-MM-dd HH:mm'
+                    }}</span
                   >
                 </div>
+                @if (dashboardService.accessCertificateDaysUntilExpiry !== null) {
+                  <div
+                    class="session-stat"
+                    fxLayout="row"
+                    fxLayoutAlign="start center"
+                    fxLayoutGap="8px"
+                  >
+                    <mat-icon class="status-expired">hourglass_top</mat-icon>
+                    <span
+                      ><strong>Days Remaining:</strong>
+                      {{ dashboardService.accessCertificateDaysUntilExpiry }}</span
+                    >
+                  </div>
+                }
               }
             }
-          }
-          @if (dashboardService.canManagePresentation) {
-            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-icon class="status-fetched">shield</mat-icon>
-              <span><strong>Trust Lists:</strong> {{ dashboardService.trustListCount }}</span>
-            </div>
-          }
-          @if (dashboardService.canManageRegistrar) {
-            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-icon class="status-active">hub</mat-icon>
-              <span
-                ><strong>Registrar:</strong>
-                {{ dashboardService.hasRegistrarConfig ? 'Configured' : 'Not configured' }}</span
+            @if (dashboardService.canManagePresentation) {
+              <div
+                class="session-stat"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="8px"
               >
-            </div>
-          }
-        </div>
+                <mat-icon class="status-fetched">shield</mat-icon>
+                <span
+                  ><strong>Trust Lists:</strong>
+                  {{ loadedValue('trustLists', dashboardService.trustListCount.toString()) }}</span
+                >
+              </div>
+            }
+            @if (dashboardService.canManageRegistrar) {
+              <div
+                class="session-stat"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="8px"
+              >
+                <mat-icon class="status-active">hub</mat-icon>
+                <span
+                  ><strong>Registrar:</strong>
+                  {{
+                    loadedValue(
+                      'registrar',
+                      dashboardService.hasRegistrarConfig ? 'Configured' : 'Not configured'
+                    )
+                  }}</span
+                >
+              </div>
+            }
+          </div>
+        }
 
-        <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
-          @if (dashboardService.sessionStats.issuance) {
-            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-icon class="status-completed">north_east</mat-icon>
-              <span
-                ><strong>Last Issuance Success:</strong>
-                {{
-                  dashboardService.lastSuccessfulIssuanceAt
-                    ? (dashboardService.lastSuccessfulIssuanceAt | date: 'yyyy-MM-dd HH:mm')
-                    : 'n/a'
-                }}</span
+        @if (dashboardService.sessionStats.issuance || dashboardService.sessionStats.presentation) {
+          <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
+            @if (dashboardService.sessionStats.issuance) {
+              <div
+                class="session-stat"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="8px"
               >
-            </div>
-          }
-          @if (dashboardService.sessionStats.presentation) {
-            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-icon class="status-completed">fact_check</mat-icon>
-              <span
-                ><strong>Last Presentation Success:</strong>
-                {{
-                  dashboardService.lastSuccessfulPresentationAt
-                    ? (dashboardService.lastSuccessfulPresentationAt | date: 'yyyy-MM-dd HH:mm')
-                    : 'n/a'
-                }}</span
+                <mat-icon class="status-completed">north_east</mat-icon>
+                <span
+                  ><strong>Last Issuance Success:</strong>
+                  {{
+                    dashboardService.lastSuccessfulIssuanceAt
+                      ? (dashboardService.lastSuccessfulIssuanceAt | date: 'yyyy-MM-dd HH:mm')
+                      : 'n/a'
+                  }}</span
+                >
+              </div>
+            }
+            @if (dashboardService.sessionStats.presentation) {
+              <div
+                class="session-stat"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="8px"
               >
-            </div>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
-  }
-
-  @if (dashboardService.hasWarnings && !dashboardService.isLoading) {
-    <mat-card class="setup-card warnings-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar class="setup-icon">warning</mat-icon>
-        <mat-card-title>Warnings</mat-card-title>
-        <mat-card-subtitle
-          >Non-blocking signals that may impact runtime reliability</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
-          @for (warning of dashboardService.warningMessages; track warning) {
-            <div class="setup-step" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
-              <mat-icon>warning_amber</mat-icon>
-              <div fxFlex>{{ warning }}</div>
-            </div>
-          }
-        </div>
+                <mat-icon class="status-completed">fact_check</mat-icon>
+                <span
+                  ><strong>Last Presentation Success:</strong>
+                  {{
+                    dashboardService.lastSuccessfulPresentationAt
+                      ? (dashboardService.lastSuccessfulPresentationAt | date: 'yyyy-MM-dd HH:mm')
+                      : 'n/a'
+                  }}</span
+                >
+              </div>
+            }
+          </div>
+        }
       </mat-card-content>
     </mat-card>
   }
@@ -578,13 +595,13 @@
         @if (dashboardService.recentSessions.length > 0) {
           <div class="activity-list">
             @for (session of dashboardService.recentSessions; track session.id) {
-              <a class="activity-row" routerLink="/session-management">
+              <a class="activity-row" [routerLink]="['/session-management', session.id]">
                 <mat-icon [class]="'activity-status status-' + session.status">
                   {{ sessionStatusIcon(session.status) }}
                 </mat-icon>
                 <span class="activity-copy">
-                  <strong>Session {{ session.status }}</strong>
-                  <small>{{ session.id }}</small>
+                  <strong>{{ sessionTypeLabel(session) }} {{ session.status }}</strong>
+                  <small [title]="session.id">{{ sessionDetails(session) }}</small>
                 </span>
                 <time [attr.datetime]="session.updatedAt">
                   {{ session.updatedAt | date: 'MMM d, HH:mm' }}
@@ -593,7 +610,7 @@
               </a>
             }
           </div>
-        } @else if (dashboardService.recentSessionsLoaded) {
+        } @else if (dashboardService.isLoaded('recentSessions')) {
           <div class="empty-state">
             <mat-icon>inbox</mat-icon>
             <div>
@@ -601,17 +618,26 @@
               <p>Run an issuance or presentation flow to see recent updates here.</p>
             </div>
           </div>
-        } @else if (!dashboardService.isLoading) {
+        } @else if (dashboardService.hasFailed('recentSessions')) {
           <div class="empty-state">
             <mat-icon>error_outline</mat-icon>
             <div>
               <strong>Recent activity could not be loaded</strong>
-              <p>Reload the page, or open the full session list below.</p>
+              <p>See the message at the top, or open the full session list below.</p>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-spinner diameter="24" aria-label="Loading recent activity"></mat-spinner>
+            <div>
+              <strong>Loading recent activity…</strong>
             </div>
           </div>
         }
       </mat-card-content>
-      @if (dashboardService.recentSessions.length > 0 || !dashboardService.recentSessionsLoaded) {
+      @if (
+        dashboardService.recentSessions.length > 0 || dashboardService.hasFailed('recentSessions')
+      ) {
         <mat-card-actions>
           <a mat-button color="primary" routerLink="/session-management">View all sessions</a>
         </mat-card-actions>
@@ -625,7 +651,7 @@
     isSectionVisible('sessionOverview') &&
     dashboardService.totalSessions > 0
   ) {
-    <mat-card class="session-breakdown-card">
+    <mat-card class="session-breakdown-card session-overview-card">
       <mat-card-header>
         <mat-icon mat-card-avatar>analytics</mat-icon>
         <mat-card-title>Session Overview</mat-card-title>
@@ -675,11 +701,6 @@
         <a mat-button color="primary" routerLink="/session-management">
           <mat-icon>visibility</mat-icon> View All Sessions
         </a>
-        @if (grafanaEnabled) {
-          <button mat-button (click)="openGrafana()">
-            <mat-icon>monitoring</mat-icon> Open Grafana
-          </button>
-        }
       </mat-card-actions>
     </mat-card>
   }
@@ -694,7 +715,7 @@
       </mat-card-header>
       <mat-card-content>
         <div class="quick-actions" fxLayout="row wrap" fxLayoutGap="12px">
-          @if (jwtService.hasRole('issuance:offer')) {
+          @if (dashboardService.canOfferIssuance) {
             <a
               mat-raised-button
               color="primary"
@@ -740,14 +761,18 @@
           }
         </div>
         @if (
-          !dashboardService.isLoading &&
-          ((dashboardService.canManageIssuance && !dashboardService.isReadyToIssue) ||
+          dashboardService.hasLoaded &&
+          (((dashboardService.canManageIssuance || dashboardService.canOfferIssuance) &&
+            !dashboardService.isReadyToIssue) ||
             (dashboardService.canReadPresentationConfigs && !dashboardService.isReadyToVerify))
         ) {
           <div class="actions-hint">
             <mat-icon>info</mat-icon>
             <span>
-              @if (dashboardService.canManageIssuance && dashboardService.issueReadinessReason) {
+              @if (
+                (dashboardService.canManageIssuance || dashboardService.canOfferIssuance) &&
+                dashboardService.issueReadinessReason
+              ) {
                 Issuance is blocked: <strong>{{ dashboardService.issueReadinessReason }}</strong
                 >.
               }
@@ -798,11 +823,6 @@
           <a mat-stroked-button href="https://discord.gg/58ys8XfXDu" target="_blank" rel="noopener">
             <mat-icon>forum</mat-icon> Discord Community
           </a>
-          @if (grafanaEnabled) {
-            <button mat-stroked-button (click)="openGrafana()">
-              <mat-icon>monitoring</mat-icon> Grafana Dashboard
-            </button>
-          }
         </div>
       </mat-card-content>
     </mat-card>

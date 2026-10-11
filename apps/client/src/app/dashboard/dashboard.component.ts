@@ -1,5 +1,6 @@
-import { Component, type OnDestroy, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import type { Session } from '@eudiplo/sdk-core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,17 +11,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { EnvironmentService } from '../services/environment.service';
 import { JwtService } from '../services/jwt.service';
 import { GrafanaLinkService } from '../services/grafana-link.service';
 import { ApiService } from '../core';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { DashboardService } from './dashboard.service';
-import { FrontendConfigService } from '../services/frontend-config.service';
-import { VersionService } from '../services/version.service';
+import { DashboardService, DashboardSource } from './dashboard.service';
+import { isPresentationSession } from '../session-management/session-management.service';
 import {
   DashboardFocus,
   DashboardPreferences,
@@ -34,6 +32,15 @@ interface DashboardFocusOption {
   description: string;
   icon: string;
   available: boolean;
+}
+
+interface StatCard {
+  source: DashboardSource;
+  value: number;
+  label: string;
+  icon: string;
+  iconClass: string;
+  route: string;
 }
 
 @Component({
@@ -50,7 +57,6 @@ interface DashboardFocusOption {
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatGridListModule,
     MatCheckboxModule,
     DatePipe,
     RouterModule,
@@ -59,8 +65,7 @@ interface DashboardFocusOption {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  private tokenCheckInterval?: NodeJS.Timeout;
+export class DashboardComponent implements OnInit {
   grafanaEnabled = false;
   customizePanelOpen = false;
   preferences: DashboardPreferences = {
@@ -75,13 +80,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     public apiService: ApiService,
-    public environmentService: EnvironmentService,
     public dashboardService: DashboardService,
     public grafanaLinkService: GrafanaLinkService,
-    public frontendConfigService: FrontendConfigService,
     public jwtService: JwtService,
-    public versionService: VersionService,
-    private readonly router: Router,
     private readonly snackBar: MatSnackBar,
     private readonly dashboardPreferencesService: DashboardPreferencesService
   ) {}
@@ -93,17 +94,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dashboardPreferencesService.save(this.preferences);
     }
 
-    // Check token status periodically (every 30 seconds)
-    this.tokenCheckInterval = setInterval(() => {
-      this.checkTokenStatus();
-    }, 30000);
-
-    // Initial check
-    this.checkTokenStatus();
-
-    // Fetch backend version (no-op if the app shell already checked it)
-    this.versionService.check(this.apiService.getBaseUrl());
-
     // Fetch dashboard stats
     this.dashboardService.getCounters();
 
@@ -111,61 +101,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.grafanaLinkService.getConfig().then(() => {
       this.grafanaEnabled = this.grafanaLinkService.isEnabled();
     });
-    this.frontendConfigService.getConfig();
   }
 
-  ngOnDestroy(): void {
-    if (this.tokenCheckInterval) {
-      clearInterval(this.tokenCheckInterval);
-    }
-  }
-
-  /**
-   * Check token status and show warnings if needed
-   */
-  private checkTokenStatus(): void {
-    if (!this.apiService.getAuthenticationStatus()) {
-      // Token has expired, redirect to login
-      this.snackBar
-        .open('Your session has expired. Please login again.', 'Login', {
-          duration: 0, // Don't auto-dismiss
-          panelClass: ['error-snackbar'],
-        })
-        .onAction()
-        .subscribe(() => {
-          this.apiService.logout();
-          this.router.navigate(['/login']);
-        });
-      return;
-    }
-
-    // Check if token is expiring soon (within 5 minutes) and can't auto-refresh
-    const timeRemaining = this.apiService.getTokenTimeRemaining();
-    if (timeRemaining < 300000 && !this.canAutoRefresh) {
-      // 5 minutes
-      const minutes = Math.floor(timeRemaining / 60000);
-      this.snackBar.open(`Token expires in ${minutes} minutes. Please save your work.`, 'OK', {
-        duration: 10000,
-        panelClass: ['warning-snackbar'],
-      });
-    }
-  }
-
-  versionTooltip(label: string, revision?: string): string {
-    const tooltip = revision
-      ? `${label} version (commit ${revision.slice(0, 7)})`
-      : `${label} version`;
-    return this.versionService.compatibility === 'mismatch'
-      ? `${tooltip} – client and backend come from different builds`
-      : tooltip;
+  refresh(): void {
+    this.dashboardService.getCounters({ keepPrevious: true });
   }
 
   get currentBaseUrl(): string {
     return this.apiService.getBaseUrl() || 'Not configured';
   }
 
-  get canAutoRefresh(): boolean {
-    return this.apiService.canRefreshToken();
+  get statCards(): StatCard[] {
+    const service = this.dashboardService;
+    const cards: StatCard[] = [];
+    if (service.canManageIssuance) {
+      cards.push({
+        source: 'credentials',
+        value: service.credentialConfigs,
+        label: 'Credential Configs',
+        icon: 'badge',
+        iconClass: 'credential',
+        route: '/credential-config',
+      });
+    }
+    if (service.canManagePresentation) {
+      cards.push({
+        source: 'presentations',
+        value: service.presentationConfigs,
+        label: 'Presentation Configs',
+        icon: 'verified_user',
+        iconClass: 'presentation',
+        route: '/presentation-config',
+      });
+    }
+    if (service.canManageKeyChains) {
+      cards.push({
+        source: 'keyChains',
+        value: service.totalKeyChains,
+        label: 'Key Chains',
+        icon: 'vpn_key',
+        iconClass: 'keys',
+        route: '/keys',
+      });
+    }
+    if (service.canViewSessions) {
+      cards.push({
+        source: 'sessionStats',
+        value: service.totalSessions,
+        label: 'Total Sessions',
+        icon: 'sync',
+        iconClass: 'sessions',
+        route: '/session-management',
+      });
+    }
+    return cards;
+  }
+
+  /** The value once its request has loaded, otherwise what the user is waiting for. */
+  loadedValue(source: DashboardSource, value: string): string {
+    if (this.dashboardService.isLoaded(source)) return value;
+    return this.dashboardService.hasFailed(source) ? 'Could not be loaded' : 'Loading…';
+  }
+
+  sessionTypeLabel(session: Session): string {
+    return isPresentationSession(session) ? 'Presentation' : 'Issuance';
+  }
+
+  sessionDetails(session: Session): string {
+    return [session.requestId, session.reference, session.failureCode, session.id.slice(0, 8)]
+      .filter((part) => !!part)
+      .join(' · ');
   }
 
   openGrafana(): void {
@@ -190,7 +195,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         description: 'Prioritize credential issuance workflows',
         icon: 'card_giftcard',
         available:
-          this.dashboardService.canManageIssuance || this.jwtService.hasRole('issuance:offer'),
+          this.dashboardService.canManageIssuance || this.dashboardService.canOfferIssuance,
       },
       {
         value: 'verification',
@@ -218,10 +223,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   get readinessTitle(): string {
     if (this.dashboardService.isLoading) return 'Checking system readiness…';
     if (this.dashboardService.hasWarnings) {
-      const count = this.dashboardService.warningMessages.length;
+      const count = this.dashboardService.warnings.length;
       return `${count} ${count === 1 ? 'item needs' : 'items need'} attention`;
     }
-    if (this.dashboardService.isReadOnly) return 'Monitoring access';
+    if (this.dashboardService.isReadOnly) {
+      return 'Monitoring access: your roles cannot change the issuance or presentation setup';
+    }
     if (this.dashboardService.isSetupComplete) return 'Ready for wallet flows';
     return 'Setup incomplete';
   }
@@ -229,7 +236,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   get defaultPreferences(): DashboardPreferences {
     let focus: DashboardFocus = 'balanced';
     if (
-      (this.dashboardService.canManageIssuance || this.jwtService.hasRole('issuance:offer')) &&
+      (this.dashboardService.canManageIssuance || this.dashboardService.canOfferIssuance) &&
       !this.dashboardService.canManagePresentation &&
       !this.jwtService.hasRole('presentation:request')
     ) {
@@ -238,7 +245,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       (this.dashboardService.canManagePresentation ||
         this.jwtService.hasRole('presentation:request')) &&
       !this.dashboardService.canManageIssuance &&
-      !this.jwtService.hasRole('issuance:offer')
+      !this.dashboardService.canOfferIssuance
     ) {
       focus = 'verification';
     } else if (
