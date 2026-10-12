@@ -67,6 +67,11 @@
                 type="password"
                 aria-label="Client Secret"
               />
+            } @else {
+              <input matInput [value]="missingSecretText" readonly aria-label="Client Secret" />
+            }
+            <!-- Own @if: a block with one root node lets matSuffix project the button. -->
+            @if (currentClientSecret; as secret) {
               <button
                 mat-icon-button
                 matSuffix
@@ -76,8 +81,6 @@
               >
                 <mat-icon>content_copy</mat-icon>
               </button>
-            } @else {
-              <input matInput [value]="missingSecretText" readonly aria-label="Client Secret" />
             }
           </mat-form-field>
         </div>

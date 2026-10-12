@@ -100,7 +100,11 @@ describe('ConnectionSettingsComponent', () => {
     expect(page.querySelector('input[aria-label="Client Secret"]')?.getAttribute('type')).toBe(
       'password'
     );
-    expect(page.querySelector('[aria-label="Copy Client Secret to clipboard"]')).not.toBeNull();
+    expect(
+      page.querySelector(
+        '.mat-mdc-form-field-icon-suffix [aria-label="Copy Client Secret to clipboard"]'
+      )
+    ).not.toBeNull();
     expect(page.textContent).toContain('Automatic token refresh: enabled');
     expect(page.textContent).not.toContain('keeps the client secret only until');
   });
