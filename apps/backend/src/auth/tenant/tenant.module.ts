@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import type { Repository } from "typeorm";
 import { AuditLogModule } from "../../audit-log/audit-log.module.js";
@@ -7,6 +8,7 @@ import { RegistrarModule } from "../../registrar/registrar.module.js";
 import { ClientModule } from "../client/client.module.js";
 import { TypeOrmTenantRepository } from "./adapters/typeorm-tenant.repository.js";
 import { TenantEntity } from "./entities/tenant.entity.js";
+import { KnownTenantGuard } from "./known-tenant.guard.js";
 import { TENANT_REPOSITORY } from "./ports/tenant.repository.js";
 import { TenantController } from "./tenant.controller.js";
 import { TenantService } from "./tenant.service.js";
@@ -27,6 +29,8 @@ import { TenantService } from "./tenant.service.js";
             useFactory: (repository: Repository<TenantEntity>) =>
                 new TypeOrmTenantRepository(repository),
         },
+        // Routes with a `:tenantId` parameter answer 404 for unknown tenants.
+        { provide: APP_GUARD, useClass: KnownTenantGuard },
     ],
     controllers: [TenantController],
     exports: [TenantService],
