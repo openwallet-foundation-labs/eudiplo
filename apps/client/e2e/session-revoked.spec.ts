@@ -22,7 +22,8 @@ test.describe('deleted client', () => {
     const notice = page.getByText('Your API client no longer has access');
     await expect(notice).toBeVisible();
     await page.getByRole('button', { name: 'Log in' }).click();
-    await expect(page).toHaveURL(/\/login$/);
+    // A refused session ends like an expired one: logging in again returns to this page.
+    await expect(page).toHaveURL(/\/login\?returnUrl=%2Fsession-management%2Fconfig$/);
   });
 });
 
