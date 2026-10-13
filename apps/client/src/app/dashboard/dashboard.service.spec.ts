@@ -16,12 +16,14 @@ const statusCounts = (counts: Record<string, number> = {}) => ({
 });
 
 const day = 24 * 60 * 60 * 1000;
+/** The frozen clock of every test; test data built at load time must use it, not the real clock. */
+const now = new Date(2026, 9, 11, 15, 30);
 const accessKeyChain = (expiresInDays: number, id = 'access') => ({
   id,
   usageType: 'access',
   activeCertificate: {
     pem: '-----BEGIN CERTIFICATE-----',
-    notAfter: new Date(Date.now() + expiresInDays * day).toISOString(),
+    notAfter: new Date(now.getTime() + expiresInDays * day).toISOString(),
   },
 });
 
@@ -48,7 +50,7 @@ describe('DashboardService', () => {
   beforeEach(() => {
     // Day and hour boundaries must not move while a test runs.
     vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(new Date(2026, 9, 11, 15, 30));
+    vi.setSystemTime(now);
     roles = [];
     // Every key chain manager also loads the KMS health; answer it unless a test overrides it.
     responses = { '/api/key-chain/providers/health': [] };
