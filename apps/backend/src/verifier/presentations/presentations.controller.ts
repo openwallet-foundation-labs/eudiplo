@@ -26,6 +26,10 @@ import { ResolveSchemaMetadataJwtDto } from "./dto/resolve-schema-metadata-jwt.d
 import { ResolvedSchemaMetadataResponseDto } from "./dto/resolved-schema-metadata-response.dto.js";
 import { PresentationConfig } from "./entities/presentation-config.entity.js";
 
+/** Why saving a presentation configuration answers 400. */
+const INVALID_CONFIGURATION =
+    "The configuration is invalid: a field fails validation, a DCQL credential query has no trusted_authorities (unless SKIP_TRUST_AUTHORITY is set), or the imported registration certificate (registration_cert.jwt) is refused because it is not a JWT, is expired or not yet valid, or does not authorize the requested DCQL credentials.";
+
 @ApiTags("Verifier")
 @Controller("verifier/config")
 export class PresentationManagementController {
@@ -160,6 +164,7 @@ export class PresentationManagementController {
     @Secured([Role.Presentations])
     @Post()
     @ApiResponse({ status: 201, type: PresentationConfig })
+    @ApiResponse({ status: 400, description: INVALID_CONFIGURATION })
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
         @Token() user: TokenPayload,
@@ -199,6 +204,7 @@ export class PresentationManagementController {
     @Secured([Role.Presentations])
     @Patch(":id")
     @ApiResponse({ status: 200, type: PresentationConfig })
+    @ApiResponse({ status: 400, description: INVALID_CONFIGURATION })
     updateConfiguration(
         @Param("id") id: string,
         @Body() config: PresentationConfigUpdateDto,

@@ -35,7 +35,10 @@ import {
 import { FileEntity } from "../../storage/entities/files.entity.js";
 import { FilesService } from "../../storage/files.service.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
-import { ConfigDocumentValidationService } from "./config-document-validation.service.js";
+import {
+    ConfigDocumentValidationService,
+    UNRESOLVED_PLACEHOLDER,
+} from "./config-document-validation.service.js";
 import { ConfigKmsReferenceService } from "./config-kms-reference.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
 import {
@@ -623,17 +626,30 @@ export class ConfigBundleService {
                 metadata.source !== ownershipSource ||
                 metadata.generation !==
                     (result.document.metadata.generation ?? 1);
+            let action = planAction({
+                blocked,
+                skip: skipExisting || skipDiverged || skipReserved,
+                unchanged: comparison?.unchanged ?? false,
+                exists,
+            });
+            // Only a document apply writes is checked, as saving checks it.
+            if (action === "create" || action === "update") {
+                const certificateIssues =
+                    this.documentValidationService.validateRegistrationCertificate(
+                        result.document,
+                        tenantId,
+                    );
+                if (certificateIssues.length > 0) {
+                    itemIssues.push(...certificateIssues);
+                    action = "blocked";
+                }
+            }
             items.push({
                 changes: comparison?.changes,
                 metadataChanged,
                 kind: result.document.kind,
                 id: resourceId(result.document),
-                action: planAction({
-                    blocked,
-                    skip: skipExisting || skipDiverged || skipReserved,
-                    unchanged: comparison?.unchanged ?? false,
-                    exists,
-                }),
+                action,
                 sourceVersion,
                 targetVersion: result.document.$schema!,
                 migrations: result.migrations,
@@ -1388,7 +1404,7 @@ export class ConfigBundleService {
             if (
                 typeof value === "string" &&
                 value !== "!generate" &&
-                /^\$\{[A-Z0-9_]+(?::[^}]*)?\}$/.test(value)
+                UNRESOLVED_PLACEHOLDER.test(value)
             ) {
                 issues.push({
                     severity: "required-input",

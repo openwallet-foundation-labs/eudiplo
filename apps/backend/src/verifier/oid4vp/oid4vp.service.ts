@@ -45,6 +45,7 @@ import { PresentationRegistrationCertificateService } from "../presentations/con
 import { verificationFailureDetails } from "../presentations/credential/verification-failure.js";
 import { UnsupportedCredentialVerifierFormat } from "../presentations/domain/credential-verifier-format.js";
 import { UnknownClaimSetReferenceError } from "../presentations/domain/dcql-claim-policy.js";
+import { resolveDcqlTenantUrl } from "../presentations/domain/dcql-tenant-url.js";
 import { AuthResponse } from "../presentations/dto/auth-response.dto.js";
 import { IncompletePresentationException } from "../presentations/exceptions/incomplete-presentation.exception.js";
 import { InvalidTrustedAuthoritiesError } from "../presentations/ports/trust-list-ref-resolver.js";
@@ -261,11 +262,12 @@ export class Oid4vpService {
                 );
             let regCert: string | undefined = undefined;
 
-            let dcql_query = JSON.parse(
-                JSON.stringify(presentationConfig.dcql_query).replaceAll(
-                    "<TENANT_URL>",
-                    tenantHost,
-                ),
+            // Becomes the wallet-facing query below, which no longer fits the
+            // stored DCQL type.
+            let dcql_query: any = resolveDcqlTenantUrl(
+                presentationConfig.dcql_query,
+                host,
+                session.tenantId,
             );
 
             // Transform internal etsi_tl trusted_authorities (TrustListRef objects)
