@@ -163,6 +163,68 @@ describe("KeyChainService.export", () => {
     });
 });
 
+describe("KeyChainService.getById public keys", () => {
+    const { d: _d, ...publicJwk } = privateJwk;
+
+    it("returns the active and previous public keys as complete public JWKs", async () => {
+        const service = serviceFor(
+            keyChain({
+                previousJwk: { ...privateJwk, kid: "key-previous" },
+                // Required with previousJwk; its content does not matter here.
+                previousCertificate: "not a certificate",
+            }),
+            "db",
+        );
+
+        const response = await service.getById("tenant", "key");
+
+        expect(response.activePublicKey).toEqual(publicJwk);
+        expect(response.previousPublicKey).toEqual({
+            ...publicJwk,
+            kid: "key-previous",
+        });
+    });
+
+    it("returns the public parameters of OKP and RSA keys but no private members", async () => {
+        const okp = {
+            kty: "OKP",
+            crv: "Ed25519",
+            x: "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+            d: "nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A",
+        };
+        const rsa = {
+            kty: "RSA",
+            alg: "RS256",
+            n: "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+            e: "AQAB",
+            d: "X4cTteJY_gn4FYPsXB8rdXix5vwsg1FLN5E3EaG6RJoVH-HLLKD9M7dx5oo7GURknchnrRweUkC7hT5fJLM0WbFAKNLWY2vv7B6NqXSzUvxT0_YSfqijwp3RTzlBaCxWp4doFk5N2o8Gy_nHNKroADIkJ46pRUohsXywbReAdYaMwFs9tv8d_cPVY3i07a3t8MN6TNwm0dSawm9v47UiCl3Sk5ZiG7xojPLu4sbg1U2jx4IBTNBznbJSzFHK66jT8bgkuqsk0GjskDJk19Z4qwjwbsnn4j2WBii3RL-Us2lGVkY8fkFzme1z0HbIkfz0Y6mqnOYtqc0X4jfcKoAC8Q",
+            p: "83i-7IvMGXoMXCskv73TKr8637FiO7Z27zv8oj6pbWUQyLPQBQxtPVnwD20R-60eTDmD2ujnMt5PoqMrm8RfmNhVWDtjjMmCMjOpSXicFHj7XOuVIYQyqVWlWEh6dN36GVZYk93N8Bc9vY41xy8B9RzzOGVQzXvNEvn7O0nVbfs",
+            q: "3dfOR9cuYq-0S-mkFLzgItgMEfFzB2q3hWehMuG0oCuqnb3vobLyumqjVZQO1dIrdwgTnCdpYzBcOfW5r370AFXjiWft_NGEiovonizhKpo9VVS78TzFgxkIdrecRezsZ-1kYd_s1qDbxtkDEgfAITAG9LUnADun4vIcb6yelxk",
+        };
+
+        const okpInfo = await serviceFor(
+            keyChain({ kmsProvider: "vault", activeJwk: okp }),
+            "vault",
+        ).getById("tenant", "key");
+        const rsaInfo = await serviceFor(
+            keyChain({ activeJwk: rsa }),
+            "db",
+        ).getById("tenant", "key");
+
+        expect(okpInfo.activePublicKey).toEqual({
+            kty: "OKP",
+            crv: "Ed25519",
+            x: okp.x,
+        });
+        expect(rsaInfo.activePublicKey).toEqual({
+            kty: "RSA",
+            alg: "RS256",
+            n: rsa.n,
+            e: rsa.e,
+        });
+    });
+});
+
 describe("KeyChainService.update rotation policy", () => {
     function updateServiceFor(entity: KeyChainEntity) {
         const service = serviceFor(entity, "db") as any;

@@ -46,6 +46,8 @@ curl -X POST "$EUDIPLO_URL/api/key-chain" \
 
 The response is `{ "id": "<key chain id>" }`. `kmsProvider` selects a provider ID from `kms.json`; without it the default provider is used. `certValidityDays` defaults to 365. `intervalDays` is required when `rotationPolicy.enabled` is `true`; without rotation the key is only rotated on request.
 
+`GET /api/key-chain/{id}` and `GET /api/key-chain` return the active key's public key as a JWK in `activePublicKey` (after a rotation, the old one in `previousPublicKey`), without private key material. In the Web Client, **Copy Public Key (JWK)** next to a key's certificate copies it.
+
 ## Import a key and certificate
 
 Import material issued by your own PKI or an ecosystem operator with `POST /api/key-chain/import`. Provide exactly one of `key` (EC private key as JWK) or `keyPem` (PKCS#8 PEM, P-256):

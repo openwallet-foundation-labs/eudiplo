@@ -2591,8 +2591,27 @@ export const PublicKeyInfoDtoSchema = {
         },
         crv: {
             type: 'string',
-            description: 'Curve (for EC keys).',
+            description: 'Curve (for EC and OKP keys).',
             example: 'P-256'
+        },
+        x: {
+            type: 'string',
+            description: 'Public key coordinate (base64url): x coordinate for EC keys, public key for OKP keys.',
+            example: 'pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho'
+        },
+        y: {
+            type: 'string',
+            description: 'y coordinate (base64url, for EC keys).',
+            example: 'rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o'
+        },
+        n: {
+            type: 'string',
+            description: 'Modulus (base64url, for RSA keys).'
+        },
+        e: {
+            type: 'string',
+            description: 'Public exponent (base64url, for RSA keys).',
+            example: 'AQAB'
         }
     },
     required: [

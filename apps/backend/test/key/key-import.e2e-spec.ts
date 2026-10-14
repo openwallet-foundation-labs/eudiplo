@@ -112,6 +112,14 @@ describe("Key Chain — Import (e2e)", () => {
                 (keyChain) => keyChain.usageType === KeyUsageType.Encrypt,
             ),
         ).toBe(false);
+
+        // The detail view returns the public key as a usable JWK.
+        const { d: _d, ...publicKey } = privateKey;
+        const keyChainResponse = await request(app.getHttpServer())
+            .get(`/key-chain/${keyId}`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(keyChainResponse.body.activePublicKey).toEqual(publicKey);
     });
 
     describe("export", () => {

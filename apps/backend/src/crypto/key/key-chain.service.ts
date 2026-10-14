@@ -39,6 +39,21 @@ import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
 import { KeyUsageType } from "./types/key-usage-type.js";
 
 /**
+ * JWK members of {@link PublicKeyInfoDto}: identification plus the public
+ * key parameters of EC (x, y), OKP (x) and RSA (n, e) keys.
+ */
+const PUBLIC_JWK_MEMBERS = [
+    "kty",
+    "alg",
+    "kid",
+    "crv",
+    "x",
+    "y",
+    "n",
+    "e",
+] as const;
+
+/**
  * KeyChainService manages the unified key chain model.
  *
  * Acts as a facade: all key generation, import and signing is delegated
@@ -847,16 +862,24 @@ export class KeyChainService {
         return response;
     }
 
+    /**
+     * The public key as a usable JWK. Unlike {@link getPublicJwk}, which keeps
+     * every member except the private ones so exports round-trip, this copies
+     * only the members {@link PublicKeyInfoDto} documents, so private members
+     * (`d`, RSA primes, `k`) can never reach a response.
+     */
     private toPublicKeyInfo(jwk: JWK): PublicKeyInfoDto {
-        const publicJwk = this.getPublicJwk(jwk);
-        return {
-            kty: publicJwk.kty as string,
-            alg: publicJwk.alg as string | undefined,
-            kid: publicJwk.kid as string | undefined,
-            crv: (publicJwk as Record<string, unknown>).crv as
-                | string
-                | undefined,
-        };
+        const source = jwk as Record<string, unknown>;
+        const info: Partial<
+            Record<(typeof PUBLIC_JWK_MEMBERS)[number], string>
+        > = {};
+        for (const member of PUBLIC_JWK_MEMBERS) {
+            const value = source[member];
+            if (typeof value === "string") {
+                info[member] = value;
+            }
+        }
+        return info as PublicKeyInfoDto;
     }
 
     private toCertificateInfo(pem: string): CertificateInfoDto {
