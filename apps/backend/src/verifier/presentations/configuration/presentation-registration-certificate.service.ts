@@ -13,6 +13,7 @@ import {
 } from "../../../crypto/key/cert/cert.service.js";
 import { KeyUsageType } from "../../../crypto/key/types/key-usage-type.js";
 import { RegistrarService } from "../../../registrar/registrar.service.js";
+import { resolveDcqlTenantUrl } from "../domain/dcql-tenant-url.js";
 import {
     PresentationConfig,
     RegistrationCertCache,
@@ -67,8 +68,9 @@ export class PresentationRegistrationCertificateService {
      * when it is still valid. On a cache miss/expiry the cert is freshly
      * resolved via {@link RegistrarService} and the cache is persisted.
      *
-     * Returns `undefined` when the config has no `registrationCert` spec or
-     * the registrar is not enabled for this tenant.
+     * Returns `undefined` when the config has no `registrationCert` spec, or
+     * when the spec needs the registrar (no imported `jwt`) and the registrar
+     * is not enabled for this tenant.
      *
      * @param accessCertificate - The access certificate that signs the
      * request. The registration certificate is linked to it. Defaults to the
@@ -84,6 +86,7 @@ export class PresentationRegistrationCertificateService {
             return undefined;
         }
         if (
+            needsRegistrar(presentationConfig.registration_cert) &&
             !(await this.registrarService.isEnabledForTenant(
                 presentationConfig.tenantId,
             ))
@@ -164,19 +167,15 @@ export class PresentationRegistrationCertificateService {
      * Force-reissue the registration certificate of an already loaded
      * presentation config, bypassing the cache.
      *
-     * Throws if the config has no `registrationCert` spec, the registrar is
-     * not enabled for this tenant, or no certificate could be resolved.
+     * Throws if the config has no `registrationCert` spec, the spec needs the
+     * registrar and the registrar is not enabled for this tenant, or no
+     * certificate could be resolved.
      */
     async reissue(presentationConfig: PresentationConfig): Promise<void> {
         const { id, tenantId } = presentationConfig;
         if (!presentationConfig.registration_cert) {
             throw new BadRequestException(
                 "Presentation config has no registrationCert spec",
-            );
-        }
-        if (!(await this.registrarService.isEnabledForTenant(tenantId))) {
-            throw new BadRequestException(
-                "Registrar is not enabled for this tenant",
             );
         }
 
@@ -187,8 +186,6 @@ export class PresentationRegistrationCertificateService {
             tenantId,
         );
 
-        // Force a fresh resolve by clearing the cache first.
-        presentationConfig.registrationCertCache = null;
         const reissueConfig = {
             ...presentationConfig,
             registration_cert: presentationConfig.registration_cert?.body
@@ -200,6 +197,18 @@ export class PresentationRegistrationCertificateService {
                   }
                 : presentationConfig.registration_cert,
         } as PresentationConfig;
+        if (
+            needsRegistrar(reissueConfig.registration_cert!) &&
+            !(await this.registrarService.isEnabledForTenant(tenantId))
+        ) {
+            throw new BadRequestException(
+                "Registrar is not enabled for this tenant",
+            );
+        }
+
+        // Force a fresh resolve by clearing the cache first.
+        presentationConfig.registrationCertCache = null;
+        reissueConfig.registrationCertCache = null;
         const jwt = await this.getOrIssueRegistrationCertificate(
             reissueConfig,
             resolvedDcql,
@@ -210,6 +219,35 @@ export class PresentationRegistrationCertificateService {
                 "Failed to reissue registration certificate",
             );
         }
+    }
+
+    /**
+     * Check an imported registration certificate (`registration_cert.jwt`)
+     * before the configuration is saved: time and overasking against the
+     * DCQL query with `<TENANT_URL>` resolved. This needs no registrar call,
+     * so a certificate that would be refused when the request is built fails
+     * the save with `400` instead. `id` and `body` are resolved at the
+     * registrar in the background after the save.
+     */
+    async validateImported(
+        presentationConfig: Pick<
+            PresentationConfig,
+            "id" | "tenantId" | "registration_cert"
+        > & { dcql_query: unknown },
+    ): Promise<void> {
+        const jwt = presentationConfig.registration_cert?.jwt;
+        if (!jwt) {
+            return;
+        }
+        await this.registrarService.resolveRegistrationCertificate(
+            { jwt },
+            this.resolveTenantUrl(
+                presentationConfig.dcql_query,
+                presentationConfig.tenantId,
+            ),
+            presentationConfig.id,
+            presentationConfig.tenantId,
+        );
     }
 
     /**
@@ -345,9 +383,10 @@ export class PresentationRegistrationCertificateService {
      * sees the same DCQL the runtime path will see.
      */
     private resolveTenantUrl(dcqlQuery: unknown, tenantId: string): any {
-        const tenantHost = `${this.settings.publicUrl}/issuers/${tenantId}`;
-        return JSON.parse(
-            JSON.stringify(dcqlQuery).replaceAll("<TENANT_URL>", tenantHost),
+        return resolveDcqlTenantUrl(
+            dcqlQuery,
+            this.settings.publicUrl,
+            tenantId,
         );
     }
 
@@ -412,6 +451,14 @@ export class PresentationRegistrationCertificateService {
             source: resolved.source,
         };
     }
+}
+
+/**
+ * An imported `jwt` is used as is; only `id` and `body` are resolved at the
+ * registrar.
+ */
+function needsRegistrar(spec: { jwt?: string | null }): boolean {
+    return !spec.jwt;
 }
 
 /** The access certificate a registration certificate is resolved for. */

@@ -106,7 +106,7 @@ If the wallet ecosystem requires a registration certificate, set `registration_c
 }
 ```
 
-EUDIPLO only attaches it when the tenant has a registrar configuration. Resolution, caching and the overasking check are described in [Registration Certificates](../trust/registration-certificates.md).
+An imported `jwt` is used without a registrar call, after the time and overasking checks. For `id` and `body`, EUDIPLO needs a registrar configuration for the tenant and attaches no certificate without one. Resolution, caching and the overasking check are described in [Registration Certificates](../trust/registration-certificates.md).
 
 ## Reader authentication (ISO 18013-7)
 

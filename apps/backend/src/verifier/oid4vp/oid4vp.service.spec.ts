@@ -945,9 +945,6 @@ describe("OID4VP request object signing key", () => {
                     ),
                 },
                 keyChainService: { signJWT },
-                registrarService: {
-                    isEnabledForTenant: vi.fn().mockResolvedValue(true),
-                },
                 registrationCertificateService: {
                     getOrIssueRegistrationCertificate,
                 },

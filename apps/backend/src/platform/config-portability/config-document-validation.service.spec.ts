@@ -7,11 +7,17 @@ import { ConfigResourceRegistry } from "./config-resource.registry.js";
 describe("ConfigDocumentValidationService", () => {
     const migrations = new ConfigMigrationService(new ConfigResourceRegistry());
     const skipTrustAuthority = { value: false };
+    const skipOveraskingCheck = { value: false };
     const service = new ConfigDocumentValidationService(migrations, {
         get: (key: string) =>
-            key === "SKIP_TRUST_AUTHORITY"
-                ? skipTrustAuthority.value
-                : undefined,
+            ({
+                SKIP_TRUST_AUTHORITY: skipTrustAuthority.value,
+                SKIP_OVERASKING_CHECK: skipOveraskingCheck.value,
+            })[key],
+        getOrThrow: (key: string) => {
+            if (key !== "PUBLIC_URL") throw new Error(key);
+            return "https://eudiplo.example";
+        },
     } as any);
 
     it("accepts an explicit key-regeneration decision", () => {
@@ -254,6 +260,163 @@ describe("ConfigDocumentValidationService", () => {
         it("accepts them with SKIP_TRUST_AUTHORITY", () => {
             skipTrustAuthority.value = true;
             expect(service.validate(presentation())).toEqual([]);
+        });
+
+        describe("imported registration certificates", () => {
+            const unsignedJwt = (payload: Record<string, unknown>) => {
+                const encode = (value: unknown) =>
+                    Buffer.from(JSON.stringify(value)).toString("base64url");
+                return `${encode({ alg: "none" })}.${encode(payload)}.`;
+            };
+            const withCertificate = (
+                registration_cert: unknown,
+                vct = "<TENANT_URL>/credentials/pid",
+            ) => {
+                const document = presentation([
+                    { type: "etsi_tl", values: [{ trustListId: "pid" }] },
+                ]);
+                const credential = document.spec.dcql_query.credentials[0];
+                credential.meta = { vct_values: [vct] };
+                return {
+                    ...document,
+                    spec: { ...document.spec, registration_cert },
+                };
+            };
+            const certificate = (vct: string, exp?: number) =>
+                unsignedJwt({
+                    ...(exp === undefined ? {} : { exp }),
+                    credentials: [
+                        { format: "dc+sd-jwt", meta: { vct_values: [vct] } },
+                    ],
+                });
+            const tenantVct =
+                "https://eudiplo.example/issuers/acme/credentials/pid";
+
+            afterEach(() => {
+                skipOveraskingCheck.value = false;
+            });
+
+            it("accepts a certificate covering the query with <TENANT_URL> resolved for the tenant", () => {
+                expect(
+                    service.validateRegistrationCertificate(
+                        withCertificate({ jwt: certificate(tenantVct) }),
+                        "acme",
+                    ),
+                ).toEqual([]);
+            });
+
+            it("reports a certificate for another tenant", () => {
+                expect(
+                    service.validateRegistrationCertificate(
+                        withCertificate({ jwt: certificate(tenantVct) }),
+                        "other",
+                    ),
+                ).toEqual([
+                    {
+                        severity: "error",
+                        code: "REGISTRATION_CERTIFICATE_REFUSED",
+                        path: "/spec/registration_cert",
+                        message:
+                            "Registration certificate does not authorize the requested DCQL credentials",
+                        resource: { kind: "PresentationConfig", id: "pid" },
+                    },
+                ]);
+            });
+
+            it("reports an expired certificate even with SKIP_OVERASKING_CHECK", () => {
+                skipOveraskingCheck.value = true;
+                expect(
+                    service.validateRegistrationCertificate(
+                        withCertificate({
+                            jwt: certificate("urn:other", 1_000),
+                        }),
+                        "acme",
+                    ),
+                ).toEqual([
+                    expect.objectContaining({
+                        code: "REGISTRATION_CERTIFICATE_REFUSED",
+                        message: "Registration certificate is expired",
+                    }),
+                ]);
+            });
+
+            it("checks the flat registrationCertImportJwt form field", () => {
+                const {
+                    spec: { registration_cert: _, ...spec },
+                    ...document
+                } = withCertificate(undefined);
+                expect(
+                    service.validateRegistrationCertificate(
+                        {
+                            ...document,
+                            spec: {
+                                ...spec,
+                                registrationCertImportJwt: "not-a-jwt",
+                            },
+                        },
+                        "acme",
+                    ),
+                ).toEqual([
+                    expect.objectContaining({
+                        message: "Registration certificate is not a valid JWT",
+                    }),
+                ]);
+            });
+
+            it("leaves malformed fields to the schema check", () => {
+                const {
+                    spec: { registration_cert: _, ...spec },
+                    ...document
+                } = withCertificate(undefined);
+                expect(
+                    service.validateRegistrationCertificate(
+                        {
+                            ...document,
+                            spec: { ...spec, registration_cert: { jwt: 42 } },
+                        },
+                        "acme",
+                    ),
+                ).toEqual([]);
+                expect(
+                    service.validateRegistrationCertificate(
+                        {
+                            ...document,
+                            spec: {
+                                ...spec,
+                                registrationCertBodyPurpose: "x",
+                                registrationCertImportJwt: 42,
+                            },
+                        },
+                        "acme",
+                    ),
+                ).toEqual([]);
+            });
+
+            it("leaves an unresolved placeholder to SECRET_REQUIRED", () => {
+                expect(
+                    service.validateRegistrationCertificate(
+                        withCertificate({ jwt: "${RC_JWT}" }),
+                        "acme",
+                    ),
+                ).toEqual([]);
+            });
+
+            it("is not part of the document checks, so skipped documents pass", () => {
+                expect(
+                    service.validate(
+                        withCertificate({ jwt: certificate(tenantVct, 1_000) }),
+                    ),
+                ).toEqual([]);
+            });
+
+            it("leaves certificates the registrar resolves to apply", () => {
+                expect(
+                    service.validateRegistrationCertificate(
+                        withCertificate({ id: "rc-1" }),
+                        "acme",
+                    ),
+                ).toEqual([]);
+            });
         });
     });
 });

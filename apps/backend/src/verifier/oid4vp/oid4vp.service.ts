@@ -19,7 +19,6 @@ import { KeyUsageType } from "../../crypto/key/types/key-usage-type.js";
 import { CredentialFormat } from "../../issuer/configuration/credentials/entities/credential.entity.js";
 import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.js";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto.js";
-import { RegistrarService } from "../../registrar/registrar.service.js";
 import { CreateSession } from "../../session/application/create-session.js";
 import { SessionStore } from "../../session/application/session-store.js";
 import type { SessionData } from "../../session/domain/session-data.js";
@@ -46,6 +45,7 @@ import { PresentationRegistrationCertificateService } from "../presentations/con
 import { verificationFailureDetails } from "../presentations/credential/verification-failure.js";
 import { UnsupportedCredentialVerifierFormat } from "../presentations/domain/credential-verifier-format.js";
 import { UnknownClaimSetReferenceError } from "../presentations/domain/dcql-claim-policy.js";
+import { resolveDcqlTenantUrl } from "../presentations/domain/dcql-tenant-url.js";
 import { AuthResponse } from "../presentations/dto/auth-response.dto.js";
 import { IncompletePresentationException } from "../presentations/exceptions/incomplete-presentation.exception.js";
 import { InvalidTrustedAuthoritiesError } from "../presentations/ports/trust-list-ref-resolver.js";
@@ -75,7 +75,6 @@ export class Oid4vpService {
         private readonly certService: CertService,
         public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
-        private readonly registrarService: RegistrarService,
         private readonly verifyPresentationResponse: VerifyPresentationResponse,
         private readonly presentationConfigService: PresentationConfigService,
         private readonly registrationCertificateService: PresentationRegistrationCertificateService,
@@ -263,11 +262,12 @@ export class Oid4vpService {
                 );
             let regCert: string | undefined = undefined;
 
-            let dcql_query = JSON.parse(
-                JSON.stringify(presentationConfig.dcql_query).replaceAll(
-                    "<TENANT_URL>",
-                    tenantHost,
-                ),
+            // Becomes the wallet-facing query below, which no longer fits the
+            // stored DCQL type.
+            let dcql_query: any = resolveDcqlTenantUrl(
+                presentationConfig.dcql_query,
+                host,
+                session.tenantId,
             );
 
             // Transform internal etsi_tl trusted_authorities (TrustListRef objects)
@@ -304,12 +304,7 @@ export class Oid4vpService {
 
             // The registration certificate links the access certificate that
             // signs this request.
-            if (
-                presentationConfig.registration_cert &&
-                (await this.registrarService.isEnabledForTenant(
-                    session.tenantId,
-                ))
-            ) {
+            if (presentationConfig.registration_cert) {
                 regCert =
                     await this.registrationCertificateService.getOrIssueRegistrationCertificate(
                         presentationConfig,

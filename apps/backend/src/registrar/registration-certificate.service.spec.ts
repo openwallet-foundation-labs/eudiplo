@@ -145,6 +145,60 @@ describe("RegistrationCertificateService overasking check", () => {
     });
 });
 
+describe("RegistrationCertificateService claim order", () => {
+    it("accepts a certificate that lists the requested claims in another order", async () => {
+        const memberCard = {
+            credentials: [
+                {
+                    id: "member-card",
+                    format: "dc+sd-jwt",
+                    meta: { vct_values: ["urn:eudi:eaa:loyalty-card:1"] },
+                    claims: [
+                        { path: ["member_id"] },
+                        { path: ["membership_tier"] },
+                    ],
+                },
+            ],
+        };
+        const certificate = unsignedJwt({
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            credentials: [
+                {
+                    format: "dc+sd-jwt",
+                    meta: { vct_values: ["urn:eudi:eaa:loyalty-card:1"] },
+                    claim: [
+                        { path: ["membership_tier"] },
+                        { path: ["member_id"] },
+                    ],
+                },
+            ],
+        });
+
+        const resolved = await createService().resolveRegistrationCertificate(
+            { jwt: certificate },
+            memberCard,
+            "r",
+            "tenant",
+        );
+        expect(resolved.jwt).toBe(certificate);
+    });
+
+    it("keeps claim order in the DCQL fingerprint used for the cache", () => {
+        const service = createService();
+        const query = (paths: string[][]) => ({
+            credentials: [
+                {
+                    format: "dc+sd-jwt",
+                    claims: paths.map((path) => ({ path })),
+                },
+            ],
+        });
+        expect(service.computeDcqlFingerprint(query([["a"], ["b"]]))).not.toBe(
+            service.computeDcqlFingerprint(query([["b"], ["a"]])),
+        );
+    });
+});
+
 describe("RegistrationCertificateService creation via the registrar", () => {
     const client = {};
     const issued = unsignedJwt({

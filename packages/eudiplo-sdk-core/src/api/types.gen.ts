@@ -7203,6 +7203,13 @@ export type PresentationManagementControllerStorePresentationConfigData = {
     url: '/api/verifier/config';
 };
 
+export type PresentationManagementControllerStorePresentationConfigErrors = {
+    /**
+     * The configuration is invalid: a field fails validation, a DCQL credential query has no trusted_authorities (unless SKIP_TRUST_AUTHORITY is set), or the imported registration certificate (registration_cert.jwt) is refused because it is not a JWT, is expired or not yet valid, or does not authorize the requested DCQL credentials.
+     */
+    400: unknown;
+};
+
 export type PresentationManagementControllerStorePresentationConfigResponses = {
     201: PresentationConfig;
 };
@@ -7336,6 +7343,13 @@ export type PresentationManagementControllerUpdateConfigurationData = {
     url: '/api/verifier/config/{id}';
 };
 
+export type PresentationManagementControllerUpdateConfigurationErrors = {
+    /**
+     * The configuration is invalid: a field fails validation, a DCQL credential query has no trusted_authorities (unless SKIP_TRUST_AUTHORITY is set), or the imported registration certificate (registration_cert.jwt) is refused because it is not a JWT, is expired or not yet valid, or does not authorize the requested DCQL credentials.
+     */
+    400: unknown;
+};
+
 export type PresentationManagementControllerUpdateConfigurationResponses = {
     200: PresentationConfig;
 };
@@ -7353,7 +7367,7 @@ export type PresentationManagementControllerReissueRegistrationCertificateData =
 
 export type PresentationManagementControllerReissueRegistrationCertificateErrors = {
     /**
-     * Config has no registrationCert spec or registrar is not enabled
+     * Config has no registrationCert spec, the spec needs the registrar (id or body) and none is enabled, or the certificate fails its checks
      */
     400: unknown;
 };

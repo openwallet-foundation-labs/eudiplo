@@ -8,9 +8,13 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { AccessCertificateService } from "./access-certificate.service.js";
+import {
+    canonicalJson,
+    checkRegistrationCertificate,
+    credentialFingerprint,
+} from "./domain/registration-certificate-check.js";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
 import {
     type RegistrationCertificateCreation,
@@ -360,7 +364,7 @@ export class RegistrationCertificateService {
             ? dcqlQuery.credentials
             : [];
         const fps = credentials
-            .map((c: any) => this.dcqlCredentialFingerprint(c))
+            .map((c: any) => credentialFingerprint(c))
             .sort();
         return this.hash(fps.join("|"));
     }
@@ -374,7 +378,7 @@ export class RegistrationCertificateService {
     ): string {
         const arr = Array.isArray(credentials) ? credentials : [];
         const fps = arr
-            .map((c: any) => this.dcqlCredentialFingerprint(c))
+            .map((c: any) => credentialFingerprint(c))
             .sort((a, b) => a.localeCompare(b));
         return this.hash(fps.join("|"));
     }
@@ -384,7 +388,7 @@ export class RegistrationCertificateService {
      * (`{ jwt?, id?, body? }`).
      */
     public computeSpecFingerprint(spec: unknown): string {
-        return this.hash(this.canonicalJson(spec ?? null));
+        return this.hash(canonicalJson(spec ?? null));
     }
 
     // -------------------------------------------------------------------------
@@ -392,16 +396,10 @@ export class RegistrationCertificateService {
     // -------------------------------------------------------------------------
 
     /**
-     * Validate a registration certificate JWT against the effective DCQL query.
-     *
-     * Performs:
-     * 1. JWT decoding (structural validation).
-     * 2. Temporal validity check (`exp`, `nbf`) with a small clock skew tolerance.
-     * 3. DCQL fingerprint comparison: every credential being requested in
-     *    `dcqlQuery.credentials` MUST be present in the certificate's authorized
-     *    `credentials` claim. Prevents overasking with a cert issued for a
-     *    different/narrower set of credentials. Skipped when
-     *    `SKIP_OVERASKING_CHECK` is enabled.
+     * Validate a registration certificate JWT against the effective DCQL query
+     * (see {@link checkRegistrationCertificate}): decoding, `exp`/`nbf` and,
+     * unless `SKIP_OVERASKING_CHECK` is enabled, that the certificate authorizes
+     * every requested credential.
      *
      * Fails closed by throwing `BadRequestException` on any mismatch.
      */
@@ -412,154 +410,39 @@ export class RegistrationCertificateService {
         requestId: string,
         source: "jwt" | "id" | "body",
     ): Record<string, any> {
-        let payload: Record<string, any>;
-        try {
-            payload = decodeJwt(jwt) as Record<string, any>;
-        } catch (err) {
-            this.logger.error(
-                { err, requestId, source },
-                `[${tenantId}] Registration certificate is not a valid JWT`,
+        const result = checkRegistrationCertificate(jwt, dcqlQuery, {
+            skipOveraskingCheck: this.skipOveraskingCheck,
+        });
+        if (result.problem) {
+            const { code, message, unauthorizedCredentialIds } = result.problem;
+            const level =
+                code === "INVALID_JWT" || code === "OVERASKING"
+                    ? "error"
+                    : "warn";
+            this.logger[level](
+                {
+                    requestId,
+                    source,
+                    ...(unauthorizedCredentialIds
+                        ? { unauthorizedIds: unauthorizedCredentialIds }
+                        : {}),
+                },
+                `[${tenantId}] ${message}${code === "OVERASKING" ? " (overasking prevented)" : ""}`,
             );
-            throw new BadRequestException(
-                "Registration certificate is not a valid JWT",
-            );
+            throw new BadRequestException(message);
         }
 
-        const now = Math.floor(Date.now() / 1000);
-        const skew = 60;
-
-        if (typeof payload.exp === "number" && payload.exp + skew < now) {
-            this.logger.warn(
-                { requestId, source, exp: payload.exp, now },
-                `[${tenantId}] Registration certificate is expired`,
-            );
-            throw new BadRequestException(
-                "Registration certificate is expired",
-            );
-        }
-
-        if (typeof payload.nbf === "number" && payload.nbf - skew > now) {
-            this.logger.warn(
-                { requestId, source, nbf: payload.nbf, now },
-                `[${tenantId}] Registration certificate is not yet valid`,
-            );
-            throw new BadRequestException(
-                "Registration certificate is not yet valid",
-            );
-        }
-
-        const requestedCredentials = Array.isArray(dcqlQuery?.credentials)
-            ? dcqlQuery.credentials
-            : [];
-
-        if (requestedCredentials.length === 0) {
-            return payload;
-        }
-
-        if (this.skipOveraskingCheck) {
+        if (
+            this.skipOveraskingCheck &&
+            Array.isArray(dcqlQuery?.credentials) &&
+            dcqlQuery.credentials.length > 0
+        ) {
             this.logger.warn(
                 { requestId, source },
                 `[${tenantId}] SKIP_OVERASKING_CHECK is enabled: not checking that the registration certificate authorizes the requested DCQL credentials`,
             );
-            return payload;
         }
-
-        const authorizedCredentials = Array.isArray(payload.credentials)
-            ? payload.credentials
-            : null;
-
-        if (!authorizedCredentials || authorizedCredentials.length === 0) {
-            this.logger.warn(
-                { requestId, source },
-                `[${tenantId}] Registration certificate has no authorized credentials claim`,
-            );
-            throw new BadRequestException(
-                "Registration certificate has no authorized credentials",
-            );
-        }
-
-        const authorizedFingerprints = new Set(
-            authorizedCredentials.map((c: any) =>
-                this.dcqlCredentialFingerprint(c),
-            ),
-        );
-
-        const unauthorized: any[] = [];
-        for (const cred of requestedCredentials) {
-            const fp = this.dcqlCredentialFingerprint(cred);
-            if (!authorizedFingerprints.has(fp)) {
-                unauthorized.push(cred);
-            }
-        }
-
-        if (unauthorized.length > 0) {
-            this.logger.error(
-                {
-                    requestId,
-                    source,
-                    unauthorizedIds: unauthorized.map((c) => c?.id),
-                },
-                `[${tenantId}] Registration certificate does not authorize the requested DCQL credentials (overasking prevented)`,
-            );
-            throw new BadRequestException(
-                "Registration certificate does not authorize the requested DCQL credentials",
-            );
-        }
-
-        return payload;
-    }
-
-    /**
-     * Compute a stable canonical fingerprint of a single credential entry.
-     *
-     * Normalizes to registrar CredentialDef shape (`format`, `claims`, `meta`)
-     * before hashing, because DCQL credentials may include transport/query fields
-     * that are not present in registrar certificates. Claims are reduced to their
-     * `path`: certificates only carry the path, while DCQL claims may add `id`,
-     * `values` or `intent_to_retain`.
-     */
-    private dcqlCredentialFingerprint(cred: any): string {
-        if (!cred || typeof cred !== "object") {
-            return JSON.stringify(cred ?? null);
-        }
-
-        const rawClaims = Array.isArray((cred as Record<string, any>).claims)
-            ? (cred as Record<string, any>).claims
-            : Array.isArray((cred as Record<string, any>).claim)
-              ? (cred as Record<string, any>).claim
-              : undefined;
-        const normalizedClaims = rawClaims?.map((claim: any) => ({
-            path: claim?.path,
-        }));
-
-        const normalized = {
-            format: (cred as Record<string, any>).format,
-            claims: normalizedClaims,
-            meta:
-                (cred as Record<string, any>).meta &&
-                typeof (cred as Record<string, any>).meta === "object"
-                    ? (cred as Record<string, any>).meta
-                    : {},
-        };
-
-        return this.canonicalJson(normalized);
-    }
-
-    /**
-     * Recursively canonicalize a JSON value: object keys sorted, arrays
-     * preserved in their original order (DCQL arrays are order-significant).
-     */
-    private canonicalJson(value: any): string {
-        if (value === null || typeof value !== "object") {
-            return JSON.stringify(value);
-        }
-        if (Array.isArray(value)) {
-            return `[${value.map((v) => this.canonicalJson(v)).join(",")}]`;
-        }
-        const keys = Object.keys(value).sort((a, b) => a.localeCompare(b));
-        return `{${keys
-            .map((k) => `${JSON.stringify(k)}:${this.canonicalJson(value[k])}`)
-            .join(",")}}`;
+        return result.payload;
     }
 
     private hash(input: string): string {
