@@ -120,7 +120,7 @@ describe("CredentialAccessTokenVerifier", () => {
         const { dpop } = verifyResourceRequest.mock.calls[0][0];
         expect(dpop).toEqual({
             maxProofAgeSeconds: 300,
-            allowedClockSkewSeconds: 60,
+            allowedSkewInSeconds: 60,
             assertJtiUniqueness: expect.any(Function),
         });
         dpopProofs.register.mockResolvedValueOnce(false);

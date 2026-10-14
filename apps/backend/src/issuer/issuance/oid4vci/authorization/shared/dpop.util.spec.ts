@@ -47,7 +47,7 @@ describe("dpopProofVerification", () => {
 
         expect(options).toMatchObject({
             maxProofAgeSeconds: 300,
-            allowedClockSkewSeconds: 60,
+            allowedSkewInSeconds: 60,
         });
         await expect(
             options.assertJtiUniqueness({

@@ -97,5 +97,3 @@ overrides:
   katex@>=0.11.0 <0.18.2: ^0.18.2
   postcss-selector-parser@<7.1.6: ^7.1.6
 
-patchedDependencies:
-  '@openid4vc/oauth2@0.6.0': patches/@openid4vc__oauth2@0.6.0.patch
