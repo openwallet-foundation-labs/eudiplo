@@ -221,6 +221,35 @@ export class PresentationRegistrationCertificateService {
     }
 
     /**
+     * Check an imported registration certificate (`registration_cert.jwt`)
+     * before the configuration is saved: time and overasking against the
+     * DCQL query with `<TENANT_URL>` resolved. This needs no registrar call,
+     * so a certificate that would be refused when the request is built fails
+     * the save with `400` instead. `id` and `body` are resolved at the
+     * registrar in the background after the save.
+     */
+    async validateImported(
+        presentationConfig: Pick<
+            PresentationConfig,
+            "id" | "tenantId" | "dcql_query" | "registration_cert"
+        >,
+    ): Promise<void> {
+        const jwt = presentationConfig.registration_cert?.jwt;
+        if (!jwt) {
+            return;
+        }
+        await this.registrarService.resolveRegistrationCertificate(
+            { jwt },
+            this.resolveTenantUrl(
+                presentationConfig.dcql_query,
+                presentationConfig.tenantId,
+            ),
+            presentationConfig.id,
+            presentationConfig.tenantId,
+        );
+    }
+
+    /**
      * Trigger registration-certificate cache refresh in the background.
      * This keeps create/update endpoints responsive while cert issuance
      * happens asynchronously.

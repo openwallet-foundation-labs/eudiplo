@@ -88,6 +88,10 @@ export class PresentationConfigService {
                     // Reject before deleting, so an invalid file does not
                     // remove the stored config.
                     this.requireTrustedAuthorities(data);
+                    await this.registrationCertificates.validateImported({
+                        ...normalizeRegistrationCertFormFields(data),
+                        tenantId: tid,
+                    });
                     await this.repository.delete({
                         id: data.id,
                         tenantId: tid,
@@ -151,6 +155,7 @@ export class PresentationConfigService {
             ...normalizedRequest,
             tenantId,
         } as PresentationConfig;
+        await this.registrationCertificates.validateImported(merged);
 
         // Persist first for fast UI response; cache is resolved asynchronously.
         merged.registrationCertCache = null;
@@ -208,6 +213,10 @@ export class PresentationConfigService {
                 normalizedRequest,
                 "registration_cert",
             ) || Object.prototype.hasOwnProperty.call(vprequest, "dcql_query");
+
+        if (cacheRelevantChanged) {
+            await this.registrationCertificates.validateImported(merged);
+        }
 
         if (!merged.registration_cert) {
             merged.registrationCertCache = null;

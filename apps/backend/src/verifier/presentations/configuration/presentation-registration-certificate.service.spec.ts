@@ -547,3 +547,38 @@ describe("PresentationRegistrationCertificateService.scheduleRefresh", () => {
         expect(invalid.repository.save).not.toHaveBeenCalled();
     });
 });
+
+describe("PresentationRegistrationCertificateService.validateImported", () => {
+    it("checks an imported JWT against the DCQL query with <TENANT_URL> resolved", async () => {
+        const { service, registrarService } = createService({
+            isEnabledForTenant: vi.fn().mockResolvedValue(false),
+        });
+        await service.validateImported(
+            config({ registration_cert: { jwt: "imported-jwt" } }),
+        );
+        expect(
+            registrarService.resolveRegistrationCertificate,
+        ).toHaveBeenCalledWith(
+            { jwt: "imported-jwt" },
+            {
+                credentials: [{ id: "https://eudiplo.example/issuers/tenant" }],
+            },
+            "config",
+            "tenant",
+        );
+    });
+
+    it("leaves id and body to the registrar", async () => {
+        const { service, registrarService } = createService();
+        await service.validateImported(config());
+        await service.validateImported(
+            config({ registration_cert: { id: "registered" } }),
+        );
+        await service.validateImported(
+            config({ registration_cert: undefined }),
+        );
+        expect(
+            registrarService.resolveRegistrationCertificate,
+        ).not.toHaveBeenCalled();
+    });
+});
