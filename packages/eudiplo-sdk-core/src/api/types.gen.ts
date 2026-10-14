@@ -7337,7 +7337,7 @@ export type PresentationManagementControllerReissueRegistrationCertificateData =
 
 export type PresentationManagementControllerReissueRegistrationCertificateErrors = {
     /**
-     * Config has no registrationCert spec or registrar is not enabled
+     * Config has no registrationCert spec, the spec needs the registrar (id or body) and none is enabled, or the certificate fails its checks
      */
     400: unknown;
 };

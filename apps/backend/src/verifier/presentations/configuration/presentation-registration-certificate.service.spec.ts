@@ -99,6 +99,45 @@ describe("PresentationRegistrationCertificateService.getOrIssueRegistrationCerti
         ).not.toHaveBeenCalled();
     });
 
+    it("returns nothing for a registrar id without an enabled registrar", async () => {
+        const { service, registrarService } = createService({
+            isEnabledForTenant: vi.fn().mockResolvedValue(false),
+        });
+        await expect(
+            service.getOrIssueRegistrationCertificate(
+                config({ registration_cert: { id: "registered" } }),
+                {},
+                "r",
+            ),
+        ).resolves.toBeUndefined();
+        await expect(
+            service.reissue(
+                config({ registration_cert: { id: "registered" } }),
+            ),
+        ).rejects.toThrow("Registrar is not enabled for this tenant");
+        expect(
+            registrarService.resolveRegistrationCertificate,
+        ).not.toHaveBeenCalled();
+    });
+
+    it("resolves an imported JWT without an enabled registrar", async () => {
+        const { service, registrarService } = createService({
+            isEnabledForTenant: vi.fn().mockResolvedValue(false),
+        });
+        await expect(
+            service.getOrIssueRegistrationCertificate(
+                config({ registration_cert: { jwt: "imported-jwt" } }),
+                {},
+                "r",
+            ),
+        ).resolves.toBe("fresh-jwt");
+        expect(
+            registrarService.resolveRegistrationCertificate,
+        ).toHaveBeenCalledWith({ jwt: "imported-jwt" }, {}, "r", "tenant", {
+            accessKeyChainId: "default",
+        });
+    });
+
     it("uses a cache that matches spec, DCQL and is not about to expire", async () => {
         const { service, repository } = createService();
         await expect(
@@ -332,6 +371,27 @@ describe("PresentationRegistrationCertificateService.reissue", () => {
                 isEnabledForTenant: vi.fn().mockResolvedValue(false),
             }).service.reissue(config()),
         ).rejects.toThrow("Registrar is not enabled for this tenant");
+    });
+
+    it("reissues an imported JWT without an enabled registrar", async () => {
+        const { service, registrarService } = createService({
+            isEnabledForTenant: vi.fn().mockResolvedValue(false),
+        });
+        await service.reissue(
+            config({
+                registration_cert: { jwt: "imported-jwt" },
+                registrationCertCache: validCache,
+            }),
+        );
+        expect(
+            registrarService.resolveRegistrationCertificate,
+        ).toHaveBeenCalledWith(
+            { jwt: "imported-jwt" },
+            expect.anything(),
+            "reissue-config",
+            "tenant",
+            { accessKeyChainId: "default" },
+        );
     });
 
     it("bypasses a valid cache, resolves <TENANT_URL> in the DCQL query and passes the access key chain", async () => {

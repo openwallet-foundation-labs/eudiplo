@@ -19,7 +19,6 @@ import { KeyUsageType } from "../../crypto/key/types/key-usage-type.js";
 import { CredentialFormat } from "../../issuer/configuration/credentials/entities/credential.entity.js";
 import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.js";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto.js";
-import { RegistrarService } from "../../registrar/registrar.service.js";
 import { CreateSession } from "../../session/application/create-session.js";
 import { SessionStore } from "../../session/application/session-store.js";
 import type { SessionData } from "../../session/domain/session-data.js";
@@ -75,7 +74,6 @@ export class Oid4vpService {
         private readonly certService: CertService,
         public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
-        private readonly registrarService: RegistrarService,
         private readonly verifyPresentationResponse: VerifyPresentationResponse,
         private readonly presentationConfigService: PresentationConfigService,
         private readonly registrationCertificateService: PresentationRegistrationCertificateService,
@@ -304,12 +302,7 @@ export class Oid4vpService {
 
             // The registration certificate links the access certificate that
             // signs this request.
-            if (
-                presentationConfig.registration_cert &&
-                (await this.registrarService.isEnabledForTenant(
-                    session.tenantId,
-                ))
-            ) {
+            if (presentationConfig.registration_cert) {
                 regCert =
                     await this.registrationCertificateService.getOrIssueRegistrationCertificate(
                         presentationConfig,

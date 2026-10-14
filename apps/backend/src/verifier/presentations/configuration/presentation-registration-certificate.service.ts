@@ -67,8 +67,9 @@ export class PresentationRegistrationCertificateService {
      * when it is still valid. On a cache miss/expiry the cert is freshly
      * resolved via {@link RegistrarService} and the cache is persisted.
      *
-     * Returns `undefined` when the config has no `registrationCert` spec or
-     * the registrar is not enabled for this tenant.
+     * Returns `undefined` when the config has no `registrationCert` spec, or
+     * when the spec needs the registrar (no imported `jwt`) and the registrar
+     * is not enabled for this tenant.
      *
      * @param accessCertificate - The access certificate that signs the
      * request. The registration certificate is linked to it. Defaults to the
@@ -84,6 +85,7 @@ export class PresentationRegistrationCertificateService {
             return undefined;
         }
         if (
+            needsRegistrar(presentationConfig.registration_cert) &&
             !(await this.registrarService.isEnabledForTenant(
                 presentationConfig.tenantId,
             ))
@@ -164,19 +166,15 @@ export class PresentationRegistrationCertificateService {
      * Force-reissue the registration certificate of an already loaded
      * presentation config, bypassing the cache.
      *
-     * Throws if the config has no `registrationCert` spec, the registrar is
-     * not enabled for this tenant, or no certificate could be resolved.
+     * Throws if the config has no `registrationCert` spec, the spec needs the
+     * registrar and the registrar is not enabled for this tenant, or no
+     * certificate could be resolved.
      */
     async reissue(presentationConfig: PresentationConfig): Promise<void> {
         const { id, tenantId } = presentationConfig;
         if (!presentationConfig.registration_cert) {
             throw new BadRequestException(
                 "Presentation config has no registrationCert spec",
-            );
-        }
-        if (!(await this.registrarService.isEnabledForTenant(tenantId))) {
-            throw new BadRequestException(
-                "Registrar is not enabled for this tenant",
             );
         }
 
@@ -187,8 +185,6 @@ export class PresentationRegistrationCertificateService {
             tenantId,
         );
 
-        // Force a fresh resolve by clearing the cache first.
-        presentationConfig.registrationCertCache = null;
         const reissueConfig = {
             ...presentationConfig,
             registration_cert: presentationConfig.registration_cert?.body
@@ -200,6 +196,18 @@ export class PresentationRegistrationCertificateService {
                   }
                 : presentationConfig.registration_cert,
         } as PresentationConfig;
+        if (
+            needsRegistrar(reissueConfig.registration_cert!) &&
+            !(await this.registrarService.isEnabledForTenant(tenantId))
+        ) {
+            throw new BadRequestException(
+                "Registrar is not enabled for this tenant",
+            );
+        }
+
+        // Force a fresh resolve by clearing the cache first.
+        presentationConfig.registrationCertCache = null;
+        reissueConfig.registrationCertCache = null;
         const jwt = await this.getOrIssueRegistrationCertificate(
             reissueConfig,
             resolvedDcql,
@@ -412,6 +420,14 @@ export class PresentationRegistrationCertificateService {
             source: resolved.source,
         };
     }
+}
+
+/**
+ * An imported `jwt` is used as is; only `id` and `body` are resolved at the
+ * registrar.
+ */
+function needsRegistrar(spec: { jwt?: string | null }): boolean {
+    return !spec.jwt;
 }
 
 /** The access certificate a registration certificate is resolved for. */

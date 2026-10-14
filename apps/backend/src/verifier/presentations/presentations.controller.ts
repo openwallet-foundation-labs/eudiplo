@@ -248,7 +248,7 @@ export class PresentationManagementController {
     @ApiOperation({
         summary: "Reissue the registration certificate cache",
         description:
-            "Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.",
+            "Bypasses the embedded registration-certificate cache and resolves the certificate again: an imported JWT is checked again, `id` and `body` are resolved at the configured registrar.",
     })
     @ApiResponse({
         status: 200,
@@ -258,7 +258,7 @@ export class PresentationManagementController {
     @ApiResponse({
         status: 400,
         description:
-            "Config has no registrationCert spec or registrar is not enabled",
+            "Config has no registrationCert spec, the spec needs the registrar (id or body) and none is enabled, or the certificate fails its checks",
     })
     reissueRegistrationCertificate(
         @Param("id") id: string,

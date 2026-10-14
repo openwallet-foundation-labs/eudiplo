@@ -668,7 +668,7 @@ export const presentationManagementControllerUpdateConfiguration = <ThrowOnError
 /**
  * Reissue the registration certificate cache
  *
- * Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.
+ * Bypasses the embedded registration-certificate cache and resolves the certificate again: an imported JWT is checked again, `id` and `body` are resolved at the configured registrar.
  */
 export const presentationManagementControllerReissueRegistrationCertificate = <ThrowOnError extends boolean = true>(options: Options<PresentationManagementControllerReissueRegistrationCertificateData, ThrowOnError>): RequestResult<PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerReissueRegistrationCertificateErrors, ThrowOnError> => (options.client ?? client).post<PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerReissueRegistrationCertificateErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

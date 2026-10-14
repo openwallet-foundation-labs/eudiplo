@@ -18,8 +18,8 @@ Do not confuse the HTTPS certificate of `PUBLIC_URL` with the certificates of th
 
 Access and attestation certificates belong to key chains ([Keys and Certificates](keys-and-certificates.md#certificates)). A registration certificate is a JWT configured per presentation configuration ([Registration Certificates](registration-certificates.md)).
 
-:::warning[Registration certificates need a registrar configuration]
-EUDIPLO attaches a verifier registration certificate only when the tenant has a [registrar configuration](registrar.md), even if you paste the JWT into `registration_cert.jwt`. Without the German registrar integration, presentation requests are sent without a registration certificate. Issuers can publish an imported certificate without a registrar (`registrationCertificate.mode: "import"`).
+:::note[Registration certificates without a registrar configuration]
+Without a [registrar configuration](registrar.md), verifiers and issuers can still use a registration certificate they obtained elsewhere: `registration_cert.jwt` in a presentation configuration, `registrationCertificate.mode: "import"` in the issuance configuration. Creating or reusing certificates at the registrar (`registration_cert.body` or `id`) needs the German registrar integration.
 :::
 
 ## Choose the wallet path

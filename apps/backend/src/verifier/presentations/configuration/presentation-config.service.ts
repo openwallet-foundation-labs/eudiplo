@@ -289,8 +289,9 @@ export class PresentationConfigService {
      * Force-reissue the registration certificate for a presentation config,
      * bypassing the cache. Used by the management UI's "Reissue now" action.
      *
-     * Throws if the config has no `registrationCert` spec or the registrar is
-     * not enabled for this tenant.
+     * Throws if the config has no `registrationCert` spec, or the spec needs
+     * the registrar (`id` or `body`) and the registrar is not enabled for this
+     * tenant.
      */
     async reissueRegistrationCertificate(
         id: string,
