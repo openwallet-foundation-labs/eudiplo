@@ -91,7 +91,7 @@ Strategies, caching and the overasking check are described in [Registration Cert
 
 ### Overasking check
 
-EUDIPLO only sends a registration certificate whose authorized `credentials` cover the request exactly. Each credential query of the DCQL query must equal one authorized credential in `format`, `meta` and the ordered list of claim paths; claim IDs, `values` and `intent_to_retain` are ignored. Requesting fewer claims than authorized also fails. Otherwise creating the request fails with `400` ("Registration certificate does not authorize the requested DCQL credentials").
+EUDIPLO only sends a registration certificate whose authorized `credentials` cover the request exactly. Each credential query of the DCQL query must equal one authorized credential in `format`, `meta` and the claim paths; the order of the claims, claim IDs, `values` and `intent_to_retain` are ignored. Requesting fewer claims than authorized also fails. Otherwise creating the request fails with `400` ("Registration certificate does not authorize the requested DCQL credentials").
 
 When EUDIPLO creates the certificate from `registration_cert.body` without `credentials`, it derives the authorized credentials from the DCQL query, so they match, and it creates a new certificate after the DCQL query changes. A certificate you import (`jwt`) or reuse (`id`) must already match. For development and interoperability tests only, `SKIP_OVERASKING_CHECK=true` disables the check; see [Skip Flags](../reference/environment-variables.md#skip-flags).
 

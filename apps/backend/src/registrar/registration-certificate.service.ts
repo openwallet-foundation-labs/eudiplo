@@ -478,15 +478,19 @@ export class RegistrationCertificateService {
             );
         }
 
+        // Claim order carries no meaning for authorization, so certificates
+        // listing the same claims in another order still match.
         const authorizedFingerprints = new Set(
             authorizedCredentials.map((c: any) =>
-                this.dcqlCredentialFingerprint(c),
+                this.dcqlCredentialFingerprint(c, { sortClaims: true }),
             ),
         );
 
         const unauthorized: any[] = [];
         for (const cred of requestedCredentials) {
-            const fp = this.dcqlCredentialFingerprint(cred);
+            const fp = this.dcqlCredentialFingerprint(cred, {
+                sortClaims: true,
+            });
             if (!authorizedFingerprints.has(fp)) {
                 unauthorized.push(cred);
             }
@@ -516,9 +520,13 @@ export class RegistrationCertificateService {
      * before hashing, because DCQL credentials may include transport/query fields
      * that are not present in registrar certificates. Claims are reduced to their
      * `path`: certificates only carry the path, while DCQL claims may add `id`,
-     * `values` or `intent_to_retain`.
+     * `values` or `intent_to_retain`. With `sortClaims`, claims are sorted so
+     * the fingerprint does not depend on their order.
      */
-    private dcqlCredentialFingerprint(cred: any): string {
+    private dcqlCredentialFingerprint(
+        cred: any,
+        { sortClaims = false }: { sortClaims?: boolean } = {},
+    ): string {
         if (!cred || typeof cred !== "object") {
             return JSON.stringify(cred ?? null);
         }
@@ -531,6 +539,11 @@ export class RegistrationCertificateService {
         const normalizedClaims = rawClaims?.map((claim: any) => ({
             path: claim?.path,
         }));
+        if (sortClaims) {
+            normalizedClaims?.sort((a: unknown, b: unknown) =>
+                this.canonicalJson(a).localeCompare(this.canonicalJson(b)),
+            );
+        }
 
         const normalized = {
             format: (cred as Record<string, any>).format,
