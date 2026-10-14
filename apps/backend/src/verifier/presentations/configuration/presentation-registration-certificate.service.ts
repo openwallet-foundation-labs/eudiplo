@@ -13,6 +13,7 @@ import {
 } from "../../../crypto/key/cert/cert.service.js";
 import { KeyUsageType } from "../../../crypto/key/types/key-usage-type.js";
 import { RegistrarService } from "../../../registrar/registrar.service.js";
+import { resolveDcqlTenantUrl } from "../domain/dcql-tenant-url.js";
 import {
     PresentationConfig,
     RegistrationCertCache,
@@ -231,8 +232,8 @@ export class PresentationRegistrationCertificateService {
     async validateImported(
         presentationConfig: Pick<
             PresentationConfig,
-            "id" | "tenantId" | "dcql_query" | "registration_cert"
-        >,
+            "id" | "tenantId" | "registration_cert"
+        > & { dcql_query: unknown },
     ): Promise<void> {
         const jwt = presentationConfig.registration_cert?.jwt;
         if (!jwt) {
@@ -382,9 +383,10 @@ export class PresentationRegistrationCertificateService {
      * sees the same DCQL the runtime path will see.
      */
     private resolveTenantUrl(dcqlQuery: unknown, tenantId: string): any {
-        const tenantHost = `${this.settings.publicUrl}/issuers/${tenantId}`;
-        return JSON.parse(
-            JSON.stringify(dcqlQuery).replaceAll("<TENANT_URL>", tenantHost),
+        return resolveDcqlTenantUrl(
+            dcqlQuery,
+            this.settings.publicUrl,
+            tenantId,
         );
     }
 

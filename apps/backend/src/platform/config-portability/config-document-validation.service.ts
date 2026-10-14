@@ -14,7 +14,9 @@ import { IssuanceConfigSchema } from "../../issuer/configuration/issuance/schema
 import { CreateWebhookEndpointSchema } from "../../issuer/configuration/webhook-endpoint/schemas/webhook-endpoint.schema.js";
 import { StatusListImportSchema } from "../../issuer/status-list/dto/status-list.schema.js";
 import { TrustListCreateSchema } from "../../issuer/trust-list/schemas/trust-list.schema.js";
+import { checkRegistrationCertificate } from "../../registrar/domain/registration-certificate-check.js";
 import { CreateRegistrarConfigSchema } from "../../registrar/schemas/registrar.schema.js";
+import { resolveDcqlTenantUrl } from "../../verifier/presentations/domain/dcql-tenant-url.js";
 import { missingTrustedAuthorities } from "../../verifier/presentations/domain/trusted-authority-requirement.js";
 import { PresentationConfigCreateSchema } from "../../verifier/presentations/schemas/presentation-config.schema.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
@@ -28,6 +30,15 @@ import {
     isInternalChainWithPrivateKeys,
     keySourceKeyChainType,
 } from "./key-chain-document.js";
+
+/** A `${VAR}` placeholder the plan reports as SECRET_REQUIRED. */
+export const UNRESOLVED_PLACEHOLDER = /^\$\{[A-Z0-9_]+(?::[^}]*)?\}$/;
+
+/** The flat `registrationCertImportJwt` form field, trimmed, if it is a string. */
+function flatImportJwt(spec: Record<string, any>): string | undefined {
+    const value = spec.registrationCertImportJwt;
+    return typeof value === "string" ? value.trim() : undefined;
+}
 
 @Injectable()
 export class ConfigDocumentValidationService {
@@ -188,6 +199,62 @@ export class ConfigDocumentValidationService {
                 code: "TRUSTED_AUTHORITY_REQUIRED",
                 path: "/spec/dcql_query/credentials",
                 message: violation,
+                resource: {
+                    kind: document.kind,
+                    id: resourceId(document),
+                },
+            },
+        ];
+    }
+
+    /**
+     * An imported `registration_cert.jwt` must be valid now and authorize the
+     * DCQL query with `<TENANT_URL>` resolved for `tenantId`, the tenant the
+     * bundle is applied to, as saving the presentation config checks. The
+     * plan calls this only for documents apply writes: an unchanged or
+     * skipped document is not saved, so a certificate that expired since
+     * does not block the import.
+     */
+    validateRegistrationCertificate(
+        document: ConfigDocument,
+        tenantId: string,
+    ): ConfigMigrationIssue[] {
+        if (document.kind !== "PresentationConfig") return [];
+        const spec = document.spec as Record<string, any>;
+        // The schema has not validated the document yet, so read only the
+        // JWT: `registration_cert.jwt`, or the flat form field the
+        // presentation config service turns into it.
+        const jwt = Object.hasOwn(spec, "registration_cert")
+            ? spec.registration_cert?.jwt
+            : flatImportJwt(spec);
+        // An unresolved `${VAR}` placeholder is reported as SECRET_REQUIRED.
+        if (
+            typeof jwt !== "string" ||
+            jwt.length === 0 ||
+            UNRESOLVED_PLACEHOLDER.test(jwt)
+        ) {
+            return [];
+        }
+        const { problem } = checkRegistrationCertificate(
+            jwt,
+            resolveDcqlTenantUrl(
+                spec.dcql_query,
+                this.configService.getOrThrow<string>("PUBLIC_URL"),
+                tenantId,
+            ),
+            {
+                skipOveraskingCheck:
+                    this.configService.get<boolean>("SKIP_OVERASKING_CHECK") ??
+                    false,
+            },
+        );
+        if (!problem) return [];
+        return [
+            {
+                severity: "error",
+                code: "REGISTRATION_CERTIFICATE_REFUSED",
+                path: "/spec/registration_cert",
+                message: problem.message,
                 resource: {
                     kind: document.kind,
                     id: resourceId(document),
