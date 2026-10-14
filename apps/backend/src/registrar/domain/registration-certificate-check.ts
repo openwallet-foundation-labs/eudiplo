@@ -150,11 +150,9 @@ export function credentialFingerprint(
     }
     const entry = cred as Record<string, any>;
 
-    const rawClaims = Array.isArray(entry.claims)
-        ? entry.claims
-        : Array.isArray(entry.claim)
-          ? entry.claim
-          : undefined;
+    let rawClaims: unknown[] | undefined;
+    if (Array.isArray(entry.claims)) rawClaims = entry.claims;
+    else if (Array.isArray(entry.claim)) rawClaims = entry.claim;
     const normalizedClaims = rawClaims?.map((claim: any) => ({
         path: claim?.path,
     }));

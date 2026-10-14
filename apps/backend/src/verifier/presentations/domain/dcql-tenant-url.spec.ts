@@ -29,8 +29,8 @@ describe("resolveDcqlTenantUrl", () => {
     });
 
     it("passes undefined through", () => {
-        expect(resolveDcqlTenantUrl(undefined, "https://x", "t")).toBe(
-            undefined,
-        );
+        expect(
+            resolveDcqlTenantUrl(undefined, "https://x", "t"),
+        ).toBeUndefined();
     });
 });

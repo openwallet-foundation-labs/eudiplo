@@ -34,6 +34,12 @@ import {
 /** A `${VAR}` placeholder the plan reports as SECRET_REQUIRED. */
 export const UNRESOLVED_PLACEHOLDER = /^\$\{[A-Z0-9_]+(?::[^}]*)?\}$/;
 
+/** The flat `registrationCertImportJwt` form field, trimmed, if it is a string. */
+function flatImportJwt(spec: Record<string, any>): string | undefined {
+    const value = spec.registrationCertImportJwt;
+    return typeof value === "string" ? value.trim() : undefined;
+}
+
 @Injectable()
 export class ConfigDocumentValidationService {
     constructor(
@@ -218,14 +224,9 @@ export class ConfigDocumentValidationService {
         // The schema has not validated the document yet, so read only the
         // JWT: `registration_cert.jwt`, or the flat form field the
         // presentation config service turns into it.
-        const jwt = Object.prototype.hasOwnProperty.call(
-            spec,
-            "registration_cert",
-        )
+        const jwt = Object.hasOwn(spec, "registration_cert")
             ? spec.registration_cert?.jwt
-            : typeof spec.registrationCertImportJwt === "string"
-              ? spec.registrationCertImportJwt.trim()
-              : undefined;
+            : flatImportJwt(spec);
         // An unresolved `${VAR}` placeholder is reported as SECRET_REQUIRED.
         if (
             typeof jwt !== "string" ||
