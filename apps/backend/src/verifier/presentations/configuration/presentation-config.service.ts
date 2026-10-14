@@ -91,7 +91,7 @@ export class PresentationConfigService {
                     await this.registrationCertificates.validateImported({
                         ...normalizeRegistrationCertFormFields(data),
                         tenantId: tid,
-                    });
+                    } as PresentationConfig);
                     await this.repository.delete({
                         id: data.id,
                         tenantId: tid,
