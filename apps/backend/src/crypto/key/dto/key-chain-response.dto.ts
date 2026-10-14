@@ -38,7 +38,8 @@ export class CertificateInfoDto {
 }
 
 /**
- * Public key info in the response.
+ * Public key of a key chain as a JWK (RFC 7517). Holds the public key
+ * parameters, never private members such as `d`.
  */
 export class PublicKeyInfoDto {
     @ApiProperty({
@@ -59,10 +60,34 @@ export class PublicKeyInfoDto {
     kid?: string;
 
     @ApiPropertyOptional({
-        description: "Curve (for EC keys).",
+        description: "Curve (for EC and OKP keys).",
         example: "P-256",
     })
     crv?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Public key coordinate (base64url): x coordinate for EC keys, public key for OKP keys.",
+        example: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+    })
+    x?: string;
+
+    @ApiPropertyOptional({
+        description: "y coordinate (base64url, for EC keys).",
+        example: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+    })
+    y?: string;
+
+    @ApiPropertyOptional({
+        description: "Modulus (base64url, for RSA keys).",
+    })
+    n?: string;
+
+    @ApiPropertyOptional({
+        description: "Public exponent (base64url, for RSA keys).",
+        example: "AQAB",
+    })
+    e?: string;
 }
 
 /**

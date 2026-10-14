@@ -1021,9 +1021,25 @@ export type PublicKeyInfoDto = {
      */
     kid?: string;
     /**
-     * Curve (for EC keys).
+     * Curve (for EC and OKP keys).
      */
     crv?: string;
+    /**
+     * Public key coordinate (base64url): x coordinate for EC keys, public key for OKP keys.
+     */
+    x?: string;
+    /**
+     * y coordinate (base64url, for EC keys).
+     */
+    y?: string;
+    /**
+     * Modulus (base64url, for RSA keys).
+     */
+    n?: string;
+    /**
+     * Public exponent (base64url, for RSA keys).
+     */
+    e?: string;
 };
 
 export type RotationPolicyResponseDto = {
