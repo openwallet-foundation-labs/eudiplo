@@ -380,7 +380,6 @@
                               </p>
                               @if (!server.get('inheritWalletProviderTrustLists')?.value) {
                                 <div
-                                  formArrayName="walletProviderTrustLists"
                                   fxLayout="column"
                                   fxLayoutGap="12px"
                                   class="trust-lists-section"
@@ -388,116 +387,50 @@
                                   @for (
                                     trustList of getAuthorizationServerWalletProviderTrustLists(i)
                                       .controls;
-                                    track $index;
+                                    track trustList;
                                     let j = $index
                                   ) {
-                                    <div
-                                      [formGroupName]="j"
-                                      fxLayout="column"
-                                      fxLayoutGap="8px"
-                                      class="trust-list-entry"
-                                    >
-                                      <div
-                                        fxLayout="row"
-                                        fxLayoutAlign="start center"
-                                        fxLayoutGap="8px"
-                                      >
-                                        <mat-form-field fxFlex>
-                                          <mat-label>Trust List URL {{ j + 1 }}</mat-label>
-                                          <input
-                                            (keydown.enter)="onInputEnter($event)"
-                                            matInput
-                                            [id]="'auth-server-' + i + '-wallet-trust-url-' + j"
-                                            formControlName="url"
-                                            placeholder="https://trust-list.example.com/wallet-providers"
-                                            type="url"
-                                          />
-                                          <mat-icon matSuffix>security</mat-icon>
-                                        </mat-form-field>
-                                        <button
-                                          matIconButton
-                                          type="button"
-                                          color="warn"
-                                          (click)="
-                                            removeAuthorizationServerWalletProviderTrustList(i, j)
-                                          "
-                                          matTooltip="Remove this trust list"
-                                        >
-                                          <mat-icon>delete</mat-icon>
-                                        </button>
-                                      </div>
-
-                                      <mat-form-field>
-                                        <mat-label>Verifier Key (JWK JSON)</mat-label>
-                                        <textarea
-                                          matInput
-                                          [id]="'auth-server-' + i + '-wallet-trust-jwk-' + j"
-                                          formControlName="verifierKey"
-                                          rows="4"
-                                          placeholder='{"kty":"EC","crv":"P-256","x":"...","y":"...","alg":"ES256"}'
-                                        ></textarea>
-                                        <mat-icon matSuffix>vpn_key</mat-icon>
-                                        @if (
-                                          trustList.get('verifierKey')?.invalid &&
-                                          trustList.get('verifierKey')?.touched
-                                        ) {
-                                          <mat-error
-                                            >Please enter a valid JWK JSON object.</mat-error
-                                          >
+                                    <ng-container
+                                      *ngTemplateOutlet="
+                                        walletTrustListEntry;
+                                        context: {
+                                          $implicit: trustList,
+                                          list: getAuthorizationServerWalletProviderTrustLists(i),
+                                          index: j,
+                                          idPrefix: 'auth-server-' + i + '-wallet-trust-',
                                         }
-                                      </mat-form-field>
-
-                                      <mat-form-field>
-                                        <mat-label>Verifier Public Key (PEM)</mat-label>
-                                        <textarea
-                                          matInput
-                                          [id]="'auth-server-' + i + '-wallet-trust-pem-' + j"
-                                          formControlName="verifierKeyPem"
-                                          rows="4"
-                                          placeholder="-----BEGIN PUBLIC KEY-----&#10;MFkw...&#10;-----END PUBLIC KEY-----"
-                                        ></textarea>
-                                        <mat-icon matSuffix>key</mat-icon>
-                                        @if (
-                                          trustList.get('verifierKeyPem')?.invalid &&
-                                          trustList.get('verifierKeyPem')?.touched
-                                        ) {
-                                          <mat-error
-                                            >Please enter a PEM-encoded public key.</mat-error
-                                          >
-                                        }
-                                      </mat-form-field>
-
-                                      <mat-form-field>
-                                        <mat-label>Verifier Certificate (Base64 DER)</mat-label>
-                                        <input
-                                          (keydown.enter)="onInputEnter($event)"
-                                          matInput
-                                          [id]="'auth-server-' + i + '-wallet-trust-der-' + j"
-                                          formControlName="verifierX509Der"
-                                          placeholder="MIIB..."
-                                          type="text"
-                                        />
-                                        <mat-icon matSuffix>verified</mat-icon>
-                                      </mat-form-field>
-
-                                      @if (
-                                        trustList.hasError('missingVerifier') && trustList.touched
-                                      ) {
-                                        <p class="trust-list-error">
-                                          Provide at least one verifier method: JWK, PEM public key
-                                          or DER certificate.
-                                        </p>
-                                      }
-                                    </div>
+                                      "
+                                    />
                                   }
-
-                                  <div fxLayout="row" fxLayoutAlign="center center">
+                                  @if (
+                                    hasManagedEntry(
+                                      getAuthorizationServerWalletProviderTrustLists(i)
+                                    )
+                                  ) {
+                                    <ng-container *ngTemplateOutlet="walletTrustListLoadError" />
+                                  }
+                                  <div
+                                    fxLayout="row"
+                                    fxLayoutAlign="center center"
+                                    fxLayoutGap="8px"
+                                  >
                                     <button
                                       mat-raised-button
                                       type="button"
-                                      (click)="addAuthorizationServerWalletProviderTrustList(i)"
+                                      (click)="
+                                        addAuthorizationServerWalletProviderTrustList(i, 'managed')
+                                      "
                                     >
-                                      <mat-icon>add</mat-icon> Add Trust List
+                                      <mat-icon>add</mat-icon> Add managed trust list
+                                    </button>
+                                    <button
+                                      mat-stroked-button
+                                      type="button"
+                                      (click)="
+                                        addAuthorizationServerWalletProviderTrustList(i, 'external')
+                                      "
+                                    >
+                                      <mat-icon>add</mat-icon> Add external trust list
                                     </button>
                                   </div>
                                 </div>
@@ -865,129 +798,44 @@
                         <p class="section-hint">
                           <mat-icon>info</mat-icon>
                           These lists validate key attestations during issuance and are the default
-                          for wallet authentication at managed authorization servers. Each list
-                          requires a URL and either a verifier JWK or a DER-encoded X.509
-                          certificate.
+                          for wallet authentication at managed authorization servers. Each list is a
+                          trust list of this tenant that has a wallet provider, or an external list
+                          given by its URL and the X.509 certificate that signs it.
                         </p>
-                        <div formArrayName="walletProviderTrustLists">
-                          @for (
-                            trustList of walletProviderTrustLists.controls;
-                            track $index;
-                            let i = $index
-                          ) {
-                            <div
-                              [formGroupName]="i"
-                              fxLayout="column"
-                              fxLayoutGap="8px"
-                              class="trust-list-entry"
-                            >
-                              <mat-form-field>
-                                <mat-label>Managed trust-list ID</mat-label>
-                                <input
-                                  (keydown.enter)="onInputEnter($event)"
-                                  matInput
-                                  formControlName="trustListId"
-                                  placeholder="wallet-providers"
-                                />
-                                <mat-hint
-                                  >For a list in this tenant, the URL and verifier below are
-                                  resolved automatically.</mat-hint
-                                >
-                              </mat-form-field>
-                              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                                <mat-form-field fxFlex>
-                                  <mat-label>Trust List URL {{ i + 1 }}</mat-label>
-                                  <input
-                                    (keydown.enter)="onInputEnter($event)"
-                                    matInput
-                                    [id]="'wallet-trust-url-' + i"
-                                    formControlName="url"
-                                    placeholder="https://trust-list.example.com/wallet-providers"
-                                    type="url"
-                                  />
-                                  <mat-icon matSuffix>security</mat-icon>
-                                  @if (
-                                    trustList.get('url')?.invalid && trustList.get('url')?.touched
-                                  ) {
-                                    <mat-error>Please enter a valid URL</mat-error>
-                                  }
-                                </mat-form-field>
-                                <button
-                                  matIconButton
-                                  type="button"
-                                  color="warn"
-                                  (click)="removeWalletProviderTrustList(i)"
-                                  matTooltip="Remove this trust list"
-                                >
-                                  <mat-icon>delete</mat-icon>
-                                </button>
-                              </div>
-
-                              <mat-form-field>
-                                <mat-label>Verifier Key (JWK JSON)</mat-label>
-                                <textarea
-                                  matInput
-                                  [id]="'wallet-trust-jwk-' + i"
-                                  formControlName="verifierKey"
-                                  rows="4"
-                                  placeholder='{"kty":"EC","crv":"P-256","x":"...","y":"...","alg":"ES256"}'
-                                ></textarea>
-                                <mat-icon matSuffix>vpn_key</mat-icon>
-                                @if (
-                                  trustList.get('verifierKey')?.invalid &&
-                                  trustList.get('verifierKey')?.touched
-                                ) {
-                                  <mat-error>Please enter a valid JWK JSON object.</mat-error>
-                                }
-                              </mat-form-field>
-
-                              <mat-form-field>
-                                <mat-label>Verifier Public Key (PEM)</mat-label>
-                                <textarea
-                                  matInput
-                                  [id]="'wallet-trust-pem-' + i"
-                                  formControlName="verifierKeyPem"
-                                  rows="4"
-                                  placeholder="-----BEGIN PUBLIC KEY-----&#10;MFkw...&#10;-----END PUBLIC KEY-----"
-                                ></textarea>
-                                <mat-icon matSuffix>key</mat-icon>
-                                @if (
-                                  trustList.get('verifierKeyPem')?.invalid &&
-                                  trustList.get('verifierKeyPem')?.touched
-                                ) {
-                                  <mat-error>Please enter a PEM-encoded public key.</mat-error>
-                                }
-                              </mat-form-field>
-
-                              <mat-form-field>
-                                <mat-label>Verifier Certificate (Base64 DER)</mat-label>
-                                <input
-                                  (keydown.enter)="onInputEnter($event)"
-                                  matInput
-                                  [id]="'wallet-trust-der-' + i"
-                                  formControlName="verifierX509Der"
-                                  placeholder="MIIB..."
-                                  type="text"
-                                />
-                                <mat-icon matSuffix>verified</mat-icon>
-                              </mat-form-field>
-
-                              @if (trustList.hasError('missingVerifier') && trustList.touched) {
-                                <p class="trust-list-error">
-                                  Provide at least one verifier method: JWK, PEM public key or DER
-                                  certificate.
-                                </p>
+                        @for (
+                          trustList of walletProviderTrustLists.controls;
+                          track trustList;
+                          let i = $index
+                        ) {
+                          <ng-container
+                            *ngTemplateOutlet="
+                              walletTrustListEntry;
+                              context: {
+                                $implicit: trustList,
+                                list: walletProviderTrustLists,
+                                index: i,
+                                idPrefix: 'wallet-trust-',
                               }
-                            </div>
-                          }
-                        </div>
-                        <div fxLayout="row" fxLayoutAlign="center center">
+                            "
+                          />
+                        }
+                        @if (hasManagedEntry(walletProviderTrustLists)) {
+                          <ng-container *ngTemplateOutlet="walletTrustListLoadError" />
+                        }
+                        <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
                           <button
                             mat-raised-button
                             type="button"
-                            (click)="addWalletProviderTrustList()"
+                            (click)="addWalletProviderTrustList('managed')"
                           >
-                            <mat-icon>add</mat-icon> Add Trust List
+                            <mat-icon>add</mat-icon> Add managed trust list
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            (click)="addWalletProviderTrustList('external')"
+                          >
+                            <mat-icon>add</mat-icon> Add external trust list
                           </button>
                         </div>
                         @if (walletProviderTrustLists.length === 0) {
@@ -1325,3 +1173,136 @@
     </form>
   }
 </div>
+
+<ng-template
+  #walletTrustListEntry
+  let-trustList
+  let-list="list"
+  let-index="index"
+  let-idPrefix="idPrefix"
+>
+  <div fxLayout="column" fxLayoutGap="8px" class="trust-list-entry">
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+      @if (trustList.get('mode')?.value === 'managed') {
+        <mat-form-field fxFlex>
+          <mat-label>Managed trust list {{ index + 1 }}</mat-label>
+          <mat-select
+            [id]="idPrefix + 'managed-' + index"
+            [formControl]="trustListControl(trustList, 'trustListId')"
+          >
+            @if (managedTrustListNote(trustList.get('trustListId')?.value); as note) {
+              <mat-option [value]="trustList.get('trustListId')?.value"
+                >{{ trustList.get('trustListId')?.value }} ({{ note }})</mat-option
+              >
+            }
+            @for (option of walletProviderTrustListOptions; track option.id) {
+              <mat-option [value]="option.id"
+                >{{ option.description || option.id }} ({{ option.id }})</mat-option
+              >
+            }
+          </mat-select>
+          @if (trustListsLoading) {
+            <mat-hint>Loading the trust lists of this tenant…</mat-hint>
+          } @else if (trustListsLoaded && !walletProviderTrustListOptions.length) {
+            <mat-hint
+              >No trust list of this tenant has a wallet provider. Create one under Trust Lists with
+              Provider type "Wallet provider".</mat-hint
+            >
+          } @else {
+            <mat-hint
+              >A trust list of this tenant with a wallet provider. Its URL and signer certificate
+              are resolved automatically.</mat-hint
+            >
+          }
+        </mat-form-field>
+      } @else {
+        <mat-form-field fxFlex>
+          <mat-label>Trust list URL {{ index + 1 }}</mat-label>
+          <input
+            (keydown.enter)="onInputEnter($event)"
+            matInput
+            [id]="idPrefix + 'url-' + index"
+            [formControl]="trustListControl(trustList, 'url')"
+            placeholder="https://trust-list.example.com/wallet-providers"
+            type="url"
+          />
+          <mat-icon matSuffix>security</mat-icon>
+        </mat-form-field>
+      }
+      <button
+        matIconButton
+        type="button"
+        color="warn"
+        (click)="removeTrustListEntry(list, index)"
+        matTooltip="Remove this trust list"
+        [attr.aria-label]="'Remove trust list ' + (index + 1)"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+
+    @if (
+      trustList.get('mode')?.value !== 'managed' &&
+      trustList.hasError('missingUrl') &&
+      trustList.touched
+    ) {
+      <p class="trust-list-error">Enter the URL of the trust list.</p>
+    }
+
+    @if (trustList.get('mode')?.value === 'managed') {
+      @switch (managedTrustListNote(trustList.get('trustListId')?.value)) {
+        @case ('no wallet provider') {
+          <p class="trust-list-error">
+            This trust list has no wallet provider, so no wallet attestation can match it.
+          </p>
+        }
+        @case ('not found') {
+          <p class="trust-list-error">This trust list does not exist in this tenant.</p>
+        }
+      }
+      @if (trustList.hasError('missingTrustList') && trustList.touched) {
+        <p class="trust-list-error">Select a trust list.</p>
+      }
+    } @else {
+      <mat-form-field>
+        <mat-label>Trust list signer certificate</mat-label>
+        <textarea
+          matInput
+          [id]="idPrefix + 'cert-' + index"
+          [formControl]="trustListControl(trustList, 'verifierCertificate')"
+          rows="4"
+          placeholder="-----BEGIN CERTIFICATE-----&#10;MIIB...&#10;-----END CERTIFICATE-----"
+        ></textarea>
+        <mat-icon matSuffix>verified</mat-icon>
+        <mat-hint>X.509 certificate as PEM or Base64 DER</mat-hint>
+        @if (trustList.get('verifierCertificate')?.hasError('multipleCertificates')) {
+          <mat-error>Enter only the certificate that signs the list, not a chain.</mat-error>
+        } @else if (trustList.get('verifierCertificate')?.hasError('certificate')) {
+          <mat-error>Enter one X.509 certificate as PEM or Base64 DER.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (pinnedPublicKey(trustList); as pinned) {
+        <p class="section-hint">
+          <mat-icon>info</mat-icon>
+          This list pins a public key ({{ pinned }}). EUDIPLO verifies the list with this key, not
+          with a certificate, until you enter a different certificate. Use JSON View to see or
+          remove the key.
+        </p>
+      }
+
+      @if (trustList.hasError('missingVerifier') && trustList.touched) {
+        <p class="trust-list-error">Enter the certificate that signs this trust list.</p>
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #walletTrustListLoadError>
+  @if (trustListsError) {
+    <p class="trust-list-error" role="alert">
+      {{ trustListsError }}
+      <button mat-button type="button" (click)="loadTrustLists()">Retry</button>
+    </p>
+  }
+</ng-template>
