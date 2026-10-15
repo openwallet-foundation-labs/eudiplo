@@ -1558,6 +1558,174 @@ describe("Issuance - Wallet Attestation", () => {
         });
     }, 30000);
 
+    test("should reject a status list whose payload was swapped under the original signature", async () => {
+        // Configure issuance with wallet attestation required
+        const trustListUrl = "http://localhost:8787/wallet-providers-tampered";
+        const statusListUrl = "http://localhost:8787/status-list-tampered";
+
+        // First get current config to preserve other settings
+        const currentConfig = await request(app.getHttpServer())
+            .get("/issuer/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        await request(app.getHttpServer())
+            .post("/issuer/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                ...currentConfig.body,
+                walletAttestationRequired: true,
+                walletProviderTrustLists: [
+                    {
+                        url: trustListUrl,
+                        verifierX509Der:
+                            trustListSigningCert.certificate.toString("base64"),
+                    },
+                ],
+                authorizationServers:
+                    currentConfig.body.authorizationServers.map(
+                        (server: { type: string }) => ({
+                            ...server,
+                            ...(server.type === "built-in"
+                                ? {
+                                      walletAttestationRequired: true,
+                                      walletProviderTrustLists: [
+                                          {
+                                              url: trustListUrl,
+                                              verifierX509Der:
+                                                  trustListSigningCert.certificate.toString(
+                                                      "base64",
+                                                  ),
+                                          },
+                                      ],
+                                  }
+                                : {}),
+                        }),
+                    ),
+            } as IssuanceDto)
+            .expect(201);
+
+        // Mock the trust list endpoint with revocation cert
+        const trustListJwt = await createMockTrustListJwt(
+            trustListSigningCert,
+            walletProviderCert.certificate,
+            "http://uri.etsi.org/19602/SvcType/WalletSolution",
+            revocationCert.certificate,
+        );
+
+        const trustListNock = nock("http://localhost:8787")
+            .get("/wallet-providers-tampered")
+            .reply(200, trustListJwt, {
+                "Content-Type": "application/jwt",
+            });
+
+        // The revocation cert signs a list where index 5 is revoked. An
+        // attacker swaps in an all-valid payload and keeps that signature.
+        const signedJwt = await createStatusListJwt(
+            revocationCert,
+            statusListUrl,
+            new Map([[5, 1]]),
+        );
+        const allValidJwt = await createStatusListJwt(
+            revocationCert,
+            statusListUrl,
+        );
+        const [header, forgedPayload] = allValidJwt.split(".");
+        const originalSignature = signedJwt.split(".")[2];
+        const statusListJwt = `${header}.${forgedPayload}.${originalSignature}`;
+
+        const statusListNock = nock("http://localhost:8787")
+            .get("/status-list-tampered")
+            .reply(200, statusListJwt, {
+                "Content-Type": "application/statuslist+jwt",
+            });
+
+        // Create offer
+        const offerResponse = await request(app.getHttpServer())
+            .post("/issuer/offer")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                response_type: "uri",
+                credentialConfigurationIds: ["pid-no-key"],
+                flow: "pre_authorized_code",
+            })
+            .expect(201);
+
+        // Generate holder keys
+        const holderKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+        const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
+        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+        holderPublicKeyJwk.alg = "ES256";
+        holderPublicKeyJwk.use = "sig";
+
+        const client = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                clientAuthentication: clientAuthenticationAnonymous(),
+                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
+            },
+        });
+
+        const credentialOffer = await client.resolveCredentialOffer(
+            offerResponse.body.uri,
+        );
+        const issuerMetadata = await client.resolveIssuerMetadata(
+            credentialOffer.credential_issuer,
+        );
+
+        const authServerUrl =
+            issuerMetadata.authorizationServers?.[0]?.issuer ||
+            credentialOffer.credential_issuer;
+
+        // Index 5 is revoked in the signed list, valid in the forged one
+        const clientAttestationJwt = await createWalletAttestationJwt({
+            walletProviderCert: walletProviderCert.certificate,
+            walletProviderKey: walletProviderCert.privateKey,
+            holderPublicKey: holderPublicKeyJwk as Jwk,
+            authorizationServer: authServerUrl,
+            status: {
+                status_list: {
+                    idx: 5,
+                    uri: statusListUrl,
+                },
+            },
+        });
+
+        // Create client with attestation-based authentication
+        const clientWithAttestation = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                clientAuthentication: clientAuthenticationClientAttestationJwt({
+                    clientAttestationJwt,
+                    callbacks: {
+                        signJwt: getSignJwtCallback([
+                            holderPrivateKeyJwk as Jwk,
+                        ]),
+                        generateRandom: callbacks.generateRandom,
+                    },
+                }),
+                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
+            },
+        });
+
+        // Should fail - the status list signature does not cover the payload
+        await expect(
+            clientWithAttestation.retrievePreAuthorizedCodeAccessTokenFromOffer(
+                {
+                    credentialOffer,
+                    issuerMetadata,
+                },
+            ),
+        ).rejects.toThrow();
+        expect(trustListNock.isDone()).toBe(true);
+        expect(statusListNock.isDone()).toBe(true);
+    }, 30000);
+
     test("should fail when wallet attestation status indicates suspended", async () => {
         // Configure issuance with wallet attestation required
         const trustListUrl = "http://localhost:8787/wallet-providers-suspended";
