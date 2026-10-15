@@ -4,6 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import { RevocationListUnavailableError } from "./revocation-policy.util.js";
 import { RevocationCheckMode } from "./types.js";
 import { WalletAttestationService } from "./wallet-attestation.service.js";
+import {
+    MatchedTrustedEntity,
+    X509ValidationService,
+} from "./x509-validation.service.js";
 
 describe("WalletAttestationService trust requirements", () => {
     function createService() {
@@ -148,6 +152,131 @@ describe("WalletAttestationService status list signature", () => {
     });
 });
 
+describe("WalletAttestationService status list signer without revocation certificate", () => {
+    const algorithm = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+    const b64url = (input: string | ArrayBuffer) =>
+        Buffer.from(
+            typeof input === "string" ? input : new Uint8Array(input),
+        ).toString("base64url");
+    const der = (cert: x509.X509Certificate) =>
+        Buffer.from(cert.rawData).toString("base64");
+
+    async function keys() {
+        return (await crypto.subtle.generateKey(algorithm, true, [
+            "sign",
+            "verify",
+        ])) as CryptoKeyPair;
+    }
+
+    async function ca(name: string) {
+        const caKeys = await keys();
+        const cert = await x509.X509CertificateGenerator.createSelfSigned({
+            serialNumber: "01",
+            name: `CN=${name}`,
+            notBefore: new Date(Date.now() - 60_000),
+            notAfter: new Date(Date.now() + 3_600_000),
+            keys: caKeys,
+            signingAlgorithm: algorithm,
+            extensions: [new x509.BasicConstraintsExtension(true, 0, true)],
+        });
+        return { cert, keys: caKeys };
+    }
+
+    /** Status list JWT signed by a leaf certificate that `issuer` issued. */
+    async function statusListUnder(issuer: Awaited<ReturnType<typeof ca>>) {
+        const leafKeys = await keys();
+        const leaf = await x509.X509CertificateGenerator.create({
+            serialNumber: "02",
+            subject: "CN=Status List Signer",
+            issuer: issuer.cert.subject,
+            notBefore: new Date(Date.now() - 60_000),
+            notAfter: new Date(Date.now() + 3_600_000),
+            publicKey: leafKeys.publicKey,
+            signingKey: issuer.keys.privateKey,
+            signingAlgorithm: algorithm,
+        });
+        const data = `${b64url(
+            JSON.stringify({
+                alg: "ES256",
+                typ: "statuslist+jwt",
+                x5c: [der(leaf)],
+            }),
+        )}.${b64url(JSON.stringify({ status_list: { bits: 1, lst: "AA" } }))}`;
+        const signature = b64url(
+            await crypto.subtle.sign(
+                algorithm,
+                leafKeys.privateKey,
+                new TextEncoder().encode(data),
+            ),
+        );
+        return `${data}.${signature}`;
+    }
+
+    /** Verify with the provider CA and `otherCa` both in the trust store. */
+    async function verify(
+        jwt: string,
+        providerCa: x509.X509Certificate,
+        otherCa: x509.X509Certificate,
+    ) {
+        const issuanceThumbprint = Buffer.from(
+            await providerCa.getThumbprint("SHA-256"),
+        ).toString("hex");
+        const matchedEntity: MatchedTrustedEntity = {
+            entity: { entityId: "provider", services: [] },
+            issuanceCert: providerCa,
+            issuanceThumbprint,
+            issuanceIsCa: true,
+            matchMode: "ca",
+        };
+        const service = Object.assign(
+            Object.create(WalletAttestationService.prototype),
+            {
+                logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
+                cryptoImplementationService: {
+                    getCryptoFromJwk: () => ES256,
+                },
+                x509ValidationService: new X509ValidationService(),
+            },
+        );
+        return service.verifyStatusListSignature(jwt, matchedEntity, {
+            entities: [
+                {
+                    services: [
+                        { certValue: der(providerCa) },
+                        { certValue: der(otherCa) },
+                    ],
+                },
+            ],
+        });
+    }
+
+    it("accepts a status list chained to the provider's attestation CA", async () => {
+        const providerCa = await ca("Provider CA");
+        const otherCa = await ca("Other Provider CA");
+
+        await expect(
+            verify(
+                await statusListUnder(providerCa),
+                providerCa.cert,
+                otherCa.cert,
+            ),
+        ).resolves.toBe(true);
+    });
+
+    it("rejects a status list chained to another CA in the trust store", async () => {
+        const providerCa = await ca("Provider CA");
+        const otherCa = await ca("Foreign CA");
+
+        await expect(
+            verify(
+                await statusListUnder(otherCa),
+                providerCa.cert,
+                otherCa.cert,
+            ),
+        ).resolves.toBe(false);
+    });
+});
+
 describe("WalletAttestationService status check mode", () => {
     const statusEntry = { uri: "https://wp.example/status", idx: 3 };
 
@@ -172,6 +301,7 @@ describe("WalletAttestationService status check mode", () => {
             {
                 logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
                 statusListVerifierService,
+                settings: { cryptoToleranceSeconds: 0 },
                 verifyStatusListSignature: vi.fn(async () => true),
             },
         );
@@ -236,7 +366,7 @@ describe("WalletAttestationService status check mode", () => {
             const { service } = createService({ readStatus: outOfRange });
 
             await expect(check(service, mode)).rejects.toThrow(
-                "Wallet attestation status check failed",
+                "Wallet attestation status list rejected: Index 3 out of bounds",
             );
         },
     );
