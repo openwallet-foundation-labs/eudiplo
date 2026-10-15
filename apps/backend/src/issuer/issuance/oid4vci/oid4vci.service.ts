@@ -5,6 +5,7 @@ import {
     Logger,
     NotFoundException,
 } from "@nestjs/common";
+import { Oauth2ServerErrorResponseError } from "@openid4vc/oauth2";
 import {
     CreateCredentialResponseReturn,
     type CredentialRequest,
@@ -31,7 +32,10 @@ import { CredentialProofType } from "../../configuration/credentials/entities/cr
 import { InvalidClaimsException } from "../../configuration/credentials/exceptions/invalid-claims.exception.js";
 import { IssuanceService } from "../../configuration/issuance/issuance.service.js";
 import { SubjectKeyService } from "../../status-list/subject-key.service.js";
-import { addLegacyCredentialResponseEncryptionAlg } from "./adapters/credential-request-compat.js";
+import {
+    addLegacyCredentialResponseEncryptionAlg,
+    dropUnsupportedCredentialResponseCompression,
+} from "./adapters/credential-request-compat.js";
 import { BuildIssuerMetadata } from "./application/build-issuer-metadata.js";
 import {
     CorrelateCredentialTokenSession,
@@ -382,10 +386,27 @@ export class Oid4vciService {
         try {
             parsedCredentialRequest = issuer.parseCredentialRequest({
                 issuerMetadata,
-                credentialRequest:
-                    addLegacyCredentialResponseEncryptionAlg(requestBody),
+                credentialRequest: addLegacyCredentialResponseEncryptionAlg(
+                    dropUnsupportedCredentialResponseCompression(
+                        requestBody,
+                        issuerMetadata.credentialIssuer
+                            .credential_response_encryption
+                            ?.zip_values_supported,
+                    ),
+                ),
             });
         } catch (err) {
+            // Keep the code so a wallet can tell it has to retry encrypted
+            // (OpenID4VCI 1.0 Section 8.3.1.2).
+            if (
+                err instanceof Oauth2ServerErrorResponseError &&
+                err.errorResponse.error === "invalid_encryption_parameters"
+            ) {
+                throw new CredentialRequestException(
+                    "invalid_encryption_parameters",
+                    err.errorResponse.error_description,
+                );
+            }
             throw new CredentialRequestException(
                 "invalid_credential_request",
                 err instanceof Error
