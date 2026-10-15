@@ -356,16 +356,18 @@ export class WalletAttestationService {
                 statusListJwt.split(".");
             const data = `${headerB64}.${payloadB64}`;
 
-            const sigOk = await verifier(data, signatureB64)
-                .then(() => true)
-                .catch((e) => {
-                    this.logger.debug(
-                        `Status list JWT signature invalid: ${e?.message ?? e}`,
-                    );
-                    return false;
-                });
-
-            if (!sigOk) return false;
+            // The verifier resolves to false on a bad signature; it only
+            // rejects when the signature cannot be checked at all.
+            const sigOk = await verifier(data, signatureB64).catch((e) => {
+                this.logger.debug(
+                    `Status list JWT signature check failed: ${e?.message ?? e}`,
+                );
+                return false;
+            });
+            if (!sigOk) {
+                this.logger.debug("Status list JWT signature invalid");
+                return false;
+            }
 
             // If no entity was matched (no trust list configured), accept if signature is valid
             if (!matchedEntity || !trustStore) {
