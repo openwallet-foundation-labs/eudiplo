@@ -4,7 +4,6 @@ import { digest, generateSalt } from "@owf/crypto";
 import { JWTwithStatusListPayload } from "@owf/token-status-list";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { CertService } from "../../../../../crypto/key/cert/cert.service.js";
-import { CryptoImplementationService } from "../../../../../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service.js";
 import { KeyUsageType } from "../../../../../crypto/key/types/key-usage-type.js";
 import type { SessionData as Session } from "../../../../../session/domain/session-data.js";
@@ -37,7 +36,6 @@ export class SdjwtvcIssuerService {
         @Inject(CREDENTIAL_SETTINGS)
         private readonly settings: CredentialSettings,
         private readonly statusListService: StatusListService,
-        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly keyChainService: KeyChainService,
     ) {}
 
@@ -62,12 +60,16 @@ export class SdjwtvcIssuerService {
             keyId: credentialConfiguration.keyChainId,
         });
 
+        const signAlg = await this.keyChainService.getSigningAlg(
+            session.tenantId,
+            certificate.keyId,
+        );
         const sdjwt = new SDJwtVcInstance({
             signer: await this.keyChainService.signer(
                 session.tenantId,
                 certificate.keyId,
             ),
-            signAlg: this.cryptoImplementationService.getAlg(),
+            signAlg,
             hasher: digest,
             hashAlg: "sha-256",
             saltGenerator: generateSalt,
@@ -122,7 +124,7 @@ export class SdjwtvcIssuerService {
 
         // Build header: include x5c only if not using federation
         const header: any = {
-            alg: this.cryptoImplementationService.getAlg(),
+            alg: signAlg,
         };
 
         if (!useFederation) {

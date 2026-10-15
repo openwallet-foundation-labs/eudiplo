@@ -3,7 +3,7 @@
 export const CONFIG_FORMATS = {
     Tenant: { slug: "tenant", file: "TenantConfigFile", version: 1 },
     Client: { slug: "client", file: "ClientConfigFile", version: 2 },
-    KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 1 },
+    KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 2 },
     KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 2 },
     RegistrarConfig: {
         slug: "registrar-config",
@@ -182,6 +182,16 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 2,
         // v2 only adds the roles audit:read, sessions:read, credentials:status
         // and keys:manage: a v1 spec is a valid v2 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "kms-config-v2-algorithms",
+        kind: "KmsConfig",
+        from: 1,
+        to: 2,
+        // v2 only adds the optional provider fields algorithms and
+        // defaultAlgorithm: a v1 spec is a valid v2 spec, whose providers keep
+        // their default algorithms.
         migrate: (spec) => ({ spec }),
     },
     {

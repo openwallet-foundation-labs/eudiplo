@@ -10,9 +10,15 @@ import {
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service.js";
+import {
+    signingAlgForJwk,
+    signingAlgSpec,
+} from "../../../../../crypto/key/domain/signing-algs.js";
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service.js";
+import type { KmsSigningAlg } from "../../../../../crypto/key/kms/kms-adapter.js";
 import { KeyUsageType } from "../../../../../crypto/key/types/key-usage-type.js";
 import type { SessionData as Session } from "../../../../../session/domain/session-data.js";
+import { coseReadyJwk } from "../../../../../shared/utils/cose-key-jwk.util.js";
 import { mdocContext } from "../../../../../verifier/presentations/mdoc-context.js";
 import { StatusListService } from "../../../../status-list/status-list.service.js";
 import type { CredentialConfiguration } from "../../domain/credential-configuration.js";
@@ -87,11 +93,12 @@ export class MdocIssuerService {
             session.tenantId,
             certificate.keyId,
         );
+        const signingAlg = signingAlgForJwk(keyChain.activeJwk);
         const privateKey = await exportJWK(
             await crypto.subtle.importKey(
                 "jwk",
                 keyChain.activeJwk,
-                { name: "ECDSA", namedCurve: "P-256" },
+                { name: "ECDSA", namedCurve: signingAlgSpec(signingAlg).crv },
                 true,
                 ["sign"],
             ),
@@ -124,6 +131,7 @@ export class MdocIssuerService {
         // Ensure the private key used for signing matches the embedded leaf certificate.
         await this.assertSigningKeyMatchesLeafCertificate(
             privateKey as Jwk,
+            signingAlg,
             certificate.crt[0],
         );
 
@@ -171,11 +179,13 @@ export class MdocIssuerService {
 
         // Sign the mDOC
         const issuerSigned = await issuer.sign({
-            signingKey: CoseKey.fromJwk(privateKey as Jwk),
+            signingKey: CoseKey.fromJwk(coseReadyJwk(privateKey) as Jwk),
             certificates: certificateChain,
-            algorithm: SignatureAlgorithm.ES256,
+            algorithm: SignatureAlgorithm[signingAlg],
             digestAlgorithm: "SHA-256",
-            deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },
+            deviceKeyInfo: {
+                deviceKey: DeviceKey.fromJwk(coseReadyJwk(deviceKey)),
+            },
             validityInfo: { signed, validFrom, validUntil },
             status,
         });
@@ -190,6 +200,7 @@ export class MdocIssuerService {
 
     private async assertSigningKeyMatchesLeafCertificate(
         privateJwk: Jwk,
+        alg: KmsSigningAlg,
         leafCertificatePem?: string,
     ): Promise<void> {
         if (!leafCertificatePem) {
@@ -198,10 +209,19 @@ export class MdocIssuerService {
             );
         }
 
-        const certPublicKey = await importX509(leafCertificatePem, "ES256", {
-            extractable: true,
-        });
-        const certPublicJwk = (await exportJWK(certPublicKey)) as Jwk;
+        // jose rejects a certificate whose key is on another curve than alg.
+        let certPublicJwk: Jwk | undefined;
+        let importError: string | undefined;
+        try {
+            certPublicJwk = (await exportJWK(
+                await importX509(leafCertificatePem, alg, {
+                    extractable: true,
+                }),
+            )) as Jwk;
+        } catch (error) {
+            importError =
+                error instanceof Error ? error.message : String(error);
+        }
 
         const privateJwkPublicPart = {
             kty: privateJwk.kty,
@@ -209,7 +229,7 @@ export class MdocIssuerService {
             x: privateJwk.x,
             y: privateJwk.y,
         };
-        const certJwkPublicPart = {
+        const certJwkPublicPart = certPublicJwk && {
             kty: certPublicJwk.kty,
             crv: certPublicJwk.crv,
             x: certPublicJwk.x,
@@ -217,6 +237,7 @@ export class MdocIssuerService {
         };
 
         if (
+            !certJwkPublicPart ||
             privateJwkPublicPart.kty !== certJwkPublicPart.kty ||
             privateJwkPublicPart.crv !== certJwkPublicPart.crv ||
             privateJwkPublicPart.x !== certJwkPublicPart.x ||
@@ -226,7 +247,7 @@ export class MdocIssuerService {
                 "mDOC issuance key mismatch: active signing key does not match leaf certificate public key",
             );
             throw new Error(
-                "mDOC issuance failed: signing key does not match the embedded attestation certificate. Regenerate or re-import the certificate for this key chain.",
+                `mDOC issuance failed: signing key does not match the embedded attestation certificate${importError ? ` (${importError})` : ""}. Regenerate or re-import the certificate for this key chain.`,
             );
         }
     }

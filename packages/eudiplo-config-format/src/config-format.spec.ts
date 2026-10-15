@@ -310,6 +310,45 @@ describe("portable schema identity and migrations", () => {
         ).toEqual([]);
     });
 
+    it("upgrades a v1 KMS configuration to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("KmsConfig", 1),
+            metadata: { generation: 1 },
+            spec: { providers: [{ id: "db", type: "db" }] },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual(["kms-config-v2-algorithms"]);
+        expect(result.document.$schema).toBe(schemaUrl("KmsConfig", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it("accepts provider algorithms only from KMS configuration v2 on", () => {
+        const spec = {
+            providers: [
+                {
+                    id: "db",
+                    type: "db",
+                    algorithms: ["ES256", "ES384"],
+                    defaultAlgorithm: "ES384",
+                },
+            ],
+        };
+        expect(
+            validateConfigDocument(
+                normalizeDocument({ $schema: schemaUrl("KmsConfig", 2), spec }),
+            ),
+        ).toEqual([]);
+        expect(
+            validateConfigDocument(
+                normalizeDocument({ $schema: schemaUrl("KmsConfig", 1), spec }),
+            ).length,
+        ).toBeGreaterThan(0);
+    });
+
     it.each(["audit:read", "sessions:read", "credentials:status", "keys:manage"])(
         "accepts the client role %s only from v2 on",
         (role) => {

@@ -253,6 +253,33 @@ describe("config upgrade", () => {
         );
         expect(result.spec).toEqual(spec);
     });
+    it("upgrades a v1 KMS configuration file to v2 with the spec unchanged", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "kms-folder");
+        await mkdir(source, { recursive: true });
+        await writeFile(
+            join(source, "info.json"),
+            JSON.stringify({
+                $schema: schemaUrl("Tenant"),
+                metadata: { generation: 1 },
+                spec: { name: "Example" },
+            }),
+        );
+        const spec = { providers: [{ id: "db", type: "db" }] };
+        await writeFile(
+            join(source, "kms.json"),
+            JSON.stringify({ $schema: schemaUrl("KmsConfig", 1), spec }),
+        );
+
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(join(`${source}.upgraded`, "kms.json"), "utf8"),
+        );
+        expect(result.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json",
+        );
+        expect(result.spec).toEqual(spec);
+    });
     it("validates the entire folder before writing any output", async () => {
         const { cwd, context } = await setup();
         const source = join(cwd, "folder");

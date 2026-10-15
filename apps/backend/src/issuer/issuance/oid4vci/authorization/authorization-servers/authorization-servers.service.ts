@@ -589,7 +589,7 @@ export class AuthorizationServersService {
 
         const accessToken = await this.keyChainService.signJWT(
             tokenPayload as any,
-            { alg: "ES256", kid, typ: "at+jwt" },
+            { kid, typ: "at+jwt" },
             tenantId,
             signingKeyId,
         );

@@ -42,7 +42,7 @@ rejects versions newer than its own.
 | -------------------- | ----------------------------- | --------------- | --------- |
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
 | `Client`             | `ClientConfigFile`            | 2               |           |
-| `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
+| `KmsConfig`          | `KmsConfigFile`               | 2               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
@@ -93,6 +93,11 @@ reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
 **Client v2** came with EUDIPLO 10.0 as well. It accepts the roles
 `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1
 document is migrated unchanged; 9.x cannot read v2 files.
+
+**KmsConfig v2** came with EUDIPLO 10.0 as well. It adds the optional
+`algorithms` and `defaultAlgorithm` of a provider, which limit the
+[signing algorithms](../operate/kms.md#signing-algorithms) of new key chains. A
+v1 document is migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 

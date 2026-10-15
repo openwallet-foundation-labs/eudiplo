@@ -1,6 +1,8 @@
+import { NotFoundException } from "@nestjs/common";
 import { zCredentialIssuerMetadataSchema } from "@openid4vc/openid4vci";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service.js";
+import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service.js";
+import type { KeyChainService } from "../../../crypto/key/key-chain.service.js";
 import { CredentialsService } from "./credentials.service.js";
 import {
     type CredentialConfig,
@@ -61,9 +63,61 @@ describe("CredentialsService proof_types_supported generation", () => {
                 settings: { publicUrl: "https://issuer.example" },
                 cryptoImplementationService: {
                     getAlgs: vi.fn(() => SIGNING_ALGS),
+                    getSigningAlgs: vi.fn(() => SIGNING_ALGS),
                 } as unknown as CryptoImplementationService,
+                keyChainService: {
+                    findByUsageType: vi.fn(async () => ({
+                        activeJwk: { kty: "EC", crv: "P-256" },
+                    })),
+                } as unknown as KeyChainService,
             },
         );
+    });
+
+    const credentialAlgs = async (
+        findByUsageType: ReturnType<typeof vi.fn>,
+    ) => {
+        Object.assign(service, {
+            cryptoImplementationService: new CryptoImplementationService(),
+            keyChainService: { findByUsageType },
+        });
+        const entity = buildEntity({
+            proofTypesSupported: [CredentialProofType.JWT],
+        });
+        listForTenant.mockResolvedValue([entity]);
+        const supported = (await service.getCredentialConfigurationSupported(
+            "tenant-1",
+        )) as unknown as Record<string, Record<string, any>>;
+        return {
+            signing:
+                supported[entity.id].credential_signing_alg_values_supported,
+            proof: supported[entity.id].proof_types_supported.jwt
+                .proof_signing_alg_values_supported,
+        };
+    };
+
+    it("names the key chain's algorithm for the credential but accepts every proof algorithm", async () => {
+        await expect(
+            credentialAlgs(
+                vi.fn().mockResolvedValue({
+                    activeJwk: { kty: "EC", crv: "P-384" },
+                }),
+            ),
+        ).resolves.toEqual({
+            signing: ["ES384"],
+            proof: ["ES256", "ES384", "ES512"],
+        });
+    });
+
+    it("falls back to ES256 without an attestation key chain and passes other errors on", async () => {
+        await expect(
+            credentialAlgs(
+                vi.fn().mockRejectedValue(new NotFoundException("none")),
+            ),
+        ).resolves.toMatchObject({ signing: ["ES256"] });
+        await expect(
+            credentialAlgs(vi.fn().mockRejectedValue(new Error("db down"))),
+        ).rejects.toThrow("db down");
     });
 
     it("omits key_attestations_required for jwt-only configurations", async () => {

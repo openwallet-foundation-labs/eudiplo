@@ -1,4 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+    KMS_SIGNING_ALGS,
+    type KmsSigningAlg,
+} from "../domain/signing-algs.js";
 import { KeyUsageType } from "../types/key-usage-type.js";
 import { KeyChainType } from "./key-chain-create.dto.js";
 
@@ -145,6 +149,14 @@ export class KeyChainResponseDto {
         description: "KMS provider used for this key chain.",
     })
     kmsProvider!: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Signing algorithm of the active key, following its curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Absent for keys on other curves.",
+        enum: KMS_SIGNING_ALGS,
+        example: "ES256",
+    })
+    alg?: KmsSigningAlg;
 
     @ApiPropertyOptional({
         description: "Root CA certificate (only for internalChain type).",

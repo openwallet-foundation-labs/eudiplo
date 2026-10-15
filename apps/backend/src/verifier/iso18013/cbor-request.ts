@@ -25,6 +25,8 @@ import {
     SessionTranscript,
     SignatureAlgorithm,
 } from "@owf/mdoc";
+import type { KmsSigningAlg } from "../../crypto/key/kms/kms-adapter.js";
+import { coseReadyJwk } from "../../shared/utils/cose-key-jwk.util.js";
 import { mdocContext } from "../presentations/mdoc-context.js";
 
 // COSE Key type / curve constants (RFC 8152)
@@ -106,7 +108,8 @@ export function buildDeviceRequestCbor(
  *
  * carried as the COSE_Sign1 *detached* payload (`ReaderAuthenticationBytes`,
  * a Tag-24-wrapped bstr). The verifier's certificate chain is placed in the
- * unprotected `x5chain` header and ES256 in the protected header — the same
+ * unprotected `x5chain` header and the key's algorithm (ES256, ES384 or
+ * ES512) in the protected header — the same
  * shape `@owf/mdoc` produces for IssuerAuth, and the exact bytes its
  * `ReaderAuth.verify()` recomputes.
  *
@@ -118,12 +121,14 @@ export function buildDeviceRequestCbor(
  * @param sessionTranscript  DCAPIHandover transcript from {@link buildIsoMdocDcApiTranscript}
  * @param signingJwk         verifier Access private JWK (must include `d`)
  * @param certificateChain   leaf-first DER certificate chain for `x5chain`
+ * @param alg                signing algorithm of `signingJwk`
  */
 export async function buildReaderAuth(
     itemsRequest: ItemsRequest,
     sessionTranscript: SessionTranscript,
     signingJwk: Record<string, unknown>,
     certificateChain: Uint8Array[],
+    alg: KmsSigningAlg,
 ): Promise<ReaderAuth> {
     // ReaderAuthentication = ["ReaderAuthentication", SessionTranscript, ItemsRequestBytes].
     // `@owf/mdoc` declares but does not export the ReaderAuthentication model, so
@@ -145,7 +150,7 @@ export async function buildReaderAuth(
             protectedHeaders: new Map([
                 [
                     RegisteredCwtHeaderClaimKey.Algorithm,
-                    SignatureAlgorithm.ES256,
+                    SignatureAlgorithm[alg],
                 ],
             ]),
         }),
@@ -159,8 +164,8 @@ export async function buildReaderAuth(
 
     await readerAuth.sign(
         {
-            signingKey: CoseKey.fromJwk(signingJwk),
-            algorithm: SignatureAlgorithm.ES256,
+            signingKey: CoseKey.fromJwk(coseReadyJwk(signingJwk)),
+            algorithm: SignatureAlgorithm[alg],
             detachedPayload,
         },
         { sign: mdocContext.cose.sign1.sign },

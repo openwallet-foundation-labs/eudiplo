@@ -24,7 +24,8 @@ export class KmsProviderCapabilitiesDto {
     canDelete!: boolean;
 
     @ApiProperty({
-        description: "Signing algorithms supported by the provider.",
+        description:
+            "Algorithms new key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.",
         example: ["ES256"],
         isArray: true,
         type: String,
@@ -33,7 +34,7 @@ export class KmsProviderCapabilitiesDto {
 
     @ApiProperty({
         description:
-            "Default signing algorithm used when caller does not specify one.",
+            "Algorithm of a new key chain created without alg (defaultAlgorithm in kms.json).",
         example: "ES256",
     })
     defaultAlg!: string;

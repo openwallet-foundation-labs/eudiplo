@@ -53,13 +53,19 @@ A service used as `http` provider implements these endpoints relative to
 
 | Request                         | Body                                         | Response                                                    |
 | ------------------------------- | -------------------------------------------- | ----------------------------------------------------------- |
-| `POST {keysPath}`               | `{ "kid": "<key id>", "alg": "ES256" }`      | `200 { "publicJwk": { "kty": "EC", "crv": "P-256", … } }`   |
-| `POST {keysPath}/{kid}/sign`    | `{ "data": "<base64 bytes>", "alg": "ES256" }` | `200 { "signature": "<base64url raw r‖s, 64 bytes>" }`    |
+| `POST {keysPath}`               | `{ "kid": "<key id>", "alg": "ES256" }`      | `200 { "publicJwk": { "kty": "EC", "crv": "<curve of alg>", … } }` |
+| `POST {keysPath}/{kid}/sign`    | `{ "data": "<base64 bytes>", "alg": "ES256" }` | `200 { "signature": "<base64url raw r‖s, 64, 96 or 132 bytes>" }`    |
 | `DELETE {keysPath}/{kid}`       | -                                            | `204`                                                       |
 | `GET {healthPath}`              | -                                            | `200` (for example `{ "ok": true }`)                        |
 | `POST {keysPath}/{kid}/import`  | `{ "privateJwk": { … }, "alg": "ES256" }`    | `200 { "publicJwk": { … } }`; only called with `canImport: true` |
 
 `keysPath` defaults to `/keys`, `healthPath` to `/health`.
+
+`alg` is `ES256`, `ES384` or `ES512`; the provider's `algorithms` decide which
+ones EUDIPLO sends for new keys (only `defaultAlgorithm`, `ES256` unless set, if
+`algorithms` is missing). The returned `publicJwk` must be on the matching curve
+(P-256, P-384 or P-521), otherwise the key is refused. `sign` hashes `data` with
+SHA-256, SHA-384 or SHA-512 and returns the raw `r‖s` of 64, 96 or 132 bytes.
 
 ## Cloud Signature Consortium (`csc`)
 

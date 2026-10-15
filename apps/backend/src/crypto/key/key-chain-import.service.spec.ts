@@ -41,7 +41,7 @@ describe("key replacement preparation", () => {
             };
             const dto = {
                 id: "key",
-                key: { kid: "original-key-id" },
+                key: { kty: "EC", crv: "P-256", kid: "original-key-id" },
                 usageType: "attestation",
             };
             await expect(service.importKeyChain("tenant", dto)).rejects.toThrow(

@@ -1,3 +1,4 @@
+import type { KeySpec, SigningAlgorithmSpec } from "@aws-sdk/client-kms";
 import {
     CreateKeyCommand,
     type DescribeKeyCommandOutput,
@@ -9,6 +10,14 @@ import {
 } from "@aws-sdk/client-kms";
 import { Logger, NotImplementedException } from "@nestjs/common";
 import { exportJWK, type JWK } from "jose";
+import {
+    assertKmsSigningAlg,
+    derEcdsaToRaw,
+    KMS_SIGNING_ALGS,
+    type KmsAlgorithmPolicy,
+    resolveAlgorithmCapabilities,
+    signingAlgSpec,
+} from "../../domain/signing-algs.js";
 import type { KmsProviderType } from "../../dto/kms-config.dto.js";
 import type {
     KmsAdapter,
@@ -20,17 +29,31 @@ import type {
 } from "../kms-adapter.js";
 import { PublicJwkCache } from "../public-jwk-cache.js";
 
+const AWS_KEY_SPEC: Record<KmsSigningAlg, KeySpec> = {
+    ES256: "ECC_NIST_P256",
+    ES384: "ECC_NIST_P384",
+    ES512: "ECC_NIST_P521",
+};
+
+const AWS_SIGNING_ALGORITHM: Record<KmsSigningAlg, SigningAlgorithmSpec> = {
+    ES256: "ECDSA_SHA_256",
+    ES384: "ECDSA_SHA_384",
+    ES512: "ECDSA_SHA_512",
+};
+
 export interface AwsKmsAdapterConfig {
     providerId: string;
     region: string;
     accessKeyId?: string;
     secretAccessKey?: string;
+    /** Algorithms allowed for new keys (from `kms.json`). */
+    algorithms?: KmsAlgorithmPolicy;
 }
 
 /**
  * AWS KMS adapter.
  *
- * Generates ECC_NIST_P256 SIGN_VERIFY keys directly inside AWS KMS;
+ * Generates ECC_NIST_P256, P384 or P521 SIGN_VERIFY keys directly inside AWS KMS;
  * private key material never leaves the HSM-backed service. Signing
  * goes through the KMS `Sign` API and the returned DER ECDSA-Sig-Value
  * is re-encoded as raw `r || s` so it is JWS-compatible. Import of
@@ -42,13 +65,7 @@ export class AwsKmsAdapter implements KmsAdapter {
 
     readonly providerId: string;
     readonly type: KmsProviderType = "aws-kms";
-    readonly capabilities: KmsAdapterCapabilities = {
-        canCreate: true,
-        canImport: false,
-        canDelete: true,
-        supportedAlgs: ["ES256"],
-        defaultAlg: "ES256",
-    };
+    readonly capabilities: KmsAdapterCapabilities;
 
     private readonly region: string;
     private readonly accessKeyId?: string;
@@ -60,20 +77,31 @@ export class AwsKmsAdapter implements KmsAdapter {
         this.region = config.region;
         this.accessKeyId = config.accessKeyId;
         this.secretAccessKey = config.secretAccessKey;
+        this.capabilities = {
+            canCreate: true,
+            canImport: false,
+            canDelete: true,
+            ...resolveAlgorithmCapabilities(
+                KMS_SIGNING_ALGS,
+                config.algorithms,
+            ),
+        };
     }
 
     async generateKey(opts: {
         kid: string;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
+        // Not limited to capabilities.supportedAlgs: rotation keeps the
+        // algorithm of an existing key chain.
         const alg = opts.alg ?? this.capabilities.defaultAlg;
-        this.assertSupported(alg);
+        assertKmsSigningAlg(alg, `AwsKmsAdapter[${this.providerId}]`);
 
         const client = await this.client();
         const created = await client.send(
             new CreateKeyCommand({
                 KeyUsage: "SIGN_VERIFY",
-                KeySpec: "ECC_NIST_P256",
+                KeySpec: AWS_KEY_SPEC[alg],
                 Description: `eudiplo:${opts.kid}`,
                 Tags: [{ TagKey: "eudiplo-kid", TagValue: opts.kid }],
             }),
@@ -111,7 +139,7 @@ export class AwsKmsAdapter implements KmsAdapter {
             );
         }
         const signAlg = alg ?? ref.alg;
-        this.assertSupported(signAlg);
+        assertKmsSigningAlg(signAlg, `AwsKmsAdapter[${this.providerId}]`);
 
         const client = await this.client();
         const out = await client.send(
@@ -119,7 +147,7 @@ export class AwsKmsAdapter implements KmsAdapter {
                 KeyId: ref.externalKeyId,
                 Message: data,
                 MessageType: "RAW",
-                SigningAlgorithm: "ECDSA_SHA_256",
+                SigningAlgorithm: AWS_SIGNING_ALGORITHM[signAlg],
             }),
         );
         if (!out.Signature) {
@@ -127,7 +155,10 @@ export class AwsKmsAdapter implements KmsAdapter {
                 `AwsKmsAdapter[${this.providerId}]: Sign returned no signature`,
             );
         }
-        return derEcdsaToRaw(out.Signature, 32);
+        return derEcdsaToRaw(
+            out.Signature,
+            signingAlgSpec(signAlg).coordinateSize,
+        );
     }
 
     async deleteKey(ref: KmsKeyRef): Promise<void> {
@@ -214,7 +245,7 @@ export class AwsKmsAdapter implements KmsAdapter {
                 spki.byteOffset,
                 spki.byteOffset + spki.byteLength,
             ) as ArrayBuffer,
-            { name: "ECDSA", namedCurve: "P-256" },
+            { name: "ECDSA", namedCurve: signingAlgSpec(alg).crv },
             true,
             ["verify"],
         );
@@ -223,62 +254,4 @@ export class AwsKmsAdapter implements KmsAdapter {
         jwk.alg = alg;
         return jwk;
     }
-
-    private assertSupported(alg: KmsSigningAlg): void {
-        if (!this.capabilities.supportedAlgs.includes(alg)) {
-            throw new Error(
-                `AwsKmsAdapter[${this.providerId}]: unsupported alg '${alg}'`,
-            );
-        }
-    }
-}
-
-/**
- * Convert an ASN.1 DER-encoded ECDSA-Sig-Value (`SEQUENCE { r, s }`)
- * to the raw `r || s` representation used by JOSE/COSE. `coordLength`
- * is the curve coordinate size in bytes (32 for P-256).
- */
-function derEcdsaToRaw(der: Uint8Array, coordLength: number): Uint8Array {
-    // Minimal DER parser for SEQUENCE { INTEGER r, INTEGER s }.
-    let offset = 0;
-    if (der[offset++] !== 0x30) {
-        throw new Error("Invalid ECDSA signature: missing SEQUENCE tag");
-    }
-    // Length (short or long form).
-    let seqLen = der[offset++];
-    if (seqLen & 0x80) {
-        const lenOfLen = seqLen & 0x7f;
-        seqLen = 0;
-        for (let i = 0; i < lenOfLen; i++) {
-            seqLen = (seqLen << 8) | der[offset++];
-        }
-    }
-
-    const readInt = (): Uint8Array => {
-        if (der[offset++] !== 0x02) {
-            throw new Error("Invalid ECDSA signature: missing INTEGER tag");
-        }
-        let len = der[offset++];
-        if (len & 0x80) {
-            const lenOfLen = len & 0x7f;
-            len = 0;
-            for (let i = 0; i < lenOfLen; i++) {
-                len = (len << 8) | der[offset++];
-            }
-        }
-        let value = der.subarray(offset, offset + len);
-        offset += len;
-        // Strip leading zero used to keep INTEGER positive.
-        if (value.length > coordLength && value[0] === 0x00) {
-            value = value.subarray(1);
-        }
-        return value;
-    };
-
-    const r = readInt();
-    const s = readInt();
-    const out = new Uint8Array(coordLength * 2);
-    out.set(r, coordLength - r.length);
-    out.set(s, coordLength * 2 - s.length);
-    return out;
 }

@@ -17,6 +17,7 @@ import {
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
 import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
+import { signingAlgForCurve, signingAlgForJwk } from "./domain/signing-algs.js";
 import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto.js";
 import { KeyChainExportDto } from "./dto/key-chain-export.dto.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
@@ -149,6 +150,7 @@ export class KeyChainService {
         );
 
         const adapter = this.kmsRegistry.resolve(dto.kmsProvider, tenantId);
+        const alg = this.algForNewKeyChain(adapter, dto.alg);
 
         let keyChain: Partial<KeyChainEntity>;
 
@@ -156,6 +158,7 @@ export class KeyChainService {
             keyChain = await this.createInternalChain(
                 id,
                 adapter,
+                alg,
                 subjectCN,
                 hostname,
                 certificateNotBefore(now),
@@ -165,6 +168,7 @@ export class KeyChainService {
             keyChain = await this.createStandaloneKey(
                 id,
                 adapter,
+                alg,
                 subjectCN,
                 hostname,
                 certificateNotBefore(now),
@@ -186,7 +190,7 @@ export class KeyChainService {
         } as KeyChainEntity);
 
         this.logger.log(
-            `Created key chain ${id} for tenant ${tenantId} (type: ${dto.type}, provider: ${adapter.providerId})`,
+            `Created key chain ${id} for tenant ${tenantId} (type: ${dto.type}, provider: ${adapter.providerId}, alg: ${alg})`,
         );
         return id;
     }
@@ -222,15 +226,34 @@ export class KeyChainService {
         return id;
     }
 
+    /**
+     * The algorithm of a new key chain: the requested one if the provider
+     * offers it, else the provider's default.
+     */
+    private algForNewKeyChain(
+        adapter: KmsAdapter,
+        requested?: KmsSigningAlg,
+    ): KmsSigningAlg {
+        const { supportedAlgs, defaultAlg } = adapter.capabilities;
+        if (requested === undefined) return defaultAlg;
+        if (!supportedAlgs.includes(requested)) {
+            throw new BadRequestException(
+                `KMS provider '${adapter.providerId}' does not offer ${requested} for new key chains. Supported: ${supportedAlgs.join(", ")}`,
+            );
+        }
+        return requested;
+    }
+
     private async createInternalChain(
         id: string,
         adapter: KmsAdapter,
+        alg: KmsSigningAlg,
         subjectCN: string,
         hostname: string,
         notBefore: Date,
         notAfter: Date,
     ): Promise<Partial<KeyChainEntity>> {
-        const rootMat = await adapter.generateKey({ kid: `${id}-root` });
+        const rootMat = await adapter.generateKey({ kid: `${id}-root`, alg });
         const rootNotAfter = new Date(
             notBefore.getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
         );
@@ -243,7 +266,10 @@ export class KeyChainService {
             rootNotAfter,
         );
 
-        const activeMat = await adapter.generateKey({ kid: `${id}-active` });
+        const activeMat = await adapter.generateKey({
+            kid: `${id}-active`,
+            alg,
+        });
         const { chain } = await this.certBuilder.createCaSignedCert({
             caAdapter: adapter,
             caRef: rootMat.ref,
@@ -268,12 +294,13 @@ export class KeyChainService {
     private async createStandaloneKey(
         id: string,
         adapter: KmsAdapter,
+        alg: KmsSigningAlg,
         subjectCN: string,
         hostname: string,
         notBefore: Date,
         notAfter: Date,
     ): Promise<Partial<KeyChainEntity>> {
-        const mat = await adapter.generateKey({ kid: `${id}-active` });
+        const mat = await adapter.generateKey({ kid: `${id}-active`, alg });
         const certificate = await this.certBuilder.createSelfSignedCert(
             adapter,
             mat.ref,
@@ -600,8 +627,10 @@ export class KeyChainService {
             keyChain.kmsProvider,
             keyChain.tenantId,
         );
+        // Keep the curve: certificates, metadata and wallets expect it.
         const newMat = await adapter.generateKey({
             kid: `${id}-${Date.now()}`,
+            alg: signingAlgForJwk(keyChain.activeJwk),
         });
 
         let newCertificate: string;
@@ -723,6 +752,14 @@ export class KeyChainService {
         return this.signingService.getKid(tenantId);
     }
 
+    /** Signing algorithm of a key chain (ES256, ES384 or ES512). */
+    async getSigningAlg(
+        tenantId: string,
+        keyId?: string,
+    ): Promise<KmsSigningAlg> {
+        return this.signingService.getSigningAlg(tenantId, keyId);
+    }
+
     // ─────────────────────────────────────────────────────────
     // HELPER METHODS
     // ─────────────────────────────────────────────────────────
@@ -772,8 +809,10 @@ export class KeyChainService {
         storedJwk: JWK,
         externalKeyId?: string,
     ): KmsKeyRef {
+        // Lenient on purpose: the encryption key chain (alg ECDH-ES) also
+        // reaches here when its key material is deleted.
         const alg =
-            (storedJwk.alg as KmsSigningAlg | undefined) ??
+            signingAlgForCurve(storedJwk.crv) ??
             adapter.capabilities.defaultAlg;
         if (adapter.type === "db") {
             const publicJwk = this.getPublicJwk(storedJwk);
@@ -826,6 +865,10 @@ export class KeyChainService {
             type,
             description: keyChain.description,
             kmsProvider: keyChain.kmsProvider,
+            alg:
+                keyChain.usage === KeyUsage.Sign
+                    ? signingAlgForCurve(keyChain.activeJwk.crv)
+                    : undefined,
             activePublicKey: this.toPublicKeyInfo(keyChain.activeJwk),
             rotationPolicy: {
                 enabled: keyChain.rotationEnabled,

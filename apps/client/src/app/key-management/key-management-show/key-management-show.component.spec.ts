@@ -24,6 +24,29 @@ describe('KeyManagementShowComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  function shownWith(overrides: Partial<KeyChainResponseDto>): string {
+    component.keyChain = {
+      id: 'key',
+      type: 'standalone',
+      usageType: 'attestation',
+      kmsProvider: 'db',
+      rotationPolicy: { enabled: false },
+      activePublicKey: { kty: 'EC', crv: 'P-384' },
+      ...overrides,
+    } as KeyChainResponseDto;
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    return fixture.nativeElement.textContent;
+  }
+
+  it('names the signing algorithm and curve', () => {
+    expect(shownWith({ alg: 'ES384' })).toContain('ES384 (ECDSA P-384)');
+  });
+
+  it('leaves the signing algorithm out for keys on other curves', () => {
+    expect(shownWith({ alg: undefined })).not.toContain('Signing Algorithm');
+  });
 });
 
 describe('KeyManagementShowComponent key export', () => {

@@ -649,11 +649,11 @@ export type KmsProviderCapabilitiesDto = {
      */
     canDelete: boolean;
     /**
-     * Signing algorithms supported by the provider.
+     * Algorithms new key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.
      */
     supportedAlgs: Array<string>;
     /**
-     * Default signing algorithm used when caller does not specify one.
+     * Algorithm of a new key chain created without alg (defaultAlgorithm in kms.json).
      */
     defaultAlg: string;
 };
@@ -732,6 +732,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
     } | {
         /**
          * Unique identifier for this provider instance. Used when generating keys to specify which provider to use.
@@ -745,6 +753,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
         /**
          * URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.
          */
@@ -766,6 +782,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
         /**
          * AWS region for KMS. Supports ${ENV_VAR} placeholders.
          */
@@ -791,6 +815,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
         /**
          * Absolute path to the PKCS#11 module library (.so/.dll/.dylib). Supports ${ENV_VAR} placeholders.
          */
@@ -820,6 +852,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
         /**
          * Base URL of the remote KMS microservice (no trailing slash). Supports ${ENV_VAR} placeholders.
          */
@@ -905,6 +945,14 @@ export type KmsConfigDto = {
          * Human-readable description of this provider instance.
          */
         description?: string | string;
+        /**
+         * Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.
+         */
+        algorithms?: Array<'ES256' | 'ES384' | 'ES512'>;
+        /**
+         * Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.
+         */
+        defaultAlgorithm?: 'ES256' | 'ES384' | 'ES512';
         /**
          * Base URL of the CSC service (without trailing slash). Supports ${ENV_VAR} placeholders.
          */
@@ -1083,6 +1131,10 @@ export type KeyChainResponseDto = {
      */
     kmsProvider: string;
     /**
+     * Signing algorithm of the active key, following its curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Absent for keys on other curves.
+     */
+    alg?: 'ES256' | 'ES384' | 'ES512';
+    /**
      * Root CA certificate (only for internalChain type).
      */
     rootCertificate?: CertificateInfoDto;
@@ -1233,6 +1285,10 @@ export type KeyChainCreateDto = {
      * KMS provider to use (defaults to the configured default provider).
      */
     kmsProvider?: string;
+    /**
+     * Signing algorithm, which also selects the curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Must be one of the KMS provider's supportedAlgs; defaults to its defaultAlg. Rotation keeps it. Wallets are only required to support ES256 (HAIP).
+     */
+    alg?: 'ES256' | 'ES384' | 'ES512';
     /**
      * Rotation policy configuration. Only applicable for the signing key (root CA never rotates).
      */

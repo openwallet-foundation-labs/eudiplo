@@ -336,6 +336,28 @@
                 }
               </mat-form-field>
 
+              @if (showAlgorithm) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>Signing Algorithm</mat-label>
+                  <mat-select formControlName="alg" [disabled]="isLoadingKmsProviders">
+                    @for (option of algorithmOptions; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                  <mat-hint>
+                    @if (selectedUsage === 'access' && configForm.value.alg !== 'ES256') {
+                      Wallets must validate request objects signed with this key, but only have to
+                      support ES256.
+                    } @else {
+                      Also selects the curve. Wallets only have to support ES256.
+                    }
+                    @if (rotationEnabled) {
+                      Rotation keeps the algorithm.
+                    }
+                  </mat-hint>
+                </mat-form-field>
+              }
+
               @if (!isInternalChain && selectedUsage !== 'access') {
                 <mat-checkbox formControlName="useExternalCertificate">
                   Use an externally issued certificate and matching private key

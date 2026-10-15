@@ -64,6 +64,37 @@
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
                 ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
+                ]
               }
             },
             "required": [
@@ -113,6 +144,37 @@
                     "type": "string",
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
+                ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
                 ]
               },
               "vaultUrl": {
@@ -197,6 +259,37 @@
                     "type": "string",
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
+                ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
                 ]
               },
               "region": {
@@ -296,6 +389,37 @@
                     "type": "string",
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
+                ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
                 ]
               },
               "library": {
@@ -398,6 +522,37 @@
                     "type": "string",
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
+                ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
                 ]
               },
               "baseUrl": {
@@ -711,6 +866,37 @@
                     "type": "string",
                     "pattern": "^\\$\\{([A-Z0-9_]+)\\}$"
                   }
+                ]
+              },
+              "algorithms": {
+                "description": "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+                "examples": [
+                  [
+                    "ES256",
+                    "ES384"
+                  ]
+                ],
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                  ]
+                }
+              },
+              "defaultAlgorithm": {
+                "description": "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+                "examples": [
+                  "ES256"
+                ],
+                "type": "string",
+                "enum": [
+                  "ES256",
+                  "ES384",
+                  "ES512"
                 ]
               },
               "baseUrl": {

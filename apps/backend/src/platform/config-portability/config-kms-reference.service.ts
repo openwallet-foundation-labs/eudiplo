@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { importJWK, type JWK } from "jose";
+import type { KmsSigningAlg } from "../../crypto/key/kms/kms-adapter.js";
 import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
+import {
+    signingAlgForJwk,
+    signingAlgSpec,
+} from "../../crypto/key/domain/signing-algs.js";
 
 interface ExternalKeySource {
     provider: string;
@@ -43,19 +48,27 @@ export class ConfigKmsReferenceService {
         publicJwk: JWK,
     ): Promise<void> {
         const adapter = this.kmsRegistry.resolve(provider, tenantId);
+        let alg: KmsSigningAlg;
+        try {
+            alg = signingAlgForJwk(publicJwk);
+        } catch (error) {
+            throw new BadRequestException(
+                `External KMS key '${externalKeyId}': ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
         const challenge = globalThis.crypto.getRandomValues(new Uint8Array(32));
         const signature = await adapter.sign(
-            { externalKeyId, publicJwk, alg: "ES256" },
+            { externalKeyId, publicJwk, alg },
             challenge,
         );
-        const publicKey = await importJWK(publicJwk, "ES256");
+        const publicKey = await importJWK(publicJwk, alg);
         if (publicKey instanceof Uint8Array) {
             throw new BadRequestException(
                 "External KMS public JWK must be asymmetric",
             );
         }
         const valid = await globalThis.crypto.subtle.verify(
-            { name: "ECDSA", hash: "SHA-256" },
+            { name: "ECDSA", hash: signingAlgSpec(alg).hash },
             publicKey,
             this.toArrayBuffer(signature),
             this.toArrayBuffer(challenge),

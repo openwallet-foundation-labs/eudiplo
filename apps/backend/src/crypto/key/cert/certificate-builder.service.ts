@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import type { JWK } from "jose";
+import { signingAlgForJwk, signingAlgSpec } from "../domain/signing-algs.js";
 import type {
     KmsAdapter,
     KmsKeyRef,
@@ -10,11 +11,6 @@ import {
     importPublicCryptoKey,
     makeKmsSigningKey,
 } from "../kms/kms-crypto-provider.js";
-
-const ECDSA_P256_SIGNATURE_ALG = {
-    name: "ECDSA",
-    hash: "SHA-256" as const,
-};
 
 /**
  * Start of validity for generated certificates, rounded down to the full hour.
@@ -121,6 +117,7 @@ export class CertificateBuilderService {
         hostname: string;
         notBefore: Date;
         notAfter: Date;
+        /** Defaults to the algorithm of the subject key's curve. */
         subjectAlg?: KmsSigningAlg;
     }): Promise<{ cert: string; chain: string[] }> {
         const {
@@ -132,7 +129,7 @@ export class CertificateBuilderService {
             hostname,
             notBefore,
             notAfter,
-            subjectAlg = "ES256",
+            subjectAlg = signingAlgForJwk(opts.subjectPublicJwk),
         } = opts;
         const caCert = new x509.X509Certificate(caCertPem);
         const issuerName = caCert.subject;
@@ -196,10 +193,7 @@ export class CertificateBuilderService {
     }
 }
 
-function signatureAlgFor(alg: KmsSigningAlg) {
-    if (alg === "ES256") {
-        return ECDSA_P256_SIGNATURE_ALG;
-    }
-    const _exhaustive: never = alg;
-    throw new Error(`Unsupported signing algorithm: ${String(_exhaustive)}`);
+/** X.509 signature algorithm (ecdsa-with-SHAxxx) for a signing key's algorithm. */
+function signatureAlgFor(alg: KmsSigningAlg): EcdsaParams {
+    return { name: "ECDSA", hash: signingAlgSpec(alg).hash };
 }

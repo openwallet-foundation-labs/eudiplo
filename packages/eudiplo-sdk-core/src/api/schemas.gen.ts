@@ -1414,7 +1414,7 @@ export const KmsProviderCapabilitiesDtoSchema = {
             example: true
         },
         supportedAlgs: {
-            description: 'Signing algorithms supported by the provider.',
+            description: 'Algorithms new key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.',
             example: [
                 'ES256'
             ],
@@ -1425,7 +1425,7 @@ export const KmsProviderCapabilitiesDtoSchema = {
         },
         defaultAlg: {
             type: 'string',
-            description: 'Default signing algorithm used when caller does not specify one.',
+            description: 'Algorithm of a new key chain created without alg (defaultAlgorithm in kms.json).',
             example: 'ES256'
         }
     },
@@ -1590,6 +1590,37 @@ export const KmsConfigDtoSchema = {
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
                                 ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
+                                ]
                             }
                         },
                         required: [
@@ -1639,6 +1670,37 @@ export const KmsConfigDtoSchema = {
                                         type: 'string',
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
+                                ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
                                 ]
                             },
                             vaultUrl: {
@@ -1723,6 +1785,37 @@ export const KmsConfigDtoSchema = {
                                         type: 'string',
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
+                                ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
                                 ]
                             },
                             region: {
@@ -1822,6 +1915,37 @@ export const KmsConfigDtoSchema = {
                                         type: 'string',
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
+                                ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
                                 ]
                             },
                             library: {
@@ -1924,6 +2048,37 @@ export const KmsConfigDtoSchema = {
                                         type: 'string',
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
+                                ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
                                 ]
                             },
                             baseUrl: {
@@ -2237,6 +2392,37 @@ export const KmsConfigDtoSchema = {
                                         type: 'string',
                                         pattern: '^\\$\\{([A-Z0-9_]+)\\}$'
                                     }
+                                ]
+                            },
+                            algorithms: {
+                                description: 'Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.',
+                                examples: [
+                                    [
+                                        'ES256',
+                                        'ES384'
+                                    ]
+                                ],
+                                minItems: 1,
+                                type: 'array',
+                                items: {
+                                    type: 'string',
+                                    enum: [
+                                        'ES256',
+                                        'ES384',
+                                        'ES512'
+                                    ]
+                                }
+                            },
+                            defaultAlgorithm: {
+                                description: 'Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.',
+                                examples: [
+                                    'ES256'
+                                ],
+                                type: 'string',
+                                enum: [
+                                    'ES256',
+                                    'ES384',
+                                    'ES512'
                                 ]
                             },
                             baseUrl: {
@@ -2679,6 +2865,16 @@ export const KeyChainResponseDtoSchema = {
             type: 'string',
             description: 'KMS provider used for this key chain.'
         },
+        alg: {
+            enum: [
+                'ES256',
+                'ES384',
+                'ES512'
+            ],
+            type: 'string',
+            description: 'Signing algorithm of the active key, following its curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Absent for keys on other curves.',
+            example: 'ES256'
+        },
         rootCertificate: {
             description: 'Root CA certificate (only for internalChain type).',
             allOf: [
@@ -2947,6 +3143,16 @@ export const KeyChainCreateDtoSchema = {
             description: 'KMS provider to use (defaults to the configured default provider).',
             type: 'string',
             example: 'vault'
+        },
+        alg: {
+            description: 'Signing algorithm, which also selects the curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Must be one of the KMS provider\'s supportedAlgs; defaults to its defaultAlg. Rotation keeps it. Wallets are only required to support ES256 (HAIP).',
+            type: 'string',
+            enum: [
+                'ES256',
+                'ES384',
+                'ES512'
+            ],
+            example: 'ES256'
         },
         rotationPolicy: {
             description: 'Rotation policy configuration. Only applicable for the signing key (root CA never rotates).',

@@ -1,4 +1,11 @@
-import { type CryptoKey, exportSPKI, generateKeyPair, SignJWT } from "jose";
+import * as x509 from "@peculiar/x509";
+import {
+    type CryptoKey,
+    exportJWK,
+    exportSPKI,
+    generateKeyPair,
+    SignJWT,
+} from "jose";
 import { describe, expect, it } from "vitest";
 import type { TrustFetchService } from "./trust-fetch.service.js";
 import { TrustListJwtService } from "./trustlist-jwt.service.js";
@@ -41,6 +48,61 @@ describe("TrustListJwtService with a PEM verifier key", () => {
         await expect(
             service.verifyTrustListJwt({ url, verifierKeyPem: pem }, jwt),
         ).rejects.toThrow("verification failed");
+    });
+});
+
+describe("TrustListJwtService with a pinned certificate or JWK", () => {
+    const service = new TrustListJwtService({} as TrustFetchService);
+
+    it.each([
+        ["ES384", "P-384", "SHA-384"],
+        ["ES512", "P-521", "SHA-512"],
+    ])(
+        "verifies a list signed with %s against a certificate",
+        async (alg, namedCurve, hash) => {
+            x509.cryptoProvider.set(globalThis.crypto);
+            const keys = (await globalThis.crypto.subtle.generateKey(
+                { name: "ECDSA", namedCurve },
+                true,
+                ["sign", "verify"],
+            )) as CryptoKeyPair;
+            const cert = await x509.X509CertificateGenerator.createSelfSigned({
+                name: "CN=Trust list signer",
+                keys,
+                signingAlgorithm: { name: "ECDSA", hash },
+            });
+            const jwt = await new SignJWT({ LoTE: {} })
+                .setProtectedHeader({ alg })
+                .sign(keys.privateKey);
+
+            await expect(
+                service.verifyTrustListJwt(
+                    {
+                        url,
+                        verifierX509Der: Buffer.from(cert.rawData).toString(
+                            "base64",
+                        ),
+                    },
+                    jwt,
+                ),
+            ).resolves.toBeUndefined();
+        },
+    );
+
+    it("verifies against a JWK without alg using the header", async () => {
+        const { publicKey, privateKey } = await generateKeyPair("ES384", {
+            extractable: true,
+        });
+        const jwt = await new SignJWT({ LoTE: {} })
+            .setProtectedHeader({ alg: "ES384" })
+            .sign(privateKey);
+
+        await expect(
+            service.verifyTrustListJwt(
+                { url, verifierKey: await exportJWK(publicKey) },
+                jwt,
+            ),
+        ).resolves.toBeUndefined();
     });
 });
 

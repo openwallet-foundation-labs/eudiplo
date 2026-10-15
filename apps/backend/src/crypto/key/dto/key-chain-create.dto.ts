@@ -1,6 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { createZodDto } from "nestjs-zod";
 import {
+    KMS_SIGNING_ALGS,
+    type KmsSigningAlg,
+} from "../domain/signing-algs.js";
+import {
     KeyChainCreateSchema,
     RotationPolicyCreateSchema,
 } from "../schemas/key-chain.schema.js";
@@ -81,6 +85,14 @@ export class KeyChainCreateDto extends createZodDto(KeyChainCreateSchema) {
         example: "vault",
     })
     kmsProvider?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Signing algorithm, which also selects the curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Must be one of the KMS provider's supportedAlgs; defaults to its defaultAlg. Rotation keeps it. Wallets are only required to support ES256 (HAIP).",
+        enum: KMS_SIGNING_ALGS,
+        example: "ES256",
+    })
+    alg?: KmsSigningAlg;
 
     @ApiPropertyOptional({
         description:

@@ -184,6 +184,7 @@ describe("StatusListService SQLite concurrency", () => {
                 getLeafCertBase64: vi.fn().mockReturnValue(["certificate"]),
             },
             keyChainService: {
+                getSigningAlg: vi.fn().mockResolvedValue("ES256"),
                 signJWT: vi.fn().mockImplementation(async () => {
                     await repository.update(
                         {
@@ -267,6 +268,7 @@ describe("StatusListService SQLite concurrency", () => {
                 getLeafCertBase64: vi.fn().mockReturnValue(["certificate"]),
             },
             keyChainService: {
+                getSigningAlg: vi.fn().mockResolvedValue("ES256"),
                 signJWT: vi.fn().mockResolvedValue("jwt"),
             },
             signStatusListCwt: vi.fn().mockResolvedValue(Uint8Array.of(1)),
@@ -402,7 +404,10 @@ describe("StatusListService SQLite concurrency", () => {
                     }),
                     getLeafCertBase64: vi.fn().mockReturnValue(["certificate"]),
                 },
-                keyChainService: { signJWT },
+                keyChainService: {
+                    getSigningAlg: vi.fn().mockResolvedValue("ES256"),
+                    signJWT,
+                },
                 signStatusListCwt: vi.fn().mockResolvedValue(Uint8Array.of(1)),
             });
         });

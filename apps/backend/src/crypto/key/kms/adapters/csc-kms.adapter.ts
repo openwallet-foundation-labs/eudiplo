@@ -3,6 +3,16 @@ import { HttpService } from "@nestjs/axios";
 import { Logger, NotImplementedException } from "@nestjs/common";
 import type { JWK } from "jose";
 import { firstValueFrom } from "rxjs";
+import {
+    assertKmsSigningAlg,
+    derEcdsaToRaw,
+    externalAlgorithmPolicy,
+    KMS_SIGNING_ALGS,
+    type KmsAlgorithmPolicy,
+    resolveAlgorithmCapabilities,
+    signingAlgForCurve,
+    signingAlgSpec,
+} from "../../domain/signing-algs.js";
 import type { KmsProviderType } from "../../dto/kms-config.dto.js";
 import type {
     KmsAdapter,
@@ -14,8 +24,6 @@ import type {
 } from "../kms-adapter.js";
 import { PublicJwkCache } from "../public-jwk-cache.js";
 
-const DEFAULT_HASH_ALGORITHM_OID = "2.16.840.1.101.3.4.2.1"; // SHA-256
-const DEFAULT_SIGN_ALGORITHM_OID = "1.2.840.10045.4.3.2"; // ecdsa-with-SHA256
 const DEFAULT_API_PATH = "/csc/v2";
 
 interface CscAuthorizeAuthData {
@@ -38,6 +46,11 @@ export interface CscKmsAdapterConfig {
     useAuthorizeEndpoint?: boolean;
     authorizeAuthData?: CscAuthorizeAuthData[];
     apiPath?: string;
+    /**
+     * Algorithms allowed for new keys (from `kms.json`). Set it to the
+     * algorithm of the credential's curve.
+     */
+    algorithms?: KmsAlgorithmPolicy;
 }
 
 /**
@@ -56,13 +69,7 @@ export class CscKmsAdapter implements KmsAdapter {
 
     readonly providerId: string;
     readonly type: KmsProviderType = "csc";
-    readonly capabilities: KmsAdapterCapabilities = {
-        canCreate: true,
-        canImport: false,
-        canDelete: false,
-        supportedAlgs: ["ES256"],
-        defaultAlg: "ES256",
-    };
+    readonly capabilities: KmsAdapterCapabilities;
 
     private readonly baseUrl: string;
     private readonly tokenUrl: string;
@@ -71,8 +78,9 @@ export class CscKmsAdapter implements KmsAdapter {
     private readonly scope?: string;
     private readonly configuredCredentialId?: string;
     private readonly userId?: string;
-    private readonly hashAlgorithmOid: string;
-    private readonly signAlgorithmOid: string;
+    /** Configured OIDs; without them the OIDs follow the key's algorithm. */
+    private readonly hashAlgorithmOid?: string;
+    private readonly signAlgorithmOid?: string;
     private readonly configuredSad?: string;
     private readonly useAuthorizeEndpoint: boolean;
     private readonly authorizeAuthData?: CscAuthorizeAuthData[];
@@ -98,10 +106,18 @@ export class CscKmsAdapter implements KmsAdapter {
         this.scope = config.scope;
         this.configuredCredentialId = config.credentialId;
         this.userId = config.userId;
-        this.hashAlgorithmOid =
-            config.hashAlgorithmOid || DEFAULT_HASH_ALGORITHM_OID;
-        this.signAlgorithmOid =
-            config.signAlgorithmOid || DEFAULT_SIGN_ALGORITHM_OID;
+        this.hashAlgorithmOid = config.hashAlgorithmOid || undefined;
+        this.signAlgorithmOid = config.signAlgorithmOid || undefined;
+        this.capabilities = {
+            canCreate: true,
+            canImport: false,
+            canDelete: false,
+            // The credential's curve is unknown up front: the default only, unless configured.
+            ...resolveAlgorithmCapabilities(
+                KMS_SIGNING_ALGS,
+                externalAlgorithmPolicy(config.algorithms),
+            ),
+        };
         this.configuredSad = config.sad;
         this.useAuthorizeEndpoint = Boolean(config.useAuthorizeEndpoint);
         this.authorizeAuthData = config.authorizeAuthData;
@@ -112,8 +128,10 @@ export class CscKmsAdapter implements KmsAdapter {
         kid: string;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
+        // Not limited to capabilities.supportedAlgs: rotation keeps the
+        // algorithm of an existing key chain.
         const alg = opts.alg ?? this.capabilities.defaultAlg;
-        this.assertSupported(alg);
+        assertKmsSigningAlg(alg, `CscKmsAdapter[${this.providerId}]`);
 
         const credentialId = await this.resolveCredentialId();
         const publicJwk = await this.fetchPublicJwk(
@@ -121,6 +139,12 @@ export class CscKmsAdapter implements KmsAdapter {
             alg,
             opts.kid,
         );
+        const credentialAlg = signingAlgForCurve(publicJwk.crv);
+        if (credentialAlg !== alg) {
+            throw new Error(
+                `CscKmsAdapter[${this.providerId}]: credential ${credentialId} holds a ${String(publicJwk.crv)} key, which cannot sign with ${alg}. Set "algorithms" of this provider in kms.json to the credential's algorithm${credentialAlg ? ` (${credentialAlg})` : ""}.`,
+            );
+        }
 
         return {
             ref: {
@@ -147,22 +171,30 @@ export class CscKmsAdapter implements KmsAdapter {
         alg?: KmsSigningAlg,
     ): Promise<Uint8Array> {
         const signAlg = alg ?? ref.alg;
-        this.assertSupported(signAlg);
+        assertKmsSigningAlg(signAlg, `CscKmsAdapter[${this.providerId}]`);
+        const spec = signingAlgSpec(signAlg);
 
         const credentialId =
             ref.externalKeyId ||
             this.configuredCredentialId ||
             (await this.resolveCredentialId());
 
-        const digest = createHash("sha256").update(Buffer.from(data)).digest();
+        const digest = createHash(spec.nodeHash)
+            .update(Buffer.from(data))
+            .digest();
         const digestB64 = digest.toString("base64");
-        const sad = await this.resolveSad(credentialId, digestB64);
+        const hashAlgorithmOid = this.hashAlgorithmOid ?? spec.hashOid;
+        const sad = await this.resolveSad(
+            credentialId,
+            digestB64,
+            hashAlgorithmOid,
+        );
 
         const body: Record<string, unknown> = {
             credentialID: credentialId,
             hashes: [digestB64],
-            hashAlgorithmOID: this.hashAlgorithmOid,
-            signAlgo: this.signAlgorithmOid,
+            hashAlgorithmOID: hashAlgorithmOid,
+            signAlgo: this.signAlgorithmOid ?? spec.signatureOid,
         };
         if (sad) {
             body.SAD = sad;
@@ -188,12 +220,12 @@ export class CscKmsAdapter implements KmsAdapter {
         }
 
         const signatureBytes = base64UrlOrBase64ToBytes(encoded);
-        if (signatureBytes.length === 64) {
+        if (signatureBytes.length === spec.coordinateSize * 2) {
             return signatureBytes;
         }
 
         if (signatureBytes[0] === 0x30) {
-            return derEcdsaToRaw(signatureBytes, 32);
+            return derEcdsaToRaw(signatureBytes, spec.coordinateSize);
         }
 
         throw new Error(
@@ -295,7 +327,7 @@ export class CscKmsAdapter implements KmsAdapter {
         const x509 = new X509Certificate(certPem);
         const jwk = x509.publicKey.export({ format: "jwk" }) as JWK;
         jwk.kid = kid;
-        jwk.alg = alg;
+        jwk.alg = signingAlgForCurve(jwk.crv) ?? alg;
 
         this.jwkCache.set(cacheKey, jwk);
         return jwk;
@@ -304,6 +336,7 @@ export class CscKmsAdapter implements KmsAdapter {
     private async resolveSad(
         credentialId: string,
         digestB64: string,
+        hashAlgorithmOid: string,
     ): Promise<string | undefined> {
         if (this.configuredSad) {
             return this.configuredSad;
@@ -316,7 +349,7 @@ export class CscKmsAdapter implements KmsAdapter {
             credentialID: credentialId,
             numSignatures: 1,
             hashes: [digestB64],
-            hashAlgorithmOID: this.hashAlgorithmOid,
+            hashAlgorithmOID: hashAlgorithmOid,
         };
         if (this.authorizeAuthData?.length) {
             body.authData = this.authorizeAuthData;
@@ -396,14 +429,6 @@ export class CscKmsAdapter implements KmsAdapter {
 
         return accessToken;
     }
-
-    private assertSupported(alg: KmsSigningAlg): void {
-        if (!this.capabilities.supportedAlgs.includes(alg)) {
-            throw new Error(
-                `CscKmsAdapter[${this.providerId}]: unsupported alg '${alg}'`,
-            );
-        }
-    }
 }
 
 function extractFirstCertificate(
@@ -447,49 +472,4 @@ function base64UrlOrBase64ToBytes(s: string): Uint8Array {
     const normalized = s.replaceAll("-", "+").replaceAll("_", "/");
     const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
     return new Uint8Array(Buffer.from(padded, "base64"));
-}
-
-function derEcdsaToRaw(der: Uint8Array, coordLength: number): Uint8Array {
-    let offset = 0;
-    if (der[offset++] !== 0x30) {
-        throw new Error("Invalid ECDSA signature: missing SEQUENCE tag");
-    }
-
-    let seqLen = der[offset++];
-    if (seqLen & 0x80) {
-        const lenOfLen = seqLen & 0x7f;
-        seqLen = 0;
-        for (let i = 0; i < lenOfLen; i++) {
-            seqLen = (seqLen << 8) | der[offset++];
-        }
-    }
-
-    const readInt = (): Uint8Array => {
-        if (der[offset++] !== 0x02) {
-            throw new Error("Invalid ECDSA signature: missing INTEGER tag");
-        }
-
-        let len = der[offset++];
-        if (len & 0x80) {
-            const lenOfLen = len & 0x7f;
-            len = 0;
-            for (let i = 0; i < lenOfLen; i++) {
-                len = (len << 8) | der[offset++];
-            }
-        }
-
-        let value = der.subarray(offset, offset + len);
-        offset += len;
-        if (value.length > coordLength && value[0] === 0x00) {
-            value = value.subarray(1);
-        }
-        return value;
-    };
-
-    const r = readInt();
-    const s = readInt();
-    const out = new Uint8Array(coordLength * 2);
-    out.set(r, coordLength - r.length);
-    out.set(s, coordLength * 2 - s.length);
-    return out;
 }

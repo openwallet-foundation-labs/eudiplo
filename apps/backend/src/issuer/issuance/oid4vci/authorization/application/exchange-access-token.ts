@@ -10,6 +10,7 @@ import {
     refreshTokenGrantIdentifier,
     type VerifyAccessTokenRequestReturn,
 } from "@openid4vc/oauth2";
+import { signingAlgForJwk } from "../../../../../crypto/key/domain/signing-algs.js";
 import type { RecordFailedTxCodeAttempt } from "../../../../../session/application/record-failed-tx-code-attempt.js";
 import type { SessionStore } from "../../../../../session/application/session-store.js";
 import type { SessionData } from "../../../../../session/domain/session-data.js";
@@ -394,7 +395,7 @@ export class ExchangeAccessToken {
                 audience: `${this.settings.publicUrl}/issuers/${tenantId}`,
                 signer: {
                     method: "jwk",
-                    alg: "ES256",
+                    alg: signingAlgForJwk(publicJwk),
                     publicJwk,
                     kid: signingKeyId,
                 },

@@ -93,15 +93,15 @@ External authorization servers cannot enforce wallet attestation through EUDIPLO
 
 ## Keys and algorithms
 
-EUDIPLO signs with ES256 (ECDSA on P-256) only; `CRYPTO_ALG` accepts no other value, and the verifier metadata advertises ES256. Each operation uses the following key:
+Each signing key chain uses one ECDSA algorithm, fixed by its curve: ES256 (P-256, the default), ES384 (P-384) or ES512 (P-521). It is chosen when the key chain is created, kept on rotation, and used for every signature of the key chain, including its certificates; the KMS provider limits which ones new key chains may use ([signing algorithms](../operate/kms.md#signing-algorithms)). The issuer metadata names the algorithm of each credential's key chain in `credential_signing_alg_values_supported`. From wallets and other issuers, EUDIPLO accepts ES256, ES384 and ES512 in proofs, key binding JWTs and presented credentials, and the issuer and verifier metadata list all three. `CRYPTO_ALG` has no effect and accepts only `ES256`. Each operation uses the following key:
 
 | Operation                                                   | Key                                                                                         | Algorithm                       |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------- |
-| Access tokens of hosted authorization servers               | `token.signingKeyId`, then the issuance `signingKeyId`, else the tenant's first signing key chain | ES256                      |
-| SD-JWT VC credentials, mdoc MSO                             | `attestation` key chain (`keyChainId` of the credential configuration)                      | ES256                           |
-| Status lists                                                | `statusList` key chain                                                                      | ES256                           |
-| Trust lists hosted by EUDIPLO                               | `trustList` key chain                                                                       | ES256                           |
-| OID4VP request objects, signed issuer metadata, `client_id` | `access` key chain (`accessKeyChainId` of the presentation configuration, otherwise the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain)) | ES256                           |
+| Access tokens of hosted authorization servers               | `token.signingKeyId`, then the issuance `signingKeyId`, else the tenant's first signing key chain | ES256, ES384 or ES512 (the key chain's) |
+| SD-JWT VC credentials, mdoc MSO                             | `attestation` key chain (`keyChainId` of the credential configuration)                      | ES256, ES384 or ES512 (the key chain's) |
+| Status lists                                                | `statusList` key chain                                                                      | ES256, ES384 or ES512 (the key chain's) |
+| Trust lists hosted by EUDIPLO                               | `trustList` key chain                                                                       | ES256, ES384 or ES512 (the key chain's) |
+| OID4VP request objects, signed issuer metadata, `client_id` | `access` key chain (`accessKeyChainId` of the presentation configuration, otherwise the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain)) | ES256, ES384 or ES512 (the key chain's) |
 | Encrypted credential requests, ISO 18013-7 responses        | `encrypt` key chain, published in the issuer metadata                                       | ECDH-ES (JWE), HPKE (ISO)       |
 | OID4VP responses                                            | A fresh key pair per session, not a key chain                                               | ECDH-ES with A128GCM or A256GCM |
 | Credential responses                                        | The wallet's key from the credential request                                                | ECDH-ES with A128GCM or A256GCM |

@@ -78,6 +78,7 @@ describe("ISO 18013-7 reader authentication", () => {
             sessionTranscript,
             signingJwk,
             certificateChain,
+            "ES256",
         );
 
         // Recomputes the detached ReaderAuthentication payload internally and
@@ -105,6 +106,7 @@ describe("ISO 18013-7 reader authentication", () => {
             sessionTranscript,
             signingJwk,
             certificateChain,
+            "ES256",
         );
 
         // A transcript from a different origin must not verify.
@@ -138,6 +140,7 @@ describe("ISO 18013-7 reader authentication", () => {
             sessionTranscript,
             signingJwk,
             certificateChain,
+            "ES256",
         );
 
         const withAuth = DeviceRequest.decode(

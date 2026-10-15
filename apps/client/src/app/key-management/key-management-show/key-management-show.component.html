@@ -97,6 +97,15 @@
             <span matListItemTitle>KMS Provider</span>
             <span matListItemLine>{{ keyChain.kmsProvider }}</span>
           </mat-list-item>
+          @if (keyChain.alg) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>key</mat-icon>
+              <span matListItemTitle>Signing Algorithm</span>
+              <span matListItemLine
+                >{{ keyChain.alg }} (ECDSA {{ keyChain.activePublicKey.crv }})</span
+              >
+            </mat-list-item>
+          }
           <mat-list-item>
             <mat-icon matListItemIcon>event</mat-icon>
             <span matListItemTitle>Created</span>

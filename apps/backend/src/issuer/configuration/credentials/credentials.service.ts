@@ -1,7 +1,19 @@
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import {
+    ConflictException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import type { Jwk } from "@openid4vc/oauth2";
 import type { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service.js";
+import {
+    DEFAULT_SIGNING_ALG,
+    type KmsSigningAlg,
+    signingAlgForCurve,
+} from "../../../crypto/key/domain/signing-algs.js";
+import { KeyChainService } from "../../../crypto/key/key-chain.service.js";
+import { KeyUsageType } from "../../../crypto/key/types/key-usage-type.js";
 import type { SessionData as Session } from "../../../session/domain/session-data.js";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto.js";
 import { IssueCredential } from "./application/issue-credential.js";
@@ -59,6 +71,7 @@ export class CredentialsService {
         private readonly credentialConfigurationRepository: CredentialConfigurationRepository,
         private readonly issueCredential: IssueCredential,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     /**
@@ -131,6 +144,7 @@ export class CredentialsService {
             const builtConfig = this.buildCredentialConfiguration(
                 entity,
                 tenantId,
+                await this.signingAlgOf(entity, tenantId),
             );
             credentialConfigurationsSupported[entity.id] =
                 toCredentialConfigurationSupported(
@@ -150,21 +164,48 @@ export class CredentialsService {
     private buildCredentialConfiguration(
         entity: CredentialConfig,
         tenantId: string,
+        signingAlg: KmsSigningAlg,
     ): TypedCredentialConfig & { disclosure_policy?: unknown } {
         const format = entity.config.format;
 
         if (format === MSO_MDOC_FORMAT) {
             // For mDOC, algorithms are COSE numbers
-            const algs = this.cryptoImplementationService.getAlgs(
+            const algs = this.cryptoImplementationService.getSigningAlgs(
                 format,
+                signingAlg,
             ) as number[];
             return this.buildMdocConfiguration(entity, algs);
         } else {
             // For SD-JWT, algorithms are JOSE strings
-            const algs = this.cryptoImplementationService.getAlgs(
+            const algs = this.cryptoImplementationService.getSigningAlgs(
                 format,
+                signingAlg,
             ) as string[];
             return this.buildSdJwtConfiguration(entity, tenantId, algs);
+        }
+    }
+
+    /**
+     * The algorithm the credential is signed with: that of its attestation
+     * key chain. Without one the metadata still renders, with the default.
+     */
+    private async signingAlgOf(
+        entity: CredentialConfig,
+        tenantId: string,
+    ): Promise<KmsSigningAlg> {
+        try {
+            const keyChain = await this.keyChainService.findByUsageType(
+                tenantId,
+                KeyUsageType.Attestation,
+                entity.keyChainId,
+            );
+            return (
+                signingAlgForCurve(keyChain.activeJwk.crv) ??
+                DEFAULT_SIGNING_ALG
+            );
+        } catch (error) {
+            if (error instanceof NotFoundException) return DEFAULT_SIGNING_ALG;
+            throw error;
         }
     }
 
@@ -351,9 +392,13 @@ export class CredentialsService {
         // Build credential_metadata with display and claims
         const credentialMetadata = this.buildCredentialMetadata(entity);
 
+        // Proofs are signed by the wallet, so they accept every algorithm
+        // EUDIPLO verifies, not only the one of the credential's key chain.
         const proofTypesSupported = this.buildProofTypesSupported(
             entity.config,
-            algs,
+            this.cryptoImplementationService.getAlgs(
+                CredentialFormat.SD_JWT_VC,
+            ) as string[],
         );
 
         const config = buildSdJwtDcConfig(
