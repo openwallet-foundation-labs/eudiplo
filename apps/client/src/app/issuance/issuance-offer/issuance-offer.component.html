@@ -131,6 +131,8 @@
                   }
                   <input
                     #credentialConfigInput
+                    id="credential-config-filter"
+                    aria-label="Credential Configuration IDs"
                     placeholder="Type to filter by ID or description"
                     [value]="credentialConfigFilter"
                     (input)="credentialConfigFilter = credentialConfigInput.value"
