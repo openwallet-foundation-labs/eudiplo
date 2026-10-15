@@ -210,11 +210,12 @@ describe("Registration certificate linked to the request's access certificate (e
                 );
             })
             .post("/registration-certificates")
-            .reply(201, (_uri, body) => {
-                const { accessCertificateId, credentials } = body as {
-                    accessCertificateId?: string;
-                    credentials: unknown[];
-                };
+            .reply(201, async (req: Request) => {
+                const { accessCertificateId, credentials } =
+                    (await req.json()) as {
+                        accessCertificateId?: string;
+                        credentials: unknown[];
+                    };
                 created.push(accessCertificateId);
                 const now = Math.floor(Date.now() / 1000);
                 return {

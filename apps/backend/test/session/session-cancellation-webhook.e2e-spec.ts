@@ -24,7 +24,7 @@ const receiver = "http://localhost:8787";
 
 interface Delivery {
     body: unknown;
-    headers: Record<string, string | string[] | undefined>;
+    headers: Record<string, string>;
 }
 
 /**
@@ -36,10 +36,10 @@ function receive(path: string, status = 200): Delivery[] {
     const deliveries: Delivery[] = [];
     nock(receiver)
         .post(path)
-        .reply(function (_uri, body) {
+        .reply(async (req: Request) => {
             deliveries.push({
-                body: typeof body === "string" ? JSON.parse(body) : body,
-                headers: this.req.headers,
+                body: await req.json(),
+                headers: Object.fromEntries(req.headers),
             });
             return [status, ""];
         });

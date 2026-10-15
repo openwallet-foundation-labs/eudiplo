@@ -40,8 +40,8 @@ function oidcProvider(
             token_endpoint: `${origin}${path}/protocol/openid-connect/token`,
         })
         .post(`${path}/protocol/openid-connect/token`)
-        .reply(function (_uri, body) {
-            tokenRequests.push(new URLSearchParams(body as string));
+        .reply(async (req: Request) => {
+            tokenRequests.push(new URLSearchParams(await req.text()));
             return [
                 200,
                 {
