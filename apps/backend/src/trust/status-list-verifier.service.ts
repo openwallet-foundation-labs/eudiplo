@@ -1,3 +1,4 @@
+import { inflateSync } from "node:zlib";
 import { Injectable, Logger } from "@nestjs/common";
 import {
     getListFromStatusListJWT,
@@ -7,7 +8,7 @@ import {
     StatusListEntry,
     StatusType,
 } from "@owf/token-status-list";
-import { decodeJwt } from "jose";
+import { base64url, decodeJwt, decodeProtectedHeader } from "jose";
 import { BoundedTtlCache } from "../shared/utils/bounded-ttl-cache.js";
 import { toBuffer } from "../shared/utils/buffer.util.js";
 import { RevocationListUnavailableError } from "./revocation-policy.util.js";
@@ -40,6 +41,18 @@ const CACHE_MAX_ENTRIES = 1000;
 /** Byte budget of each raw token cache, counted by {@link tokenBytes}. */
 const TOKEN_CACHE_MAX_BYTES = 32 * 1024 * 1024;
 
+/**
+ * Upper bound for the decompressed `lst` of a status list token, 128 million
+ * statuses at one bit each. DEFLATE compresses a list of equal statuses about
+ * a thousandfold, so the compressed size does not bound this.
+ */
+const STATUS_LIST_MAX_INFLATED_BYTES = 16 * 1024 * 1024;
+
+const STATUS_LIST_JWT_TYPES = new Set([
+    "statuslist+jwt",
+    "application/statuslist+jwt",
+]);
+
 /** Byte budget of the parsed status lists. */
 const PARSED_CACHE_MAX_BYTES = 64 * 1024 * 1024;
 
@@ -57,6 +70,35 @@ const PARSED_BYTES_PER_STATUS = 8;
  */
 function tokenBytes(token: string | Uint8Array): number {
     return typeof token === "string" ? token.length * 2 : token.byteLength;
+}
+
+/**
+ * A status list token that must not be used: its claims do not meet
+ * draft-ietf-oauth-status-list Section 8.3 for the referenced token, or its
+ * list cannot be read.
+ */
+export class InvalidStatusListTokenError extends Error {}
+
+/**
+ * The status at `index` of a decompressed status list: `bits` bits per
+ * status, the first status in the least significant bits of the first byte
+ * (draft-ietf-oauth-status-list Section 4.1).
+ */
+function readStatus(bytes: Uint8Array, bits: number, index: number): number {
+    const bitOffset = index * bits;
+    if (
+        !Number.isSafeInteger(index) ||
+        index < 0 ||
+        bitOffset >= bytes.byteLength * 8
+    ) {
+        throw new InvalidStatusListTokenError(
+            `Status list index ${index} is outside the list`,
+        );
+    }
+    return (
+        (bytes[Math.floor(bitOffset / 8)] >> (bitOffset % 8)) &
+        ((1 << bits) - 1)
+    );
 }
 
 /**
@@ -107,6 +149,18 @@ export class StatusListVerifierService {
         maxBytes: TOKEN_CACHE_MAX_BYTES,
     });
 
+    /**
+     * Decompressed lists of status list JWTs keyed by URI, see
+     * {@link inflatedList}.
+     */
+    private readonly inflatedLists = new BoundedTtlCache<{
+        jwt: string;
+        bytes: Uint8Array;
+    }>({
+        maxEntries: CACHE_MAX_ENTRIES,
+        maxBytes: PARSED_CACHE_MAX_BYTES,
+    });
+
     constructor(private readonly trustFetch: TrustFetchService) {}
 
     /**
@@ -126,25 +180,133 @@ export class StatusListVerifierService {
     }
 
     /**
-     * Read the status at an index of a status list JWT the caller already
-     * holds. Nothing is fetched, so the status comes from the same token
-     * whose signature the caller verified.
+     * Read the status of a referenced token from a status list JWT the
+     * caller already holds and whose signature it verified. Nothing is
+     * fetched, so the status comes from that same token.
+     *
+     * The token is checked as in draft-ietf-oauth-status-list Section 8.3
+     * step 4: `typ` is `statuslist+jwt`, `sub` is the URI the referenced
+     * token names, `iat` is present and `exp`, if present, has not passed.
+     * Without the `sub` check, the host of the URI could serve another list
+     * signed by the same key, in which the index is valid.
      *
      * @param statusListJwt The status list JWT
-     * @param index The index in the status list to check
+     * @param entry The `status_list` claim of the referenced token
+     * @param clockToleranceSeconds Clock skew allowed for `exp`
      * @returns The status check result
+     * @throws InvalidStatusListTokenError if the token must not be used
      */
     getStatusFromStatusListJwt(
         statusListJwt: string,
-        index: number,
+        entry: StatusListEntry,
+        clockToleranceSeconds = 0,
     ): StatusCheckResult {
-        const status = getListFromStatusListJWT(statusListJwt).getStatus(index);
+        let header: ReturnType<typeof decodeProtectedHeader>;
+        let payload: ReturnType<typeof decodeJwt>;
+        try {
+            header = decodeProtectedHeader(statusListJwt);
+            payload = decodeJwt(statusListJwt);
+        } catch (error: any) {
+            throw new InvalidStatusListTokenError(
+                `Status list token cannot be decoded: ${error?.message ?? error}`,
+            );
+        }
+
+        const typ = typeof header.typ === "string" ? header.typ : undefined;
+        if (!typ || !STATUS_LIST_JWT_TYPES.has(typ.toLowerCase())) {
+            throw new InvalidStatusListTokenError(
+                `Status list token has typ ${typ ?? "(none)"}, expected statuslist+jwt`,
+            );
+        }
+        if (payload.sub !== entry.uri) {
+            throw new InvalidStatusListTokenError(
+                `Status list token sub ${payload.sub ?? "(none)"} does not match the status list URI ${entry.uri}`,
+            );
+        }
+        if (typeof payload.iat !== "number") {
+            throw new InvalidStatusListTokenError(
+                "Status list token has no iat",
+            );
+        }
+        const now = Math.floor(Date.now() / 1000);
+        if (
+            payload.exp !== undefined &&
+            (typeof payload.exp !== "number" ||
+                payload.exp + clockToleranceSeconds <= now)
+        ) {
+            throw new InvalidStatusListTokenError(
+                "Status list token has expired",
+            );
+        }
+
+        const claim = payload.status_list as
+            | { bits?: unknown; lst?: unknown }
+            | undefined;
+        const bits = claim?.bits;
+        if (bits !== 1 && bits !== 2 && bits !== 4 && bits !== 8) {
+            throw new InvalidStatusListTokenError(
+                "Status list token has no valid status_list.bits",
+            );
+        }
+        if (typeof claim?.lst !== "string") {
+            throw new InvalidStatusListTokenError(
+                "Status list token has no status_list.lst",
+            );
+        }
+
+        const bytes = this.inflatedList(
+            statusListJwt,
+            entry.uri,
+            claim.lst,
+            typeof payload.ttl === "number" ? payload.ttl : undefined,
+            payload.exp,
+        );
+        const status = readStatus(bytes, bits, entry.idx);
 
         return {
             status,
             isValid: status === StatusType.Valid,
             description: this.getStatusDescription(status),
         };
+    }
+
+    /**
+     * The decompressed `lst` of a status list JWT, from cache while the same
+     * token is served for the URI. Token requests of one wallet then do not
+     * decompress the list every time.
+     */
+    private inflatedList(
+        jwt: string,
+        uri: string,
+        lst: string,
+        ttl?: number,
+        exp?: number,
+    ): Uint8Array {
+        const cached = this.inflatedLists.get(uri);
+        if (cached?.jwt === jwt) {
+            return cached.bytes;
+        }
+
+        let bytes: Uint8Array;
+        try {
+            bytes = inflateSync(base64url.decode(lst), {
+                maxOutputLength: STATUS_LIST_MAX_INFLATED_BYTES,
+            });
+        } catch (error: any) {
+            throw new InvalidStatusListTokenError(
+                `Status list cannot be decompressed (at most ${STATUS_LIST_MAX_INFLATED_BYTES} bytes): ${error?.message ?? error}`,
+            );
+        }
+
+        // The token is counted too: it stays in memory through this entry
+        // after getStatusListJwt's cache evicts it.
+        this.inflatedLists.set(
+            uri,
+            { jwt, bytes },
+            tokenBytes(jwt) + bytes.byteLength,
+            this.cacheExpiresAt(ttl, exp),
+        );
+        return bytes;
     }
 
     /**
@@ -278,10 +440,12 @@ export class StatusListVerifierService {
             this.cache.delete(uri);
             this.cachedJwts.delete(uri);
             this.cachedCwts.delete(uri);
+            this.inflatedLists.delete(uri);
         } else {
             this.cache.clear();
             this.cachedJwts.clear();
             this.cachedCwts.clear();
+            this.inflatedLists.clear();
         }
     }
 
@@ -292,6 +456,7 @@ export class StatusListVerifierService {
         this.cache.deleteExpired();
         this.cachedJwts.deleteExpired();
         this.cachedCwts.deleteExpired();
+        this.inflatedLists.deleteExpired();
         return {
             size: this.cache.size,
             jwtCacheSize: this.cachedJwts.size,
@@ -300,6 +465,7 @@ export class StatusListVerifierService {
                     ...this.cache.keys(),
                     ...this.cachedJwts.keys(),
                     ...this.cachedCwts.keys(),
+                    ...this.inflatedLists.keys(),
                 ]),
             ),
         };
