@@ -412,14 +412,12 @@ export class OIDFSuite {
 
     /**
      * Starts a test instance for a specific test module.
-     * Fetches the variant from the plan's module configuration and applies
-     * `variantOverrides` on top of it.
+     * Fetches the variant from the plan's module configuration.
      */
     async startTest(
         planId: string,
         testName: string,
         moduleVariantFilter?: Record<string, string>,
-        variantOverrides?: Record<string, string>,
     ): Promise<TestInstance> {
         // Fetch the plan to get the variant for this specific test module
         const plan = await this.getPlan(planId);
@@ -439,7 +437,13 @@ export class OIDFSuite {
             );
         }
 
-        const variant = { ...module.variant, ...variantOverrides };
+        // Get the variant from the module
+        const variant = module.variant || {};
+
+        // Keep encrypted happy-flow variant enabled for conformance coverage.
+        if (testName === "oid4vci-1_0-issuer-happy-flow") {
+            variant["vci_credential_encryption"] = "encrypted";
+        }
 
         try {
             const response = await this.instance.post(
