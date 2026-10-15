@@ -3,6 +3,7 @@ import {
     ConflictException,
     HttpException,
 } from "@nestjs/common";
+import { Oauth2ServerErrorResponseError } from "@openid4vc/oauth2";
 import { describe, expect, it, vi } from "vitest";
 import { SessionNotFound } from "../../../session/application/session-errors.js";
 import { CredentialClaimsResolutionError } from "../../configuration/credentials/domain/credential-claims.js";
@@ -80,6 +81,7 @@ describe("Oid4vciService credential request error mapping", () => {
         updateForTenant?: ReturnType<typeof vi.fn>;
         executeFrom?: ReturnType<typeof vi.fn>;
         keyAttestationsRequired?: Record<string, string[]>;
+        parseCredentialRequest?: () => unknown;
     }) {
         const session = {
             id: "session",
@@ -96,10 +98,12 @@ describe("Oid4vciService credential request error mapping", () => {
                     getKnownCredentialConfigurationsSupported: () => ({
                         pid: {},
                     }),
-                    parseCredentialRequest: () => ({
-                        proofs: { jwt: ["proof-jwt"] },
-                        credentialConfigurationId: "pid",
-                    }),
+                    parseCredentialRequest:
+                        overrides.parseCredentialRequest ??
+                        (() => ({
+                            proofs: { jwt: ["proof-jwt"] },
+                            credentialConfigurationId: "pid",
+                        })),
                     createCredentialResponse: () => ({
                         credentialResponse: {},
                     }),
@@ -162,6 +166,39 @@ describe("Oid4vciService credential request error mapping", () => {
         await expect(
             setup({}).getCredential(request, "tenant"),
         ).resolves.toEqual({ credentialResponse: {} });
+    });
+
+    it("keeps invalid_encryption_parameters from the request parser", async () => {
+        const error = await rejection(
+            setup({
+                parseCredentialRequest: () => {
+                    throw new Oauth2ServerErrorResponseError({
+                        error: "invalid_encryption_parameters",
+                        error_description: "encryption required",
+                    });
+                },
+            }).getCredential(request, "tenant"),
+        );
+
+        expect(protocolError(error)).toEqual({
+            error: "invalid_encryption_parameters",
+            error_description: "encryption required",
+        });
+    });
+
+    it("maps other request parser errors to invalid_credential_request", async () => {
+        const error = await rejection(
+            setup({
+                parseCredentialRequest: () => {
+                    throw new Error("malformed");
+                },
+            }).getCredential(request, "tenant"),
+        );
+
+        expect(protocolError(error)).toEqual({
+            error: "invalid_credential_request",
+            error_description: "malformed",
+        });
     });
 
     it("stores the notification and marks only an active session as fetched", async () => {

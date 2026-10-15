@@ -26,6 +26,11 @@ updates:
       # 7; hold the rest on 6 until 7.1 restores the API.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
+      # nock 15 answers unmatched requests with 501 instead of passing them
+      # through, which breaks the E2E suites that call the app while nock is
+      # active. Hold it on 14 until those suites are migrated.
+      - dependency-name: "nock"
+        update-types: ["version-update:semver-major"]
 
     # One PR per ecosystem: everything npm lands in a single security PR
     # and a single version PR.
