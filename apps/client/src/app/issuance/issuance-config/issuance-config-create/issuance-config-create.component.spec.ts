@@ -81,7 +81,7 @@ describe('issuer settings guided setup', () => {
     ];
     service.getConfig.mockResolvedValue({ ...config, walletProviderTrustLists });
     await component.loadConfigForEdit();
-    expect(component.walletProviderTrustLists.length).toBe(3);
+    expect(component.walletProviderTrustLists).toHaveLength(3);
     expect(component.form.valid).toBe(true);
     component.submitSettings();
     expect(service.saveConfiguration.mock.calls[0][0].walletProviderTrustLists).toEqual(

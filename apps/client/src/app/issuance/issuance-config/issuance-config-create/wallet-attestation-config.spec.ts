@@ -287,7 +287,7 @@ describe('wallet attestation configuration round trips', () => {
       expect(loadTrustLists).not.toHaveBeenCalled();
       host.addWalletProviderTrustList('managed');
       expect(loadTrustLists).toHaveBeenCalledOnce();
-      expect(trustLists.length).toBe(2);
+      expect(trustLists).toHaveLength(2);
     });
 
     it('fetches the tenant lists once', async () => {
