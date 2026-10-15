@@ -45,7 +45,7 @@ rejects versions newer than its own.
 | `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
-| `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
+| `IssuanceConfig`     | `IssuanceConfigFile`          | 4               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
@@ -71,6 +71,11 @@ IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
 (PEM public key of the list signer) to `walletProviderTrustLists` entries. A v2
 document is migrated unchanged; releases that only know v2, such as 9.0, cannot
 read v3 files.
+
+**IssuanceConfig v4** came with EUDIPLO 10.0. It adds the optional
+`walletAttestationStatusCheckMode` (`strict`, `best_effort` or `disabled`) to the
+issuance configuration and its `built-in`, `chained` and `oid4vp` authorization
+servers. A v3 document is migrated unchanged; 9.x cannot read v4 files.
 
 **CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
 `frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root

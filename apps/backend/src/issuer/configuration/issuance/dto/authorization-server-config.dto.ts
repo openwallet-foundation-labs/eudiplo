@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
+import { RevocationCheckMode } from "../../../../trust/types.js";
 import {
     ChainedAsTokenConfig,
     ChainedAsTokenConfigSchema,
@@ -41,6 +42,7 @@ const WalletAttestationAuthorizationServerConfigSchema = {
     walletProviderTrustLists: z
         .array(WalletProviderTrustListRefSchema)
         .optional(),
+    walletAttestationStatusCheckMode: z.enum(RevocationCheckMode).optional(),
 };
 
 class WalletProviderTrustListRefDto {
@@ -263,6 +265,13 @@ export class Oid4VpAuthorizationServerConfig extends createZodDto(
     })
     declare walletProviderTrustLists?: WalletProviderTrustListRefDto[];
 
+    @ApiPropertyOptional({
+        description:
+            "Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.",
+        enum: RevocationCheckMode,
+    })
+    declare walletAttestationStatusCheckMode?: RevocationCheckMode;
+
     declare label?: string;
 
     declare enabled?: boolean;
@@ -316,6 +325,13 @@ export class ChainedAuthorizationServerConfig extends createZodDto(
     })
     declare walletProviderTrustLists?: WalletProviderTrustListRefDto[];
 
+    @ApiPropertyOptional({
+        description:
+            "Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.",
+        enum: RevocationCheckMode,
+    })
+    declare walletAttestationStatusCheckMode?: RevocationCheckMode;
+
     declare label?: string;
 
     declare enabled?: boolean;
@@ -362,6 +378,13 @@ export class BuiltInAuthorizationServerConfig extends createZodDto(
         type: [WalletProviderTrustListRefDto],
     })
     declare walletProviderTrustLists?: WalletProviderTrustListRefDto[];
+
+    @ApiPropertyOptional({
+        description:
+            "Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.",
+        enum: RevocationCheckMode,
+    })
+    declare walletAttestationStatusCheckMode?: RevocationCheckMode;
 
     declare label?: string;
 

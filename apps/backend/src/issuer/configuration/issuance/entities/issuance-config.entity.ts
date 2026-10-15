@@ -15,6 +15,7 @@ import {
 } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entities/tenant.entity.js";
 import { encryptedJsonPaths } from "../../../../platform/data-encryption/encrypted-column.transformer.js";
+import { RevocationCheckMode } from "../../../../trust/types.js";
 import {
     AuthenticationMethodAuth,
     AuthenticationMethodNone,
@@ -125,6 +126,19 @@ export class IssuanceConfig {
     })
     @Column({ type: "json", nullable: true })
     walletProviderTrustLists?: WalletProviderTrustListRefDto[];
+
+    /**
+     * Default status check mode for wallet attestations at managed
+     * authorization servers. Unset means best_effort.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.",
+        enum: RevocationCheckMode,
+        nullable: true,
+    })
+    @Column("varchar", { nullable: true })
+    walletAttestationStatusCheckMode?: RevocationCheckMode | null;
 
     /**
      * Optional key ID to use for signing access tokens.

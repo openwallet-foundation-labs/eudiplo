@@ -360,6 +360,13 @@
                                 <mat-slide-toggle formControlName="requireDPoP"
                                   >Require DPoP</mat-slide-toggle
                                 >
+                              </div>
+
+                              <div
+                                fxLayout="row wrap"
+                                fxLayoutGap="16px"
+                                fxLayoutAlign="start start"
+                              >
                                 <mat-form-field>
                                   <mat-label>Wallet Attestation</mat-label>
                                   <mat-select formControlName="walletAttestationRequired">
@@ -367,6 +374,20 @@
                                     <mat-option [value]="true">Required</mat-option>
                                     <mat-option [value]="false">Optional</mat-option>
                                   </mat-select>
+                                </mat-form-field>
+                                <mat-form-field subscriptSizing="dynamic">
+                                  <mat-label>Wallet Attestation Status Check</mat-label>
+                                  <mat-select formControlName="walletAttestationStatusCheckMode">
+                                    <mat-option value="inherit"
+                                      >Use issuer default ({{
+                                        issuerStatusCheckModeLabel
+                                      }})</mat-option
+                                    >
+                                    <mat-option value="strict">Strict</mat-option>
+                                    <mat-option value="best_effort">Best effort</mat-option>
+                                    <mat-option value="disabled">Disabled</mat-option>
+                                  </mat-select>
+                                  <mat-hint>Disabled accepts revoked wallet attestations.</mat-hint>
                                 </mat-form-field>
                               </div>
 
@@ -793,6 +814,24 @@
                           >
                         </div>
                       </mat-slide-toggle>
+
+                      <mat-form-field subscriptSizing="dynamic">
+                        <mat-label>Wallet Attestation Status Check</mat-label>
+                        <mat-select formControlName="walletAttestationStatusCheckMode">
+                          <mat-option [value]="null">Default (best effort)</mat-option>
+                          <mat-option value="strict">Strict</mat-option>
+                          <mat-option value="best_effort">Best effort</mat-option>
+                          <mat-option value="disabled">Disabled</mat-option>
+                        </mat-select>
+                        <mat-hint
+                          >How the status list of a presented wallet attestation is checked. Strict
+                          rejects the attestation when the list cannot be fetched or read. Best
+                          effort accepts it when the list cannot be fetched, but not when the list
+                          is unreadable. Disabled skips the check, so revoked attestations are
+                          accepted. Default follows EUDIPLO's default, which is best
+                          effort.</mat-hint
+                        >
+                      </mat-form-field>
 
                       <div fxLayout="column" fxLayoutGap="16px" class="trust-lists-section">
                         <p class="section-hint">

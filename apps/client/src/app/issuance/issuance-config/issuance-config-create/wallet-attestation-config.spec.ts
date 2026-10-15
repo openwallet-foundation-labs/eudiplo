@@ -21,6 +21,24 @@ describe('wallet attestation configuration round trips', () => {
       });
       expect(saved.walletAttestationRequired).toBeUndefined();
       expect(saved.walletProviderTrustLists).toBeUndefined();
+      expect(saved.walletAttestationStatusCheckMode).toBeUndefined();
+    });
+
+    it(`preserves a status check mode override for ${type}`, () => {
+      const form = component['createAuthorizationServerGroup']({
+        type,
+        id: 'as',
+        walletAttestationStatusCheckMode: 'strict',
+      });
+      const [saved] = component['buildUnifiedAuthorizationServers']({
+        authorizationServers: [form.value],
+      });
+      expect(saved.walletAttestationStatusCheckMode).toBe('strict');
+      form.get('walletAttestationStatusCheckMode')!.setValue('inherit');
+      const [inherited] = component['buildUnifiedAuthorizationServers']({
+        authorizationServers: [form.value],
+      });
+      expect(inherited.walletAttestationStatusCheckMode).toBeUndefined();
     });
 
     it(`preserves explicit false and empty trust overrides for ${type}`, () => {
@@ -304,5 +322,21 @@ describe('wallet attestation configuration round trips', () => {
       external.push(component['createWalletProviderTrustListGroup']({ trustListId: 'x' }));
       expect(component.hasManagedEntry(external)).toBe(true);
     });
+  });
+
+  it('saves the issuer status check mode, and null for the default', () => {
+    const form = new FormBuilder().group({
+      walletAttestationStatusCheckMode: ['strict' as string | null],
+    });
+    const host = Object.assign(Object.create(IssuanceConfigCreateComponent.prototype), {
+      fb: new FormBuilder(),
+      form,
+    }) as IssuanceConfigCreateComponent;
+    const payload = () => host['buildConfigurationPayload']();
+    expect(host.issuerStatusCheckModeLabel).toBe('Strict');
+    expect(payload().walletAttestationStatusCheckMode).toBe('strict');
+    form.get('walletAttestationStatusCheckMode')!.setValue(null);
+    expect(host.issuerStatusCheckModeLabel).toBe('Best effort');
+    expect(payload().walletAttestationStatusCheckMode).toBeNull();
   });
 });

@@ -294,6 +294,7 @@ export class AuthorizationServersService {
             this.getAuthorizationServerBaseUrl(tenantId, authorizationServerId),
             walletAttestationPolicy.walletAttestationRequired,
             walletAttestationPolicy.walletProviderTrustLists,
+            walletAttestationPolicy.walletAttestationStatusCheckMode,
         );
 
         let issuerState = request.issuer_state;
@@ -542,6 +543,7 @@ export class AuthorizationServersService {
             this.getAuthorizationServerBaseUrl(tenantId, authorizationServerId),
             walletAttestationPolicy.walletAttestationRequired,
             walletAttestationPolicy.walletProviderTrustLists,
+            walletAttestationPolicy.walletAttestationStatusCheckMode,
         );
 
         const session = await resolveSessionForTokenRequest(

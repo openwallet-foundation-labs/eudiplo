@@ -8,12 +8,13 @@ Configuration files name their format in `$schema`, for example `https://eudiplo
 
 ## Format versions
 
-Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1, `CredentialConfig` v2, `KeyChain` v2 and `Client` v2 in 10.0:
+Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1, `CredentialConfig` v2, `KeyChain` v2, `Client` v2 and `IssuanceConfig` v4 in 10.0:
 
 | Resource | Version | Change |
 | --- | --- | --- |
 | `IssuanceConfig` | v2 | Optional `offerLifetimeSeconds`. A v1 file is a valid v2 file. |
 | `IssuanceConfig` | v3 | Optional `verifierKeyPem` (PEM public key) in `walletProviderTrustLists` entries. A v2 file is a valid v3 file. |
+| `IssuanceConfig` | v4 | Optional `walletAttestationStatusCheckMode` on the issuance configuration and its authorization servers. A v3 file is a valid v4 file. |
 | `CredentialConfig` | v2 | `x509` as `frameworkType` of `schemaMeta.trustedAuthorities` entries. A v1 file is a valid v2 file. |
 | `KeyChain` | v2 | Optional `type` (`standalone`, `internalChain`). A v1 file is a valid v2 file; a bare key chain file with `type` is read as v2 (`bareFileVersion`). |
 | `Client` | v2 | The roles `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1 file is a valid v2 file. |

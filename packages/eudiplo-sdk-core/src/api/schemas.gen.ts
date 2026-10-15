@@ -10029,6 +10029,15 @@ export const Oid4VpAuthorizationServerConfigSchema = {
             description: 'Wallet authentication trust lists for this authorization server. Omit to inherit shared issuance trust; an empty array rejects presented attestations.',
             type: 'array'
         },
+        walletAttestationStatusCheckMode: {
+            type: 'string',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled'
+            ],
+            description: 'Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.'
+        },
         label: {
             type: 'string'
         },
@@ -10188,6 +10197,15 @@ export const ChainedAuthorizationServerConfigSchema = {
             description: 'Wallet authentication trust lists for this authorization server. Omit to inherit shared issuance trust; an empty array rejects presented attestations.',
             type: 'array'
         },
+        walletAttestationStatusCheckMode: {
+            type: 'string',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled'
+            ],
+            description: 'Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.'
+        },
         label: {
             type: 'string'
         },
@@ -10284,6 +10302,15 @@ export const BuiltInAuthorizationServerConfigSchema = {
             },
             description: 'Wallet authentication trust lists for this authorization server. Omit to inherit shared issuance trust; an empty array rejects presented attestations.',
             type: 'array'
+        },
+        walletAttestationStatusCheckMode: {
+            type: 'string',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled'
+            ],
+            description: 'Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.'
         },
         label: {
             type: 'string'
@@ -10499,6 +10526,19 @@ export const IssuanceConfigSchema = {
                 $ref: '#/components/schemas/WalletProviderTrustListRefDto'
             }
         },
+        walletAttestationStatusCheckMode: {
+            description: 'Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled',
+                null
+            ],
+            type: [
+                'string',
+                'null'
+            ]
+        },
         signingKeyId: {
             type: 'string',
             description: 'Key ID for signing access tokens. If unset, the default signing key is used.'
@@ -10652,6 +10692,19 @@ export const UpdateIssuanceDtoSchema = {
             items: {
                 $ref: '#/components/schemas/WalletProviderTrustListRefDto'
             }
+        },
+        walletAttestationStatusCheckMode: {
+            description: 'Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled',
+                null
+            ],
+            type: [
+                'string',
+                'null'
+            ]
         },
         signingKeyId: {
             type: 'string',
@@ -12531,6 +12584,19 @@ export const IssuanceConfigWritableSchema = {
                 $ref: '#/components/schemas/WalletProviderTrustListRefDto'
             }
         },
+        walletAttestationStatusCheckMode: {
+            description: 'Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled',
+                null
+            ],
+            type: [
+                'string',
+                'null'
+            ]
+        },
         signingKeyId: {
             type: 'string',
             description: 'Key ID for signing access tokens. If unset, the default signing key is used.'
@@ -12672,6 +12738,19 @@ export const UpdateIssuanceDtoWritableSchema = {
             items: {
                 $ref: '#/components/schemas/WalletProviderTrustListRefDto'
             }
+        },
+        walletAttestationStatusCheckMode: {
+            description: 'Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.',
+            enum: [
+                'strict',
+                'best_effort',
+                'disabled',
+                null
+            ],
+            type: [
+                'string',
+                'null'
+            ]
         },
         signingKeyId: {
             type: 'string',

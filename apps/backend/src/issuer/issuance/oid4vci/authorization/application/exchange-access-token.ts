@@ -183,6 +183,7 @@ export class ExchangeAccessToken {
                 authorizationServerMetadata.issuer,
                 walletAttestationPolicy.walletAttestationRequired,
                 walletAttestationPolicy.walletProviderTrustLists,
+                walletAttestationPolicy.walletAttestationStatusCheckMode,
             )
             .catch((err) => {
                 throw new OAuthError(

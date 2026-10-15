@@ -239,6 +239,7 @@ describe("ConfigBundleService issuance export", () => {
             registrationCertificate: null,
             display: null,
             txCodeMaxAttempts: null,
+            walletAttestationStatusCheckMode: null,
         });
 
         for (const field of [
@@ -253,7 +254,14 @@ describe("ConfigBundleService issuance export", () => {
             federation: null,
             registrationCertificate: null,
             txCodeMaxAttempts: null,
+            walletAttestationStatusCheckMode: null,
         });
+        expect(
+            canonicalEntitySpec.call(service, "IssuanceConfig", {
+                authorizationServers: [],
+                walletAttestationStatusCheckMode: "strict",
+            }).walletAttestationStatusCheckMode,
+        ).toBe("strict");
     });
 });
 

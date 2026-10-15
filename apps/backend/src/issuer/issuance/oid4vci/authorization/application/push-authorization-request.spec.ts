@@ -9,6 +9,7 @@ function pushAuthorizationRequest(issuanceConfig: Record<string, unknown>) {
     const server = {
         verifyPushedAuthorizationRequest: vi.fn().mockResolvedValue({}),
     };
+    const clientAttestation = { verify: vi.fn().mockResolvedValue(undefined) };
     const useCase = new PushAuthorizationRequest(
         {
             forTenant: () => server as unknown as Oauth2AuthorizationServer,
@@ -26,7 +27,7 @@ function pushAuthorizationRequest(issuanceConfig: Record<string, unknown>) {
                 dpop_signing_alg_values_supported: ["ES256"],
             }),
         },
-        { verify: vi.fn().mockResolvedValue(undefined) },
+        clientAttestation,
         { register: vi.fn().mockResolvedValue(true) },
     );
     const execute = () =>
@@ -47,7 +48,7 @@ function pushAuthorizationRequest(issuanceConfig: Record<string, unknown>) {
         });
     const dpopRequired = () =>
         server.verifyPushedAuthorizationRequest.mock.calls[0][0].dpop.required;
-    return { execute, dpopRequired };
+    return { execute, dpopRequired, clientAttestation };
 }
 
 describe("PushAuthorizationRequest DPoP", () => {
@@ -75,5 +76,34 @@ describe("PushAuthorizationRequest DPoP", () => {
         await execute();
 
         expect(dpopRequired()).toBe(true);
+    });
+});
+
+describe("PushAuthorizationRequest wallet attestation", () => {
+    it("passes the resolved status check mode to the verifier", async () => {
+        const { execute, clientAttestation } = pushAuthorizationRequest({
+            walletAttestationStatusCheckMode: "strict",
+            authorizationServers: [
+                {
+                    type: "built-in",
+                    id: "built-in",
+                    walletAttestationStatusCheckMode: "disabled",
+                },
+            ],
+        });
+
+        await execute();
+
+        expect(clientAttestation.verify.mock.calls[0][5]).toBe("disabled");
+    });
+
+    it("uses best_effort when no status check mode is set", async () => {
+        const { execute, clientAttestation } = pushAuthorizationRequest({
+            authorizationServers: [{ type: "built-in", id: "built-in" }],
+        });
+
+        await execute();
+
+        expect(clientAttestation.verify.mock.calls[0][5]).toBe("best_effort");
     });
 });

@@ -97,7 +97,7 @@ describe("portable schema identity and migrations", () => {
         expect(result.migrations).toEqual(["rename-name"]);
     });
 
-    it("upgrades a v1 issuance configuration to v3 unchanged", () => {
+    it("upgrades a v1 issuance configuration to v4 unchanged", () => {
         const v1 = {
             $schema: schemaUrl("IssuanceConfig", 1),
             metadata: { generation: 2 },
@@ -111,8 +111,9 @@ describe("portable schema identity and migrations", () => {
         expect(result.migrations).toEqual([
             "issuance-config-v2-offer-lifetime",
             "issuance-config-v3-trust-list-verifier-pem",
+            "issuance-config-v4-wallet-attestation-status-check-mode",
         ]);
-        expect(result.document.$schema).toBe(schemaUrl("IssuanceConfig", 3));
+        expect(result.document.$schema).toBe(schemaUrl("IssuanceConfig", 4));
         expect(result.document.spec).toEqual(v1.spec);
         expect(result.document.metadata).toEqual({ generation: 2 });
         // Repeating the upgrade on the result is a no-op.
@@ -361,6 +362,35 @@ describe("portable schema identity and migrations", () => {
                 }),
             ).map((issue) => issue.path),
         ).toContain("/spec/schemaMeta/trustedAuthorities/0/frameworkType");
+    });
+
+    it("accepts a wallet attestation status check mode only from v4 on", () => {
+        const spec = {
+            walletAttestationStatusCheckMode: "strict",
+            authorizationServers: [
+                {
+                    id: "issuer",
+                    type: "built-in",
+                    walletAttestationStatusCheckMode: "disabled",
+                },
+            ],
+        };
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("IssuanceConfig", 4),
+                    spec,
+                }),
+            ),
+        ).toEqual([]);
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("IssuanceConfig", 3),
+                    spec,
+                }),
+            ).map((issue) => issue.message),
+        ).toContain("Unknown property: walletAttestationStatusCheckMode");
     });
 
     it("refuses missing migration steps", () =>

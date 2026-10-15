@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
+import { RevocationCheckMode } from "../../../../trust/types.js";
 
 export const UpstreamOidcConfigSchema = z
     .object({
@@ -38,6 +39,9 @@ const ChainedAsConfigSchema = z
         walletAttestationRequired: z.boolean().optional(),
         walletProviderTrustLists: z
             .array(WalletProviderTrustListRefSchema)
+            .optional(),
+        walletAttestationStatusCheckMode: z
+            .enum(RevocationCheckMode)
             .optional(),
     })
     .strict();
@@ -213,4 +217,11 @@ export class ChainedAsConfig extends createZodDto(ChainedAsConfigSchema) {
         verifierKeyPem?: string;
         verifierX509Der?: string;
     }>;
+
+    @ApiPropertyOptional({
+        description:
+            "Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.",
+        enum: RevocationCheckMode,
+    })
+    walletAttestationStatusCheckMode?: RevocationCheckMode;
 }

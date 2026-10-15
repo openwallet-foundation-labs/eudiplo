@@ -2,7 +2,10 @@ import { type Jwk, Oauth2AuthorizationServer } from "@openid4vc/oauth2";
 import type { CryptoService } from "../../../../../crypto/crypto.service.js";
 import type { KeyChainService } from "../../../../../crypto/key/key-chain.service.js";
 import type { SessionConfigService } from "../../../../../session/session-config.service.js";
-import type { TrustListRef } from "../../../../../trust/types.js";
+import type {
+    RevocationCheckMode,
+    TrustListRef,
+} from "../../../../../trust/types.js";
 import type { WalletAttestationService } from "../../../../../trust/wallet-attestation.service.js";
 import type { IssuanceService } from "../../../../configuration/issuance/issuance.service.js";
 import type { StatusListConfigService } from "../../../../status-list/status-list-config.service.js";
@@ -66,6 +69,7 @@ export class WalletAttestationClientVerifier
         expectedAudience: string,
         required: boolean,
         trustLists: TrustListRef[],
+        statusCheckMode: RevocationCheckMode,
     ) {
         return this.walletAttestation.verifyWalletAttestation(
             tenantId,
@@ -73,6 +77,7 @@ export class WalletAttestationClientVerifier
             expectedAudience,
             required,
             trustLists,
+            statusCheckMode,
         );
     }
 }

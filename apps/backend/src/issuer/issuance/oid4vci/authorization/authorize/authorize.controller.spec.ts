@@ -601,6 +601,7 @@ describe("Built-in authorization server token endpoint", () => {
                         type: "built-in",
                         walletAttestationRequired: true,
                         walletProviderTrustLists: [{ url: "https://tl" }],
+                        walletAttestationStatusCheckMode: "strict",
                     },
                 ],
             });
@@ -622,6 +623,7 @@ describe("Built-in authorization server token endpoint", () => {
                 ISSUER,
                 true,
                 [{ url: "https://tl" }],
+                "strict",
             );
         });
 

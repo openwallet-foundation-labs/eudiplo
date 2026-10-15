@@ -1139,6 +1139,9 @@ export class ConfigBundleService {
                     walletAttestationRequired: entity.walletAttestationRequired,
                     walletProviderTrustLists:
                         entity.walletProviderTrustLists ?? undefined,
+                    // The schema accepts null, and applying null clears it.
+                    walletAttestationStatusCheckMode:
+                        entity.walletAttestationStatusCheckMode,
                     signingKeyId: entity.signingKeyId ?? undefined,
                     // Removed authorization server options are not exported.
                     authorizationServers: Array.isArray(

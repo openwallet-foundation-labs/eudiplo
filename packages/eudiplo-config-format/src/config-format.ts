@@ -13,7 +13,7 @@ export const CONFIG_FORMATS = {
     IssuanceConfig: {
         slug: "issuance-config",
         file: "IssuanceConfigFile",
-        version: 3,
+        version: 4,
     },
     CredentialConfig: {
         slug: "credential-config",
@@ -173,6 +173,16 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 3,
         // v3 only adds the optional verifierKeyPem to wallet provider trust
         // list references: a v2 spec is a valid v3 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "issuance-config-v4-wallet-attestation-status-check-mode",
+        kind: "IssuanceConfig",
+        from: 3,
+        to: 4,
+        // v4 only adds the optional walletAttestationStatusCheckMode to the
+        // issuance configuration and its authorization servers: a v3 spec is
+        // a valid v4 spec.
         migrate: (spec) => ({ spec }),
     },
     {

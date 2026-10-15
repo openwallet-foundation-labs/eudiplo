@@ -12,10 +12,15 @@ import { Span } from "nestjs-otel";
 import { CryptoService } from "../crypto/crypto.service.js";
 import { CryptoImplementationService } from "../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { TrustListRef } from "../verifier/presentations/entities/presentation-config.entity.js";
+import {
+    RevocationListUnavailableError,
+    revocationModeToPolicy,
+} from "./revocation-policy.util.js";
 import { StatusListVerifierService } from "./status-list-verifier.service.js";
 import { BuiltTrustStore, TrustStoreService } from "./trust-store.service.js";
 import {
     normalizeTrustListRefs,
+    RevocationCheckMode,
     ServiceTypeIdentifiers,
     TrustListSource,
     walletSolutionServiceTypes,
@@ -78,6 +83,9 @@ export class WalletAttestationService {
      * @param authorizationServer The authorization server URL
      * @param walletAttestationRequired Whether wallet attestation is required
      * @param walletProviderTrustLists Trust lists containing trusted wallet providers
+     * @param statusCheckMode How to handle the attestation's status list:
+     * strict rejects on any status check failure, best_effort accepts when the
+     * list cannot be fetched, disabled skips the check
      * @throws UnauthorizedException if attestation is required but not provided, or if provided but invalid
      */
     @Span("walletAttestation.verify")
@@ -87,6 +95,7 @@ export class WalletAttestationService {
         authorizationServer: string,
         walletAttestationRequired: boolean,
         walletProviderTrustLists: TrustListRef[],
+        statusCheckMode: RevocationCheckMode,
     ): Promise<void> {
         if (!clientAttestation) {
             if (walletAttestationRequired) {
@@ -121,6 +130,7 @@ export class WalletAttestationService {
                 clientAttestation.clientAttestationJwt,
                 matchedEntity,
                 trustStore,
+                statusCheckMode,
             );
 
             this.logger.debug("Wallet attestation verified successfully");
@@ -240,13 +250,24 @@ export class WalletAttestationService {
      * @param clientAttestationJwt The wallet attestation JWT
      * @param matchedEntity The matched trusted entity from certificate validation
      * @param trustStore The trust store used for validation
-     * @throws UnauthorizedException if the attestation has been revoked or suspended
+     * @param statusCheckMode strict, best_effort or disabled
+     * @throws UnauthorizedException if the attestation has been revoked or
+     * suspended, or if the status check failed and the mode does not tolerate it
      */
     private async validateWalletAttestationStatus(
         clientAttestationJwt: string,
         matchedEntity: MatchedTrustedEntity | null,
         trustStore: BuiltTrustStore | null,
+        statusCheckMode: RevocationCheckMode,
     ): Promise<void> {
+        const policy = revocationModeToPolicy(statusCheckMode);
+        if (!policy.enabled) {
+            this.logger.debug(
+                "Wallet attestation status check disabled - skipping status check",
+            );
+            return;
+        }
+
         try {
             // Get the status entry from the JWT
             const statusEntry =
@@ -306,10 +327,26 @@ export class WalletAttestationService {
             if (err instanceof UnauthorizedException) {
                 throw err;
             }
-            // Log the error but don't fail - status checking is optional
-            // and network issues shouldn't block valid attestations
+            const reason = err instanceof Error ? err.message : "Unknown error";
+            // best_effort only tolerates a list that could not be fetched.
+            // An unreadable list or an index outside it still rejects.
+            if (
+                !policy.failClosed &&
+                err instanceof RevocationListUnavailableError
+            ) {
+                this.logger.warn(
+                    `Wallet attestation status list unavailable, accepting (best_effort): ${reason}`,
+                );
+                return;
+            }
+            // The reason names the status list URI and the fetch error; it
+            // stays in the log so the wallet cannot probe the network with it.
             this.logger.warn(
-                `Failed to check wallet attestation status: ${err instanceof Error ? err.message : "Unknown error"}`,
+                `Wallet attestation status check failed: ${reason}`,
+            );
+            throw new UnauthorizedException(
+                "Wallet attestation status check failed",
+                { cause: err instanceof Error ? err : undefined },
             );
         }
     }

@@ -175,6 +175,11 @@
                       <td mat-cell *matCellDef="let row">{{ row.dpop }}</td>
                     </ng-container>
 
+                    <ng-container matColumnDef="statusCheck">
+                      <th mat-header-cell *matHeaderCellDef>Attestation status check</th>
+                      <td mat-cell *matCellDef="let row">{{ row.statusCheck }}</td>
+                    </ng-container>
+
                     <ng-container matColumnDef="token">
                       <th mat-header-cell *matHeaderCellDef>Token</th>
                       <td mat-cell *matCellDef="let row">
@@ -263,6 +268,25 @@
                   <span matListItemLine>{{
                     config.walletAttestationRequired ? 'Required' : 'Not required'
                   }}</span>
+                </mat-list-item>
+                <mat-list-item>
+                  <mat-icon
+                    matListItemIcon
+                    [class]="
+                      config.walletAttestationStatusCheckMode === 'disabled' ? 'icon-disabled' : ''
+                    "
+                    >fact_check</mat-icon
+                  >
+                  <span matListItemTitle>Wallet Attestation Status Check</span>
+                  <span matListItemLine
+                    >{{ statusCheckModeLabel(config.walletAttestationStatusCheckMode) }}
+                    @if (!config.walletAttestationStatusCheckMode) {
+                      (default)
+                    }
+                    @if (config.walletAttestationStatusCheckMode === 'disabled') {
+                      (revoked attestations accepted)
+                    }
+                  </span>
                 </mat-list-item>
                 @if (config.walletAttestationRequired) {
                   <mat-list-item>
