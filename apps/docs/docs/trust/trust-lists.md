@@ -43,7 +43,7 @@ Create the list in the Web Client under **Cryptographic Assets → Trust Lists**
 ```
 
 - **Internal** entities reference key chains of this tenant. EUDIPLO lists the last certificate of each chain, the root CA for internal and external CA chains, so the entry survives key rotation.
-- **External** entities carry the PEM certificates of issuers outside this tenant.
+- **External** entities carry the certificates of issuers outside this tenant, as PEM or Base64 DER.
 - The list is signed with the `trustList` key chain in `keyChainId`, or with a `trustList` key chain of the tenant if omitted; create one first ([Keys and Certificates](keys-and-certificates.md)).
 
 EUDIPLO publishes the signed JWT at `GET /issuers/{tenantId}/trust-list/{id}` without authentication, so others can use your list.

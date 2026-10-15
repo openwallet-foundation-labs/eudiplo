@@ -22,8 +22,9 @@ export interface SchemaDoc {
     /** The Zod schema the backend validates with; the docs are generated from it. */
     schema: z.ZodType;
     /**
-     * Corrected descriptions by field path (`a.b`, arrays are crossed
-     * implicitly). Only for descriptions frozen in a published config file
+     * Corrected descriptions by field path (`a.b`; arrays and union variants
+     * are crossed implicitly, and a field in several variants gets the
+     * description in each). Only for descriptions frozen in a published config file
      * format: changing them in the schema would change the format snapshot
      * under `schemas/v*`. Fix them in the schema with the next format version.
      */
@@ -55,7 +56,16 @@ export const schemaDocs: SchemaDoc[] = [
                 "Access key chain that signs the request, determines the `client_id` and signs `readerAuth`; without it, an access key chain of the tenant is used.",
         },
     },
-    { name: "trust-list", schema: TrustListCreateSchema },
+    {
+        name: "trust-list",
+        schema: TrustListCreateSchema,
+        descriptions: {
+            "entities.type":
+                "`internal` references key chains of this tenant; `external` carries the certificates directly, as PEM or Base64 DER.",
+            "entities.issuerCertPem": "Issuer certificate as PEM or Base64 DER.",
+            "entities.revocationCertPem": "Revocation/status certificate as PEM or Base64 DER.",
+        },
+    },
     { name: "schema-metadata-publish", schema: SignSchemaMetaConfigSchema },
     { name: "kms-config", schema: KmsConfigSchema },
     { name: "kms-provider-db", schema: DbKmsConfigSchema },

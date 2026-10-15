@@ -303,11 +303,14 @@ export class TrustListService {
         tenant: Pick<TenantEntity, "id" | "name">,
         existing?: TrustList,
     ): Promise<TrustList> {
-        // Validate PEM certificates for external entities
+        // Validate external certificates before findOrCreate below can create a key chain.
         for (const entity of config.entities || []) {
             if (entity.type === "external") {
-                this.validatePem(entity.issuerCertPem, "issuerCertPem");
-                this.validatePem(entity.revocationCertPem, "revocationCertPem");
+                this.certificateBase64(entity.issuerCertPem, "issuerCertPem");
+                this.certificateBase64(
+                    entity.revocationCertPem,
+                    "revocationCertPem",
+                );
             }
         }
 
@@ -516,16 +519,19 @@ export class TrustListService {
     }
 
     /**
-     * Validate that a string is a valid PEM certificate
-     * @param pem The PEM string to validate
-     * @param fieldName The field name for error messages
+     * The Base64 DER of the certificate in `pem`, given as PEM or Base64 DER.
+     * The trust list publishes this parsed value, never the input as given.
      */
-    private validatePem(pem: string, fieldName: string): void {
+    private certificateBase64(pem: string, fieldName: string): string {
         if (!pem || pem.trim() === "") {
             throw new BadRequestException(`${fieldName} is required`);
         }
         try {
-            new X509Certificate(pem);
+            return new X509Certificate(
+                pem.includes("-----BEGIN")
+                    ? pem
+                    : Buffer.from(pem.replaceAll(/\s/g, ""), "base64"),
+            ).raw.toString("base64");
         } catch {
             throw new BadRequestException(
                 `${fieldName} is not a valid X.509 certificate`,
@@ -617,8 +623,8 @@ export class TrustListService {
         providerType?: TrustListEntity["providerType"],
     ): LoTETrustedEntity {
         return this.createEntityFromData(
-            this.formatPem(issuerCertPem),
-            this.formatPem(revocationCertPem),
+            this.certificateBase64(issuerCertPem, "issuerCertPem"),
+            this.certificateBase64(revocationCertPem, "revocationCertPem"),
             info,
             providerType,
         );
