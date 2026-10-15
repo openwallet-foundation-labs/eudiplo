@@ -185,10 +185,11 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
     const oidfSuiteStartTest = oidfSuite.startTest.bind(oidfSuite);
     oidfSuite.startTest = async (
-        ...args: Parameters<OIDFSuite["startTest"]>
+        planId: string,
+        testName: string,
     ): Promise<TestInstance> => {
-        executedPlanIds.add(args[0]);
-        return oidfSuiteStartTest(...args);
+        executedPlanIds.add(planId);
+        return oidfSuiteStartTest(planId, testName);
     };
 
     /**
@@ -649,16 +650,7 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
         const startedAt = Date.now();
         let testInstance: TestInstance | undefined;
         try {
-            // The HAIP tenant requires credential response encryption
-            // (`encryption_required`), so every module has to encrypt.
-            testInstance = await oidfSuite.startTest(
-                planId,
-                moduleName,
-                undefined,
-                {
-                    vci_credential_encryption: "encrypted",
-                },
-            );
+            testInstance = await oidfSuite.startTest(planId, moduleName);
             console.log(
                 `Test details (${variantLabel}/${moduleName}): ${OIDF_URL}/log-detail.html?log=${testInstance.id}`,
             );
