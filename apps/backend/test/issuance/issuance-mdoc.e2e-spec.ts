@@ -5,7 +5,7 @@ import {
     JwtSignerJwk,
 } from "@openid4vc/oauth2";
 import { Openid4vciClient } from "@openid4vc/openid4vci";
-import { Issuer } from "@owf/mdoc";
+import { Issuer, IssuerSigned } from "@owf/mdoc";
 import { exportJWK, generateKeyPair } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
@@ -19,6 +19,8 @@ import {
     test,
     vi,
 } from "vitest";
+import { SIGNING_ALG_SPECS } from "../../src/crypto/key/domain/signing-algs.js";
+import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { MdocIssuerService } from "../../src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.js";
 import {
     callbacks,
@@ -26,6 +28,13 @@ import {
     IssuanceTestContext,
     setupIssuanceTestApp,
 } from "../utils.js";
+import {
+    createCredentialConfigCopy,
+    createKeyChain,
+    credentialConfigurationMetadata,
+    deleteKeyChain,
+    expectCoseSign1SignedWithX5chain,
+} from "../utils-ec.js";
 import { mdocContext } from "../utils-mdoc.js";
 
 function createMdocIssuerService() {
@@ -169,6 +178,109 @@ describe("Issuance - mDOC Credentials", () => {
             }),
         );
     });
+
+    test.each(["ES384", "ES512"] as const)(
+        "signs the IssuerAuth with the algorithm of an %s key chain",
+        async (alg) => {
+            const keyChainId = await createKeyChain(app, authToken, {
+                usageType: KeyUsageType.Attestation,
+                alg,
+            });
+            const configId = `pid-mdoc-${alg}-${Date.now()}`;
+            let deleteConfig: (() => Promise<void>) | undefined;
+
+            try {
+                deleteConfig = await createCredentialConfigCopy(
+                    app,
+                    authToken,
+                    "pid-mdoc-no-key",
+                    { id: configId, keyChainId },
+                );
+                const metadata = await credentialConfigurationMetadata(
+                    app,
+                    configId,
+                );
+                // The classic COSE id; a fully-specified one may follow it.
+                expect(
+                    metadata.credential_signing_alg_values_supported,
+                ).toContain(SIGNING_ALG_SPECS[alg].coseAlg);
+                expect(
+                    metadata.credential_signing_alg_values_supported,
+                ).not.toContain(SIGNING_ALG_SPECS.ES256.coseAlg);
+
+                const offerResponse = await request(app.getHttpServer())
+                    .post("/issuer/offer")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        response_type: "uri",
+                        credentialConfigurationIds: [configId],
+                        flow: "pre_authorized_code",
+                    })
+                    .expect(201);
+                // The device key is on the same curve as the issuer key.
+                const holderKeyPair = await generateKeyPair(alg, {
+                    extractable: true,
+                });
+                const holderPublicKeyJwk = await exportJWK(
+                    holderKeyPair.publicKey,
+                );
+                const client = new Openid4vciClient({
+                    callbacks: {
+                        ...callbacks,
+                        clientAuthentication: clientAuthenticationAnonymous(),
+                        signJwt: getSignJwtCallback([
+                            (await exportJWK(holderKeyPair.privateKey)) as Jwk,
+                        ]),
+                    },
+                });
+                const credentialOffer = await client.resolveCredentialOffer(
+                    offerResponse.body.uri,
+                );
+                const issuerMetadata = await client.resolveIssuerMetadata(
+                    credentialOffer.credential_issuer,
+                );
+                const { accessTokenResponse } =
+                    await client.retrievePreAuthorizedCodeAccessTokenFromOffer({
+                        credentialOffer,
+                        issuerMetadata,
+                    });
+                const { c_nonce } = await client.requestNonce({
+                    issuerMetadata,
+                });
+                const { jwt: proofJwt } =
+                    await client.createCredentialRequestJwtProof({
+                        issuerMetadata,
+                        signer: {
+                            method: "jwk",
+                            alg,
+                            publicJwk: holderPublicKeyJwk,
+                        } as JwtSignerJwk,
+                        clientId,
+                        issuedAt: new Date(),
+                        credentialConfigurationId: configId,
+                        nonce: c_nonce,
+                    });
+                const credentialResponse = await client.retrieveCredentials({
+                    accessToken: accessTokenResponse.access_token,
+                    credentialConfigurationId: configId,
+                    issuerMetadata,
+                    proofs: { jwt: [proofJwt] },
+                });
+                const credential: string = (
+                    credentialResponse.credentialResponse
+                        .credentials?.[0] as any
+                ).credential;
+
+                const issuerSigned =
+                    IssuerSigned.fromEncodedForOid4Vci(credential);
+                expectCoseSign1SignedWithX5chain(issuerSigned.issuerAuth, alg);
+            } finally {
+                await deleteConfig?.();
+                await deleteKeyChain(app, authToken, keyChainId);
+            }
+        },
+    );
 
     test("issue mso_mdoc credential with inline claims from credential offer", async () => {
         const addNamespaceSpy = vi.spyOn(
