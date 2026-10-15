@@ -1,8 +1,19 @@
+import { randomBytes } from "node:crypto";
 import {
-    type Oauth2AuthorizationServer,
+    type GenerateRandomCallback,
+    type Jwk,
+    Oauth2AuthorizationServer,
     preAuthorizedCodeGrantIdentifier,
     refreshTokenGrantIdentifier,
+    type SignJwtCallback,
 } from "@openid4vc/oauth2";
+import {
+    CompactSign,
+    decodeProtectedHeader,
+    exportJWK,
+    generateKeyPair,
+    jwtVerify,
+} from "jose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionData } from "../../../../../session/domain/session-data.js";
 import type { Oid4vciSettings } from "../../oid4vci-settings.js";
@@ -51,6 +62,10 @@ function exchange(
     issuanceConfig: Record<string, unknown>,
     parsed: object,
     session: SessionData,
+    options: {
+        publicJwk?: Jwk;
+        createAccessTokenResponse?: Oauth2AuthorizationServer["createAccessTokenResponse"];
+    } = {},
 ) {
     const server = {
         parseAccessTokenRequest: vi.fn().mockReturnValue(parsed),
@@ -58,12 +73,17 @@ function exchange(
             .fn()
             .mockResolvedValue({}),
         verifyRefreshTokenAccessTokenRequest: vi.fn().mockResolvedValue({}),
-        createAccessTokenResponse: vi.fn(async (options) => ({
-            access_token: "access-token",
-            token_type: "Bearer",
-            expires_in: options.expiresInSeconds,
-            ...(options.refreshToken ? { refresh_token: "new-refresh" } : {}),
-        })),
+        createAccessTokenResponse: vi.fn(
+            options.createAccessTokenResponse ??
+                (async (options) => ({
+                    access_token: "access-token",
+                    token_type: "Bearer",
+                    expires_in: options.expiresInSeconds,
+                    ...(options.refreshToken
+                        ? { refresh_token: "new-refresh" }
+                        : {}),
+                })),
+        ),
     };
     const sessions = {
         getByAuthorizationCode: vi.fn().mockResolvedValue(session),
@@ -73,7 +93,11 @@ function exchange(
     };
     const signingKeys = {
         defaultKeyId: vi.fn().mockResolvedValue("default-key"),
-        publicJwk: vi.fn().mockResolvedValue({ kty: "EC", crv: "P-256" }),
+        publicJwk: vi
+            .fn()
+            .mockResolvedValue(
+                options.publicJwk ?? { kty: "EC", crv: "P-256" },
+            ),
     };
     const useCase = new ExchangeAccessToken(
         {
@@ -192,6 +216,57 @@ describe("ExchangeAccessToken", () => {
                 signer: expect.objectContaining({ kid: "as-key" }),
             }),
         );
+    });
+
+    it("signs the access token with ES384 when the signing key is on P-384", async () => {
+        const { publicKey, privateKey } = await generateKeyPair("ES384");
+        const publicJwk = (await exportJWK(publicKey)) as Jwk;
+        // A real library server whose JWT signer uses the P-384 private key,
+        // so the asserted header is the one the library writes from `signer`.
+        const signJwt: SignJwtCallback = async (
+            _signer,
+            { header, payload },
+        ) => ({
+            jwt: await new CompactSign(
+                new TextEncoder().encode(JSON.stringify(payload)),
+            )
+                .setProtectedHeader(header)
+                .sign(privateKey),
+            signerJwk: publicJwk,
+        });
+        const generateRandom: GenerateRandomCallback = (length) =>
+            randomBytes(length);
+        const library = new Oauth2AuthorizationServer({
+            // Only the callbacks createAccessTokenResponse calls.
+            callbacks: { signJwt, generateRandom } as never,
+        });
+        const { execute, server } = exchange(
+            { authorizationServers: [{ type: "built-in", id: "built-in" }] },
+            preAuthorizedCodeRequest,
+            issuanceSession(),
+            {
+                publicJwk,
+                createAccessTokenResponse: (options) =>
+                    library.createAccessTokenResponse(options),
+            },
+        );
+
+        await execute();
+
+        expect(server.createAccessTokenResponse).toHaveBeenCalledWith(
+            expect.objectContaining({
+                signer: expect.objectContaining({
+                    method: "jwk",
+                    alg: "ES384",
+                }),
+            }),
+        );
+        const { access_token } =
+            await server.createAccessTokenResponse.mock.results[0].value;
+        expect(decodeProtectedHeader(access_token).alg).toBe("ES384");
+        await expect(
+            jwtVerify(access_token, publicKey, { currentDate: NOW }),
+        ).resolves.toBeDefined();
     });
 
     it("falls back to the issuance signing key", async () => {

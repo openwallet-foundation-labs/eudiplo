@@ -110,6 +110,20 @@ export async function credentialConfigurationMetadata(
     ];
 }
 
+/** The certificates of a PEM chain as base64 DER values, as `x5c` carries them. */
+export function pemChainToX5c(pemChain: string): string[] {
+    return (
+        pemChain.match(
+            /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
+        ) ?? []
+    ).map((pem) =>
+        pem
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replaceAll(/\s/g, ""),
+    );
+}
+
 function derToPem(base64Der: string): string {
     const lines = base64Der.match(/.{1,64}/g)!.join("\n");
     return `-----BEGIN CERTIFICATE-----\n${lines}\n-----END CERTIFICATE-----`;
