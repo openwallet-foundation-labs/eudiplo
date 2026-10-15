@@ -397,7 +397,7 @@ describe("Issuance - Wallet Attestation", () => {
         // Enable nock to intercept HTTP requests
         nock.disableNetConnect();
         // Allow localhost connections for the test app itself (but not port 8787 which we mock)
-        nock.enableNetConnect(/127\.0\.0\.1/);
+        nock.enableNetConnect(/^(127\.0\.0\.1|localhost):(?!8787$)/);
     });
 
     afterEach(() => {

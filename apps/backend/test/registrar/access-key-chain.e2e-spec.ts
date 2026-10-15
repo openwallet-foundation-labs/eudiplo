@@ -175,8 +175,8 @@ describe("Access key chain enrolled at the registrar (e2e)", () => {
         let crt = "";
         nock(registrar)
             .post("/access-certificates")
-            .reply(201, async (_uri, body) => {
-                crt = await issueFor((body as { csr: string }).csr);
+            .reply(201, async (req: Request) => {
+                crt = await issueFor((await req.json()).csr);
                 return { id: "ac-1", crt };
             });
 
@@ -195,8 +195,8 @@ describe("Access key chain enrolled at the registrar (e2e)", () => {
         let crt = "";
         nock(registrar)
             .post("/access-certificates")
-            .reply(502, async (_uri, body) => {
-                crt = await issueFor((body as { csr: string }).csr);
+            .reply(502, async (req: Request) => {
+                crt = await issueFor((await req.json()).csr);
                 return "Bad Gateway";
             })
             .get("/access-certificates")
@@ -224,9 +224,9 @@ describe("Access key chain enrolled at the registrar (e2e)", () => {
     test("makes an enrolled key chain the default over an older self-signed one", async () => {
         nock(registrar)
             .post("/access-certificates")
-            .reply(201, async (_uri, body) => ({
+            .reply(201, async (req: Request) => ({
                 id: "ac-default",
-                crt: await issueFor((body as { csr: string }).csr),
+                crt: await issueFor((await req.json()).csr),
             }));
         const enrolled = (await createAccessKeyChain().expect(201)).body.certId;
         enrolledIds.push(enrolled);

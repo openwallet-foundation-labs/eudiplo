@@ -58,11 +58,6 @@ async function resolveCredentialOffer(offerUri: string): Promise<any> {
     return client.resolveCredentialOffer(offerUri);
 }
 
-/** Request body that nock passed to a reply function, as JSON. */
-function asJson(body: unknown): unknown {
-    return typeof body === "string" ? JSON.parse(body) : body;
-}
-
 describe("Issuance - Pre-authorized Code Flow", () => {
     let app: INestApplication<App>;
     let authToken: string;
@@ -1352,8 +1347,8 @@ describe("Issuance - Pre-authorized Code Flow", () => {
         nock("http://localhost:8787")
             .post("/request")
             .times(2)
-            .reply((_uri, body) => {
-                claimRequests.push(asJson(body));
+            .reply(async (req: Request) => {
+                claimRequests.push(await req.json());
                 return [200, { other: { town: "Köln" } }];
             });
 
@@ -1496,8 +1491,8 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             const payloads: unknown[] = [];
             nock(receiver)
                 .post("/notify")
-                .reply((_uri, body) => {
-                    payloads.push(asJson(body));
+                .reply(async (req: Request) => {
+                    payloads.push(await req.json());
                     return [204, ""];
                 });
             const offerResponse = await createNotifyingOffer();
