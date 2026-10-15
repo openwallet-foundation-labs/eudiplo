@@ -62,9 +62,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
             message = "Internal Server Error";
         }
 
+        // OAuth error responses (RFC 6749 Section 5.2) carry `error` and
+        // `error_description` instead of `message`.
+        const logMessage =
+            message ?? responseBody?.error_description ?? responseBody?.error;
+
         // Log the error with stack trace if available using NestJS Logger
         this.logger.error(
-            `[${request.method}] ${requestPath} ${status} - ${JSON.stringify(message)}`,
+            `[${request.method}] ${requestPath} ${status} - ${JSON.stringify(logMessage)}`,
             exception instanceof Error ? exception.stack : undefined,
         );
 

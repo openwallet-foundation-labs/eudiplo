@@ -1,10 +1,16 @@
-import type { ArgumentsHost } from "@nestjs/common";
+import {
+    type ArgumentsHost,
+    BadRequestException,
+    HttpStatus,
+    Logger,
+} from "@nestjs/common";
 import { describe, expect, it, vi } from "vitest";
 import { AllExceptionsFilter } from "./all-exceptions.filter.js";
 import { ClientIdTaken } from "./auth/client/domain/client-data.js";
 import { TenantNotFound } from "./auth/tenant/domain/tenant-data.js";
 import { CredentialConfigurationNotFound } from "./issuer/configuration/credentials/domain/credential-configuration.js";
 import { IssuanceConfigurationNotFound } from "./issuer/configuration/issuance/domain/issuance-configuration.js";
+import { TokenErrorException } from "./issuer/issuance/oid4vci/exceptions/token-error.exception.js";
 import { SessionNotFound } from "./session/application/session-errors.js";
 
 function respond(exception: unknown) {
@@ -53,5 +59,34 @@ describe("AllExceptionsFilter", () => {
 
     it("keeps unknown errors as 500", () => {
         expect(statusFor(new Error("boom"))).toBe(500);
+    });
+
+    it("logs the description of an OAuth error and keeps its body", () => {
+        const log = vi
+            .spyOn(Logger.prototype, "error")
+            .mockImplementation(() => undefined);
+        try {
+            const { status, body } = respond(
+                new TokenErrorException(
+                    "invalid_client",
+                    "Wallet attestation is not trusted",
+                    HttpStatus.UNAUTHORIZED,
+                ),
+            );
+            expect(status).toBe(401);
+            expect(body).toMatchObject({
+                error: "invalid_client",
+                error_description: "Wallet attestation is not trusted",
+            });
+            expect(log.mock.calls[0][0]).toBe(
+                '[GET] /x 401 - "Wallet attestation is not trusted"',
+            );
+            respond(new TokenErrorException("invalid_grant"));
+            expect(log.mock.calls[1][0]).toBe('[GET] /x 400 - "invalid_grant"');
+            respond(new BadRequestException("bad input"));
+            expect(log.mock.calls[2][0]).toBe('[GET] /x 400 - "bad input"');
+        } finally {
+            log.mockRestore();
+        }
     });
 });
