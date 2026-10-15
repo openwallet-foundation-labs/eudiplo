@@ -187,7 +187,10 @@ export class X509ValidationService {
 
                 if (matchMode) {
                     // Found a match! Now get the revocation cert from the same entity
-                    const revocationSvc = getRevocationCert(entity);
+                    const revocationSvc = getRevocationCert(
+                        entity,
+                        svc.serviceTypeIdentifier,
+                    );
                     let revocationCert: x509.X509Certificate | undefined;
                     let revocationThumbprint: string | undefined;
 

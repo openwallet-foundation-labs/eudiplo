@@ -139,12 +139,28 @@ function _getIssuanceCert(
 }
 
 /**
- * Get the revocation certificate from a TrustedEntity.
+ * Get the revocation certificate from a TrustedEntity. For a matched wallet
+ * solution service this is the entity's `WalletSolution/Revocation` service,
+ * which managed wallet-provider lists publish, or else its `EAA/Revocation`
+ * service, the only one read before. For other services it is the
+ * `EAA/Revocation` service.
  */
 export function getRevocationCert(
     entity: TrustedEntity,
+    matchedServiceType?: string,
 ): TrustedEntityServiceCert | undefined {
-    return findServiceByType(entity, ServiceTypeIdentifiers.EaaRevocation);
+    const isWalletSolution = (
+        walletSolutionServiceTypes as readonly string[]
+    ).includes(matchedServiceType ?? "");
+    return (
+        (isWalletSolution
+            ? findServiceByType(
+                  entity,
+                  ServiceTypeIdentifiers.WalletSolutionRevocation,
+              )
+            : undefined) ??
+        findServiceByType(entity, ServiceTypeIdentifiers.EaaRevocation)
+    );
 }
 
 export type FederationTrustMode = "federation-only" | "lote-only" | "hybrid";
