@@ -200,7 +200,9 @@ export class ChainedAsService {
                 ChainedAsConfig["walletAttestationRequired"]
             >;
             walletProviderTrustLists?: TrustListRef[];
-            walletAttestationStatusCheckMode?: ChainedAsConfig["walletAttestationStatusCheckMode"];
+            walletAttestationStatusCheckMode?: NonNullable<
+                ChainedAsConfig["walletAttestationStatusCheckMode"]
+            >;
         };
 
         const chainedServer = (issuanceConfig.authorizationServers ?? []).find(
