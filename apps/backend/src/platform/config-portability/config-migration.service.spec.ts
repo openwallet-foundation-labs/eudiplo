@@ -57,6 +57,23 @@ describe("ConfigMigrationService", () => {
         });
     });
 
+    it("reads a bare kms.json with provider algorithms as KmsConfig v2", () => {
+        const withAlgorithms = service.wrapLegacy("KmsConfig", {
+            providers: [{ id: "db", type: "db", algorithms: ["ES384"] }],
+        });
+        const without = service.wrapLegacy("KmsConfig", {
+            providers: [{ id: "db", type: "db" }],
+        });
+
+        expect(withAlgorithms.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json",
+        );
+        expect(without.$schema).toBe(
+            "https://eudiplo.dev/schemas/v1/KmsConfigFile.schema.json",
+        );
+        expect(service.upgrade(withAlgorithms).issues).toEqual([]);
+    });
+
     it("reads a bare key chain with type as KeyChain v2", () => {
         const jwk = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
         const spec = { usageType: "attestation", key: jwk };

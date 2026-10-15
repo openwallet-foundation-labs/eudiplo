@@ -265,6 +265,22 @@ describe("portable schema identity and migrations", () => {
         ["KeyChain", { type: "standalone" }, 2],
         ["KeyChain", {}, 1],
         ["Client", { type: "standalone" }, 1],
+        [
+            "KmsConfig",
+            { providers: [{ id: "db", type: "db", algorithms: ["ES384"] }] },
+            2,
+        ],
+        [
+            "KmsConfig",
+            {
+                providers: [
+                    { id: "db", type: "db" },
+                    { id: "hsm", type: "pkcs11", defaultAlgorithm: "ES384" },
+                ],
+            },
+            2,
+        ],
+        ["KmsConfig", { providers: [{ id: "db", type: "db" }] }, 1],
     ] as const)("reads a bare %s file %o as v%i", (kind, spec, version) => {
         expect(bareFileVersion(kind, spec)).toBe(version);
     });

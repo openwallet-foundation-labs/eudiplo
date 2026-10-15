@@ -89,13 +89,27 @@ export function resourceId(input: ConfigFile<unknown>): string {
 /**
  * The format version a bare file (a spec without envelope) is read as: v1,
  * except a key chain with `type`, which KeyChain v2 added and which the bare
- * key chain export writes.
+ * key chain export writes, and a KMS configuration with a provider that sets
+ * `algorithms` or `defaultAlgorithm`, which KmsConfig v2 added and which the
+ * tenant `kms.json` is saved as.
  */
 export function bareFileVersion(
     kind: ConfigResourceKind,
     spec: Record<string, unknown>,
 ): number {
-    return kind === "KeyChain" && "type" in spec ? 2 : 1;
+    if (kind === "KeyChain") return "type" in spec ? 2 : 1;
+    if (kind === "KmsConfig") {
+        const providers = Array.isArray(spec.providers) ? spec.providers : [];
+        return providers.some(
+            (provider) =>
+                typeof provider === "object" &&
+                provider !== null &&
+                ("algorithms" in provider || "defaultAlgorithm" in provider),
+        )
+            ? 2
+            : 1;
+    }
+    return 1;
 }
 export interface ConfigMigrationIssue {
     severity: "warning" | "required-input" | "error";
