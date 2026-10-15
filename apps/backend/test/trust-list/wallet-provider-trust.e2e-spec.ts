@@ -133,6 +133,7 @@ describe("Hosted wallet provider trust", () => {
         ).toEqual({
             walletAttestationRequired: true,
             walletProviderTrustLists: refs,
+            walletAttestationStatusCheckMode: "best_effort",
         });
         await expect(validate(wallet)).resolves.toBeUndefined();
         await expect(validate(keyAttester)).resolves.toBeUndefined();
