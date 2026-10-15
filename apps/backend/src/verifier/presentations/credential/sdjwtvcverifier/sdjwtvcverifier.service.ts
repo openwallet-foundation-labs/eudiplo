@@ -477,15 +477,18 @@ export class SdjwtvcverifierService {
             const crypto = this.cryptoService.getCryptoFromJwk(publicKey);
             const verifier = await crypto.getVerifier(publicKey);
 
-            const sigOk = await verifier(data, signature)
-                .then(() => true)
-                .catch((e) => {
-                    this.logger.debug(
-                        `Status list JWT signature invalid: ${e?.message ?? e}`,
-                    );
-                    return false;
-                });
-            if (!sigOk) return false;
+            // The verifier resolves to false on a bad signature; it only
+            // rejects when the signature cannot be checked at all.
+            const sigOk = await verifier(data, signature).catch((e) => {
+                this.logger.debug(
+                    `Status list JWT signature check failed: ${e?.message ?? e}`,
+                );
+                return false;
+            });
+            if (!sigOk) {
+                this.logger.debug("Status list JWT signature invalid");
+                return false;
+            }
 
             // 2) Verify status list certificate chain using shared service
             const x5c: string[] | undefined = header?.x5c;

@@ -1,3 +1,4 @@
+import { ES256 } from "@owf/crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SdjwtvcverifierService } from "./sdjwtvcverifier.service.js";
 
@@ -168,5 +169,91 @@ describe("SdjwtvcverifierService revocation mode", () => {
             });
             expect(logger.warn).not.toHaveBeenCalled();
         });
+    });
+});
+
+describe("SdjwtvcverifierService status list signature", () => {
+    const b64url = (input: string | ArrayBuffer) =>
+        Buffer.from(
+            typeof input === "string" ? input : new Uint8Array(input),
+        ).toString("base64url");
+
+    async function signedStatusList() {
+        const keys = (await crypto.subtle.generateKey(
+            { name: "ECDSA", namedCurve: "P-256" },
+            true,
+            ["sign", "verify"],
+        )) as CryptoKeyPair;
+        const header = b64url(JSON.stringify({ alg: "ES256", x5c: ["leaf"] }));
+        const data = `${header}.${b64url(JSON.stringify({ status_list: { bits: 1, lst: "AA" } }))}`;
+        const signature = b64url(
+            await crypto.subtle.sign(
+                { name: "ECDSA", hash: "SHA-256" },
+                keys.privateKey,
+                new TextEncoder().encode(data),
+            ),
+        );
+        const publicKey = await crypto.subtle.exportKey("jwk", keys.publicKey);
+        return { header, data, signature, publicKey };
+    }
+
+    const throwingCrypto = {
+        getVerifier: async () => async () => {
+            throw new Error("unsupported key");
+        },
+    };
+
+    function createService(publicKey: JsonWebKey, cryptoImpl: unknown = ES256) {
+        const chainValidation = {
+            verifyStatusListSignature: vi.fn().mockResolvedValue(true),
+        };
+        const service = new SdjwtvcverifierService(
+            { resolvePublicKey: vi.fn().mockResolvedValue(publicKey) } as any,
+            { getCryptoFromJwk: () => cryptoImpl } as any,
+            chainValidation as any,
+            { setContext: vi.fn(), debug: vi.fn(), error: vi.fn() } as any,
+        );
+        const verifyStatusList = (data: string, signature: string) =>
+            (service as any).verifyStatusList(
+                data,
+                signature,
+                { policy: {} },
+                null,
+            ) as Promise<boolean>;
+        return { verifyStatusList, chainValidation };
+    }
+
+    it("accepts a correctly signed status list with a trusted chain", async () => {
+        const { data, signature, publicKey } = await signedStatusList();
+        const { verifyStatusList, chainValidation } = createService(publicKey);
+
+        await expect(verifyStatusList(data, signature)).resolves.toBe(true);
+        expect(
+            chainValidation.verifyStatusListSignature,
+        ).toHaveBeenCalledOnce();
+    });
+
+    it("rejects a forged payload even when the chain is trusted", async () => {
+        const { header, signature, publicKey } = await signedStatusList();
+        const { verifyStatusList, chainValidation } = createService(publicKey);
+        const forged = `${header}.${b64url(JSON.stringify({ status_list: { bits: 1, lst: "AQ" } }))}`;
+
+        await expect(verifyStatusList(forged, signature)).resolves.toBe(false);
+        expect(
+            chainValidation.verifyStatusListSignature,
+        ).not.toHaveBeenCalled();
+    });
+
+    it("rejects the status list when the signature cannot be checked", async () => {
+        const { data, signature, publicKey } = await signedStatusList();
+        const { verifyStatusList, chainValidation } = createService(
+            publicKey,
+            throwingCrypto,
+        );
+
+        await expect(verifyStatusList(data, signature)).resolves.toBe(false);
+        expect(
+            chainValidation.verifyStatusListSignature,
+        ).not.toHaveBeenCalled();
     });
 });
