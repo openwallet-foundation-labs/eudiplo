@@ -1,6 +1,10 @@
 import { FormBuilder } from '@angular/forms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IssuanceConfigCreateComponent } from './issuance-config-create.component';
+import {
+  pemToBase64Der,
+  TEST_ROOT_CERTIFICATE_PEM,
+} from '../../../utils/certificate-validator.testing';
 
 const config = {
   display: [{ name: 'Example Issuer', locale: 'en-US' }],
@@ -60,6 +64,29 @@ describe('issuer settings guided setup', () => {
     component.submitSettings();
     expect(service.saveConfiguration).toHaveBeenCalledOnce();
     expect(service.saveConfiguration.mock.calls[0][0]).toMatchObject(config);
+  });
+
+  it('loads and saves shared wallet provider trust lists unchanged', async () => {
+    const walletProviderTrustLists = [
+      {
+        url: 'https://trust.example/list',
+        verifierKey: { kty: 'EC', crv: 'P-256', x: 'x', y: 'y' },
+        verifierX509Der: pemToBase64Der(TEST_ROOT_CERTIFICATE_PEM),
+      },
+      {
+        url: 'https://trust.example/pem',
+        verifierKeyPem: '-----BEGIN PUBLIC KEY-----\nMFkw\n-----END PUBLIC KEY-----',
+      },
+      { trustListId: 'wallet-providers' },
+    ];
+    service.getConfig.mockResolvedValue({ ...config, walletProviderTrustLists });
+    await component.loadConfigForEdit();
+    expect(component.walletProviderTrustLists).toHaveLength(3);
+    expect(component.form.valid).toBe(true);
+    component.submitSettings();
+    expect(service.saveConfiguration.mock.calls[0][0].walletProviderTrustLists).toEqual(
+      walletProviderTrustLists
+    );
   });
 
   it('preserves values across mode switches', async () => {
