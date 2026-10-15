@@ -281,10 +281,11 @@ export class WalletAttestationService {
                 );
             }
 
-            // Now check the actual status value
+            // Read the status from the token whose signature was just
+            // verified. Fetching the list again could return another token.
             const statusResult =
-                await this.statusListVerifierService.checkStatus(
-                    statusEntry.uri,
+                this.statusListVerifierService.getStatusFromStatusListJwt(
+                    statusListJwt,
                     statusEntry.idx,
                 );
 

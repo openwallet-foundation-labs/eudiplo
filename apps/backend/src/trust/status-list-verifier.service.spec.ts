@@ -276,3 +276,37 @@ describe("StatusListVerifierService cache", () => {
         });
     });
 });
+
+describe("StatusListVerifierService.getStatusFromStatusListJwt", () => {
+    const statusLists = new StatusListVerifierService({} as TrustFetchService);
+    const list = new StatusList([0, 1, 2, 0, 0, 0, 0, 0], 2);
+    const token = [
+        base64url.encode(JSON.stringify({ alg: "ES256" })),
+        base64url.encode(
+            JSON.stringify({
+                sub: "status-list",
+                status_list: {
+                    bits: 2,
+                    lst: base64url.encode(list.compressStatusListToBytes()),
+                },
+            }),
+        ),
+        "c2ln",
+    ].join(".");
+
+    it.each([
+        { index: 0, status: 0, isValid: true, description: "Valid" },
+        { index: 1, status: 1, isValid: false, description: "Invalid/Revoked" },
+        { index: 2, status: 2, isValid: false, description: "Suspended" },
+    ])("reads status $status at index $index", ({ index, ...expected }) => {
+        expect(statusLists.getStatusFromStatusListJwt(token, index)).toEqual(
+            expected,
+        );
+    });
+
+    it("throws for an index outside the list", () => {
+        expect(() =>
+            statusLists.getStatusFromStatusListJwt(token, 8),
+        ).toThrow();
+    });
+});

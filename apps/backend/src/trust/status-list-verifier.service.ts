@@ -126,36 +126,19 @@ export class StatusListVerifierService {
     }
 
     /**
-     * Check the status of a JWT that contains a status claim.
-     * This will fetch the status list (with caching) and check the status at the specified index.
+     * Read the status at an index of a status list JWT the caller already
+     * holds. Nothing is fetched, so the status comes from the same token
+     * whose signature the caller verified.
      *
-     * @param jwt The JWT containing a status claim (e.g., wallet attestation JWT)
-     * @returns The status check result, or undefined if no status claim in JWT
-     */
-    async checkStatusFromJwt(
-        jwt: string,
-    ): Promise<StatusCheckResult | undefined> {
-        const statusEntry = this.getStatusEntryFromJwt(jwt);
-        if (!statusEntry) {
-            return undefined;
-        }
-
-        return this.checkStatus(statusEntry.uri, statusEntry.idx);
-    }
-
-    /**
-     * Check the status at a specific index in a status list.
-     *
-     * @param statusListUri The URI of the status list JWT
+     * @param statusListJwt The status list JWT
      * @param index The index in the status list to check
      * @returns The status check result
      */
-    async checkStatus(
-        statusListUri: string,
+    getStatusFromStatusListJwt(
+        statusListJwt: string,
         index: number,
-    ): Promise<StatusCheckResult> {
-        const statusList = await this.getStatusList(statusListUri);
-        const status = statusList.getStatus(index);
+    ): StatusCheckResult {
+        const status = getListFromStatusListJWT(statusListJwt).getStatus(index);
 
         return {
             status,
@@ -165,7 +148,9 @@ export class StatusListVerifierService {
     }
 
     /**
-     * Get a status list from cache or fetch it.
+     * Get a status list from cache or fetch it. The token's signature is not
+     * verified, so a status read from this list must not decide whether a
+     * credential is accepted.
      *
      * @param uri The URI of the status list JWT
      * @returns The parsed StatusList
