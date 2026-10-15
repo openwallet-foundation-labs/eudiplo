@@ -106,7 +106,7 @@ export class KeyChainImportService {
         });
         const hostname = this.getHostname();
 
-        const privateKey = await this.resolvePrivateKey(dto);
+        const privateKey = this.resolvePrivateKey(dto);
         const existing = await this.keyChainRepository.findOne({
             where: { tenantId, id },
             select: { id: true, usage: true },
@@ -227,7 +227,7 @@ export class KeyChainImportService {
         }
     }
 
-    private async resolvePrivateKey(dto: KeyChainImportDto): Promise<JWK> {
+    private resolvePrivateKey(dto: KeyChainImportDto): JWK {
         if (dto.key) {
             return { ...dto.key };
         }

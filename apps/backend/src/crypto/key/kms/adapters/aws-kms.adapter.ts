@@ -1,12 +1,13 @@
-import type { KeySpec, SigningAlgorithmSpec } from "@aws-sdk/client-kms";
 import {
     CreateKeyCommand,
     type DescribeKeyCommandOutput,
     GetPublicKeyCommand,
+    type KeySpec,
     type KMSClient,
     ListKeysCommand,
     ScheduleKeyDeletionCommand,
     SignCommand,
+    type SigningAlgorithmSpec,
 } from "@aws-sdk/client-kms";
 import { Logger, NotImplementedException } from "@nestjs/common";
 import { exportJWK, type JWK } from "jose";

@@ -79,7 +79,7 @@ export const SIGNING_ALG_SPECS: Readonly<
     },
 };
 
-export function isKmsSigningAlg(value: unknown): value is KmsSigningAlg {
+function isKmsSigningAlg(value: unknown): value is KmsSigningAlg {
     return (
         typeof value === "string" &&
         (KMS_SIGNING_ALGS as readonly string[]).includes(value)

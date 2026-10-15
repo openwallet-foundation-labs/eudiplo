@@ -186,7 +186,7 @@ export function expectCoseSign1SignedWithX5chain(
 }
 
 /** Asserts that the certificate's public key is on the curve of `alg`. */
-export function expectCertificateKeyCurve(
+function expectCertificateKeyCurve(
     certificate: string | X509Certificate,
     alg: KmsSigningAlg,
 ): void {

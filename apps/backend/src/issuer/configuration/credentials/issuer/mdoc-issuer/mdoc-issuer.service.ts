@@ -246,8 +246,9 @@ export class MdocIssuerService {
             this.logger.error(
                 "mDOC issuance key mismatch: active signing key does not match leaf certificate public key",
             );
+            const cause = importError ? ` (${importError})` : "";
             throw new Error(
-                `mDOC issuance failed: signing key does not match the embedded attestation certificate${importError ? ` (${importError})` : ""}. Regenerate or re-import the certificate for this key chain.`,
+                `mDOC issuance failed: signing key does not match the embedded attestation certificate${cause}. Regenerate or re-import the certificate for this key chain.`,
             );
         }
     }

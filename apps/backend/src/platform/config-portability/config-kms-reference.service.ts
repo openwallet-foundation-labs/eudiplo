@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { importJWK, type JWK } from "jose";
-import type { KmsSigningAlg } from "../../crypto/key/kms/kms-adapter.js";
-import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
 import {
     signingAlgForJwk,
     signingAlgSpec,
 } from "../../crypto/key/domain/signing-algs.js";
+import type { KmsSigningAlg } from "../../crypto/key/kms/kms-adapter.js";
+import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
 
 interface ExternalKeySource {
     provider: string;

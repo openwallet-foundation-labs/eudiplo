@@ -801,16 +801,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (this.showAlgorithm) {
-      const alg = this.configForm.value.alg as SigningAlgorithm;
-      summary.push({ label: 'Algorithm', value: SIGNING_ALGORITHM_LABELS[alg] ?? alg });
-    } else if (this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar') {
-      const alg = this.defaultAlgorithmOf(selectedKmsProvider);
-      summary.push({
-        label: 'Algorithm',
-        value: `${SIGNING_ALGORITHM_LABELS[alg]} (provider default)`,
-      });
-    }
+    const algorithm = this.algorithmSummary();
+    if (algorithm) summary.push({ label: 'Algorithm', value: algorithm });
 
     if (this.isInternalChain) {
       summary.push({
@@ -839,6 +831,19 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
     }
 
     return summary;
+  }
+
+  /** The summary's algorithm: the chosen one, or the provider default for a registrar enrollment. */
+  private algorithmSummary(): string | undefined {
+    if (this.showAlgorithm) {
+      const alg = this.configForm.value.alg as SigningAlgorithm;
+      return SIGNING_ALGORITHM_LABELS[alg] ?? alg;
+    }
+    if (this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar') {
+      const alg = this.defaultAlgorithmOf(this.configForm.value.kmsProvider);
+      return `${SIGNING_ALGORITHM_LABELS[alg]} (provider default)`;
+    }
+    return undefined;
   }
 
   private getCertificateSourceLabel(): string {

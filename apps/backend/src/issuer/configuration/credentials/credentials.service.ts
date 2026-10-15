@@ -140,11 +140,14 @@ export class CredentialsService {
                 tenantId,
             );
 
-        for (const entity of configs) {
+        const signingAlgs = await Promise.all(
+            configs.map((entity) => this.signingAlgOf(entity, tenantId)),
+        );
+        for (const [index, entity] of configs.entries()) {
             const builtConfig = this.buildCredentialConfiguration(
                 entity,
                 tenantId,
-                await this.signingAlgOf(entity, tenantId),
+                signingAlgs[index],
             );
             credentialConfigurationsSupported[entity.id] =
                 toCredentialConfigurationSupported(

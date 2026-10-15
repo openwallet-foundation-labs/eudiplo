@@ -141,8 +141,9 @@ export class CscKmsAdapter implements KmsAdapter {
         );
         const credentialAlg = signingAlgForCurve(publicJwk.crv);
         if (credentialAlg !== alg) {
+            const hint = credentialAlg ? ` (${credentialAlg})` : "";
             throw new Error(
-                `CscKmsAdapter[${this.providerId}]: credential ${credentialId} holds a ${String(publicJwk.crv)} key, which cannot sign with ${alg}. Set "algorithms" of this provider in kms.json to the credential's algorithm${credentialAlg ? ` (${credentialAlg})` : ""}.`,
+                `CscKmsAdapter[${this.providerId}]: credential ${credentialId} holds a ${String(publicJwk.crv)} key, which cannot sign with ${alg}. Set "algorithms" of this provider in kms.json to the credential's algorithm${hint}.`,
             );
         }
 
