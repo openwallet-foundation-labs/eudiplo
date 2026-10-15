@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
     derEcdsaToRaw,
     externalAlgorithmPolicy,
+    providerAlgRefusal,
     resolveAlgorithmCapabilities,
     signingAlgForCurve,
     signingAlgForJwk,
@@ -78,6 +79,27 @@ describe("resolveAlgorithmCapabilities", () => {
                 externalAlgorithmPolicy({ algorithms: ["ES256", "ES512"] }),
             ),
         ).toEqual({ supportedAlgs: ["ES256", "ES512"], defaultAlg: "ES256" });
+    });
+});
+
+describe("providerAlgRefusal", () => {
+    it("accepts an algorithm the provider offers", () => {
+        expect(
+            providerAlgRefusal(
+                "db",
+                ["ES256", "ES384"],
+                "ES384",
+                "new key chains",
+            ),
+        ).toBeUndefined();
+    });
+
+    it("names the provider, the algorithm and what it offers", () => {
+        expect(
+            providerAlgRefusal("hsm", ["ES256"], "ES512", "the imported key"),
+        ).toBe(
+            "KMS provider 'hsm' does not offer ES512 for the imported key. Supported: ES256",
+        );
     });
 });
 

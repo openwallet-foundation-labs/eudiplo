@@ -67,11 +67,21 @@ What a provider offers for new and imported key chains is set per provider in
 }
 ```
 
-The list also limits imports through `POST /api/key-chain/import` and key-chain
-files in the config folder, including an import that replaces an existing key
-chain; an import with a key outside it is refused with 400. An
-existing key chain keeps signing and rotating with its algorithm after you
-remove it from `algorithms`.
+The list also limits every import: `POST /api/key-chain/import`, key-chain
+files in the config folder and `KeyChain` documents in a configuration bundle
+(private keys, internal chains with private keys, which go into the `db`
+provider, and external key references), including an import that replaces an
+existing key chain. `POST /api/key-chain/import` refuses a key outside it with
+400. A bundle plan checks against the KMS configuration in place and reports
+such a key as the blocking issue `UNSUPPORTED_KEY_ALGORITHM`, so the apply
+answers 400 `CONFIG_APPLY_BLOCKED` and applies nothing. If the bundle also
+contains a `KmsConfig`, the plan only warns with `KMS_PREFLIGHT_DEFERRED`; the
+apply checks the key against the new configuration and, when the key is
+outside its list, stops at that key chain with `CONFIG_APPLY_FAILED` while
+earlier steps, such as the new `KmsConfig`, stay applied
+([recovery](./configuration-as-code.md#plans-locks-and-recovery)). An existing key chain
+keeps signing and rotating with its algorithm after you remove it from
+`algorithms`.
 `GET /api/key-chain/providers` returns each provider's offer as
 `capabilities.supportedAlgs` and `capabilities.defaultAlg`.
 

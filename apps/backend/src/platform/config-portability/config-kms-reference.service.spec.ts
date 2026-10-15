@@ -66,4 +66,116 @@ describe("ConfigKmsReferenceService", () => {
             }),
         ).rejects.toThrow("does not match its public JWK");
     });
+
+    describe("unsupportedAlgorithm", () => {
+        const p256 = { kty: "EC", crv: "P-256", x: "x", y: "y" };
+        const p384 = { kty: "EC", crv: "P-384", x: "x", y: "y" };
+        function service(supportedAlgs: string[]) {
+            const registry = {
+                resolve: vi.fn((provider?: string) => ({
+                    providerId: provider ?? "default",
+                    capabilities: { supportedAlgs },
+                })),
+            };
+            return {
+                registry,
+                service: new ConfigKmsReferenceService(
+                    registry as unknown as KmsProviderRegistry,
+                ),
+            };
+        }
+
+        it("checks an internal chain's keys against the database provider", () => {
+            const { registry, service: references } = service(["ES256"]);
+
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: {
+                        type: "private-jwk",
+                        jwk: p256,
+                        activeJwk: p384,
+                    },
+                }),
+            ).toEqual({
+                path: "/spec/keySource/activeJwk",
+                message:
+                    "KMS provider 'db' does not offer ES384 for the key in keySource.activeJwk. Supported: ES256",
+            });
+            expect(registry.resolve).toHaveBeenCalledWith("db", "tenant-a");
+        });
+
+        it("checks an imported private key against the tenant's default provider when none is named", () => {
+            const { registry, service: references } = service(["ES256"]);
+
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: { type: "private-jwk", jwk: p384 },
+                }),
+            ).toMatchObject({ path: "/spec/keySource/jwk" });
+            expect(registry.resolve).toHaveBeenCalledWith(
+                undefined,
+                "tenant-a",
+            );
+        });
+
+        it("checks both keys of an external reference against its provider", () => {
+            const { registry, service: references } = service(["ES256"]);
+
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: {
+                        type: "external-reference",
+                        provider: "hsm",
+                        externalKeyId: "root",
+                        publicJwk: p256,
+                        activeExternalKeyId: "active",
+                        activePublicJwk: p384,
+                    },
+                }),
+            ).toMatchObject({
+                path: "/spec/keySource/activePublicJwk",
+                message: expect.stringContaining("KMS provider 'hsm'"),
+            });
+            expect(registry.resolve).toHaveBeenCalledWith("hsm", "tenant-a");
+        });
+
+        it("accepts keys whose algorithm the provider offers", () => {
+            const { service: references } = service(["ES256", "ES384"]);
+
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: {
+                        type: "private-jwk",
+                        jwk: p256,
+                        activeJwk: p384,
+                    },
+                }),
+            ).toBeUndefined();
+        });
+
+        it("leaves unknown providers, invalid keys and regenerated keys to other checks", () => {
+            const { service: references } = service(["ES256"]);
+            const unknown = new ConfigKmsReferenceService({
+                resolve: () => {
+                    throw new Error("Unknown KMS provider");
+                },
+            } as unknown as KmsProviderRegistry);
+
+            expect(
+                unknown.unsupportedAlgorithm("tenant-a", {
+                    keySource: { type: "private-jwk", jwk: p384 },
+                }),
+            ).toBeUndefined();
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: { type: "private-jwk", jwk: { kty: "OKP" } },
+                }),
+            ).toBeUndefined();
+            expect(
+                references.unsupportedAlgorithm("tenant-a", {
+                    keySource: { type: "regenerate" },
+                }),
+            ).toBeUndefined();
+        });
+    });
 });

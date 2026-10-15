@@ -649,7 +649,7 @@ export type KmsProviderCapabilitiesDto = {
      */
     canDelete: boolean;
     /**
-     * Algorithms new key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.
+     * Algorithms new and imported key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.
      */
     supportedAlgs: Array<string>;
     /**
@@ -7018,6 +7018,10 @@ export type KeyChainControllerImportData = {
 };
 
 export type KeyChainControllerImportErrors = {
+    /**
+     * The key material is invalid, or its algorithm is not one the KMS provider offers.
+     */
+    400: unknown;
     /**
      * The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.
      */

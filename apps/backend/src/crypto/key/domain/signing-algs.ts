@@ -186,6 +186,25 @@ export function resolveAlgorithmCapabilities(
 }
 
 /**
+ * Why a KMS provider refuses a key chain that signs with `alg`, or undefined
+ * when the provider offers it. `supportedAlgs` is the provider's capability
+ * list, already narrowed by `algorithms` in `kms.json`; the same rule holds
+ * for key chains the provider creates and for keys imported into it.
+ *
+ * @param keyRole names the key in the message, for example "new key chains"
+ *   or "the imported key"
+ */
+export function providerAlgRefusal(
+    providerId: string,
+    supportedAlgs: readonly KmsSigningAlg[],
+    alg: KmsSigningAlg,
+    keyRole: string,
+): string | undefined {
+    if (supportedAlgs.includes(alg)) return undefined;
+    return `KMS provider '${providerId}' does not offer ${alg} for ${keyRole}. Supported: ${supportedAlgs.join(", ")}`;
+}
+
+/**
  * Convert an ASN.1 DER-encoded ECDSA-Sig-Value (`SEQUENCE { r, s }`) to
  * the raw `r || s` representation used by JOSE and COSE.
  */

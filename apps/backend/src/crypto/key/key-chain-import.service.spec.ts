@@ -133,7 +133,7 @@ describe("algorithms the provider does not offer", () => {
             });
             await expect(result).rejects.toThrow(BadRequestException);
             await expect(result).rejects.toThrow(
-                "KMS provider 'remote' does not offer ES384, the algorithm of the imported key. Supported: ES256",
+                "KMS provider 'remote' does not offer ES384 for the imported key. Supported: ES256",
             );
             expect(adapter.importKey).not.toHaveBeenCalled();
             expect(service.keyChainRepository.save).not.toHaveBeenCalled();
