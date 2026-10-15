@@ -39,10 +39,11 @@ request objects and signed issuer metadata, which every wallet must validate,
 and EUDIPLO does not ask the wallet which algorithms it supports. Keep access
 key chains on `ES256` unless you know every wallet accepts the other algorithm.
 
-What a provider offers for new key chains is set per provider in `kms.json`:
+What a provider offers for new and imported key chains is set per provider in
+`kms.json`:
 
-- `algorithms` lists the algorithms new key chains may use. Without it, `db`,
-  `vault` and `aws-kms` offer all three; `pkcs11`, `http` and `csc` offer only
+- `algorithms` lists the algorithms new and imported key chains may use.
+  Without it, `db`, `vault` and `aws-kms` offer all three; `pkcs11`, `http` and `csc` offer only
   their `defaultAlgorithm`, because their backends may not support every curve.
   List the curves your token, service or CSC credential supports.
 - `defaultAlgorithm` is used when a key chain is created without `alg`. It must
@@ -66,8 +67,11 @@ What a provider offers for new key chains is set per provider in `kms.json`:
 }
 ```
 
-The list only limits new key chains: an existing key chain keeps signing and
-rotating with its algorithm after you remove it from `algorithms`.
+The list also limits imports through `POST /api/key-chain/import` and key-chain
+files in the config folder, including an import that replaces an existing key
+chain; an import with a key outside it is refused with 400. An
+existing key chain keeps signing and rotating with its algorithm after you
+remove it from `algorithms`.
 `GET /api/key-chain/providers` returns each provider's offer as
 `capabilities.supportedAlgs` and `capabilities.defaultAlg`.
 

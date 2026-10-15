@@ -416,9 +416,10 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
                 usageType: "attestation",
                 kmsProvider: PROVIDER_ID,
             });
-        // The adapter refuses it with a plain Error, so the API answers 500
-        // for what is a client error.
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe(
+            `KMS provider '${PROVIDER_ID}' does not offer ES512, the algorithm of the imported key. Supported: ES256, ES384`,
+        );
         expect(mockKms.importCount).toBe(importsBefore);
         const after = await request(app.getHttpServer())
             .get("/key-chain")

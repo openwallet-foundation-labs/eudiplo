@@ -122,9 +122,12 @@ export class KeyChainImportService {
         if (!privateKey.kid) {
             privateKey.kid = `${id}-active`;
         }
-        privateKey.alg = this.signingAlgOf(privateKey);
+        const alg = this.signingAlgOf(privateKey);
+        privateKey.alg = alg;
 
         const adapter = this.kmsRegistry.resolve(dto.kmsProvider, tenantId);
+        // Checked before either import path hands the key to the provider.
+        this.assertProviderSupports(adapter, alg);
         // External adapters must not overwrite the active key while a replacement is being validated.
         if (replacing && adapter.type !== "db")
             privateKey.kid = `${id}-import-${v4()}`;
@@ -207,6 +210,19 @@ export class KeyChainImportService {
         } catch (error) {
             throw new BadRequestException(
                 error instanceof Error ? error.message : String(error),
+            );
+        }
+    }
+
+    /** 400 when the provider's configured algorithms do not include `alg`. */
+    private assertProviderSupports(
+        adapter: KmsAdapter,
+        alg: KmsSigningAlg,
+    ): void {
+        const { supportedAlgs } = adapter.capabilities;
+        if (!supportedAlgs.includes(alg)) {
+            throw new BadRequestException(
+                `KMS provider '${adapter.providerId}' does not offer ${alg}, the algorithm of the imported key. Supported: ${supportedAlgs.join(", ")}`,
             );
         }
     }

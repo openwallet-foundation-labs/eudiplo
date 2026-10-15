@@ -1,7 +1,7 @@
 import { webcrypto } from "node:crypto";
-import { ConflictException } from "@nestjs/common";
+import { BadRequestException, ConflictException } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
-import { exportPKCS8, generateKeyPair } from "jose";
+import { exportJWK, exportPKCS8, generateKeyPair } from "jose";
 import { describe, expect, it, vi } from "vitest";
 import { KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainImportService } from "./key-chain-import.service.js";
@@ -27,6 +27,7 @@ describe("key replacement preparation", () => {
             service.resolveCertificateChain = () => undefined;
             const adapter = {
                 type,
+                capabilities: { supportedAlgs: ["ES256"], defaultAlg: "ES256" },
                 importKey: vi
                     .fn()
                     .mockResolvedValue({ ref: { publicJwk: {} } }),
@@ -88,6 +89,98 @@ describe("system-owned key chains", () => {
         );
         expect(adapter.importKey).not.toHaveBeenCalled();
         expect(service.keyChainRepository.save).not.toHaveBeenCalled();
+    });
+});
+
+describe("algorithms the provider does not offer", () => {
+    it.each([
+        ["standalone", false],
+        ["internalChain", true],
+    ])(
+        "refuses a P-384 key for a provider without ES384 (%s)",
+        async (_type, ca) => {
+            const service = Object.create(
+                KeyChainImportService.prototype,
+            ) as any;
+            service.keyChainRepository = {
+                findOne: vi.fn().mockResolvedValue(null),
+                save: vi.fn(),
+            };
+            service.tenantRepository = {
+                findOneByOrFail: async () => ({ name: "Tenant" }),
+            };
+            service.getHostname = () => "issuer.example";
+            const adapter = {
+                type: "http",
+                providerId: "remote",
+                capabilities: {
+                    supportedAlgs: ["ES256"],
+                    defaultAlg: "ES256",
+                },
+                importKey: vi.fn(),
+            };
+            service.kmsRegistry = { resolve: () => adapter };
+            const { privateKey } = await generateKeyPair("ES384", {
+                extractable: true,
+            });
+            const key = await exportJWK(privateKey);
+
+            const result = service.importKeyChain("tenant", {
+                id: "key",
+                key,
+                usageType: "attestation",
+                type: ca ? "internalChain" : undefined,
+            });
+            await expect(result).rejects.toThrow(BadRequestException);
+            await expect(result).rejects.toThrow(
+                "KMS provider 'remote' does not offer ES384, the algorithm of the imported key. Supported: ES256",
+            );
+            expect(adapter.importKey).not.toHaveBeenCalled();
+            expect(service.keyChainRepository.save).not.toHaveBeenCalled();
+        },
+    );
+});
+
+describe("algorithms the provider offers", () => {
+    it("imports a P-384 key for a provider with ES384", async () => {
+        const service = Object.create(KeyChainImportService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: vi.fn().mockResolvedValue(null),
+            save: vi.fn(),
+        };
+        service.tenantRepository = {
+            findOneByOrFail: async () => ({ name: "Tenant" }),
+        };
+        service.getHostname = () => "issuer.example";
+        service.logger = { log: vi.fn() };
+        const adapter = {
+            type: "http",
+            providerId: "remote",
+            capabilities: {
+                supportedAlgs: ["ES256", "ES384"],
+                defaultAlg: "ES256",
+            },
+            importKey: vi.fn(async ({ privateJwk }) => {
+                const { d, ...publicJwk } = privateJwk;
+                return { ref: { privateJwk, publicJwk } };
+            }),
+        };
+        service.kmsRegistry = { resolve: () => adapter };
+        service.certBuilder = {
+            createSelfSignedCert: vi.fn().mockResolvedValue("PEM"),
+        };
+        const { privateKey } = await generateKeyPair("ES384", {
+            extractable: true,
+        });
+
+        await service.importKeyChain("tenant", {
+            id: "key",
+            key: await exportJWK(privateKey),
+            usageType: "attestation",
+        });
+
+        expect(adapter.importKey.mock.calls[0][0].privateJwk.alg).toBe("ES384");
+        expect(service.keyChainRepository.save).toHaveBeenCalled();
     });
 });
 
@@ -170,6 +263,7 @@ describe("imports with rotation enabled", () => {
             resolve: () => ({
                 type: "db",
                 providerId: "db",
+                capabilities: { supportedAlgs: ["ES256"], defaultAlg: "ES256" },
                 importKey: vi.fn(async ({ privateJwk }) => {
                     const { d, ...publicJwk } = privateJwk;
                     return { ref: { privateJwk, publicJwk } };

@@ -62,8 +62,8 @@ A service used as `http` provider implements these endpoints relative to
 `keysPath` defaults to `/keys`, `healthPath` to `/health`.
 
 `alg` is `ES256`, `ES384` or `ES512`; the provider's `algorithms` decide which
-ones EUDIPLO sends for new keys (only `defaultAlgorithm`, `ES256` unless set, if
-`algorithms` is missing). The returned `publicJwk` must be on the matching curve
+ones EUDIPLO sends for new and imported keys (only `defaultAlgorithm`, `ES256`
+unless set, if `algorithms` is missing). The returned `publicJwk` must be on the matching curve
 (P-256, P-384 or P-521), otherwise the key is refused. `sign` hashes `data` with
 SHA-256, SHA-384 or SHA-512 and returns the raw `r‖s` of 64, 96 or 132 bytes.
 
