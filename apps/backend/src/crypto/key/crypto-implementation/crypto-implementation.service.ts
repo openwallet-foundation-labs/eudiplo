@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/oauth2";
 import { ES256, ES384, ES512 } from "@owf/crypto";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity.js";
 import {
@@ -16,8 +15,8 @@ import { CryptoImplementation } from "./crypto-implementation.js";
 export type JoseAlgorithm = KmsSigningAlg;
 
 /**
- * COSE algorithm identifiers used for mDOC (ISO 18013-5)
- * Uses RFC 9864 fully-specified algorithm identifiers
+ * COSE algorithm identifiers used for mDOC (ISO 18013-5): classic
+ * (RFC 9053) and fully-specified (RFC 9864) ones.
  * @see https://www.rfc-editor.org/rfc/rfc9864.html
  */
 export type CoseAlgorithm = number;
@@ -35,7 +34,9 @@ export class CryptoImplementationService {
      * (proofs, key binding JWTs, presented credentials), in the identifiers
      * of the credential format.
      * - For SD-JWT VC: JOSE algorithm names (ES256, ES384, ES512)
-     * - For mDOC: classic and fully-specified COSE algorithm identifiers
+     * - For mDOC: the classic COSE algorithm identifiers (-7, -35, -36) that
+     *   an IssuerAuth may carry, see {@link getMdocDeviceAuthAlgs} for
+     *   device signatures
      * @param credentialFormat The credential format
      * @returns Array of algorithm identifiers appropriate for the format
      */
@@ -46,9 +47,26 @@ export class CryptoImplementationService {
     }
 
     /**
-     * The identifiers of one signing algorithm in a credential format, for
+     * COSE algorithms EUDIPLO accepts in the DeviceSignature of a presented
+     * mDOC: the classic identifiers and the fully-specified ones of RFC 9864
+     * (-9, -51, -52), which name the same curve and hash. An IssuerAuth only
+     * verifies with a classic identifier, because @owf/cose rejects any
+     * other value of its `alg` header (see {@link getAlgs}).
+     */
+    getMdocDeviceAuthAlgs(): CoseAlgorithm[] {
+        return [
+            ...(this.getAlgs(CredentialFormat.MSO_MDOC) as CoseAlgorithm[]),
+            ...KMS_SIGNING_ALGS.map(
+                (alg) => SIGNING_ALG_SPECS[alg].fullySpecifiedCoseAlg,
+            ),
+        ];
+    }
+
+    /**
+     * The identifier of one signing algorithm in a credential format, for
      * `credential_signing_alg_values_supported` of a credential signed with a
-     * key of that algorithm.
+     * key of that algorithm. For mDOC it is the classic COSE identifier, the
+     * one EUDIPLO places in the IssuerAuth `alg` header.
      */
     getSigningAlgs(
         credentialFormat: CredentialFormat,
@@ -62,21 +80,7 @@ export class CryptoImplementationService {
         joseAlgs: readonly JoseAlgorithm[],
     ): (JoseAlgorithm | CoseAlgorithm)[] {
         if (credentialFormat === CredentialFormat.MSO_MDOC) {
-            const coseAlgs = new Set<number>();
-
-            for (const alg of joseAlgs) {
-                // Include classic COSE alg IDs for compatibility with generic identifiers.
-                coseAlgs.add(SIGNING_ALG_SPECS[alg].coseAlg);
-
-                // Also include RFC 9864 fully-specified identifiers.
-                const fullySpecifiedAlg =
-                    jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm(alg);
-                if (fullySpecifiedAlg !== undefined) {
-                    coseAlgs.add(fullySpecifiedAlg);
-                }
-            }
-
-            return Array.from(coseAlgs);
+            return joseAlgs.map((alg) => SIGNING_ALG_SPECS[alg].coseAlg);
         }
 
         // SD-JWT VC and the default use JOSE algorithms

@@ -4,6 +4,7 @@ import {
     externalAlgorithmPolicy,
     providerAlgRefusal,
     resolveAlgorithmCapabilities,
+    signingAlgForCoseAlg,
     signingAlgForCurve,
     signingAlgForJwk,
 } from "./signing-algs.js";
@@ -23,6 +24,23 @@ describe("signing algorithms", () => {
         expect(() => signingAlgForJwk({ kty: "OKP", crv: "Ed25519" })).toThrow(
             /Unsupported key/,
         );
+    });
+
+    it.each([
+        [-7, "ES256"],
+        [-9, "ES256"],
+        [-35, "ES384"],
+        [-51, "ES384"],
+        [-36, "ES512"],
+        [-52, "ES512"],
+    ])("binds COSE alg %i to %s", (coseAlg, alg) => {
+        expect(signingAlgForCoseAlg(coseAlg)).toBe(alg);
+    });
+
+    it("knows no other COSE algs", () => {
+        expect(signingAlgForCoseAlg(-8)).toBeUndefined();
+        expect(signingAlgForCoseAlg("-7")).toBeUndefined();
+        expect(signingAlgForCoseAlg(undefined)).toBeUndefined();
     });
 
     it("rejects a key whose alg does not fit its curve", () => {

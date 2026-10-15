@@ -55,7 +55,16 @@ The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with the alg
     "client_metadata": {
         "jwks": { "keys": ["<ephemeral ECDH-ES public key>"] },
         "encrypted_response_enc_values_supported": ["A128GCM", "A256GCM"],
-        "vp_formats_supported": { "dc+sd-jwt": {}, "mso_mdoc": {} }
+        "vp_formats_supported": {
+            "dc+sd-jwt": {
+                "sd-jwt_alg_values": ["ES256", "ES384", "ES512"],
+                "kb-jwt_alg_values": ["ES256", "ES384", "ES512"]
+            },
+            "mso_mdoc": {
+                "issuerauth_alg_values": [-7, -35, -36],
+                "deviceauth_alg_values": [-7, -35, -36, -9, -51, -52]
+            }
+        }
     }
 }
 ```

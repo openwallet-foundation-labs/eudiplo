@@ -2,34 +2,98 @@ import { timingSafeEqual } from "node:crypto";
 import { p256, p384, p521 } from "@noble/curves/nist.js";
 import { hmac } from "@noble/hashes/hmac.js";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { Curve, coseKeyToJwkClaim } from "@owf/cose";
+import { Curve, cborDecode, coseKeyToJwkClaim } from "@owf/cose";
 import { hex } from "@owf/identity-common";
 import { CoseKey, type MdocContext } from "@owf/mdoc";
 import { hkdf } from "@panva/hkdf";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
-import { signingAlgForCurve } from "../../crypto/key/domain/signing-algs.js";
+import {
+    type KmsSigningAlg,
+    SIGNING_ALG_SPECS,
+    signingAlgForCoseAlg,
+    signingAlgForCurve,
+} from "../../crypto/key/domain/signing-algs.js";
 import { toBuffer } from "../../shared/utils/buffer.util.js";
 import { coseReadyJwk } from "../../shared/utils/cose-key-jwk.util.js";
 
-/**
- * The noble curve for a COSE key's curve. Each one hashes with its own
- * SHA-2 size (ES256, ES384, ES512). Keys without a curve are P-256.
- */
-function nobleCurveFor(key: CoseKey) {
+const NOBLE_CURVES = { ES256: p256, ES384: p384, ES512: p521 } as const;
+
+/** The algorithm bound to a COSE key's curve. Keys without a curve are P-256. */
+function signingAlgForKey(key: CoseKey): KmsSigningAlg {
     switch (key.curve ?? Curve["P-256"]) {
         case Curve["P-256"]:
-            return p256;
+            return "ES256";
         case Curve["P-384"]:
-            return p384;
+            return "ES384";
         case Curve["P-521"]:
-            return p521;
+            return "ES512";
         default:
             throw new Error(
                 `Unsupported COSE key curve ${String(key.curve)}: expected P-256, P-384 or P-521`,
             );
     }
+}
+
+/**
+ * The `alg` (label 1) of the protected header inside a COSE Sig_structure
+ * `["Signature1", body_protected, external_aad, payload]` (RFC 9052 §4.4).
+ * @owf/mdoc does not pass the algorithm when it checks a DeviceSignature,
+ * so the signed bytes are the one place that always carries it.
+ */
+function protectedAlgOf(toBeVerified: Uint8Array): unknown {
+    let protectedHeaders: unknown;
+    let cause: unknown;
+    try {
+        const sigStructure = cborDecode(toBeVerified);
+        if (
+            Array.isArray(sigStructure) &&
+            sigStructure[0] === "Signature1" &&
+            sigStructure[1] instanceof Uint8Array
+        ) {
+            protectedHeaders =
+                sigStructure[1].length === 0
+                    ? new Map()
+                    : cborDecode(sigStructure[1]);
+        }
+    } catch (error) {
+        cause = error;
+    }
+    if (!(protectedHeaders instanceof Map)) {
+        throw new Error(
+            "COSE_Sign1 verification expects a Signature1 Sig_structure with a protected header map",
+            { cause },
+        );
+    }
+    return protectedHeaders.get(1);
+}
+
+/**
+ * The algorithm a COSE_Sign1 is signed or verified with, from its `alg`
+ * header: classic (-7, -35, -36) or fully specified (-9, -51, -52). The
+ * hash follows from the `alg` and must fit the curve of the key. RFC 9864
+ * defines the fully specified ids that way; for the classic ones RFC 9053
+ * §2.1 only recommends the pairing, and EUDIPLO enforces it as it does for
+ * JOSE (RFC 7518 §3.4), so a header never selects a hash weaker than the key.
+ */
+function algForCoseAlgAndKey(coseAlg: unknown, key: CoseKey): KmsSigningAlg {
+    if (coseAlg === undefined) {
+        throw new Error("COSE_Sign1 has no alg in its protected header");
+    }
+    const alg = signingAlgForCoseAlg(coseAlg);
+    if (!alg) {
+        throw new Error(
+            `Unsupported COSE_Sign1 alg ${String(coseAlg)}: expected one of ES256 (-7, -9), ES384 (-35, -51), ES512 (-36, -52)`,
+        );
+    }
+    const keyAlg = signingAlgForKey(key);
+    if (keyAlg !== alg) {
+        throw new Error(
+            `COSE_Sign1 alg ${String(coseAlg)} (${alg}) does not match the ${SIGNING_ALG_SPECS[keyAlg].crv} key, which requires ${keyAlg}`,
+        );
+    }
+    return alg;
 }
 
 // Use global Web Crypto API (available in Node.js 19+)
@@ -216,6 +280,10 @@ const verifyChainSignatures = async (
  * fetch under the outbound URL policy. Without `fetch` here, passing this
  * context to a verification is a type error; at runtime @owf/mdoc would
  * fall back to the global `fetch`.
+ *
+ * `cose.sign1` binds the COSE `alg` to the key's curve: `sign` needs an
+ * `algorithm` that fits the key, and `verify` reads the `alg` from the signed
+ * protected header and rejects a missing or mismatching one.
  */
 export const mdocContext: Omit<MdocContext, "fetch"> = {
     crypto: {
@@ -269,15 +337,22 @@ export const mdocContext: Omit<MdocContext, "fetch"> = {
         },
         sign1: {
             sign: async (input) => {
-                const { key, toBeSigned } = input;
-                return nobleCurveFor(key).sign(toBeSigned, key.privateKey, {
+                const { key, toBeSigned, algorithm } = input;
+                const alg = algForCoseAlgAndKey(algorithm, key);
+                return NOBLE_CURVES[alg].sign(toBeSigned, key.privateKey, {
                     format: "compact",
                 });
             },
             verify: async (input) => {
                 const { signature, key, toBeVerified } = input;
+                // The signed protected header decides, even where @owf/mdoc
+                // passes `algorithm`: for a DeviceSignature it passes none.
+                const alg = algForCoseAlgAndKey(
+                    protectedAlgOf(toBeVerified),
+                    key,
+                );
                 // lowS is needed after upgrade of @noble/curves to keep existing tests passing
-                return nobleCurveFor(key).verify(
+                return NOBLE_CURVES[alg].verify(
                     signature,
                     toBeVerified,
                     key.publicKey,
