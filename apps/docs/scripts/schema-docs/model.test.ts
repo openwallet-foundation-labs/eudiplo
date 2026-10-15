@@ -86,3 +86,30 @@ test("description overrides replace the description and reject unknown paths", (
     assert.equal(model.properties?.items.items?.properties?.url.description, "Posted to as is.");
     assert.throws(() => overrideDescriptions(buildSchemaModel(schema), { "items.uri": "x" }), /unknown field "items.uri"/);
 });
+
+test("description overrides reach fields of union variants", () => {
+    const schema = z.object({
+        entities: z.array(
+            z.discriminatedUnion("type", [
+                z.object({ type: z.literal("internal"), keyChainId: z.string() }),
+                z.object({ type: z.literal("external"), certPem: z.string().describe("PEM.") }),
+            ]),
+        ),
+    });
+    const model = overrideDescriptions(buildSchemaModel(schema), { "entities.certPem": "PEM or Base64 DER." });
+    const variants = model.properties?.entities.items?.variants ?? [];
+    assert.equal(variants.find((variant) => variant.properties?.certPem)?.properties?.certPem.description, "PEM or Base64 DER.");
+    assert.throws(() => overrideDescriptions(buildSchemaModel(schema), { "entities.cert": "x" }), /unknown field "entities.cert"/);
+});
+
+test("description overrides change a field in every variant that has it", () => {
+    const schema = z.discriminatedUnion("type", [
+        z.object({ type: z.literal("a"), info: z.string().describe("A.") }),
+        z.object({ type: z.literal("b"), info: z.string().describe("B.") }),
+    ]);
+    const model = overrideDescriptions(buildSchemaModel(schema), { info: "Shared." });
+    assert.deepEqual(
+        model.variants?.map((variant) => variant.properties?.info.description),
+        ["Shared.", "Shared."],
+    );
+});

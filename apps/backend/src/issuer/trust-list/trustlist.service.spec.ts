@@ -274,6 +274,150 @@ describe("TrustListService", () => {
             expect(saved.sequenceNumber).toBe(1);
         });
 
+        it("accepts external certificates as Base64 DER", async () => {
+            const { service, trustListRepo } = createService([]);
+            const pem = (externalEntity as { issuerCertPem: string })
+                .issuerCertPem;
+            const der = pem
+                .replaceAll(/-----(BEGIN|END) CERTIFICATE-----/g, "")
+                .replaceAll(/\s/g, "");
+
+            await service.create(
+                {
+                    id: "der",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            issuerCertPem: der,
+                            revocationCertPem: der,
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const saved = trustListRepo.save.mock.calls[0][0] as TrustList;
+            expect(JSON.stringify(saved.data)).toContain(der);
+        });
+
+        it("publishes the parsed certificate, not stray characters around it", async () => {
+            const { service, trustListRepo } = createService([]);
+            const pem = (externalEntity as { issuerCertPem: string })
+                .issuerCertPem;
+            const der = pem
+                .replaceAll(/-----(BEGIN|END) CERTIFICATE-----/g, "")
+                .replaceAll(/\s/g, "");
+            const spaced = `${der.slice(0, 10)} \t${der.slice(10)}`;
+
+            await service.create(
+                {
+                    id: "spaced",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            issuerCertPem: spaced,
+                            revocationCertPem: spaced,
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const published = JSON.stringify(
+                (trustListRepo.save.mock.calls[0][0] as TrustList).data,
+            );
+            expect(published).toContain(der);
+        });
+
+        it("publishes each PEM certificate as the DER of its first certificate", async () => {
+            const { service, trustListRepo } = createService([]);
+            const issuer = externalEntity as {
+                issuerCertPem: string;
+            };
+            const keys = await globalThis.crypto.subtle.generateKey(
+                { name: "ECDSA", namedCurve: "P-256" },
+                true,
+                ["sign", "verify"],
+            );
+            const other = await x509.X509CertificateGenerator.createSelfSigned({
+                name: "CN=Revocation",
+                keys,
+                signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
+            });
+            const issuerDer = Buffer.from(
+                new x509.X509Certificate(issuer.issuerCertPem).rawData,
+            ).toString("base64");
+            const otherDer = Buffer.from(other.rawData).toString("base64");
+
+            await service.create(
+                {
+                    id: "pem",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            // A chain in one field publishes its first certificate only.
+                            issuerCertPem: `${issuer.issuerCertPem}\n${other.toString("pem")}`,
+                            revocationCertPem: other.toString("pem"),
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const services = (
+                (trustListRepo.save.mock.calls[0][0] as TrustList)
+                    .data as LoTEDocument
+            ).LoTE.TrustedEntitiesList![0].TrustedEntityServices.map(
+                (service) =>
+                    JSON.stringify(
+                        service.ServiceInformation.ServiceDigitalIdentity,
+                    ),
+            );
+            expect(services[0]).toContain(issuerDer);
+            expect(services[0]).not.toContain(otherDer);
+            expect(services[1]).toContain(otherDer);
+        });
+
+        it("rejects an invalid revocation certificate by its field name", async () => {
+            const { service } = createService([]);
+
+            await expect(
+                service.create(
+                    {
+                        id: "bad-revocation",
+                        entities: [
+                            {
+                                ...externalEntity,
+                                revocationCertPem: "bm90IGEgY2VydGlmaWNhdGU=",
+                            } as TrustListCreateDto["entities"][number],
+                        ],
+                    },
+                    { id: "tenant", name: "Tenant" },
+                ),
+            ).rejects.toThrow(
+                "revocationCertPem is not a valid X.509 certificate",
+            );
+        });
+
+        it("rejects an external certificate that is neither PEM nor Base64 DER", async () => {
+            const { service } = createService([]);
+
+            await expect(
+                service.create(
+                    {
+                        id: "bad",
+                        entities: [
+                            {
+                                ...externalEntity,
+                                issuerCertPem: "bm90IGEgY2VydGlmaWNhdGU=",
+                            } as TrustListCreateDto["entities"][number],
+                        ],
+                    },
+                    { id: "tenant", name: "Tenant" },
+                ),
+            ).rejects.toThrow("issuerCertPem is not a valid X.509 certificate");
+        });
+
         it("publishes updates with compare-and-set and keeps the previous version", async () => {
             const { service, store, versions, manager } = createService([
                 storedList("list", inDays(20)),
