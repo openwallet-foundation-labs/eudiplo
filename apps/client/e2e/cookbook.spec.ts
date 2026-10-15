@@ -200,9 +200,9 @@ test('issue and verify cookbook', async ({ page }) => {
     await page.getByRole('radio', { name: /Pre-Authorized Code/ }).check();
     await page.getByRole('button', { name: 'Next' }).click();
     // The tenant's only credential type is preselected.
-    await expect(page.getByRole('combobox', { name: 'Credential Configuration IDs' })).toHaveText(
-      'membership'
-    );
+    const selectedConfigs = page.getByRole('grid', { name: 'Selected credential configurations' });
+    await expect(selectedConfigs.getByRole('row')).toHaveCount(1);
+    await expect(selectedConfigs.getByRole('row', { name: 'membership' })).toBeVisible();
     await page.getByRole('button', { name: 'Next' }).click();
     await page.getByRole('button', { name: 'Use Pre-configured Default Values' }).click();
     await expect(page.getByRole('textbox', { name: 'name' })).toHaveValue('Max');
