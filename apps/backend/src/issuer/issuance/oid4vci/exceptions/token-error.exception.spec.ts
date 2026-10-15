@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { OAuthError } from "../authorization/domain/oauth-error.js";
-import { tokenErrorResponse } from "./token-error.exception.js";
+import {
+    tokenErrorResponse,
+    toOAuthHttpError,
+} from "./token-error.exception.js";
 
 describe("tokenErrorResponse", () => {
     it("maps an OAuthError to a 400 OAuth error body", () => {
@@ -39,5 +42,37 @@ describe("tokenErrorResponse", () => {
             error: "invalid_dpop_proof",
             error_description: "bad proof line",
         });
+    });
+});
+
+describe("toOAuthHttpError", () => {
+    const logger = () => ({ warn: vi.fn(), error: vi.fn() });
+
+    it("logs the logDetail of an OAuthError with its cause as an error", () => {
+        const log = logger();
+        const cause = new Error("kms down");
+
+        const response = toOAuthHttpError(
+            new OAuthError("invalid_request", "Request failed", {
+                logDetail: "Signing failed",
+                cause,
+            }),
+            log,
+        );
+
+        expect(log.error).toHaveBeenCalledWith("Signing failed", cause);
+        expect(log.warn).not.toHaveBeenCalled();
+        expect(response).toMatchObject({
+            response: { error: "invalid_request" },
+        });
+    });
+
+    it("returns other errors unchanged and logs nothing", () => {
+        const log = logger();
+        const error = new Error("database unavailable");
+
+        expect(toOAuthHttpError(error, log)).toBe(error);
+        expect(log.warn).not.toHaveBeenCalled();
+        expect(log.error).not.toHaveBeenCalled();
     });
 });

@@ -951,6 +951,115 @@ describe("Issuance - Chained AS Flow", () => {
         );
     });
 
+    test.each([
+        {
+            type: "chained" as const,
+            path: "/issuers/haip/chained-as",
+        },
+        {
+            type: "oid4vp" as const,
+            path: "/issuers/haip/authorization-servers/vp-as",
+        },
+    ])(
+        "$type authorization server answers a rejected wallet attestation with invalid_client",
+        async ({ type, path }) => {
+            setupUpstreamOidcMocks();
+            if (type === "oid4vp") {
+                await request(app.getHttpServer())
+                    .post("/verifier/config")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send(
+                        readConfig<PresentationConfigCreateDto>(
+                            join(
+                                resolve(__dirname + "/../fixtures"),
+                                "haip/presentation/pid-no-hook.json",
+                            ),
+                        ),
+                    )
+                    .expect(201);
+            }
+            const server =
+                type === "chained"
+                    ? {
+                          id: "chained-auth",
+                          type: "chained",
+                          enabled: true,
+                          upstream: {
+                              issuer: UPSTREAM_ISSUER,
+                              clientId: UPSTREAM_CLIENT_ID,
+                              clientSecret: UPSTREAM_CLIENT_SECRET,
+                              scopes: ["openid"],
+                          },
+                          token: { lifetimeSeconds: 3600 },
+                          requireDPoP: false,
+                      }
+                    : {
+                          id: "vp-as",
+                          type: "oid4vp",
+                          presentationConfigId: "pid-no-hook",
+                          token: { lifetimeSeconds: 3600 },
+                          requireDPoP: false,
+                      };
+            const currentConfig = await request(app.getHttpServer())
+                .get("/issuer/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+            const saveServer = (walletAttestationRequired?: boolean) =>
+                request(app.getHttpServer())
+                    .post("/issuer/config")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        ...currentConfig.body,
+                        authorizationServers: [
+                            { ...server, walletAttestationRequired },
+                        ],
+                    })
+                    .expect(201);
+            await saveServer(true);
+
+            // RFC 6749 Section 5.2: an OAuth error, without the reason.
+            const expected = {
+                error: "invalid_client",
+                error_description: "Client attestation validation failed",
+            };
+            try {
+                const par = await request(app.getHttpServer())
+                    .post(`${path}/par`)
+                    .trustLocalhost()
+                    .send({
+                        response_type: "code",
+                        client_id: "test-wallet",
+                        redirect_uri: "http://wallet.example.com/callback",
+                        code_challenge:
+                            "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+                        code_challenge_method: "S256",
+                    })
+                    .expect(400);
+                expect(par.body).toMatchObject(expected);
+
+                const token = await request(app.getHttpServer())
+                    .post(`${path}/token`)
+                    .trustLocalhost()
+                    .send({
+                        grant_type: "authorization_code",
+                        code: "unknown-code",
+                        redirect_uri: "http://wallet.example.com/callback",
+                        code_verifier:
+                            "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+                    })
+                    .expect(401);
+                expect(token.body).toMatchObject(expected);
+            } finally {
+                // Later tests copy the current config; leave no server behind
+                // that requires an attestation.
+                await saveServer(undefined);
+            }
+        },
+    );
+
     describe("DPoP", () => {
         const parUrl = () => `${publicUrl}/issuers/haip/chained-as/par`;
         const tokenUrl = () => `${publicUrl}/issuers/haip/chained-as/token`;

@@ -471,3 +471,79 @@ describe("StatusListVerifierService.getStatusFromStatusListJwt", () => {
         expect(cache.get(uri)?.jwt).toBe(revoked);
     });
 });
+
+describe("StatusListVerifierService.getStatusEntryFromJwt", () => {
+    const statusLists = new StatusListVerifierService({} as TrustFetchService);
+    const jwtWith = (payload: Record<string, unknown>) =>
+        [
+            base64url.encode(JSON.stringify({ alg: "ES256" })),
+            base64url.encode(JSON.stringify(payload)),
+            "c2ln",
+        ].join(".");
+
+    it("reads the status_list reference", () => {
+        expect(
+            statusLists.getStatusEntryFromJwt(
+                jwtWith({
+                    status: {
+                        status_list: { uri: "https://wp.example/s", idx: 4 },
+                    },
+                }),
+            ),
+        ).toEqual({ uri: "https://wp.example/s", idx: 4 });
+    });
+
+    it.each([
+        { case: "no status claim", payload: {} },
+        {
+            case: "a status claim of another mechanism",
+            payload: { status: { identifier_list: { id: "1", uri: "x" } } },
+        },
+    ])("returns undefined for $case", ({ payload }) => {
+        expect(statusLists.getStatusEntryFromJwt(jwtWith(payload))).toBe(
+            undefined,
+        );
+    });
+
+    it.each([
+        { case: "a status claim that is a string", status: "revoked" },
+        { case: "a status claim that is an array", status: [] },
+        { case: "a status claim that is null", status: null },
+        { case: "a status claim without a mechanism", status: {} },
+        {
+            case: "an idx beyond the safe integers",
+            status: { status_list: { uri: "https://s", idx: 2 ** 53 } },
+        },
+        {
+            case: "an empty uri",
+            status: { status_list: { uri: "", idx: 1 } },
+        },
+        { case: "a status_list that is null", status: { status_list: null } },
+        { case: "no uri", status: { status_list: { idx: 1 } } },
+        {
+            case: "a uri that is not a string",
+            status: { status_list: { uri: 1, idx: 1 } },
+        },
+        { case: "no idx", status: { status_list: { uri: "https://s" } } },
+        {
+            case: "an idx that is a string",
+            status: { status_list: { uri: "https://s", idx: "1" } },
+        },
+        {
+            case: "a negative idx",
+            status: { status_list: { uri: "https://s", idx: -1 } },
+        },
+        {
+            case: "a fractional idx",
+            status: { status_list: { uri: "https://s", idx: 1.5 } },
+        },
+    ])("throws for $case", ({ status }) => {
+        expect(() =>
+            statusLists.getStatusEntryFromJwt(jwtWith({ status })),
+        ).toThrow();
+    });
+
+    it("throws for a token that cannot be decoded", () => {
+        expect(() => statusLists.getStatusEntryFromJwt("not-a-jwt")).toThrow();
+    });
+});

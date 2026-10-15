@@ -21,6 +21,7 @@ import type { TrustListRef } from "../../../../../verifier/presentations/entitie
 import { AuthorizationIdentity } from "../../../../configuration/credentials/domain/authorization-identity.js";
 import type { ChainedAsConfig } from "../../../../configuration/issuance/dto/chained-as-config.dto.js";
 import { IssuanceService } from "../../../../configuration/issuance/issuance.service.js";
+import { toOAuthHttpError } from "../../exceptions/token-error.exception.js";
 import {
     OID4VCI_SETTINGS,
     type Oid4vciSettings,
@@ -29,6 +30,7 @@ import {
     DPOP_PROOF_REPLAY_REGISTRY,
     type DpopProofReplayRegistry,
 } from "../../ports/dpop-proof-replay-registry.js";
+import { verifyClientAttestation } from "../domain/client-attestation.js";
 import {
     hashAuthorizationCode,
     refreshTokenPolicy,
@@ -399,14 +401,21 @@ export class ChainedAsService {
             config,
         );
 
-        await this.walletAttestationService.verifyWalletAttestation(
-            tenantId,
-            clientAttestation,
-            chainedAsUrl,
-            walletAttestationPolicy.walletAttestationRequired,
-            walletAttestationPolicy.walletProviderTrustLists,
-            walletAttestationPolicy.walletAttestationStatusCheckMode,
-        );
+        await verifyClientAttestation(
+            "par",
+            () =>
+                this.walletAttestationService.verifyWalletAttestation(
+                    tenantId,
+                    clientAttestation,
+                    chainedAsUrl,
+                    walletAttestationPolicy.walletAttestationRequired,
+                    walletAttestationPolicy.walletProviderTrustLists,
+                    walletAttestationPolicy.walletAttestationStatusCheckMode,
+                ),
+            `chained AS PAR of tenant ${tenantId}`,
+        ).catch((error) => {
+            throw toOAuthHttpError(error, this.logger);
+        });
 
         // Find the session for the issuer_state (if provided)
         let issuerState = request.issuer_state;
@@ -776,14 +785,21 @@ export class ChainedAsService {
             issuanceConfig,
             config,
         );
-        await this.walletAttestationService.verifyWalletAttestation(
-            tenantId,
-            clientAttestation,
-            chainedAsUrl,
-            walletAttestationPolicy.walletAttestationRequired,
-            walletAttestationPolicy.walletProviderTrustLists,
-            walletAttestationPolicy.walletAttestationStatusCheckMode,
-        );
+        await verifyClientAttestation(
+            "token",
+            () =>
+                this.walletAttestationService.verifyWalletAttestation(
+                    tenantId,
+                    clientAttestation,
+                    chainedAsUrl,
+                    walletAttestationPolicy.walletAttestationRequired,
+                    walletAttestationPolicy.walletProviderTrustLists,
+                    walletAttestationPolicy.walletAttestationStatusCheckMode,
+                ),
+            `chained AS token request of tenant ${tenantId}`,
+        ).catch((error) => {
+            throw toOAuthHttpError(error, this.logger);
+        });
 
         const session = await resolveSessionForTokenRequest(
             this.sessionRepository,

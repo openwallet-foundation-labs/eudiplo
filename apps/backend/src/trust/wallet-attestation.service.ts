@@ -273,7 +273,8 @@ export class WalletAttestationService {
         }
 
         try {
-            // Get the status entry from the JWT
+            // Get the status entry from the JWT. A malformed status claim
+            // throws and rejects in both strict and best_effort.
             const statusEntry =
                 this.statusListVerifierService.getStatusEntryFromJwt(
                     clientAttestationJwt,

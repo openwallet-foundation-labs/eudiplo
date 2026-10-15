@@ -284,9 +284,15 @@ describe("WalletAttestationService status check mode", () => {
     function createService(options: {
         fetchError?: Error;
         readStatus?: () => { isValid: boolean; description: string };
+        malformedStatusClaim?: boolean;
     }) {
         const statusListVerifierService = {
-            getStatusEntryFromJwt: vi.fn(() => statusEntry),
+            getStatusEntryFromJwt: vi.fn(() => {
+                if (options.malformedStatusClaim) {
+                    throw new Error("The status_list claim has no uri");
+                }
+                return statusEntry;
+            }),
             getStatusListJwt: vi.fn(async () => {
                 if (options.fetchError) throw options.fetchError;
                 return "status-list-jwt";
@@ -370,6 +376,30 @@ describe("WalletAttestationService status check mode", () => {
             );
         },
     );
+
+    it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
+        "%s rejects a malformed status claim",
+        async (mode) => {
+            const { service, statusListVerifierService } = createService({
+                malformedStatusClaim: true,
+            });
+
+            await expect(check(service, mode)).rejects.toThrow(
+                /^Wallet attestation status check failed$/,
+            );
+            expect(
+                statusListVerifierService.getStatusListJwt,
+            ).not.toHaveBeenCalled();
+        },
+    );
+
+    it("disabled does not read a malformed status claim", async () => {
+        const { service } = createService({ malformedStatusClaim: true });
+
+        await expect(
+            check(service, RevocationCheckMode.Disabled),
+        ).resolves.toBeUndefined();
+    });
 
     it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
         "%s rejects a revoked attestation",
