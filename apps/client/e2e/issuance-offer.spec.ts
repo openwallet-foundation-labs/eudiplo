@@ -10,8 +10,15 @@ async function startOffer(page: Page, credentialConfigId: string, flow?: RegExp)
     await page.getByRole('radio', { name: flow }).check();
   }
   await page.getByRole('button', { name: 'Next' }).click();
-  await page.getByRole('combobox', { name: 'Credential Configuration IDs' }).click();
-  await page.getByRole('option', { name: credentialConfigId, exact: true }).click();
+  await page
+    .getByRole('combobox', { name: 'Credential Configuration IDs' })
+    .fill(credentialConfigId);
+  // Options read as "<id> <description>", so match the ID as the first word.
+  await page
+    .getByRole('option', {
+      name: new RegExp(`^${credentialConfigId.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`),
+    })
+    .click();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Next' }).click();
 }

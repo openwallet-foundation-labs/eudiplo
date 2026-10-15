@@ -59,7 +59,7 @@ Open **Credential Issuance → Credential Types → membership** and choose **Ed
 
 The credential from chapter 2 has no status entry and cannot be revoked. Issue a new one:
 
-1. Open **Credential Issuance → New Issuance**, choose **Pre-Authorized Code**, select `membership`, choose **Use Pre-configured Default Values** and **Generate Offer**.
+1. Open **Credential Issuance → New Issuance**, choose **Pre-Authorized Code**, check that `membership` is selected (it is preselected), choose **Use Pre-configured Default Values** and **Generate Offer**.
 2. Scan the QR code with the wallet and accept the credential.
 3. Delete the chapter 2 credential from the wallet, so that the wallet cannot pick it in the next steps.
 4. Open **Sessions → All Sessions**, open this issuance session and copy its ID for the API calls:
