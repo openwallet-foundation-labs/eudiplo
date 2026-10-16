@@ -76,6 +76,7 @@ describe("CredentialsService proof_types_supported generation", () => {
 
     const credentialAlgs = async (
         findByUsageType: ReturnType<typeof vi.fn>,
+        config: Partial<IssuerMetadataCredentialConfig> = {},
     ) => {
         Object.assign(service, {
             cryptoImplementationService: new CryptoImplementationService(),
@@ -83,6 +84,7 @@ describe("CredentialsService proof_types_supported generation", () => {
         });
         const entity = buildEntity({
             proofTypesSupported: [CredentialProofType.JWT],
+            ...config,
         });
         listForTenant.mockResolvedValue([entity]);
         const supported = (await service.getCredentialConfigurationSupported(
@@ -107,6 +109,20 @@ describe("CredentialsService proof_types_supported generation", () => {
             signing: ["ES384"],
             proof: ["ES256", "ES384", "ES512"],
         });
+    });
+
+    it("names only the COSE alg placed in the IssuerAuth header for mDOC", async () => {
+        await expect(
+            credentialAlgs(
+                vi.fn().mockResolvedValue({
+                    activeJwk: { kty: "EC", crv: "P-384" },
+                }),
+                {
+                    format: CredentialFormat.MSO_MDOC,
+                    docType: "org.iso.18013.5.1.mDL",
+                },
+            ),
+        ).resolves.toMatchObject({ signing: [-35] });
     });
 
     it("falls back to ES256 without an attestation key chain and passes other errors on", async () => {

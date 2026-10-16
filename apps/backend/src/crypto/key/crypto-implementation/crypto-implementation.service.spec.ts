@@ -5,10 +5,16 @@ import { CryptoImplementationService } from "./crypto-implementation.service.js"
 describe("CryptoImplementationService", () => {
     const service = new CryptoImplementationService();
 
-    test("returns both classic and fully-specified COSE alg values for mDOC", () => {
-        const algs = service.getAlgs(CredentialFormat.MSO_MDOC);
+    test("returns the classic COSE algs for mDOC IssuerAuth", () => {
+        expect(service.getAlgs(CredentialFormat.MSO_MDOC)).toEqual([
+            -7, -35, -36,
+        ]);
+    });
 
-        expect(algs).toEqual(expect.arrayContaining([-7, -9, -35, -36]));
+    test("accepts classic and fully-specified COSE algs for mDOC DeviceAuth", () => {
+        expect(service.getMdocDeviceAuthAlgs()).toEqual([
+            -7, -35, -36, -9, -51, -52,
+        ]);
     });
 
     test("returns JOSE alg values for SD-JWT VC", () => {
@@ -23,12 +29,10 @@ describe("CryptoImplementationService", () => {
         expect(
             service.getSigningAlgs(CredentialFormat.SD_JWT_VC, "ES384"),
         ).toEqual(["ES384"]);
+        // Only the identifier placed in the IssuerAuth `alg` header.
         expect(
             service.getSigningAlgs(CredentialFormat.MSO_MDOC, "ES384"),
-        ).toContain(-35);
-        expect(
-            service.getSigningAlgs(CredentialFormat.MSO_MDOC, "ES384"),
-        ).not.toContain(-7);
+        ).toEqual([-35]);
     });
 
     test.each([

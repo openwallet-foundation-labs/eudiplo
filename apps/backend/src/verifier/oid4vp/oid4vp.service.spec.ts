@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { SessionStatus } from "../../session/domain/session-state.js";
 import { SessionNotUsable } from "../../session/domain/session-usability.js";
 import {
@@ -936,7 +937,7 @@ describe("OID4VP request object signing key", () => {
                         .fn()
                         .mockResolvedValue({ publicJwk: {}, privateJwk: {} }),
                 },
-                cryptoImplementationService: { getAlgs: vi.fn(() => []) },
+                cryptoImplementationService: new CryptoImplementationService(),
                 certService: {
                     find,
                     getCertChain,
@@ -1003,6 +1004,23 @@ describe("OID4VP request object signing key", () => {
         await service.createAuthorizationRequest("session", "https://rp");
 
         expect(signJWT.mock.calls[0][3]).toBe("configured");
+    });
+
+    it("announces the mdoc algorithms with the OID4VP 1.0 Appendix B.2.2 parameters", async () => {
+        const { service, signJWT } = createService({
+            clientId: "x509_hash:hash-of-access-a",
+            accessKeyChainId: "access-a",
+        });
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        expect(
+            signJWT.mock.calls[0][0].client_metadata.vp_formats_supported
+                .mso_mdoc,
+        ).toEqual({
+            issuerauth_alg_values: [-7, -35, -36],
+            deviceauth_alg_values: [-7, -35, -36, -9, -51, -52],
+        });
     });
 
     it("fails instead of signing with another key chain when the stored one is gone", async () => {

@@ -30,6 +30,8 @@ export interface SigningAlgSpec {
     signatureOid: string;
     /** Classic COSE algorithm identifier (RFC 9053). */
     coseAlg: number;
+    /** Fully-specified COSE algorithm identifier (RFC 9864, ESP256 …). */
+    fullySpecifiedCoseAlg: number;
 }
 
 export const SIGNING_ALG_SPECS: Readonly<
@@ -48,6 +50,7 @@ export const SIGNING_ALG_SPECS: Readonly<
         hashOid: "2.16.840.1.101.3.4.2.1",
         signatureOid: "1.2.840.10045.4.3.2",
         coseAlg: -7,
+        fullySpecifiedCoseAlg: -9,
     },
     ES384: {
         alg: "ES384",
@@ -62,6 +65,7 @@ export const SIGNING_ALG_SPECS: Readonly<
         hashOid: "2.16.840.1.101.3.4.2.2",
         signatureOid: "1.2.840.10045.4.3.3",
         coseAlg: -35,
+        fullySpecifiedCoseAlg: -51,
     },
     ES512: {
         alg: "ES512",
@@ -76,6 +80,7 @@ export const SIGNING_ALG_SPECS: Readonly<
         hashOid: "2.16.840.1.101.3.4.2.3",
         signatureOid: "1.2.840.10045.4.3.4",
         coseAlg: -36,
+        fullySpecifiedCoseAlg: -52,
     },
 };
 
@@ -109,6 +114,21 @@ export function signingAlgForCurve(
     crv: string | undefined,
 ): KmsSigningAlg | undefined {
     return KMS_SIGNING_ALGS.find((alg) => SIGNING_ALG_SPECS[alg].crv === crv);
+}
+
+/**
+ * The algorithm a COSE `alg` identifier stands for, classic (RFC 9053, e.g.
+ * -7 ES256) or fully specified (RFC 9864, e.g. -9 ESP256). In both the curve
+ * and hash follow from the identifier. Undefined for other identifiers.
+ */
+export function signingAlgForCoseAlg(
+    coseAlg: unknown,
+): KmsSigningAlg | undefined {
+    return KMS_SIGNING_ALGS.find(
+        (alg) =>
+            SIGNING_ALG_SPECS[alg].coseAlg === coseAlg ||
+            SIGNING_ALG_SPECS[alg].fullySpecifiedCoseAlg === coseAlg,
+    );
 }
 
 /**
