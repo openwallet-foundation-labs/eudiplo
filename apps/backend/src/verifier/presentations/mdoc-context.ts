@@ -61,7 +61,7 @@ function protectedAlgOf(toBeVerified: Uint8Array): unknown {
         cause = error;
     }
     if (!(protectedHeaders instanceof Map)) {
-        throw new Error(
+        throw new TypeError(
             "COSE_Sign1 verification expects a Signature1 Sig_structure with a protected header map",
             { cause },
         );
@@ -83,14 +83,18 @@ function algForCoseAlgAndKey(coseAlg: unknown, key: CoseKey): KmsSigningAlg {
     }
     const alg = signingAlgForCoseAlg(coseAlg);
     if (!alg) {
+        const shown =
+            typeof coseAlg === "number" || typeof coseAlg === "string"
+                ? String(coseAlg)
+                : `of type ${typeof coseAlg}`;
         throw new Error(
-            `Unsupported COSE_Sign1 alg ${String(coseAlg)}: expected one of ES256 (-7, -9), ES384 (-35, -51), ES512 (-36, -52)`,
+            `Unsupported COSE_Sign1 alg ${shown}: expected one of ES256 (-7, -9), ES384 (-35, -51), ES512 (-36, -52)`,
         );
     }
     const keyAlg = signingAlgForKey(key);
     if (keyAlg !== alg) {
         throw new Error(
-            `COSE_Sign1 alg ${String(coseAlg)} (${alg}) does not match the ${SIGNING_ALG_SPECS[keyAlg].crv} key, which requires ${keyAlg}`,
+            `COSE_Sign1 alg ${coseAlg as number} (${alg}) does not match the ${SIGNING_ALG_SPECS[keyAlg].crv} key, which requires ${keyAlg}`,
         );
     }
     return alg;
