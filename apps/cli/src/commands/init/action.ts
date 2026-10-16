@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { readStringFlag } from "../../options.js";
 import { saveConfig, upsertInstance } from "../../services/cli-config.js";
+import { validateHttpUrl } from "../../services/url.js";
 import type {
     ComposeDatabase,
     ComposeKms,
@@ -400,17 +401,6 @@ async function promptBoolean(
         return false;
     }
     throw new Error(`Answer ${label.toLowerCase()} with yes or no.`);
-}
-
-function validateHttpUrl(value: string, label: string): void {
-    try {
-        const url = new URL(value);
-        if (url.protocol !== "http:" && url.protocol !== "https:") {
-            throw new Error("Unsupported URL protocol.");
-        }
-    } catch {
-        throw new Error(`${label} must be an absolute HTTP(S) URL.`);
-    }
 }
 
 function validateEnvInput(value: string, label: string): void {

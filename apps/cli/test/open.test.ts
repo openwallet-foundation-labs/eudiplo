@@ -207,6 +207,58 @@ describe("eudiplo open", () => {
         expect(output.stdout).toContain("No browser is available here.");
     });
 
+    it("leaves credentials out of the launched URL", async () => {
+        const { context, output } = createContext({ interactive: true });
+        const launched: BrowserLauncher[] = [];
+
+        await runOpenCommand(
+            withCredentials(),
+            parsed({}),
+            context,
+            deps(launched, "darwin"),
+        );
+
+        expect(launched).toEqual([
+            { command: "open", args: ["https://client.example.com/app"] },
+        ]);
+        expect(output.stdout).toBe("Opening https://client.example.com/app\n");
+        expect(output.stderr).toContain(
+            "Credentials in the instance URL were left out",
+        );
+        expect(output.stdout + output.stderr).not.toContain("s3cret");
+    });
+
+    it("prints the URL as configured with --print, with a warning", async () => {
+        const { context, output } = createContext({ interactive: true });
+
+        await runOpenCommand(
+            withCredentials(),
+            parsed({ docs: true, print: true }),
+            context,
+            deps([], "darwin"),
+        );
+
+        expect(output.stdout).toBe(
+            "https://admin:s3cret@eudiplo.example.com/api/docs\n",
+        );
+        expect(output.stderr).toContain(
+            "Warning: the printed URL contains credentials",
+        );
+    });
+
+    function withCredentials(): CliConfig {
+        return {
+            defaultInstance: "local",
+            instances: {
+                local: {
+                    ...instance,
+                    url: "https://admin:s3cret@eudiplo.example.com",
+                    clientUrl: "https://admin:s3cret@client.example.com/app",
+                },
+            },
+        };
+    }
+
     function config(): CliConfig {
         return { defaultInstance: "local", instances: { local: instance } };
     }

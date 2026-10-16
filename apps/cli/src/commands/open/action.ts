@@ -6,6 +6,7 @@ import {
     pathLookup,
 } from "../../services/browser.js";
 import { resolveInstance } from "../../services/instance-selection.js";
+import { hasUserInfo, stripUserInfo } from "../../services/url.js";
 import type { CliConfig, CommandContext, ParsedArgs } from "../../types.js";
 
 export interface OpenDependencies {
@@ -46,16 +47,31 @@ export async function runOpenCommand(
     dependencies: OpenDependencies = defaultDependencies,
 ): Promise<number> {
     const [instanceName, instance] = resolveInstance(config, parsed);
-    const url = resolveOpenTarget(
+    const target = resolveOpenTarget(
         instanceName,
         instance,
         parsed.flags.docs === true,
     );
+    const withCredentials = hasUserInfo(target);
 
     // Scripts, pipes and CI get the URL on stdout and nothing else.
     if (parsed.flags.print === true || context.interactive !== true) {
-        context.stdout.write(`${url}\n`);
+        if (withCredentials) {
+            context.stderr.write(
+                "Warning: the printed URL contains credentials from the instance config.\n",
+            );
+        }
+        context.stdout.write(`${target}\n`);
         return 0;
+    }
+
+    // User info never reaches the browser's command line, where other local
+    // users can read it; the browser asks for the credentials instead.
+    const url = stripUserInfo(new URL(target)).href;
+    if (withCredentials) {
+        context.stderr.write(
+            "Credentials in the instance URL were left out; the browser asks for them.\n",
+        );
     }
 
     const launcher = await chooseLauncher(url, {
