@@ -418,7 +418,7 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
             });
         expect(res.status).toBe(400);
         expect(res.body.message).toBe(
-            `KMS provider '${PROVIDER_ID}' does not offer ES512, the algorithm of the imported key. Supported: ES256, ES384`,
+            `KMS provider '${PROVIDER_ID}' does not offer ES512 for the imported key. Supported: ES256, ES384`,
         );
         expect(mockKms.importCount).toBe(importsBefore);
         const after = await request(app.getHttpServer())

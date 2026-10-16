@@ -22,7 +22,7 @@ import {
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
 import { importedKeyChainType } from "./domain/key-chain-import-type.js";
-import { signingAlgForJwk } from "./domain/signing-algs.js";
+import { providerAlgRefusal, signingAlgForJwk } from "./domain/signing-algs.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { importedRotationIntervals } from "./key-chain-import-rotation.js";
@@ -219,12 +219,13 @@ export class KeyChainImportService {
         adapter: KmsAdapter,
         alg: KmsSigningAlg,
     ): void {
-        const { supportedAlgs } = adapter.capabilities;
-        if (!supportedAlgs.includes(alg)) {
-            throw new BadRequestException(
-                `KMS provider '${adapter.providerId}' does not offer ${alg}, the algorithm of the imported key. Supported: ${supportedAlgs.join(", ")}`,
-            );
-        }
+        const refusal = providerAlgRefusal(
+            adapter.providerId,
+            adapter.capabilities.supportedAlgs,
+            alg,
+            "the imported key",
+        );
+        if (refusal) throw new BadRequestException(refusal);
     }
 
     private resolvePrivateKey(dto: KeyChainImportDto): JWK {

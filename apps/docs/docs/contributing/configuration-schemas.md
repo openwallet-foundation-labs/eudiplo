@@ -17,7 +17,7 @@ Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eud
 | `CredentialConfig` | v2 | `x509` as `frameworkType` of `schemaMeta.trustedAuthorities` entries. A v1 file is a valid v2 file. |
 | `KeyChain` | v2 | Optional `type` (`standalone`, `internalChain`). A v1 file is a valid v2 file; a bare key chain file with `type` is read as v2 (`bareFileVersion`). |
 | `Client` | v2 | The roles `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1 file is a valid v2 file. |
-| `KmsConfig` | v2 | Optional `algorithms` and `defaultAlgorithm` on providers. A v1 file is a valid v2 file. |
+| `KmsConfig` | v2 | Optional `algorithms` and `defaultAlgorithm` on providers. A v1 file is a valid v2 file; a bare `kms.json` with either field on a provider is read as v2 (`bareFileVersion`). |
 | `PresentationConfig` | v2 | `registration_cert.body.provided_attestations` is replaced by the registrar's `provides_attestations` (string array). The v1 → v2 step drops the old field with a warning. |
 | `PresentationConfig` | v3 | DCQL claim `values` accept integers and booleans besides strings and must be non-empty. A v2 file is a valid v3 file unless it has an empty `values` array. |
 | All other resources | v1 | |

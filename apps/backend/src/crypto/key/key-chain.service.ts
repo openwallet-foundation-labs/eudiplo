@@ -17,7 +17,11 @@ import {
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
 import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
-import { signingAlgForCurve, signingAlgForJwk } from "./domain/signing-algs.js";
+import {
+    providerAlgRefusal,
+    signingAlgForCurve,
+    signingAlgForJwk,
+} from "./domain/signing-algs.js";
 import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto.js";
 import { KeyChainExportDto } from "./dto/key-chain-export.dto.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
@@ -236,11 +240,13 @@ export class KeyChainService {
     ): KmsSigningAlg {
         const { supportedAlgs, defaultAlg } = adapter.capabilities;
         if (requested === undefined) return defaultAlg;
-        if (!supportedAlgs.includes(requested)) {
-            throw new BadRequestException(
-                `KMS provider '${adapter.providerId}' does not offer ${requested} for new key chains. Supported: ${supportedAlgs.join(", ")}`,
-            );
-        }
+        const refusal = providerAlgRefusal(
+            adapter.providerId,
+            supportedAlgs,
+            requested,
+            "new key chains",
+        );
+        if (refusal) throw new BadRequestException(refusal);
         return requested;
     }
 

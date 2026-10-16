@@ -715,6 +715,12 @@ export class ConfigBundleApplyService {
             );
             return;
         }
+        // The plan blocks on this too; the importer would only catch the private-jwk import path.
+        const unsupported = this.kmsReferenceService.unsupportedAlgorithm(
+            tenantId,
+            spec,
+        );
+        if (unsupported) throw new BadRequestException(unsupported.message);
         if (spec.keySource?.type === "private-jwk") {
             if (isInternalChainWithPrivateKeys(spec)) {
                 // The plan blocks on these problems; check again before touching the live row.

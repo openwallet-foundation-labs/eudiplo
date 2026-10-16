@@ -451,6 +451,10 @@ export class ConfigBundleService {
         const upgradedDocuments: ConfigDocument[] = [];
         const systemOwnedKeyChains =
             await this.systemOwnedKeyChainIds(tenantId);
+        const includesKmsConfig = bundle.documents.some(
+            (file) =>
+                this.migrationService.normalize(file).kind === "KmsConfig",
+        );
         for (const file of bundle.documents) {
             const input = this.migrationService.normalize(file);
             const sourceVersion = input.$schema!;
@@ -642,6 +646,16 @@ export class ConfigBundleService {
                 if (certificateIssues.length > 0) {
                     itemIssues.push(...certificateIssues);
                     action = "blocked";
+                }
+                const algorithmIssue = this.keyChainAlgorithmIssue(
+                    tenantId,
+                    result.document,
+                    includesKmsConfig,
+                );
+                if (algorithmIssue) {
+                    itemIssues.push(algorithmIssue);
+                    if (algorithmIssue.severity !== "warning")
+                        action = "blocked";
                 }
             }
             items.push({
@@ -1090,6 +1104,35 @@ export class ConfigBundleService {
             }
         }
         return issues;
+    }
+
+    /**
+     * An issue when the KMS provider of a key chain document does not offer
+     * the algorithm of one of its keys, checked against the configuration in
+     * place; only a warning when the bundle also changes KMS configuration.
+     */
+    private keyChainAlgorithmIssue(
+        tenantId: string,
+        document: ConfigDocument,
+        includesKmsConfig: boolean,
+    ): ConfigMigrationIssue | undefined {
+        if (document.kind !== "KeyChain") return undefined;
+        const unsupported = this.kmsReferenceService.unsupportedAlgorithm(
+            tenantId,
+            document.spec,
+        );
+        if (!unsupported) return undefined;
+        return {
+            severity: includesKmsConfig ? "warning" : "error",
+            code: includesKmsConfig
+                ? "KMS_PREFLIGHT_DEFERRED"
+                : "UNSUPPORTED_KEY_ALGORITHM",
+            path: unsupported.path,
+            message: includesKmsConfig
+                ? `The bundle changes KMS configuration, so whether its KMS provider offers this key's algorithm can only be checked after that configuration is applied: ${unsupported.message}`
+                : unsupported.message,
+            resource: { kind: document.kind, id: resourceId(document) },
+        };
     }
 
     private async addEntities(

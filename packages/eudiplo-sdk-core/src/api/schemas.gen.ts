@@ -1414,7 +1414,7 @@ export const KmsProviderCapabilitiesDtoSchema = {
             example: true
         },
         supportedAlgs: {
-            description: 'Algorithms new key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.',
+            description: 'Algorithms new and imported key chains of this provider may use (ES256, ES384, ES512), narrowed by algorithms in kms.json. Existing key chains keep their own algorithm.',
             example: [
                 'ES256'
             ],

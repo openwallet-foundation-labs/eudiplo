@@ -40,6 +40,42 @@ export function appliedKmsProvider(spec: Spec): string | undefined {
     return isInternalChainWithPrivateKeys(spec) ? "db" : spec.kmsProvider;
 }
 
+/**
+ * The KMS provider that applying a key chain document stores its keys in,
+ * and those keys with their document paths. An undefined provider means the
+ * tenant's default. A key source without stored keys (`regenerate`, or none)
+ * has no keys.
+ */
+export function keyChainProviderKeys(spec: Spec): {
+    provider: string | undefined;
+    keys: Array<{ path: string; jwk: unknown }>;
+} {
+    const source = spec.keySource;
+    if (source?.type === "private-jwk") {
+        const keys = [{ path: "/spec/keySource/jwk", jwk: source.jwk }];
+        if (isInternalChainWithPrivateKeys(spec)) {
+            keys.push({
+                path: "/spec/keySource/activeJwk",
+                jwk: source.activeJwk,
+            });
+        }
+        return { provider: appliedKmsProvider(spec), keys };
+    }
+    if (source?.type === "external-reference") {
+        const keys = [
+            { path: "/spec/keySource/publicJwk", jwk: source.publicJwk },
+        ];
+        if (source.activePublicJwk) {
+            keys.push({
+                path: "/spec/keySource/activePublicJwk",
+                jwk: source.activePublicJwk,
+            });
+        }
+        return { provider: source.provider, keys };
+    }
+    return { provider: undefined, keys: [] };
+}
+
 /** What applying an internal chain with private keys would reject or drop. */
 export function internalChainProblems(spec: Spec): InternalChainProblem[] {
     const rootKey = privateKey(spec.keySource?.jwk);

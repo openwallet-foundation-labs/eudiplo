@@ -1,11 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { importJWK, type JWK } from "jose";
 import {
+    providerAlgRefusal,
     signingAlgForJwk,
     signingAlgSpec,
 } from "../../crypto/key/domain/signing-algs.js";
-import type { KmsSigningAlg } from "../../crypto/key/kms/kms-adapter.js";
+import type {
+    KmsAdapter,
+    KmsSigningAlg,
+} from "../../crypto/key/kms/kms-adapter.js";
 import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
+import { keyChainProviderKeys } from "./key-chain-document.js";
 
 interface ExternalKeySource {
     provider: string;
@@ -18,6 +23,42 @@ interface ExternalKeySource {
 @Injectable()
 export class ConfigKmsReferenceService {
     constructor(private readonly kmsRegistry: KmsProviderRegistry) {}
+
+    /**
+     * The first key of a key chain document whose algorithm its KMS provider
+     * does not offer (`algorithms` in kms.json), or undefined. Keys that are
+     * not EC keys on a supported curve, and unknown providers, are left to
+     * the checks that report those.
+     */
+    unsupportedAlgorithm(
+        tenantId: string,
+        spec: Record<string, any>,
+    ): { path: string; message: string } | undefined {
+        const { provider, keys } = keyChainProviderKeys(spec);
+        if (keys.length === 0) return undefined;
+        let adapter: KmsAdapter;
+        try {
+            adapter = this.kmsRegistry.resolve(provider, tenantId);
+        } catch {
+            return undefined;
+        }
+        for (const { path, jwk } of keys) {
+            let alg: KmsSigningAlg;
+            try {
+                alg = signingAlgForJwk(jwk as JWK);
+            } catch {
+                continue;
+            }
+            const message = providerAlgRefusal(
+                adapter.providerId,
+                adapter.capabilities.supportedAlgs,
+                alg,
+                `the key in ${path.replace("/spec/", "").replaceAll("/", ".")}`,
+            );
+            if (message) return { path, message };
+        }
+        return undefined;
+    }
 
     async verify(tenantId: string, source: ExternalKeySource): Promise<void> {
         await this.verifyOne(
