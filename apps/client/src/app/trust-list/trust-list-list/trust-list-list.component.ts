@@ -2,15 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TrustList } from '@eudiplo/sdk-core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
-import { getApiErrorMessage } from '../../utils/error-message';
-import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { BaseAsyncListComponent } from '../../common/base-async-list.component';
 import { LoadErrorComponent } from '../../common/load-error.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -46,7 +45,7 @@ export class TrustListListComponent extends BaseAsyncListComponent<TrustList> {
 
   constructor(
     private readonly trustListService: TrustListService,
-    private readonly snackBar: MatSnackBar
+    protected readonly configDocuments: ConfigDocumentService
   ) {
     super();
   }
@@ -56,15 +55,6 @@ export class TrustListListComponent extends BaseAsyncListComponent<TrustList> {
   }
 
   async downloadConfig(list: TrustList): Promise<void> {
-    try {
-      await this.trustListService.downloadConfig(list.id);
-      this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
-    } catch (error) {
-      console.error('Error downloading config:', error);
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('TrustList', list.id);
   }
 }

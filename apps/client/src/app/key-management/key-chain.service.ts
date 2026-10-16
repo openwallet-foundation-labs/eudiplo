@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   type KmsConfigDto,
   type KmsProvidersResponseDto,
@@ -20,16 +20,8 @@ import {
   keyChainControllerUpdate,
   keyChainControllerUpdateTenantKmsConfig,
 } from '@eudiplo/sdk-core';
-import { ConfigDocumentService } from '../config-portability/config-document.service';
 import type { Role } from '../services/jwt.service';
 import { hasHttpStatus } from '../utils/error-message';
-
-/**
- * Roles allowed to export key material and to manage the tenant KMS provider
- * configuration (which contains provider credentials). The same roles as for
- * the configuration export.
- */
-export const KEY_ADMIN_ROLES: Role[] = ['tenant:admin', 'tenants:manage'];
 
 /** Roles that list, create, rotate and delete key chains and read the KMS providers. */
 export const KEY_CHAIN_ROLES: Role[] = ['issuance:manage', 'presentation:manage', 'keys:manage'];
@@ -55,8 +47,6 @@ export function isForbidden(error: unknown): boolean {
   providedIn: 'root',
 })
 export class KeyChainService {
-  private readonly configDocuments = inject(ConfigDocumentService);
-
   /**
    * Get available KMS providers and configured default provider.
    */
@@ -91,13 +81,13 @@ export class KeyChainService {
     );
   }
 
-  /** Requires one of {@link KEY_ADMIN_ROLES}. */
+  /** Requires tenant:admin or tenants:manage. */
   async getTenantKmsConfig(): Promise<KmsTenantConfigResponseDto> {
     const response = await keyChainControllerGetTenantKmsConfig();
     return response.data as KmsTenantConfigResponseDto;
   }
 
-  /** Requires one of {@link KEY_ADMIN_ROLES}. */
+  /** Requires tenant:admin or tenants:manage. */
   async updateTenantKmsConfig(config: KmsConfigDto): Promise<KmsTenantConfigResponseDto> {
     const response = await keyChainControllerUpdateTenantKmsConfig({
       body: config,
@@ -105,7 +95,7 @@ export class KeyChainService {
     return response.data as KmsTenantConfigResponseDto;
   }
 
-  /** Requires one of {@link KEY_ADMIN_ROLES}. */
+  /** Requires tenant:admin or tenants:manage. */
   async deleteTenantKmsConfig(): Promise<void> {
     await keyChainControllerDeleteTenantKmsConfig();
   }
@@ -159,14 +149,5 @@ export class KeyChainService {
    */
   async rotate(id: string): Promise<void> {
     await keyChainControllerRotate({ path: { id } });
-  }
-
-  /**
-   * Saves the key chain as a configuration document for the config folder and
-   * configuration bundles. It includes the private keys of database-held keys,
-   * so it requires the tenant:admin or tenants:manage role.
-   */
-  async downloadConfig(id: string): Promise<void> {
-    await this.configDocuments.download('KeyChain', id);
   }
 }

@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { IssuanceConfigShowComponent } from './issuance-config-show.component';
+import { renderDownloadButton } from '../../../config-portability/config-document.testing';
+import { IssuanceConfigService } from '../issuance-config.service';
 
 describe('IssuanceConfigShowComponent', () => {
   let component: IssuanceConfigShowComponent;
@@ -71,35 +73,41 @@ describe('IssuanceConfigShowComponent loading', () => {
 });
 
 describe('IssuanceConfigShowComponent download', () => {
-  function create(download: ReturnType<typeof vi.fn>) {
-    const snackBar = { open: vi.fn() };
-    const configDocuments = { download, canDownload: () => true };
+  it('downloads the configuration document', async () => {
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
     const component = new IssuanceConfigShowComponent(
       {} as never,
-      snackBar as never,
       {} as never,
-      configDocuments as never
+      {} as never,
+      { downloadWithFeedback } as never
     );
     component.config = {} as never;
-    return { component, snackBar };
-  }
-
-  it('downloads the configuration document', async () => {
-    const download = vi.fn().mockResolvedValue('Configuration downloaded');
-    const { component, snackBar } = create(download);
 
     await component.downloadConfig();
 
-    expect(download).toHaveBeenCalledWith('IssuanceConfig', 'issuance');
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Configuration downloaded');
+    expect(downloadWithFeedback).toHaveBeenCalledWith('IssuanceConfig', 'issuance');
   });
 
-  it("shows the backend's reason when the download fails", async () => {
-    const download = vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
-    const { component, snackBar } = create(download);
+  it('disables the button while the document is being downloaded', async () => {
+    const button = await renderDownloadButton(IssuanceConfigShowComponent, {
+      providers: [{ provide: IssuanceConfigService, useValue: { getConfig: async () => ({}) } }],
+      loaded: (component) => !!component.config,
+      downloading: ['IssuanceConfig', 'issuance'],
+    });
 
-    await component.downloadConfig();
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+  });
 
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Failed to download configuration: Forbidden resource');
+  it('stays enabled while another resource is being downloaded', async () => {
+    const button = await renderDownloadButton(IssuanceConfigShowComponent, {
+      providers: [{ provide: IssuanceConfigService, useValue: { getConfig: async () => ({}) } }],
+      loaded: (component) => !!component.config,
+      downloading: ['IssuanceConfig', 'other'],
+    });
+
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('false');
   });
 });

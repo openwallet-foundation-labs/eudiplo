@@ -36,6 +36,7 @@ import {
     isTrustListReferenceKind,
     trustListReferenceId,
 } from "../../issuer/trust-list/domain/trust-list-reference.js";
+import { trustListConfig } from "../../issuer/trust-list/trust-list-config.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
 import { FilesService } from "../../storage/files.service.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
@@ -323,7 +324,7 @@ export class ConfigBundleService {
                 tenantId,
                 "TrustList",
                 trustList.id,
-                this.trustListSpec(trustList),
+                trustListConfig(trustList),
             );
         }
 
@@ -1375,18 +1376,6 @@ export class ConfigBundleService {
         };
     }
 
-    private trustListSpec(
-        trustList: Record<string, any>,
-    ): Record<string, unknown> {
-        return {
-            id: trustList.id,
-            description: trustList.description ?? undefined,
-            keyChainId: trustList.keyChainId,
-            entities: trustList.entityConfig ?? [],
-            data: trustList.data,
-        };
-    }
-
     private statusListSpec(
         statusList: Record<string, any>,
     ): Record<string, unknown> {
@@ -1406,7 +1395,7 @@ export class ConfigBundleService {
         tenantId: string,
         kind: ConfigResourceKind,
         id: string,
-        rawSpec: Record<string, unknown>,
+        rawSpec: object,
         redact = true,
     ): Promise<void> {
         const metadata = await this.ownershipService.get(tenantId, kind, id);
@@ -1791,9 +1780,7 @@ export class ConfigBundleService {
                 break;
             case "TrustList": {
                 entity = await this.trustLists.findOneBy({ tenantId, id });
-                return entity
-                    ? { ...this.trustListSpec(entity), id }
-                    : undefined;
+                return entity ? { ...trustListConfig(entity), id } : undefined;
             }
             case "StatusList": {
                 entity = await this.statusLists.findOneBy({ tenantId, id });

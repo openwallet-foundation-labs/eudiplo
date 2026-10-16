@@ -167,8 +167,8 @@ generate them (see
 
 **Download configuration** on the page of a credential, issuance or
 presentation configuration, a webhook endpoint, an attribute provider, a trust
-list or a key chain (**Export as config JSON**) saves the resource as a
-document named `<id>.json`, ready for the config folder. The API is
+list or a key chain saves the resource as a document named `<id>.json`, ready
+for the config folder. The API is
 `GET /api/config-bundles/resources/<kind>/<id>/document`
 ([single resources](../reference/config-bundle-format.md#single-resources)).
 Secrets are `${…}` placeholders, as in a bundle export; the Web Client names

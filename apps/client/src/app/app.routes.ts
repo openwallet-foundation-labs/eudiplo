@@ -1,6 +1,6 @@
 import type { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
-import { getRole } from './services/jwt.service';
+import { getRole, TENANT_ADMIN_ROLES } from './services/jwt.service';
 import { RoleGuard } from './guards/roles.guard';
 
 // Feature route imports
@@ -50,9 +50,7 @@ export const routes: Routes = [
         (m) => m.ConfigPortabilityComponent
       ),
     canActivate: [AuthGuard, RoleGuard],
-    data: {
-      role: [getRole('tenants:manage'), getRole('tenant:admin')],
-    },
+    data: { role: TENANT_ADMIN_ROLES },
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
 

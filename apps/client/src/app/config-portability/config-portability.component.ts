@@ -20,7 +20,7 @@ import {
   groupUnreachable,
   joinFailures,
 } from '../utils/error-message';
-import { JwtService } from '../services/jwt.service';
+import { JwtService, TENANT_ADMIN_ROLES } from '../services/jwt.service';
 import {
   ConfigBundle,
   ConfigOperation,
@@ -108,7 +108,7 @@ export class ConfigPortabilityComponent implements OnInit {
   }
 
   get canApply(): boolean {
-    return this.jwt.hasRole('tenants:manage') || this.jwt.hasRole('tenant:admin');
+    return this.jwt.hasRole(TENANT_ADMIN_ROLES);
   }
 
   ngOnInit(): void {

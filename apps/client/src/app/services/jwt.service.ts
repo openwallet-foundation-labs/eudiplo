@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../core';
-import { canManageRoles, grantableRoles, grantHint, type Role } from './role-grants';
+import {
+  canManageRoles,
+  grantableRoles,
+  grantHint,
+  TENANT_ADMIN_ROLES,
+  type Role,
+} from './role-grants';
 
-export { type Role, roles } from './role-grants';
+export { type Role, roles, TENANT_ADMIN_ROLES } from './role-grants';
 
 export function getRole(role: Role) {
   return role;
@@ -105,7 +111,7 @@ export class JwtService {
 
   /** Config Portability (bundles, detach, reset) needs a tenant and `tenant:admin` or `tenants:manage`. */
   canUseConfigPortability(): boolean {
-    return this.hasTenantContext() && this.hasRole(['tenants:manage', 'tenant:admin']);
+    return this.hasTenantContext() && this.hasRole(TENANT_ADMIN_ROLES);
   }
 
   /**

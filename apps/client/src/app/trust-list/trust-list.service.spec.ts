@@ -32,39 +32,10 @@ describe('TrustListService', () => {
     expect(paths).toEqual(['/api/trust-list']);
   });
 
-  it('saves the configuration document of the trust list as <id>.json', async () => {
-    const config = {
-      $schema: 'https://eudiplo.dev/schemas/v1/TrustListConfigFile.schema.json',
-      spec: { id: 'membership-issuers', entities: [] },
-    };
-    const paths = respondWith(config);
-    const click = vi
-      .spyOn(HTMLAnchorElement.prototype, 'click')
-      .mockImplementation(() => undefined);
-    // jsdom has no object URLs; keep the file handed to the browser.
-    const { createObjectURL, revokeObjectURL } = URL;
-    const files: Blob[] = [];
-    URL.createObjectURL = (blob: Blob) => (files.push(blob), 'blob:trust-list');
-    URL.revokeObjectURL = () => undefined;
-
-    try {
-      await TestBed.inject(TrustListService).downloadConfig('membership-issuers');
-    } finally {
-      Object.assign(URL, { createObjectURL, revokeObjectURL });
-    }
-
-    expect(paths).toEqual(['/api/config-bundles/resources/TrustList/membership-issuers/document']);
-    expect((click.mock.contexts[0] as HTMLAnchorElement).download).toBe('membership-issuers.json');
-    expect(files).toHaveLength(1);
-    expect(JSON.parse(await files[0].text())).toEqual(config);
-  });
-
   it('rejects with the backend error body, which the page turns into its message', async () => {
     const error = { statusCode: 404, message: 'Trust list membership-issuers not found' };
     respondWith(error, 404);
-    const service = TestBed.inject(TrustListService);
 
-    await expect(service.downloadConfig('membership-issuers')).rejects.toEqual(error);
-    await expect(service.getAll()).rejects.toEqual(error);
+    await expect(TestBed.inject(TrustListService).getAll()).rejects.toEqual(error);
   });
 });

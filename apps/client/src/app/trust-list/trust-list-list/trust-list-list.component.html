@@ -64,6 +64,9 @@
         <button
           matIconButton
           (click)="downloadConfig(list)"
+          [disabled]="configDocuments.isDownloading('TrustList', list.id)"
+          [attr.aria-busy]="configDocuments.isDownloading('TrustList', list.id)"
+          disabledInteractive
           matTooltip="Download configuration"
           [attr.aria-label]="'Download the configuration of trust list ' + list.id"
         >

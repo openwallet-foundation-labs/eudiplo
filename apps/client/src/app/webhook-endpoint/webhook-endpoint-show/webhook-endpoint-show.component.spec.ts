@@ -1,5 +1,8 @@
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
 
+import { renderDownloadButton } from '../../config-portability/config-document.testing';
+import { WebhookEndpointService } from '../webhook-endpoint.service';
 import { WebhookEndpointShowComponent } from './webhook-endpoint-show.component';
 
 describe('WebhookEndpointShowComponent', () => {
@@ -28,36 +31,60 @@ describe('WebhookEndpointShowComponent', () => {
 });
 
 describe('WebhookEndpointShowComponent download', () => {
-  function create(download: ReturnType<typeof vi.fn>) {
-    const snackBar = { open: vi.fn() };
-    const configDocuments = { download, canDownload: () => true };
+  it('downloads the configuration document', async () => {
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
     const component = new WebhookEndpointShowComponent(
       {} as never,
       {} as never,
-      snackBar as never,
       {} as never,
-      configDocuments as never
+      {} as never,
+      { downloadWithFeedback } as never
     );
     component.endpoint = { id: 'hook' } as never;
-    return { component, snackBar };
+
+    await component.downloadConfig();
+
+    expect(downloadWithFeedback).toHaveBeenCalledWith('WebhookEndpoint', 'hook');
+  });
+});
+
+describe('WebhookEndpointShowComponent download button', () => {
+  function render(canDownload: boolean, downloadingId = 'hook') {
+    return renderDownloadButton(WebhookEndpointShowComponent, {
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'hook' }) } },
+        },
+        {
+          provide: WebhookEndpointService,
+          useValue: {
+            getById: async () => ({ id: 'hook', name: 'Hook', url: 'https://hooks.example.com' }),
+          },
+        },
+      ],
+      loaded: (component) => !!component.endpoint,
+      downloading: ['WebhookEndpoint', downloadingId],
+      canDownload,
+    });
   }
 
-  it('downloads the configuration document', async () => {
-    const download = vi.fn().mockResolvedValue('Configuration downloaded');
-    const { component, snackBar } = create(download);
-
-    await component.downloadConfig();
-
-    expect(download).toHaveBeenCalledWith('WebhookEndpoint', 'hook');
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Configuration downloaded');
+  it('is hidden without a role that may download the document', async () => {
+    expect(await render(false)).toBeNull();
   });
 
-  it("shows the backend's reason when the download fails", async () => {
-    const download = vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
-    const { component, snackBar } = create(download);
+  it('is disabled while the document is being downloaded', async () => {
+    const button = await render(true);
 
-    await component.downloadConfig();
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+  });
 
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Failed to download configuration: Forbidden resource');
+  it('stays enabled while another endpoint is being downloaded', async () => {
+    const button = await render(true, 'other');
+
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('false');
   });
 });

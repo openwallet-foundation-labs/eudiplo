@@ -32,6 +32,9 @@
           <button
             mat-icon-button
             aria-label="Download configuration"
+            [disabled]="downloadingConfig"
+            [attr.aria-busy]="downloadingConfig"
+            disabledInteractive
             (click)="downloadConfig()"
             matTooltip="Download configuration"
           >
