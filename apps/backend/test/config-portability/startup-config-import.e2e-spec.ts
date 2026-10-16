@@ -29,6 +29,7 @@ import { ClientEntity } from "../../src/auth/client/entities/client.entity.js";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
 import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
 import { KeyChainService } from "../../src/crypto/key/key-chain.service.js";
+import { KmsTenantConfigService } from "../../src/crypto/key/kms/kms-tenant-config.service.js";
 import { IssuanceConfig } from "../../src/issuer/configuration/issuance/entities/issuance-config.entity.js";
 import { StatusListEntity } from "../../src/issuer/status-list/entities/status-list.entity.js";
 import { ConfigBundleService } from "../../src/platform/config-portability/config-bundle.service.js";
@@ -1774,6 +1775,197 @@ describe("startup configuration reconciliation", () => {
                 });
         }
     });
+
+    it("blocks and refuses key chains whose algorithm the KMS provider does not offer", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const kmsConfig = app.get(KmsTenantConfigService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const root = await keyWithCertificate("Unsupported Root CA", true);
+        const signer = await keyWithCertificate("Unsupported signer", false);
+        const internalChain = {
+            id: "unsupported-alg-chain",
+            usageType: "attestation",
+            keySource: {
+                type: "private-jwk",
+                jwk: root.jwk,
+                activeJwk: signer.jwk,
+            },
+            crt: [root.certificate],
+            activeCertificate: signer.certificate,
+        };
+        const importedKey = {
+            id: "unsupported-alg-import",
+            usageType: "attestation",
+            keySource: { type: "private-jwk", jwk: root.jwk },
+        };
+        // Both keys are P-256 (ES256); the database provider only offers ES384.
+        const es384Only = {
+            providers: [{ id: "db", type: "db", algorithms: ["ES384"] }],
+        };
+        const issues = (plan: ConfigImportPlan) =>
+            plan.items
+                .filter((item) => item.kind === "KeyChain")
+                .map((item) => ({
+                    action: item.action,
+                    issues: item.issues.map(({ code, path, severity }) => ({
+                        code,
+                        path,
+                        severity,
+                    })),
+                }));
+
+        try {
+            kmsConfig.saveTenantConfig("demo", es384Only as any);
+            for (const spec of [internalChain, importedKey]) {
+                expect(
+                    issues(
+                        await service.plan(
+                            "demo",
+                            keyChainBundle(spec),
+                            "upsert",
+                        ),
+                    ),
+                ).toEqual([
+                    {
+                        action: "blocked",
+                        issues: [
+                            {
+                                code: "UNSUPPORTED_KEY_ALGORITHM",
+                                path: "/spec/keySource/jwk",
+                                severity: "error",
+                            },
+                        ],
+                    },
+                ]);
+            }
+            await expect(
+                apply.apply("demo", keyChainBundle(internalChain), "upsert"),
+            ).rejects.toMatchObject({
+                status: 400,
+                response: expect.objectContaining({
+                    code: "CONFIG_APPLY_BLOCKED",
+                }),
+            });
+
+            // With a KmsConfig in the bundle the plan only warns; apply checks the new configuration.
+            const withKms = withDocument(
+                keyChainBundle(internalChain),
+                documentBundle("demo", "KmsConfig", "kms", "kms.json", {
+                    providers: [{ id: "db", type: "db" }],
+                }),
+            );
+            const deferred = await service.plan("demo", withKms, "upsert");
+            expect(issues(deferred)).toEqual([
+                {
+                    action: "create",
+                    issues: [
+                        {
+                            code: "KMS_PREFLIGHT_DEFERRED",
+                            path: "/spec/keySource/jwk",
+                            severity: "warning",
+                        },
+                    ],
+                },
+            ]);
+            expect(deferred.applicable).toBe(true);
+            kmsConfig.deleteTenantConfig("demo");
+
+            // A key chain applied before the provider was narrowed is left alone.
+            await apply.apply("demo", keyChainBundle(internalChain), "upsert");
+            kmsConfig.saveTenantConfig("demo", es384Only as any);
+            const unchanged = await service.plan(
+                "demo",
+                keyChainBundle(internalChain),
+                "upsert",
+            );
+            expect(issues(unchanged)).toEqual([
+                { action: "unchanged", issues: [] },
+            ]);
+            expect(unchanged.applicable).toBe(true);
+            // A changed document imports the key again, which the narrowed provider refuses.
+            expect(
+                issues(
+                    await service.plan(
+                        "demo",
+                        keyChainBundle({
+                            ...internalChain,
+                            description: "Changed",
+                        }),
+                        "upsert",
+                    ),
+                ),
+            ).toEqual([
+                {
+                    action: "blocked",
+                    issues: [
+                        {
+                            code: "UNSUPPORTED_KEY_ALGORITHM",
+                            path: "/spec/keySource/jwk",
+                            severity: "error",
+                        },
+                    ],
+                },
+            ]);
+            kmsConfig.deleteTenantConfig("demo");
+            await keyChains.delete({ tenantId: "demo", id: internalChain.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: internalChain.id,
+                });
+
+            // The plan checks against the current KMS configuration, so a bundle
+            // that narrows the provider itself passes it; apply checks again.
+            const bundle = withDocument(
+                keyChainBundle(internalChain),
+                documentBundle(
+                    "demo",
+                    "KmsConfig",
+                    "kms",
+                    "kms.json",
+                    es384Only,
+                ),
+            );
+            expect(
+                issues(await service.plan("demo", bundle, "upsert")),
+            ).toEqual([{ action: "create", issues: [] }]);
+            await expect(
+                apply.apply("demo", bundle, "upsert"),
+            ).rejects.toMatchObject({
+                response: expect.objectContaining({
+                    code: "CONFIG_APPLY_FAILED",
+                    failedOperation: {
+                        stage: "resource",
+                        kind: "KeyChain",
+                        id: internalChain.id,
+                    },
+                }),
+            });
+            expect(
+                await keyChains.countBy({
+                    tenantId: "demo",
+                    id: internalChain.id,
+                }),
+            ).toBe(0);
+        } finally {
+            kmsConfig.deleteTenantConfig("demo");
+            await keyChains.delete({ tenantId: "demo", id: internalChain.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({ tenantId: "demo", kind: "KmsConfig" });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: internalChain.id,
+                });
+        }
+    });
 });
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
@@ -1798,6 +1990,21 @@ function keyChainBundle(
         spec,
         generation,
     );
+}
+
+/** `bundle` with the document of the one-document bundle `other` added. */
+function withDocument(bundle: ConfigBundle, other: ConfigBundle): ConfigBundle {
+    return {
+        ...bundle,
+        manifest: {
+            ...bundle.manifest,
+            resources: [
+                ...bundle.manifest.resources,
+                ...other.manifest.resources,
+            ],
+        },
+        documents: [...bundle.documents, ...other.documents],
+    };
 }
 
 function restoreEnvironment(key: string, value: string | undefined): void {

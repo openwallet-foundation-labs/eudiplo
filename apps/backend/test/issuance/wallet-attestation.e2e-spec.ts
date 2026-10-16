@@ -1824,6 +1824,33 @@ describe("Issuance - Wallet Attestation", () => {
         );
     }, 30000);
 
+    test("should reject a status list whose payload was swapped under the original signature", async () => {
+        // The revocation cert signs a list where index 5 is revoked. An
+        // attacker swaps in an all-valid payload and keeps that signature.
+        const statusListUrl = "http://localhost:8787/status-list-tampered";
+        const signedJwt = await createStatusListJwt(
+            revocationCert,
+            statusListUrl,
+            new Map([[5, 1]]),
+        );
+        const allValidJwt = await createStatusListJwt(
+            revocationCert,
+            statusListUrl,
+        );
+        const [header, forgedPayload] = allValidJwt.split(".");
+        const originalSignature = signedJwt.split(".")[2];
+
+        await expect(
+            requestTokenWithStatusList({
+                path: "/status-list-tampered",
+                statusListJwt: `${header}.${forgedPayload}.${originalSignature}`,
+                idx: 5,
+            }),
+        ).rejects.toMatchObject(
+            rejectedWith("Status list JWT signature verification failed"),
+        );
+    }, 30000);
+
     test("should fail when wallet attestation status indicates suspended", async () => {
         // Configure issuance with wallet attestation required
         const trustListUrl = "http://localhost:8787/wallet-providers-suspended";

@@ -42,7 +42,7 @@ rejects versions newer than its own.
 | -------------------- | ----------------------------- | --------------- | --------- |
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
 | `Client`             | `ClientConfigFile`            | 2               |           |
-| `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
+| `KmsConfig`          | `KmsConfigFile`               | 2               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 4               | yes       |
@@ -98,6 +98,13 @@ reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
 **Client v2** came with EUDIPLO 10.0 as well. It accepts the roles
 `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1
 document is migrated unchanged; 9.x cannot read v2 files.
+
+**KmsConfig v2** came with EUDIPLO 10.0 as well. It adds the optional
+`algorithms` and `defaultAlgorithm` of a provider, which limit the
+[signing algorithms](../operate/kms.md#signing-algorithms) of new and imported
+key chains, including `KeyChain` documents of a bundle. A bare `kms.json` with
+`algorithms` or `defaultAlgorithm` on a provider is read as v2. A
+v1 document is migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 
@@ -213,7 +220,7 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | `unchanged` | Already matches, or a key chain or `!generate` client document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
-| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, `REGISTRATION_CERTIFICATE_REFUSED` for an imported registration certificate that fails its checks, for example because it is expired or does not cover the DCQL query ([Validation and caching](../trust/registration-certificates.md#validation-and-caching)), a missing secret or key, or `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). One blocked item blocks the whole plan |
+| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, `REGISTRATION_CERTIFICATE_REFUSED` for an imported registration certificate that fails its checks, for example because it is expired or does not cover the DCQL query ([Validation and caching](../trust/registration-certificates.md#validation-and-caching)), a missing secret or key, `UNSUPPORTED_KEY_ALGORITHM` for a key chain whose key uses an algorithm its KMS provider does not offer ([Signing algorithms](../operate/kms.md#signing-algorithms)), or `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). One blocked item blocks the whole plan |
 
 An `update` item lists its field changes in `changes`: the `path` in the document, the stored value as `before` and the value after the import as `after`. Without `before`, the import adds the field; without `after`, it removes the stored value. Entries with `redacted: true` hide the values: a secret reads `[redacted]`, and a value that changes between an object, a list and a plain value reads `[changed]` on both sides.
 

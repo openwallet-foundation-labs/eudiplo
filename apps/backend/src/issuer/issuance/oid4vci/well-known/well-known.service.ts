@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service.js";
-import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { KeyChainService } from "../../../../crypto/key/key-chain.service.js";
 import { KeyUsageType } from "../../../../crypto/key/types/key-usage-type.js";
 import { MediaType } from "../../../../shared/utils/media-type/media-type.enum.js";
@@ -32,7 +31,6 @@ export class WellKnownService {
         private readonly certService: CertService,
         public readonly keyChainService: KeyChainService,
         private readonly authorizeService: AuthorizeService,
-        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly authorizationServersService: AuthorizationServersService,
         private readonly chainedAsService: ChainedAsService,
         private readonly issuanceService: IssuanceService,
@@ -72,7 +70,6 @@ export class WellKnownService {
                     },
                     {
                         typ: "openidvci-issuer-metadata+jwt",
-                        alg: this.cryptoImplementationService.getAlg(),
                         x5c: this.certService.getCertChain(cert),
                     },
                     tenantId,

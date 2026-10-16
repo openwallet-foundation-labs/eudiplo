@@ -4,6 +4,15 @@ import { HttpService } from "@nestjs/axios";
 import { Logger, NotImplementedException } from "@nestjs/common";
 import type { JWK } from "jose";
 import { firstValueFrom } from "rxjs";
+import {
+    assertKmsSigningAlg,
+    externalAlgorithmPolicy,
+    KMS_SIGNING_ALGS,
+    type KmsAlgorithmPolicy,
+    resolveAlgorithmCapabilities,
+    signingAlgForCurve,
+    signingAlgForJwk,
+} from "../../domain/signing-algs.js";
 import type { KmsProviderType } from "../../dto/kms-config.dto.js";
 import type {
     KmsAdapter,
@@ -39,6 +48,11 @@ export type HttpKmsAuth =
 
 export interface HttpKmsAdapterConfig {
     providerId: string;
+    /**
+     * Algorithms the remote service accepts for new keys (from
+     * `kms.json`). Defaults to ES256 only.
+     */
+    algorithms?: KmsAlgorithmPolicy;
     /** Base URL of the remote KMS microservice (no trailing slash). */
     baseUrl: string;
     /**
@@ -153,8 +167,10 @@ export class HttpKmsAdapter implements KmsAdapter {
             canCreate: true,
             canImport: config.canImport ?? false,
             canDelete: true,
-            supportedAlgs: ["ES256"],
-            defaultAlg: "ES256",
+            ...resolveAlgorithmCapabilities(
+                KMS_SIGNING_ALGS,
+                externalAlgorithmPolicy(config.algorithms),
+            ),
         };
 
         if (this.auth.type === "mtls") {
@@ -172,8 +188,10 @@ export class HttpKmsAdapter implements KmsAdapter {
         kid: string;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
+        // Not limited to capabilities.supportedAlgs: rotation keeps the
+        // algorithm of an existing key chain.
         const alg = opts.alg ?? this.capabilities.defaultAlg;
-        this.assertSupported(alg);
+        assertKmsSigningAlg(alg, `HttpKmsAdapter[${this.providerId}]`);
 
         const url = `${this.baseUrl}${this.keysPath}`;
         const response = await firstValueFrom(
@@ -190,6 +208,7 @@ export class HttpKmsAdapter implements KmsAdapter {
                 `HttpKmsAdapter[${this.providerId}]: remote service returned no publicJwk`,
             );
         }
+        this.assertCurve(publicJwk, alg);
         publicJwk.kid = opts.kid;
         publicJwk.alg = alg;
 
@@ -208,10 +227,12 @@ export class HttpKmsAdapter implements KmsAdapter {
             );
         }
 
-        const alg =
-            opts.alg ??
-            (opts.privateJwk.alg as KmsSigningAlg | undefined) ??
-            this.capabilities.defaultAlg;
+        const alg = signingAlgForJwk(opts.privateJwk);
+        if (opts.alg && opts.alg !== alg) {
+            throw new Error(
+                `HttpKmsAdapter[${this.providerId}]: key on ${String(opts.privateJwk.crv)} cannot be used with ${opts.alg}`,
+            );
+        }
         this.assertSupported(alg);
 
         const url = `${this.baseUrl}${this.keysPath}/${encodeURIComponent(opts.kid)}/import`;
@@ -229,6 +250,7 @@ export class HttpKmsAdapter implements KmsAdapter {
                 `HttpKmsAdapter[${this.providerId}]: remote service returned no publicJwk after import`,
             );
         }
+        this.assertCurve(publicJwk, alg);
         publicJwk.kid = opts.kid;
         publicJwk.alg = alg;
 
@@ -247,7 +269,7 @@ export class HttpKmsAdapter implements KmsAdapter {
             );
         }
         const signAlg = alg ?? ref.alg;
-        this.assertSupported(signAlg);
+        assertKmsSigningAlg(signAlg, `HttpKmsAdapter[${this.providerId}]`);
 
         const url = `${this.baseUrl}${this.keysPath}/${encodeURIComponent(ref.externalKeyId)}/sign`;
         const response = await firstValueFrom(
@@ -379,6 +401,14 @@ export class HttpKmsAdapter implements KmsAdapter {
             expiresAt: now + (expires_in - 30) * 1000,
         };
         return access_token;
+    }
+
+    private assertCurve(publicJwk: JWK, alg: KmsSigningAlg): void {
+        if (signingAlgForCurve(publicJwk.crv) !== alg) {
+            throw new Error(
+                `HttpKmsAdapter[${this.providerId}]: remote service returned a ${String(publicJwk.crv)} key for ${alg}`,
+            );
+        }
     }
 
     private assertSupported(alg: KmsSigningAlg): void {

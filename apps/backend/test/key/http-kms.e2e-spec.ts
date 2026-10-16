@@ -1,4 +1,4 @@
-import { webcrypto } from "node:crypto";
+import { generateKeyPairSync, webcrypto } from "node:crypto";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import {
     createServer,
@@ -15,9 +15,14 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
+import {
+    type KmsSigningAlg,
+    signingAlgSpec,
+} from "../../src/crypto/key/domain/signing-algs.js";
 import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { getToken } from "../utils.js";
+import { expectCertificateSignedBy } from "../utils-ec.js";
 
 const PROVIDER_ID = "kms-reference";
 
@@ -31,8 +36,21 @@ const subtle = webcrypto.subtle;
 
 interface StoredKey {
     pair: webcrypto.CryptoKeyPair;
-    alg: string;
+    alg: KmsSigningAlg;
 }
+
+/**
+ * Behaviour switches of the mock KMS. `curveOverride` makes key generation
+ * return a key on another curve than the requested algorithm's.
+ */
+const mockKms: {
+    curveOverride?: string;
+    signCount: number;
+    importCount: number;
+} = {
+    signCount: 0,
+    importCount: 0,
+};
 
 function readBody(req: IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -66,7 +84,7 @@ async function kmsHandler(
             return;
         }
 
-        // POST /keys — generate a new ECDSA P-256 key
+        // POST /keys — generate a new ECDSA key on the curve of alg
         if (
             req.method === "POST" &&
             parts.length === 1 &&
@@ -74,16 +92,17 @@ async function kmsHandler(
         ) {
             const { kid, alg } = JSON.parse(await readBody(req)) as {
                 kid: string;
-                alg: string;
+                alg: KmsSigningAlg;
             };
+            const namedCurve = mockKms.curveOverride ?? signingAlgSpec(alg).crv;
             const pair = await subtle.generateKey(
-                { name: "ECDSA", namedCurve: "P-256" },
+                { name: "ECDSA", namedCurve },
                 true,
                 ["sign", "verify"],
             );
             keyStore.set(kid, { pair, alg });
             const publicJwk = await subtle.exportKey("jwk", pair.publicKey);
-            json(res, 200, { publicJwk: { ...publicJwk, kid, alg: "ES256" } });
+            json(res, 200, { publicJwk: { ...publicJwk, kid, alg } });
             return;
         }
 
@@ -100,11 +119,18 @@ async function kmsHandler(
                 json(res, 404, { error: "Key not found" });
                 return;
             }
-            const { data } = JSON.parse(await readBody(req)) as {
+            const { data, alg } = JSON.parse(await readBody(req)) as {
                 data: string;
+                alg: KmsSigningAlg;
             };
+            mockKms.signCount++;
+            // The adapter names the key's algorithm on every request.
+            if (alg !== stored.alg) {
+                json(res, 400, { error: `Key ${kid} signs ${stored.alg}` });
+                return;
+            }
             const sigBuf = await subtle.sign(
-                { name: "ECDSA", hash: "SHA-256" },
+                { name: "ECDSA", hash: signingAlgSpec(alg).hash },
                 stored.pair.privateKey,
                 Buffer.from(data, "base64"),
             );
@@ -121,15 +147,17 @@ async function kmsHandler(
             parts[0] === "keys" &&
             parts[2] === "import"
         ) {
+            mockKms.importCount++;
             const kid = parts[1];
             const { privateJwk, alg } = JSON.parse(await readBody(req)) as {
                 privateJwk: JsonWebKey;
-                alg: string;
+                alg: KmsSigningAlg;
             };
+            const namedCurve = privateJwk.crv!;
             const privateKey = await subtle.importKey(
                 "jwk",
                 privateJwk,
-                { name: "ECDSA", namedCurve: "P-256" },
+                { name: "ECDSA", namedCurve },
                 true,
                 ["sign"],
             );
@@ -138,14 +166,14 @@ async function kmsHandler(
             const publicKey = await subtle.importKey(
                 "jwk",
                 pubJwk,
-                { name: "ECDSA", namedCurve: "P-256" },
+                { name: "ECDSA", namedCurve },
                 true,
                 ["verify"],
             );
             keyStore.set(kid, { pair: { privateKey, publicKey }, alg });
             const exportedPub = await subtle.exportKey("jwk", publicKey);
             json(res, 200, {
-                publicJwk: { ...exportedPub, kid, alg: "ES256" },
+                publicJwk: { ...exportedPub, kid, alg },
             });
             return;
         }
@@ -208,6 +236,7 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
                         type: "http",
                         baseUrl,
                         canImport: true,
+                        algorithms: ["ES256", "ES384"],
                     },
                 ],
             }),
@@ -253,6 +282,8 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
         expect(provider.capabilities.canCreate).toBe(true);
         expect(provider.capabilities.canImport).toBe(true);
         expect(provider.capabilities.canDelete).toBe(true);
+        expect(provider.capabilities.supportedAlgs).toEqual(["ES256", "ES384"]);
+        expect(provider.capabilities.defaultAlg).toBe("ES256");
     });
 
     test("http provider health check passes", async () => {
@@ -314,5 +345,131 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
             .get(`/key-chain/${keyChainId}`)
             .set("Authorization", `Bearer ${authToken}`)
             .expect(404);
+    });
+
+    test("creates an ES384 internal chain whose certificates verify", async () => {
+        const createRes = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                type: KeyChainType.InternalChain,
+                usageType: "attestation",
+                kmsProvider: PROVIDER_ID,
+                alg: "ES384",
+            })
+            .expect(201);
+
+        const keyChain = await request(app.getHttpServer())
+            .get(`/key-chain/${createRes.body.id}`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(keyChain.body.alg).toBe("ES384");
+        expect(keyChain.body.activePublicKey.crv).toBe("P-384");
+        expectCertificateSignedBy(keyChain.body.rootCertificate.pem, "ES384");
+        expectCertificateSignedBy(
+            keyChain.body.activeCertificate.pem,
+            "ES384",
+            keyChain.body.rootCertificate.pem,
+        );
+    });
+
+    test("imports a P-384 key through the http provider as ES384", async () => {
+        const privateJwk = generateKeyPairSync("ec", {
+            namedCurve: "secp384r1",
+        }).privateKey.export({ format: "jwk" });
+        const importRes = await request(app.getHttpServer())
+            .post("/key-chain/import")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                key: privateJwk,
+                usageType: "attestation",
+                kmsProvider: PROVIDER_ID,
+            })
+            .expect(201);
+
+        const keyChain = await request(app.getHttpServer())
+            .get(`/key-chain/${importRes.body.id}`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(keyChain.body.alg).toBe("ES384");
+        expect(keyChain.body.activePublicKey).toMatchObject({
+            crv: "P-384",
+            x: privateJwk.x,
+        });
+        expectCertificateSignedBy(keyChain.body.activeCertificate.pem, "ES384");
+    });
+
+    test("refuses to import a P-521 key, which the provider does not allow", async () => {
+        const privateJwk = generateKeyPairSync("ec", {
+            namedCurve: "secp521r1",
+        }).privateKey.export({ format: "jwk" });
+        const before = await request(app.getHttpServer())
+            .get("/key-chain")
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        const importsBefore = mockKms.importCount;
+        const res = await request(app.getHttpServer())
+            .post("/key-chain/import")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                key: privateJwk,
+                usageType: "attestation",
+                kmsProvider: PROVIDER_ID,
+            });
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe(
+            `KMS provider '${PROVIDER_ID}' does not offer ES512 for the imported key. Supported: ES256, ES384`,
+        );
+        expect(mockKms.importCount).toBe(importsBefore);
+        const after = await request(app.getHttpServer())
+            .get("/key-chain")
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(after.body).toHaveLength(before.body.length);
+    });
+
+    test("refuses ES512, which the provider does not allow", async () => {
+        await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                type: KeyChainType.Standalone,
+                usageType: "attestation",
+                kmsProvider: PROVIDER_ID,
+                alg: "ES512",
+            })
+            .expect(400);
+    });
+
+    test("rejects a P-256 key returned for ES384 and stores no key chain", async () => {
+        const listIds = async () =>
+            (
+                await request(app.getHttpServer())
+                    .get("/key-chain")
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .expect(200)
+            ).body.map((keyChain: { id: string }) => keyChain.id);
+        const before = await listIds();
+
+        mockKms.curveOverride = "P-256";
+        mockKms.signCount = 0;
+        try {
+            const res = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    type: KeyChainType.Standalone,
+                    usageType: "attestation",
+                    kmsProvider: PROVIDER_ID,
+                    alg: "ES384",
+                });
+            expect(res.status).toBe(500);
+        } finally {
+            delete mockKms.curveOverride;
+        }
+
+        expect(await listIds()).toEqual(before);
+        // Refused when the key is returned, before the certificate is signed.
+        expect(mockKms.signCount).toBe(0);
     });
 });

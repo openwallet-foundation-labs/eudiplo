@@ -2,6 +2,14 @@ import { HttpService } from "@nestjs/axios";
 import { BadRequestException, Logger } from "@nestjs/common";
 import { exportJWK, importJWK, type JWK } from "jose";
 import { firstValueFrom } from "rxjs";
+import {
+    assertKmsSigningAlg,
+    KMS_SIGNING_ALGS,
+    type KmsAlgorithmPolicy,
+    resolveAlgorithmCapabilities,
+    signingAlgForJwk,
+    signingAlgSpec,
+} from "../../domain/signing-algs.js";
 import type { KmsProviderType } from "../../dto/kms-config.dto.js";
 import type {
     KmsAdapter,
@@ -19,6 +27,8 @@ export interface VaultAdapterConfig {
     vaultToken: string;
     /** Mount path of the Transit engine. Defaults to "transit". */
     transitMount?: string;
+    /** Algorithms allowed for new keys (from `kms.json`). */
+    algorithms?: KmsAlgorithmPolicy;
 }
 
 /**
@@ -38,13 +48,7 @@ export class VaultKmsAdapter implements KmsAdapter {
 
     readonly providerId: string;
     readonly type: KmsProviderType = "vault";
-    readonly capabilities: KmsAdapterCapabilities = {
-        canCreate: true,
-        canImport: true,
-        canDelete: true,
-        supportedAlgs: ["ES256"],
-        defaultAlg: "ES256",
-    };
+    readonly capabilities: KmsAdapterCapabilities;
 
     private readonly vaultUrl: string;
     private readonly vaultToken: string;
@@ -60,14 +64,25 @@ export class VaultKmsAdapter implements KmsAdapter {
         this.vaultUrl = config.vaultUrl.replace(/\/$/, "");
         this.vaultToken = config.vaultToken;
         this.transitMount = config.transitMount || "transit";
+        this.capabilities = {
+            canCreate: true,
+            canImport: true,
+            canDelete: true,
+            ...resolveAlgorithmCapabilities(
+                KMS_SIGNING_ALGS,
+                config.algorithms,
+            ),
+        };
     }
 
     async generateKey(opts: {
         kid: string;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
+        // Not limited to capabilities.supportedAlgs: rotation keeps the
+        // algorithm of an existing key chain.
         const alg = opts.alg ?? this.capabilities.defaultAlg;
-        this.assertSupported(alg);
+        assertKmsSigningAlg(alg, `VaultKmsAdapter[${this.providerId}]`);
         await this.ensureMount();
 
         // Native Vault key generation — the private key NEVER leaves the engine.
@@ -75,7 +90,7 @@ export class VaultKmsAdapter implements KmsAdapter {
         await firstValueFrom(
             this.http.post(
                 url,
-                { type: vaultKeyType(alg), exportable: false },
+                { type: VAULT_KEY_TYPE[alg], exportable: false },
                 { headers: this.authHeaders() },
             ),
         );
@@ -89,10 +104,12 @@ export class VaultKmsAdapter implements KmsAdapter {
         privateJwk: JWK;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
-        const alg =
-            opts.alg ??
-            (opts.privateJwk.alg as KmsSigningAlg | undefined) ??
-            this.capabilities.defaultAlg;
+        const alg = signingAlgForJwk(opts.privateJwk);
+        if (opts.alg && opts.alg !== alg) {
+            throw new Error(
+                `VaultKmsAdapter[${this.providerId}]: key on ${String(opts.privateJwk.crv)} cannot be used with ${opts.alg}`,
+            );
+        }
         this.assertSupported(alg);
         await this.ensureMount();
 
@@ -111,7 +128,7 @@ export class VaultKmsAdapter implements KmsAdapter {
             this.http.post(
                 url,
                 {
-                    type: vaultKeyType(alg),
+                    type: VAULT_KEY_TYPE[alg],
                     ciphertext: Buffer.from(pkcs8).toString("base64"),
                     hash_function: "SHA256",
                 },
@@ -138,9 +155,9 @@ export class VaultKmsAdapter implements KmsAdapter {
             );
         }
         const signAlg = alg ?? ref.alg;
-        this.assertSupported(signAlg);
+        assertKmsSigningAlg(signAlg, `VaultKmsAdapter[${this.providerId}]`);
 
-        const url = `${this.vaultUrl}/v1/${this.transitMount}/sign/${encodeURIComponent(ref.externalKeyId)}/sha2-256`;
+        const url = `${this.vaultUrl}/v1/${this.transitMount}/sign/${encodeURIComponent(ref.externalKeyId)}/${VAULT_HASH_ALGORITHM[signAlg]}`;
         const response = await firstValueFrom(
             this.http.post<{ data: { signature: string } }>(
                 url,
@@ -243,7 +260,7 @@ export class VaultKmsAdapter implements KmsAdapter {
         const publicKey = await globalThis.crypto.subtle.importKey(
             "spki",
             pemToDer(pem),
-            { name: "ECDSA", namedCurve: "P-256" },
+            { name: "ECDSA", namedCurve: signingAlgSpec(alg).crv },
             true,
             ["verify"],
         );
@@ -293,12 +310,19 @@ export class VaultKmsAdapter implements KmsAdapter {
     }
 }
 
-function vaultKeyType(alg: KmsSigningAlg): string {
-    if (alg === "ES256") {
-        return "ecdsa-p256";
-    }
-    throw new Error(`Unsupported alg ${alg}`);
-}
+/** Transit key type of each algorithm. */
+const VAULT_KEY_TYPE: Record<KmsSigningAlg, string> = {
+    ES256: "ecdsa-p256",
+    ES384: "ecdsa-p384",
+    ES512: "ecdsa-p521",
+};
+
+/** Transit hash path of each algorithm. */
+const VAULT_HASH_ALGORITHM: Record<KmsSigningAlg, string> = {
+    ES256: "sha2-256",
+    ES384: "sha2-384",
+    ES512: "sha2-512",
+};
 
 function stripPrivateComponents(jwk: JWK): JWK {
     const { d, p, q, dp, dq, qi, k, ...publicJwk } = jwk as Record<

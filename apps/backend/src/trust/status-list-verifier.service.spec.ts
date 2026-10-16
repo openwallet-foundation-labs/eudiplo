@@ -100,7 +100,7 @@ describe("StatusListVerifierService cache", () => {
 
     /** Status list JWT; the service does not verify its signature. */
     function jwt(
-        claims: { ttl?: number; exp?: number },
+        claims: { ttl?: number; exp?: number; sub?: string },
         lst = deflateSync(new Uint8Array(1)),
     ): string {
         const encode = (value: unknown) =>
@@ -144,13 +144,6 @@ describe("StatusListVerifierService cache", () => {
     }
 
     const caches = [
-        {
-            name: "parsed status lists",
-            token: (claims: { ttl?: number; exp?: number }) =>
-                Promise.resolve(jwt(claims)),
-            get: (statusLists: StatusListVerifierService, uri: string) =>
-                statusLists.getStatusList(uri),
-        },
         {
             name: "status list JWTs",
             token: (claims: { ttl?: number; exp?: number }) =>
@@ -237,28 +230,31 @@ describe("StatusListVerifierService cache", () => {
         expect(requests).toEqual(["/list/1000", "/list/1"]);
     }, 30_000);
 
-    it("bounds parsed status lists by their number of statuses", async () => {
-        // A few hundred bytes of token, three million statuses (~24 MB) each:
-        // the 64 MiB budget holds two of them.
-        const lst = deflateSync(new Uint8Array(375_000));
-        for (const path of ["/big/1", "/big/2", "/big/3"]) {
-            tokens.set(path, jwt({ ttl: 600 }, lst));
-        }
+    it("bounds decompressed status lists by their size", async () => {
+        // A few kilobytes of token, 16 MiB decompressed each: the 64 MiB
+        // budget holds three of them.
+        const lst = deflateSync(Buffer.alloc(16 * 1024 * 1024));
         const statusLists = service();
 
-        for (const path of ["/big/1", "/big/2", "/big/3"]) {
-            await statusLists.getStatusList(`${origin}${path}`);
+        for (const uri of ["/big/1", "/big/2", "/big/3", "/big/4"]) {
+            statusLists.getStatusFromStatusListJwt(
+                jwt({ ttl: 600, sub: uri }, lst),
+                { uri, idx: 0 },
+            );
         }
 
         expect(statusLists.getCacheStats()).toMatchObject({
-            size: 2,
-            uris: [`${origin}/big/2`, `${origin}/big/3`],
+            size: 3,
+            uris: ["/big/2", "/big/3", "/big/4"],
         });
     }, 30_000);
 
     it("clears one or all status lists", async () => {
         const statusLists = service();
-        await statusLists.getStatusList(`${origin}/a`);
+        statusLists.getStatusFromStatusListJwt(jwt({ sub: `${origin}/a` }), {
+            uri: `${origin}/a`,
+            idx: 0,
+        });
         await statusLists.getStatusListJwt(`${origin}/a`);
         await statusLists.getStatusListJwt(`${origin}/b`);
         tokens.set("/c", await cwt({}));

@@ -12,6 +12,7 @@ import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { describeWithContainers } from "../container-runtime.js";
 import { getToken } from "../utils.js";
+import { expectCertificateSignedBy } from "../utils-ec.js";
 
 const VAULT_DEV_ROOT_TOKEN = "test-root-token";
 
@@ -156,4 +157,66 @@ describeWithContainers("Key Chain — Vault KMS (e2e)", () => {
 
         expect(res.body.id).toBeDefined();
     });
+
+    test.each([
+        ["ES384", "P-384"],
+        ["ES512", "P-521"],
+    ] as const)(
+        "creates a %s internal chain whose certificates verify (vault)",
+        async (alg, crv) => {
+            const vault = (
+                await request(app.getHttpServer())
+                    .get("/key-chain/providers")
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .expect(200)
+            ).body.providers.find((p: any) => p.name === "vault");
+            expect(vault.capabilities.supportedAlgs).toContain(alg);
+
+            const createRes = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    type: KeyChainType.InternalChain,
+                    usageType: "attestation",
+                    kmsProvider: "vault",
+                    alg,
+                })
+                .expect(201);
+            const id = createRes.body.id;
+
+            // Both certificates are signed by Vault: the root by itself, the
+            // leaf by the root.
+            const verifyKeyChain = async () => {
+                const keyChain = await request(app.getHttpServer())
+                    .get(`/key-chain/${id}`)
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .expect(200);
+                expect(keyChain.body.alg).toBe(alg);
+                expect(keyChain.body.activePublicKey.crv).toBe(crv);
+                expectCertificateSignedBy(
+                    keyChain.body.rootCertificate.pem,
+                    alg,
+                );
+                expectCertificateSignedBy(
+                    keyChain.body.activeCertificate.pem,
+                    alg,
+                    keyChain.body.rootCertificate.pem,
+                );
+                return keyChain.body;
+            };
+            const before = await verifyKeyChain();
+
+            await request(app.getHttpServer())
+                .post(`/key-chain/${id}/rotate`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(204);
+            const after = await verifyKeyChain();
+            expect(after.activePublicKey.x).not.toBe(before.activePublicKey.x);
+
+            await request(app.getHttpServer())
+                .delete(`/key-chain/${id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(204);
+        },
+    );
 });

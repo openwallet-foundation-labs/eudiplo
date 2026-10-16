@@ -11,7 +11,7 @@ import {
     SignJwtCallback,
 } from "@openid4vc/oauth2";
 import { ResolvedOpenid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
-import { digest, ES256 } from "@owf/crypto";
+import { digest, ES256, ES384, ES512 } from "@owf/crypto";
 import {
     CoseKey,
     DeviceKey,
@@ -41,6 +41,10 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { AppModule } from "../src/app.module.js";
 import { Role } from "../src/auth/roles/role.enum.js";
+import {
+    type KmsSigningAlg,
+    signingAlgSpec,
+} from "../src/crypto/key/domain/signing-algs.js";
 import { KeyChainImportDto } from "../src/crypto/key/dto/key-chain-import.dto.js";
 import { KeyChainService } from "../src/crypto/key/key-chain.service.js";
 import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto.js";
@@ -173,14 +177,20 @@ export async function prepareMdocPresentation(
     return deviceResponse.encodedForOid4Vp;
 }
 
+/** @owf/crypto signers and key generation per JOSE algorithm. */
+const OWF_ALGS = { ES256, ES384, ES512 } as const;
+
 async function createCredential(options: {
     claims: any;
     privateKey: CryptoKey;
     x5c: string[];
+    /** Algorithm of the issuer key and of the generated holder key. */
+    alg: KmsSigningAlg;
 }) {
     //create keypair for holder
-    const { privateKeyHolder, publicKeyHolder } =
-        await ES256.generateKeyPair().then((keyPair) => ({
+    const { privateKeyHolder, publicKeyHolder } = await OWF_ALGS[options.alg]
+        .generateKeyPair()
+        .then((keyPair) => ({
             privateKeyHolder: keyPair.privateKey,
             publicKeyHolder: keyPair.publicKey,
         }));
@@ -189,7 +199,7 @@ async function createCredential(options: {
         signer: async (data: string) => {
             const encoder = new TextEncoder();
             const signature = await globalThis.crypto.subtle.sign(
-                { name: "ECDSA", hash: "SHA-256" },
+                { name: "ECDSA", hash: signingAlgSpec(options.alg).hash },
                 options.privateKey,
                 encoder.encode(data),
             );
@@ -199,7 +209,7 @@ async function createCredential(options: {
                 .replaceAll("/", "_")
                 .replace(/=+$/, ""); // Convert to base64url format
         },
-        signAlg: "ES256",
+        signAlg: options.alg,
         hasher: digest,
         loadTypeMetadataFormat: true,
         saltGenerator: (length: number) =>
@@ -232,6 +242,8 @@ export async function preparePresentation(
     statusListService: StatusListService,
     credentialConfigId: string,
     sessionId = "1",
+    /** Algorithm of `privateKey`; the holder key and KB-JWT use the same. */
+    alg: KmsSigningAlg = "ES256",
 ) {
     // createEntry returns `{ status: { status_list } }`, so it is spread into
     // the claims to put `status_list` at `status.status_list`.
@@ -253,12 +265,13 @@ export async function preparePresentation(
         },
         privateKey,
         x5c,
+        alg,
     });
 
     const sdjwt = new SDJwtVcInstance({
         hasher: digest,
-        kbSigner: await ES256.getSigner(credential.privateKey),
-        kbSignAlg: "ES256",
+        kbSigner: await OWF_ALGS[alg].getSigner(credential.privateKey),
+        kbSignAlg: alg,
     });
     const presentation = await sdjwt.present(
         credential.credential,

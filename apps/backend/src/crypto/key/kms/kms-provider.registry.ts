@@ -6,6 +6,7 @@ import {
     OnModuleInit,
 } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
+import type { KmsAlgorithmPolicy } from "../domain/signing-algs.js";
 import type { KmsProviderInfoDto } from "../dto/kms-provider-capabilities.dto.js";
 import type { KmsProvidersResponseDto } from "../dto/kms-providers-response.dto.js";
 import type {
@@ -176,7 +177,7 @@ export class KmsProviderRegistry implements OnModuleInit {
         const type: KmsProviderType = provider.type;
         switch (type) {
             case "db":
-                return new DbKmsAdapter(provider.id);
+                return new DbKmsAdapter(provider.id, algorithmPolicy(provider));
             case "vault": {
                 const p = provider as Extract<
                     KmsProviderConfig,
@@ -187,6 +188,7 @@ export class KmsProviderRegistry implements OnModuleInit {
                         providerId: provider.id,
                         vaultUrl: p.vaultUrl,
                         vaultToken: p.vaultToken,
+                        algorithms: algorithmPolicy(provider),
                     },
                     this.httpService,
                 );
@@ -201,6 +203,7 @@ export class KmsProviderRegistry implements OnModuleInit {
                     region: p.region,
                     accessKeyId: p.accessKeyId,
                     secretAccessKey: p.secretAccessKey,
+                    algorithms: algorithmPolicy(provider),
                 });
             }
             case "pkcs11": {
@@ -218,6 +221,7 @@ export class KmsProviderRegistry implements OnModuleInit {
                     slot,
                     pin: p.pin,
                     readOnly: p.readOnly,
+                    algorithms: algorithmPolicy(provider),
                 });
             }
             case "http": {
@@ -233,6 +237,7 @@ export class KmsProviderRegistry implements OnModuleInit {
                         keysPath: p.keysPath,
                         healthPath: p.healthPath,
                         canImport: p.canImport,
+                        algorithms: algorithmPolicy(provider),
                     },
                     this.httpService,
                 );
@@ -258,6 +263,7 @@ export class KmsProviderRegistry implements OnModuleInit {
                         sad: p.sad,
                         useAuthorizeEndpoint: p.useAuthorizeEndpoint,
                         authorizeAuthData: p.authorizeAuthData,
+                        algorithms: algorithmPolicy(provider),
                     },
                     this.httpService,
                 );
@@ -270,4 +276,18 @@ export class KmsProviderRegistry implements OnModuleInit {
             }
         }
     }
+}
+
+/**
+ * The provider's `algorithms` / `defaultAlgorithm`, or undefined when
+ * neither is set so the adapter applies its own default.
+ */
+function algorithmPolicy(
+    provider: KmsProviderConfig,
+): KmsAlgorithmPolicy | undefined {
+    if (!provider.algorithms && !provider.defaultAlgorithm) return undefined;
+    return {
+        algorithms: provider.algorithms,
+        defaultAlgorithm: provider.defaultAlgorithm,
+    };
 }

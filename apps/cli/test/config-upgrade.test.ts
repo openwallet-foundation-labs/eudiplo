@@ -9,9 +9,9 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { schemaUrl } from "@eudiplo/config-format/config-format.js";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { schemaUrl } from "@eudiplo/config-format/config-format.js";
 import { runCli } from "../src/runtime.js";
 import type { CommandContext } from "../src/types.js";
 
@@ -250,6 +250,59 @@ describe("config upgrade", () => {
         );
         expect(result.$schema).toBe(
             "https://eudiplo.dev/schemas/v2/ClientConfigFile.schema.json",
+        );
+        expect(result.spec).toEqual(spec);
+    });
+    it("upgrades a v1 KMS configuration file to v2 with the spec unchanged", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "kms-folder");
+        await mkdir(source, { recursive: true });
+        await writeFile(
+            join(source, "info.json"),
+            JSON.stringify({
+                $schema: schemaUrl("Tenant"),
+                metadata: { generation: 1 },
+                spec: { name: "Example" },
+            }),
+        );
+        const spec = { providers: [{ id: "db", type: "db" }] };
+        await writeFile(
+            join(source, "kms.json"),
+            JSON.stringify({ $schema: schemaUrl("KmsConfig", 1), spec }),
+        );
+
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(join(`${source}.upgraded`, "kms.json"), "utf8"),
+        );
+        expect(result.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json",
+        );
+        expect(result.spec).toEqual(spec);
+    });
+    it("reads a bare KMS configuration file with provider algorithms as v2", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "bare-kms-folder");
+        await mkdir(source, { recursive: true });
+        await writeFile(
+            join(source, "info.json"),
+            JSON.stringify({
+                $schema: schemaUrl("Tenant"),
+                metadata: { generation: 1 },
+                spec: { name: "Example" },
+            }),
+        );
+        const spec = {
+            providers: [{ id: "db", type: "db", algorithms: ["ES384"] }],
+        };
+        await writeFile(join(source, "kms.json"), JSON.stringify(spec));
+
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(join(`${source}.upgraded`, "kms.json"), "utf8"),
+        );
+        expect(result.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json",
         );
         expect(result.spec).toEqual(spec);
     });

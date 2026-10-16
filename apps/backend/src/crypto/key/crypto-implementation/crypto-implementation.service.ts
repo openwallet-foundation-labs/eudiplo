@@ -1,113 +1,95 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/oauth2";
-import { ES256 } from "@owf/crypto";
+import { ES256, ES384, ES512 } from "@owf/crypto";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity.js";
+import {
+    KMS_SIGNING_ALGS,
+    type KmsSigningAlg,
+    SIGNING_ALG_SPECS,
+    signingAlgForCurve,
+} from "../domain/signing-algs.js";
 import { CryptoImplementation } from "./crypto-implementation.js";
-
-export type CryptoType = "ES256";
 
 /**
  * JOSE algorithm names used for SD-JWT VC
  */
-export type JoseAlgorithm = "ES256" | "ES384" | "ES512";
-
-const JOSE_TO_CLASSIC_COSE_ALG: Record<JoseAlgorithm, number> = {
-    ES256: -7,
-    ES384: -35,
-    ES512: -36,
-};
+export type JoseAlgorithm = KmsSigningAlg;
 
 /**
- * COSE algorithm identifiers used for mDOC (ISO 18013-5)
- * Uses RFC 9864 fully-specified algorithm identifiers
+ * COSE algorithm identifiers used for mDOC (ISO 18013-5): classic
+ * (RFC 9053) and fully-specified (RFC 9864) ones.
  * @see https://www.rfc-editor.org/rfc/rfc9864.html
  */
 export type CoseAlgorithm = number;
 
+const CRYPTO_IMPLEMENTATIONS: Record<KmsSigningAlg, CryptoImplementation> = {
+    ES256,
+    ES384,
+    ES512,
+};
+
 @Injectable()
 export class CryptoImplementationService {
-    private readonly supportedAlgorithms: CryptoType[] = ["ES256"];
-    private readonly cryptoMap: Map<CryptoType, CryptoImplementation>;
-    private cachedDefaultAlg: CryptoType | null = null;
-
-    constructor(private readonly configService: ConfigService) {
-        // Initialize the map of algorithms to implementations
-        this.cryptoMap = new Map([["ES256", ES256]]);
-    }
-
     /**
-     * Returns the supported algorithms based on the credential format.
-     * - For SD-JWT VC: Returns JOSE algorithm names (ES256)
-     * - For mDOC: Returns COSE algorithm identifiers (-7)
+     * Algorithms EUDIPLO accepts in signatures of wallets and other issuers
+     * (proofs, key binding JWTs, presented credentials), in the identifiers
+     * of the credential format.
+     * - For SD-JWT VC: JOSE algorithm names (ES256, ES384, ES512)
+     * - For mDOC: the classic COSE algorithm identifiers (-7, -35, -36) that
+     *   an IssuerAuth may carry, see {@link getMdocDeviceAuthAlgs} for
+     *   device signatures
      * @param credentialFormat The credential format
      * @returns Array of algorithm identifiers appropriate for the format
      */
     getAlgs(
         credentialFormat: CredentialFormat,
     ): (JoseAlgorithm | CoseAlgorithm)[] {
-        // Map internal crypto types to JOSE algorithms
-        const joseAlgs: JoseAlgorithm[] = this.supportedAlgorithms.map(
-            (alg) => {
-                switch (alg) {
-                    case "ES256":
-                        return "ES256";
-                    default:
-                        throw new Error(`Unsupported algorithm: ${alg}`);
-                }
-            },
-        );
-
-        if (credentialFormat === CredentialFormat.SD_JWT_VC) {
-            return joseAlgs;
-        }
-
-        if (credentialFormat === CredentialFormat.MSO_MDOC) {
-            const coseAlgs = new Set<number>();
-
-            for (const alg of joseAlgs) {
-                // Include classic COSE alg IDs for compatibility with generic identifiers.
-                coseAlgs.add(JOSE_TO_CLASSIC_COSE_ALG[alg]);
-
-                // Also include RFC 9864 fully-specified identifiers.
-                const fullySpecifiedAlg =
-                    jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm(alg);
-                if (fullySpecifiedAlg !== undefined) {
-                    coseAlgs.add(fullySpecifiedAlg);
-                }
-            }
-
-            return Array.from(coseAlgs);
-        }
-
-        // Default to JOSE algorithms
-        return joseAlgs;
+        return this.toFormatAlgs(credentialFormat, KMS_SIGNING_ALGS);
     }
 
     /**
-     * Return the algorithm that is used for the crypto operations like signing.
-     * @returns The configured algorithm type
+     * COSE algorithms EUDIPLO accepts in the DeviceSignature of a presented
+     * mDOC: the classic identifiers and the fully-specified ones of RFC 9864
+     * (-9, -51, -52), which name the same curve and hash. An IssuerAuth only
+     * verifies with a classic identifier, because @owf/cose rejects any
+     * other value of its `alg` header (see {@link getAlgs}).
      */
-    getAlg(): CryptoType {
-        if (!this.cachedDefaultAlg) {
-            this.cachedDefaultAlg = this.configService.get(
-                "CRYPTO_ALG",
-            ) as CryptoType;
+    getMdocDeviceAuthAlgs(): CoseAlgorithm[] {
+        return [
+            ...(this.getAlgs(CredentialFormat.MSO_MDOC) as CoseAlgorithm[]),
+            ...KMS_SIGNING_ALGS.map(
+                (alg) => SIGNING_ALG_SPECS[alg].fullySpecifiedCoseAlg,
+            ),
+        ];
+    }
 
-            // Validate the algorithm type
-            if (!this.supportedAlgorithms.includes(this.cachedDefaultAlg)) {
-                throw new Error(
-                    `Unsupported algorithm: ${this.cachedDefaultAlg}`,
-                );
-            }
+    /**
+     * The identifier of one signing algorithm in a credential format, for
+     * `credential_signing_alg_values_supported` of a credential signed with a
+     * key of that algorithm. For mDOC it is the classic COSE identifier, the
+     * one EUDIPLO places in the IssuerAuth `alg` header.
+     */
+    getSigningAlgs(
+        credentialFormat: CredentialFormat,
+        alg: KmsSigningAlg,
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        return this.toFormatAlgs(credentialFormat, [alg]);
+    }
+
+    private toFormatAlgs(
+        credentialFormat: CredentialFormat,
+        joseAlgs: readonly JoseAlgorithm[],
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        if (credentialFormat === CredentialFormat.MSO_MDOC) {
+            return joseAlgs.map((alg) => SIGNING_ALG_SPECS[alg].coseAlg);
         }
 
-        return this.cachedDefaultAlg;
+        // SD-JWT VC and the default use JOSE algorithms
+        return [...joseAlgs];
     }
 
     /**
      * Returns the crypto implementation directly based on the JWK properties.
-     * Currently supports ES256 (P-256 curve).
+     * Supports EC keys on P-256 (ES256), P-384 (ES384) and P-521 (ES512).
      * @param jwk - JSON Web Key
      * @returns The appropriate crypto implementation
      * @throws Error if the crypto implementation cannot be determined from the JWK
@@ -117,30 +99,13 @@ export class CryptoImplementationService {
             throw new Error("Invalid JWK provided");
         }
 
-        // Check for ES256 (P-256 curve)
-        if (jwk.kty === "EC" && jwk.crv === "P-256") {
-            return this.cryptoMap.get("ES256")!;
+        const alg = jwk.kty === "EC" ? signingAlgForCurve(jwk.crv) : undefined;
+        if (alg) {
+            return CRYPTO_IMPLEMENTATIONS[alg];
         }
 
         throw new Error(
             `Unable to determine crypto implementation from JWK: unsupported key type or curve`,
         );
-    }
-
-    /**
-     * Returns the crypto implementation based on the provided or configured algorithm.
-     * @param alg - Optional algorithm type, defaults to the configured algorithm
-     * @returns The appropriate crypto implementation
-     * @throws Error if the algorithm is not supported
-     */
-    getCrypto(alg?: string): CryptoImplementation {
-        const algorithmType = alg || this.getAlg();
-        const implementation = this.cryptoMap.get(algorithmType as CryptoType);
-
-        if (!implementation) {
-            throw new Error(`Unsupported algorithm: ${algorithmType}`);
-        }
-
-        return implementation;
     }
 }

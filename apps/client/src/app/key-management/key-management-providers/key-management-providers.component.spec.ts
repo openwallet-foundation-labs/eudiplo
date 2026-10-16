@@ -57,6 +57,33 @@ describe('KeyManagementProvidersComponent tenant KMS configuration', () => {
     }
   );
 
+  it("keeps each provider's algorithms and default", async () => {
+    keyChainService['getProviders'].mockResolvedValue({
+      default: 'db',
+      providers: [
+        {
+          name: 'db',
+          type: 'db',
+          capabilities: {
+            canCreate: true,
+            canImport: true,
+            canDelete: true,
+            supportedAlgs: ['ES256', 'ES384'],
+            defaultAlg: 'ES384',
+          },
+        },
+      ],
+    });
+    const component = create();
+
+    await component.refresh();
+
+    expect(component.rows[0]).toMatchObject({
+      supportedAlgs: ['ES256', 'ES384'],
+      defaultAlg: 'ES384',
+    });
+  });
+
   it('explains a rejected save', async () => {
     roles = ['tenant:admin'];
     keyChainService['updateTenantKmsConfig'].mockRejectedValue({ statusCode: 403 });
