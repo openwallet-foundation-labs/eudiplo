@@ -341,31 +341,36 @@ export class WalletAttestationService {
                 `Wallet attestation status verified: ${statusResult.description}`,
             );
         } catch (err) {
-            if (err instanceof UnauthorizedException) {
-                throw err;
-            }
-            const reason = err instanceof Error ? err.message : "Unknown error";
-            // best_effort only tolerates a list that could not be fetched.
-            // An unreadable list or an index outside it still rejects.
-            if (
-                !policy.failClosed &&
-                err instanceof RevocationListUnavailableError
-            ) {
-                this.logger.warn(
-                    `Wallet attestation status list unavailable, accepting (best_effort): ${reason}`,
-                );
-                return;
-            }
-            // The reason names the status list URI and the fetch error; it
-            // stays in the log so the wallet cannot probe the network with it.
-            this.logger.warn(
-                `Wallet attestation status check failed: ${reason}`,
-            );
-            throw new UnauthorizedException(
-                "Wallet attestation status check failed",
-                { cause: err instanceof Error ? err : undefined },
-            );
+            this.handleStatusCheckError(err, policy.failClosed);
         }
+    }
+
+    /**
+     * Decide on a status check that threw. Rejections keep their message;
+     * best_effort (not fail-closed) only tolerates a list that could not be
+     * fetched, and an unreadable list or a bad index still rejects.
+     */
+    private handleStatusCheckError(
+        err: unknown,
+        failClosed: boolean | undefined,
+    ): void {
+        if (err instanceof UnauthorizedException) {
+            throw err;
+        }
+        const reason = err instanceof Error ? err.message : "Unknown error";
+        if (!failClosed && err instanceof RevocationListUnavailableError) {
+            this.logger.warn(
+                `Wallet attestation status list unavailable, accepting (best_effort): ${reason}`,
+            );
+            return;
+        }
+        // The reason names the status list URI and the fetch error; it stays
+        // in the log so the wallet cannot probe the network with it.
+        this.logger.warn(`Wallet attestation status check failed: ${reason}`);
+        throw new UnauthorizedException(
+            "Wallet attestation status check failed",
+            { cause: err instanceof Error ? err : undefined },
+        );
     }
 
     /**
