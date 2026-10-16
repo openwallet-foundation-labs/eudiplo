@@ -209,6 +209,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         const message = "The credential issuer is not in the trusted list.";
         const outcome = {
             result: "failed",
+            source: "verifier",
             error: "trust_chain_not_trusted",
             message,
             credentials: [
@@ -264,11 +265,26 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
             .catch((error) => error);
 
         expect(error.getStatus()).toBe(400);
+        // The exception text stays in the log, out of the stored session.
+        expect(sessionStore.updateIfUnconsumed).toHaveBeenCalledWith(
+            "tenant",
+            "session",
+            expect.objectContaining({ errorReason: "HPKE decryption failed" }),
+        );
+        expect(
+            JSON.stringify(
+                vi.mocked(sessionStore.updateIfUnconsumed).mock.calls,
+            ),
+        ).not.toContain("bad tag");
         expect(publish).toHaveBeenCalledExactlyOnceWith({
             webhook,
             session,
             status: "failed",
-            outcome: { result: "failed", message: "HPKE decryption failed" },
+            outcome: {
+                result: "failed",
+                source: "verifier",
+                message: "HPKE decryption failed",
+            },
         });
     });
 
@@ -310,6 +326,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
             status: "completed",
             outcome: {
                 result: "success",
+                source: "verifier",
                 credentials: [
                     {
                         id: "mdl",

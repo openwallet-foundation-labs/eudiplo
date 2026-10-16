@@ -424,8 +424,9 @@ describe("OID4VCI notification endpoint lookup", () => {
             order.push("publish");
             if (publishError) throw publishError;
         });
-        const changeState = vi.fn(async () => {
+        const changeState = vi.fn(async (..._args: unknown[]) => {
             order.push("state");
+            return true;
         });
         const logError = vi.fn();
         const warn = vi.fn();
@@ -454,7 +455,7 @@ describe("OID4VCI notification endpoint lookup", () => {
                 },
                 { findForTenant: lookup },
                 { publish },
-                { execute: changeState },
+                { executeFrom: changeState },
             ),
             auditLogger: { logError },
         });
@@ -506,7 +507,9 @@ describe("OID4VCI notification endpoint lookup", () => {
         expect(test.publish).not.toHaveBeenCalled();
         expect(test.changeState).toHaveBeenCalledWith(
             test.session,
+            ["fetched"],
             "completed",
+            expect.anything(),
         );
         expect(test.order).toEqual(["record", "lookup", "state"]);
     });
@@ -531,7 +534,9 @@ describe("OID4VCI notification endpoint lookup", () => {
         await expect(test.execute()).resolves.toBeUndefined();
         expect(test.changeState).toHaveBeenCalledWith(
             test.session,
+            ["fetched"],
             "completed",
+            expect.anything(),
         );
         expect(test.logError).toHaveBeenCalledExactlyOnceWith(
             expect.objectContaining({
@@ -586,7 +591,7 @@ describe("OID4VCI notification endpoint session resolution", () => {
             },
             sessions,
         );
-        const changeState = vi.fn();
+        const changeState = vi.fn().mockResolvedValue(true);
         const oid4vci = service({
             issuanceService: {
                 getIssuanceConfiguration: vi.fn().mockResolvedValue({}),
@@ -597,7 +602,7 @@ describe("OID4VCI notification endpoint session resolution", () => {
                 new RecordCredentialNotification({ updateForTenant: vi.fn() }),
                 { findForTenant: vi.fn() },
                 { publish: vi.fn() },
-                { execute: changeState },
+                { executeFrom: changeState },
             ),
             auditLogger: { logError: vi.fn() },
         });
@@ -660,7 +665,9 @@ describe("OID4VCI notification endpoint session resolution", () => {
         });
         expect(test.changeState).toHaveBeenCalledWith(
             test.session,
+            ["fetched"],
             "completed",
+            expect.anything(),
         );
     });
 

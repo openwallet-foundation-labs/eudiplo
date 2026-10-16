@@ -88,7 +88,11 @@ describe("OID4VP state mismatch handling", () => {
                     status: "failed",
                     errorReason: reason,
                     responseEncryptionPrivateJwk: null,
-                    outcome: { result: "failed", message: reason },
+                    outcome: {
+                        result: "failed",
+                        source: "verifier",
+                        message: reason,
+                    },
                 },
             );
             expect(announce).toHaveBeenCalledExactlyOnceWith(
@@ -260,8 +264,10 @@ describe("OID4VP wallet error response handling", () => {
 
     const walletOutcome = {
         result: "failed",
+        source: "wallet",
         error: "access_denied",
         message: "Wallet error: access_denied: User declined",
+        description: "User declined",
     };
 
     it.each([
@@ -496,6 +502,7 @@ describe("OID4VP verification failure reporting", () => {
         const message = "The credential issuer is not in the trusted list.";
         const outcome = {
             result: "failed",
+            source: "verifier",
             error: "trust_chain_not_trusted",
             message,
             credentials: [
@@ -577,6 +584,7 @@ describe("OID4VP verification failure reporting", () => {
             "Disclosed claim values do not match the requested values for credential 'pid': age_equal_or_over.18";
         const outcome = {
             result: "failed",
+            source: "verifier",
             error: "claim_value_mismatch",
             message,
         };
@@ -620,7 +628,7 @@ describe("OID4VP verification failure reporting", () => {
             status: "failed",
             errorReason: message,
             responseEncryptionPrivateJwk: null,
-            outcome: { result: "failed", message },
+            outcome: { result: "failed", source: "verifier", message },
         });
     });
 
@@ -637,6 +645,7 @@ describe("OID4VP verification failure reporting", () => {
             responseEncryptionPrivateJwk: null,
             outcome: {
                 result: "failed",
+                source: "verifier",
                 message: "Presentation validation failed: boom",
             },
         });

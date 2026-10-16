@@ -12,7 +12,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
-import { Session, isDcApiAvailable, type DigitalCredentialResponse } from '@eudiplo/sdk-core';
+import {
+  Session,
+  isDcApiAvailable,
+  type DigitalCredentialResponse,
+  type SessionOutcomeCredentialDto,
+} from '@eudiplo/sdk-core';
 import {
   CancelSessionDialogComponent,
   CancelSessionDialogData,
@@ -39,6 +44,14 @@ import { firstValueFrom } from 'rxjs';
 import { decodeJwt } from 'jose';
 import { getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import {
+  isFinishedSession,
+  sessionResult,
+  sessionStatusLabel,
+  type SessionResultSummary,
+} from '../session-outcome';
+import { presentedCredentials, type PresentedCredential } from '../presented-claims';
+
 @Component({
   selector: 'app-session-management-show',
   imports: [
@@ -157,7 +170,11 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
           this.stopPolling();
           await this.loadSession(session.id);
           this.loadSessionLogs(session.id);
-          this.snackBar.open('Offer cancelled', 'Close', { duration: 3000 });
+          this.snackBar.open(
+            isPresentationSession(session) ? 'Request cancelled' : 'Offer cancelled',
+            'Close',
+            { duration: 3000 }
+          );
         } catch (error) {
           console.error('Error cancelling session:', error);
           openErrorSnackBar(this.snackBar, this.cancelErrorMessage(error), 'Close', {
@@ -180,7 +197,10 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     const sessionId = this.route.snapshot.params['id'];
     await this.loadSession(sessionId);
     this.loadSessionLogs(sessionId);
-    await this.startPolling(sessionId);
+    // A finished session does not change any more.
+    if (this.session && !isFinishedSession(this.getSessionStatusValue(this.session))) {
+      this.startPolling(sessionId);
+    }
     this.grafanaLinkService.getConfig().then(() => {
       this.grafanaEnabled = this.grafanaLinkService.isEnabled();
     });
@@ -219,13 +239,64 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   getStatusDisplayText(status: any): string {
     if (!status) return 'Unknown';
-    if (typeof status === 'string') return status;
+    if (typeof status === 'string') return sessionStatusLabel(status);
     if (typeof status === 'object') {
       return Object.entries(status)
         .map(([key, value]) => `${key}: ${value}`)
         .join(', ');
     }
     return JSON.stringify(status);
+  }
+
+  /** How the session ended, or null while it is pending. */
+  result(): SessionResultSummary | null {
+    return this.session ? sessionResult(this.session) : null;
+  }
+
+  private presentedFor: unknown = undefined;
+  private presentedCache: PresentedCredential[] = [];
+
+  /** The claims a completed presentation disclosed, one entry per presented credential. */
+  presented(): PresentedCredential[] {
+    const credentials = this.session?.status === 'completed' ? this.session.credentials : null;
+    if (credentials !== this.presentedFor) {
+      this.presentedFor = credentials;
+      this.presentedCache = presentedCredentials(credentials);
+    }
+    return this.presentedCache;
+  }
+
+  /** The verification result of the credential presented for a query. */
+  outcomeCredential(queryId: string): SessionOutcomeCredentialDto | null {
+    return this.session?.outcome?.credentials?.find((c) => c.id === queryId) ?? null;
+  }
+
+  /** The trusted entity that matched the credential of a query, when verification recorded it. */
+  trustedIssuer(queryId: string): string | null {
+    return this.outcomeCredential(queryId)?.trust?.matchedIssuer ?? null;
+  }
+
+  /** Per-credential results explain a failure; on success only their warnings matter. */
+  showCredentialResults(result: SessionResultSummary): boolean {
+    return result.tone === 'success'
+      ? result.credentials.some((c) => (c.warnings?.length ?? 0) > 0)
+      : result.credentials.length > 0;
+  }
+
+  /** Session list filter for other sessions that failed with the same code. */
+  failureCodeParams(code: string): Record<string, string> {
+    return { status: 'failed', failureCode: code };
+  }
+
+  /** The presentation or credential configurations the session was created for. */
+  configurationIds(): string[] {
+    if (!this.session) return [];
+    if (!this.isIssuanceSession()) return this.session.requestId ? [this.session.requestId] : [];
+    return (
+      this.session.credentialConfigurationIds ??
+      this.session.credentialPayload?.credentialConfigurationIds ??
+      []
+    );
   }
 
   async getDcApiCall() {
@@ -399,24 +470,15 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   async fetchSessionStatus(sessionId: string): Promise<void> {
     try {
-      const previousStatus = this.session ? this.getSessionStatusValue(this.session) : null;
       const updatedSession = await this.sessionManagementService.getSession(sessionId);
       const currentStatus = this.getSessionStatusValue(updatedSession);
 
       this.session = updatedSession;
       this.loadSessionLogs(sessionId);
 
-      // Notify user of status changes
-      if (previousStatus && previousStatus !== currentStatus) {
-        this.snackBar.open(`Session status: ${currentStatus}`, 'Close', {
-          duration: 4000,
-          panelClass: this.getStatusSnackbarClass(currentStatus),
-        });
-
-        // Stop polling if session is in a final state
-        if (['completed', 'expired', 'failed', 'cancelled'].includes(currentStatus)) {
-          this.stopPolling();
-        }
+      // The result card says how the session ended; its live region announces it.
+      if (isFinishedSession(currentStatus)) {
+        this.stopPolling();
       }
     } catch (error) {
       console.error('Error fetching session status:', error);
@@ -447,19 +509,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       return session.status;
     }
     return 'active';
-  }
-
-  getStatusSnackbarClass(status: string): string[] {
-    switch (status) {
-      case 'completed':
-        return ['success-snackbar'];
-      case 'failed':
-      case 'expired':
-      case 'cancelled':
-        return ['error-snackbar'];
-      default:
-        return [];
-    }
   }
 
   isPolling(): boolean {
@@ -534,7 +583,7 @@ function dcApiErrorMessage(error: unknown): string {
       typeof body?.redirect_uri === 'string' ? errorDescription(body.redirect_uri) : null;
     if (description) return `The verifier rejected the presentation: ${description}`;
     if (typeof body?.message !== 'string') {
-      return 'The verifier rejected the presentation; the session status shows why.';
+      return 'The verifier rejected the presentation; the session result shows why.';
     }
   }
   return getHttpErrorMessage(error, 'DC API error');

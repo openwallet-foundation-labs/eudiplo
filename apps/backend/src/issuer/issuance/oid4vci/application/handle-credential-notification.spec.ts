@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SessionData } from "../../../../session/domain/session-data.js";
+import { credentialNotificationResult } from "../domain/credential-notification-result.js";
 import { HandleCredentialNotification } from "./handle-credential-notification.js";
 
 describe("HandleCredentialNotification", () => {
-    function setup(publish = vi.fn().mockResolvedValue(undefined)) {
+    function setup(
+        publish = vi.fn().mockResolvedValue(undefined),
+        changed = true,
+    ) {
         const session = {
             id: "session-1",
             tenantId: "tenant-1",
@@ -23,8 +27,9 @@ describe("HandleCredentialNotification", () => {
             order.push("record");
             return notification;
         });
-        const changeState = vi.fn(async () => {
+        const changeState = vi.fn(async (..._args: unknown[]) => {
             order.push("state");
+            return changed;
         });
         const publisher = vi.fn(async (...args: unknown[]) => {
             order.push("publish");
@@ -34,7 +39,7 @@ describe("HandleCredentialNotification", () => {
             { execute: record },
             { findForTenant: vi.fn().mockResolvedValue(endpoint) },
             { publish: publisher },
-            { execute: changeState },
+            { executeFrom: changeState },
         );
         return {
             useCase,
@@ -51,13 +56,38 @@ describe("HandleCredentialNotification", () => {
         ["credential_accepted", "completed"],
         ["credential_failure", "failed"],
         ["credential_deleted", "failed"],
-    ] as const)("sets the status for %s to %s", async (event, status) => {
-        const test = setup();
-        await test.useCase.execute(test.session, "notification-1", event);
-        expect(test.changeState).toHaveBeenCalledExactlyOnceWith(
-            test.session,
-            status,
-        );
+    ] as const)(
+        "moves a fetched session for %s to %s with its outcome",
+        async (event, status) => {
+            const test = setup();
+            await test.useCase.execute(
+                test.session,
+                "notification-1",
+                event,
+                "Why",
+            );
+            expect(test.changeState).toHaveBeenCalledExactlyOnceWith(
+                test.session,
+                ["fetched"],
+                status,
+                credentialNotificationResult(event, "Why"),
+            );
+        },
+    );
+
+    it("records and publishes the event even when the session already finished", async () => {
+        const test = setup(vi.fn().mockResolvedValue(undefined), false);
+
+        await expect(
+            test.useCase.execute(
+                test.session,
+                "notification-1",
+                "credential_deleted",
+            ),
+        ).resolves.toEqual({ publicationFailed: false });
+        expect(test.record).toHaveBeenCalledOnce();
+        expect(test.publisher).toHaveBeenCalledOnce();
+        expect(test.order).toEqual(["record", "state", "publish"]);
     });
 
     it("records the event with its description and changes the status before publishing", async () => {
@@ -101,7 +131,9 @@ describe("HandleCredentialNotification", () => {
         });
         expect(test.changeState).toHaveBeenCalledWith(
             test.session,
+            ["fetched"],
             "completed",
+            expect.anything(),
         );
     });
 
@@ -116,7 +148,12 @@ describe("HandleCredentialNotification", () => {
                 "credential_deleted",
             ),
         ).resolves.toEqual({ publicationFailed: false });
-        expect(test.changeState).toHaveBeenCalledWith(session, "failed");
+        expect(test.changeState).toHaveBeenCalledWith(
+            session,
+            ["fetched"],
+            "failed",
+            expect.anything(),
+        );
         expect(test.publisher).not.toHaveBeenCalled();
     });
 });

@@ -91,6 +91,8 @@ type UpdatedFilter = '' | UpdatedWithin | 'custom';
 const KNOWN_FAILURE_CODES = [
   'access_denied',
   'certificate_expired',
+  'credential_deleted',
+  'credential_failure',
   'no_trust_chain_to_root',
   'signature_invalid',
   'trust_chain_not_trusted',

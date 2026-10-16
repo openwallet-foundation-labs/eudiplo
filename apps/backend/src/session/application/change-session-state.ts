@@ -1,3 +1,4 @@
+import type { SessionResultUpdate } from "../domain/session-data.js";
 import {
     type SessionLifecycleContext,
     type SessionStatus,
@@ -31,18 +32,21 @@ export class ChangeSessionState {
      * Changes the status only while the session is still in one of `from`
      * (compare-and-set) and announces the transition only when this call
      * changed it, so repeated or concurrent requests publish it once.
+     * `result` is written in the same statement, so only the call that
+     * changed the status records the outcome.
      * @returns whether this call changed the status
      */
     async executeFrom(
         session: SessionLifecycleContext,
         from: readonly SessionStatus[],
         status: SessionStatus,
+        result: SessionResultUpdate = {},
     ): Promise<boolean> {
         const changed = await this.sessions.changeStateFrom(
             session.tenantId,
             session.id,
             from,
-            stateUpdate(status),
+            { ...stateUpdate(status), ...result },
         );
         if (changed) this.announce(session, status);
         return changed;

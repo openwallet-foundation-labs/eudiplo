@@ -45,12 +45,26 @@ export interface SessionOutcomeCredential {
     warnings?: SessionOutcomeWarning[];
 }
 
-/** Overall verification outcome for a session. */
+/**
+ * Who decided the result: the wallet (an OAuth error response or an OID4VCI
+ * notification) or EUDIPLO itself while verifying a presentation.
+ */
+export type SessionOutcomeSource = "wallet" | "verifier";
+
+/** Overall outcome of a session. */
 export interface SessionOutcome {
     result: "success" | "failed";
+    /** Who decided the result. */
+    source?: SessionOutcomeSource;
     /** Top-level failure code (on failure). */
     error?: string;
     /** Top-level short, safe message (on failure). */
     message?: string;
+    /**
+     * Free text the wallet sent with its error or notification
+     * (`error_description` or `event_description`). Wallet-controlled: show
+     * it as plain text only.
+     */
+    description?: string;
     credentials?: SessionOutcomeCredential[];
 }

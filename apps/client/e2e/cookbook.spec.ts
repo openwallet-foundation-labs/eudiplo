@@ -216,7 +216,7 @@ test('issue and verify cookbook', async ({ page }) => {
 
     holder = await acceptCredentialOffer(await scanQrCode(page));
     expect(holder.claims).toMatchObject({ vct, name: 'Max', member_id: 'M-001' });
-    await expect(page.locator('mat-chip').first()).toHaveText(/fetched|completed/);
+    await expect(page.locator('mat-chip').first()).toHaveText(/Fetched|Completed/);
   });
 
   await test.step('chapter 3, step 1: create the keys for the trust list', async () => {
@@ -316,11 +316,11 @@ test('issue and verify cookbook', async ({ page }) => {
   });
 
   await test.step('chapter 3, step 6: inspect the verified session', async () => {
-    await expect(page.locator('mat-chip').first()).toHaveText('completed');
-    await page.getByRole('tab', { name: 'Credentials (1)' }).click();
-    const credentials = page.getByRole('tabpanel');
-    await expect(credentials).toContainText('"membership"');
-    await expect(credentials).toContainText('"name": "Max"');
-    await expect(credentials).toContainText('"member_id": "M-001"');
+    await expect(page.locator('mat-chip').first()).toHaveText('Completed');
+    await expect(page.getByRole('heading', { name: 'Presentation verified' })).toBeVisible();
+    const presented = page.locator('.presented-card');
+    await expect(presented.getByRole('heading', { name: /membership/ })).toBeVisible();
+    await expect(presented.getByRole('row', { name: 'name Max' })).toBeVisible();
+    await expect(presented.getByRole('row', { name: 'member_id M-001' })).toBeVisible();
   });
 });

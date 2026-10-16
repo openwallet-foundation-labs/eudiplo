@@ -23,6 +23,7 @@ import { WebhookConfig } from "../../webhook/webhook.dto.js";
 import type { Notification } from "../domain/session-data.js";
 import { SessionOutcome } from "../domain/session-outcome.js";
 import { SessionStatus } from "../domain/session-state.js";
+import { SessionOutcomeDto } from "../dto/session-outcome.dto.js";
 
 /**
  * Entity representing a user session in the application.
@@ -339,7 +340,7 @@ export class Session {
      * Stores the error message when status is 'failed'.
      */
     @Column("text", { nullable: true })
-    errorReason?: string;
+    errorReason?: string | null;
 
     /**
      * Machine-readable failure code when status is 'failed' (e.g.
@@ -347,15 +348,25 @@ export class Session {
      * formats; consumers branch on this rather than parsing {@link errorReason}.
      */
     @Column("varchar", { nullable: true })
-    failureCode?: string;
+    failureCode?: string | null;
 
     /**
-     * Structured verification outcome (success or failure, provenance and
-     * diagnostics, per credential). Additive to {@link status} /
-     * {@link errorReason}; verbose detail stays in the session log only.
+     * Structured outcome (success or failure, who decided it, provenance and
+     * diagnostics, per credential). Set when a presentation is answered or a
+     * wallet sends its first OID4VCI notification; verbose detail stays in
+     * the session log only.
      */
+    @ApiProperty({ type: SessionOutcomeDto, nullable: true, required: false })
     @Column("json", { nullable: true })
     outcome?: SessionOutcome | null;
+
+    /**
+     * Reason the operator gave when cancelling the session (status
+     * `cancelled`). Null when none was given or for sessions cancelled before
+     * the reason was stored; the session log keeps it as well.
+     */
+    @Column("text", { nullable: true })
+    cancelReason?: string | null;
 
     /**
      * Number of failed tx_code (transaction code) validation attempts.

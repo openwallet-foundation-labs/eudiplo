@@ -8217,6 +8217,137 @@ export const CacheStatsResponseDtoSchema = {
     ]
 } as const;
 
+export const VerificationProvenanceDtoSchema = {
+    type: 'object',
+    properties: {
+        matchedIssuer: {
+            type: 'string',
+            description: 'Matched trusted entity ID, or the issuance certificate subject.'
+        },
+        issuanceThumbprint: {
+            type: 'string',
+            description: 'Thumbprint of the matched issuance certificate.'
+        },
+        matchMode: {
+            type: 'string',
+            description: 'How the chain matched a trusted entity, e.g. `ca` or `leaf-pinned`.'
+        },
+        revocationThumbprint: {
+            type: 'string',
+            description: 'Thumbprint of the entity\'s revocation certificate.'
+        }
+    }
+} as const;
+
+export const SessionOutcomeWarningDtoSchema = {
+    type: 'object',
+    properties: {
+        code: {
+            type: 'string',
+            description: 'Machine-readable warning code.'
+        },
+        message: {
+            type: 'string',
+            description: 'Short, safe message.'
+        }
+    },
+    required: [
+        'code',
+        'message'
+    ]
+} as const;
+
+export const SessionOutcomeCredentialDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Requested credential ID (DCQL).'
+        },
+        format: {
+            type: 'string',
+            description: 'Credential format, e.g. `mso_mdoc` or `dc+sd-jwt`.'
+        },
+        docType: {
+            type: 'string',
+            description: 'mDOC docType or SD-JWT VC vct.'
+        },
+        verified: {
+            type: 'boolean',
+            description: 'Whether the credential was verified.'
+        },
+        error: {
+            type: 'string',
+            description: 'Machine-readable failure code.'
+        },
+        message: {
+            type: 'string',
+            description: 'Short, safe failure message.'
+        },
+        trust: {
+            description: 'Trust provenance of a verified credential.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/VerificationProvenanceDto'
+                }
+            ]
+        },
+        warnings: {
+            description: 'Reserved for non-fatal conditions observed during verification; currently never set.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SessionOutcomeWarningDto'
+            }
+        }
+    },
+    required: [
+        'verified'
+    ]
+} as const;
+
+export const SessionOutcomeDtoSchema = {
+    type: 'object',
+    properties: {
+        result: {
+            enum: [
+                'success',
+                'failed'
+            ],
+            type: 'string'
+        },
+        source: {
+            enum: [
+                'wallet',
+                'verifier'
+            ],
+            type: 'string',
+            description: 'Who decided the result: the wallet (an error response or an OID4VCI notification) or EUDIPLO while verifying a presentation.'
+        },
+        error: {
+            type: 'string',
+            description: 'Machine-readable failure code, as in `failureCode`.'
+        },
+        message: {
+            type: 'string',
+            description: 'Short, safe failure message.'
+        },
+        description: {
+            type: 'string',
+            description: 'Free text the wallet sent with its error or notification. Wallet-controlled: show it as plain text only.'
+        },
+        credentials: {
+            description: 'Per credential query: on success every presented query, on a classified verification failure the credential that failed.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SessionOutcomeCredentialDto'
+            }
+        }
+    },
+    required: [
+        'result'
+    ]
+} as const;
+
 export const AuthorizeQueriesSchema = {
     type: 'object',
     properties: {
@@ -8580,6 +8711,17 @@ export const SessionSchema = {
             ],
             type: 'string'
         },
+        outcome: {
+            description: 'Structured outcome (success or failure, who decided it, provenance and\ndiagnostics, per credential). Set when a presentation is answered or a\nwallet sends its first OID4VCI notification; verbose detail stays in\nthe session log only.',
+            anyOf: [
+                {
+                    $ref: '#/components/schemas/SessionOutcomeDto'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
         id: {
             type: 'string',
             description: 'Unique identifier for the session.'
@@ -8799,19 +8941,25 @@ export const SessionSchema = {
             description: 'The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS.'
         },
         errorReason: {
-            type: 'string',
+            type: [
+                'string',
+                'null'
+            ],
             description: 'Error reason if the session failed.\nStores the error message when status is \'failed\'.'
         },
         failureCode: {
-            type: 'string',
-            description: 'Machine-readable failure code when status is \'failed\' (e.g.\n`trust_chain_not_trusted`). Stable across credential and trust-list\nformats; consumers branch on this rather than parsing {@link errorReason}.'
-        },
-        outcome: {
             type: [
-                'object',
+                'string',
                 'null'
             ],
-            description: 'Structured verification outcome (success or failure, provenance and\ndiagnostics, per credential). Additive to {@link status} /\n{@link errorReason}; verbose detail stays in the session log only.'
+            description: 'Machine-readable failure code when status is \'failed\' (e.g.\n`trust_chain_not_trusted`). Stable across credential and trust-list\nformats; consumers branch on this rather than parsing {@link errorReason}.'
+        },
+        cancelReason: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Reason the operator gave when cancelling the session (status\n`cancelled`). Null when none was given or for sessions cancelled before\nthe reason was stored; the session log keeps it as well.'
         },
         txCodeFailedAttempts: {
             type: 'number',

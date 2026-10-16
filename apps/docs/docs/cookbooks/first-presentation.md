@@ -148,14 +148,14 @@ On **3. Settings**:
 
 ## Step 6: Inspect the verified session
 
-Open **Sessions → All Sessions** and open the new presentation session. Its status chip shows `completed`. The **Credentials** tab shows the verified claims for query `membership`:
+Open **Sessions → All Sessions** and open the new presentation session. Its status chip shows **Completed** and the result card reads **Presentation verified**. The **Presented credentials** card lists the verified claims for query `membership`:
 
 | Claim       | Expected value |
 | ----------- | -------------- |
 | `name`      | `Max`          |
 | `member_id` | `M-001`        |
 
-**Checkpoint:** the session is `completed` and shows both values. A `failed` session is never a success, even if the wallet reported that it shared the data.
+**Checkpoint:** the session is **Completed** and shows both values. A `failed` session is never a success, even if the wallet reported that it shared the data.
 
 You have now issued and verified a credential end to end. In an application, you receive this result by webhook instead of reading the session view; see [Integrate into your backend](integrate-backend.md).
 

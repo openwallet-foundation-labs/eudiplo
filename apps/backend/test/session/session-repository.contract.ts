@@ -1619,6 +1619,55 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             });
         });
 
+        it("writes result fields only together with a compare-and-set that matched", async () => {
+            const repository = getDataSource().getRepository(Session);
+            await repository.update(sessionId, {
+                status: SessionStatus.Completed,
+                outcome: { result: "success", source: "wallet" },
+            });
+            await expect(
+                adapter.changeStateFrom(
+                    "tenant-a",
+                    sessionId,
+                    [SessionStatus.Fetched],
+                    {
+                        ...stateUpdate(SessionStatus.Failed),
+                        outcome: { result: "failed", source: "wallet" },
+                        failureCode: "credential_deleted",
+                    },
+                ),
+            ).resolves.toBe(false);
+            expect(
+                await repository.findOneByOrFail({ id: sessionId }),
+            ).toMatchObject({
+                status: SessionStatus.Completed,
+                outcome: { result: "success", source: "wallet" },
+                failureCode: null,
+            });
+            await repository.update(sessionId, {
+                status: SessionStatus.Fetched,
+            });
+            await expect(
+                adapter.changeStateFrom(
+                    "tenant-a",
+                    sessionId,
+                    [SessionStatus.Fetched],
+                    {
+                        ...stateUpdate(SessionStatus.Failed),
+                        outcome: { result: "failed", source: "wallet" },
+                        failureCode: "credential_deleted",
+                    },
+                ),
+            ).resolves.toBe(true);
+            expect(
+                await repository.findOneByOrFail({ id: sessionId }),
+            ).toMatchObject({
+                status: SessionStatus.Failed,
+                outcome: { result: "failed", source: "wallet" },
+                failureCode: "credential_deleted",
+            });
+        });
+
         it("retains the existing no-op update behavior for a missing session", async () => {
             await expect(
                 adapter.changeState(

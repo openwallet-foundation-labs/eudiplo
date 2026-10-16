@@ -563,7 +563,10 @@ describe("Session cancellation (Issue #1119) - OID4VCI", () => {
         await cancel(sessionId, { reason: "sent to wrong recipient" }).expect(
             204,
         );
-        expect((await session(sessionId)).status).toBe("cancelled");
+        expect(await session(sessionId)).toMatchObject({
+            status: "cancelled",
+            cancelReason: "sent to wrong recipient",
+        });
 
         const fetched = await request(app.getHttpServer())
             .get(offerPath)
@@ -650,7 +653,9 @@ describe("Session cancellation (Issue #1119) - OID4VCI", () => {
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .expect(204);
-        expect((await session(sessionId)).status).toBe("cancelled");
+        const cancelled = await session(sessionId);
+        expect(cancelled.status).toBe("cancelled");
+        expect(cancelled.cancelReason ?? null).toBeNull();
     });
 
     test("the cancellation is recorded in the tenant audit log", async () => {

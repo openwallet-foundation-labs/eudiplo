@@ -40,13 +40,17 @@ Each credential response contains a `notification_id`. The wallet sends it back 
 { "notification_id": "550e8400-e29b-41d4-a716-446655440000", "event": "credential_accepted" }
 ```
 
-| `event` | Meaning | Session status afterwards |
+| `event` | Meaning | Session status after the first event |
 | --- | --- | --- |
 | `credential_accepted` | The wallet stored the credential. | `completed` |
 | `credential_failure` | The wallet could not process it. | `failed` |
-| `credential_deleted` | The user deleted it. | `failed` |
+| `credential_deleted` | A user action stopped the issuance, for example the user rejected the credential. | `failed` |
 
-EUDIPLO records the event and sets the session status first, then posts the event to the webhook endpoint. The payload and the authentication options are described in [Webhooks](../reference/webhooks.md). Delivery is best effort and not retried: a failed delivery is logged and changes neither the session status nor the answer to the wallet. Use the notification ID to detect duplicates.
+For `credential_failure` and `credential_deleted`, the event becomes the session's `failureCode`, and `outcome.description` keeps the wallet's `event_description`; see [Session Outcome](../reference/session-outcome.md#issuance-notifications). The Web Client shows both on the session page.
+
+The first event of a session decides its status and result. Later events, for another credential of the same offer or a repeated notification, are stored on their notification and posted to the webhook, but do not change the finished session.
+
+EUDIPLO records the event and, for the first event, the session status, then posts the event to the webhook endpoint. The payload and the authentication options are described in [Webhooks](../reference/webhooks.md). Delivery is best effort and not retried: a failed delivery is logged and changes neither the session status nor the answer to the wallet. Use the notification ID to detect duplicates.
 
 You can also read the recorded events from `notifications` of `GET /api/session/{id}`, for example to catch up after a failed delivery.
 

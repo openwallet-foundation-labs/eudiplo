@@ -3690,6 +3690,95 @@ export type CacheStatsResponseDto = {
     statusListCache: StatusListCacheStatsDto;
 };
 
+export type VerificationProvenanceDto = {
+    /**
+     * Matched trusted entity ID, or the issuance certificate subject.
+     */
+    matchedIssuer?: string;
+    /**
+     * Thumbprint of the matched issuance certificate.
+     */
+    issuanceThumbprint?: string;
+    /**
+     * How the chain matched a trusted entity, e.g. `ca` or `leaf-pinned`.
+     */
+    matchMode?: string;
+    /**
+     * Thumbprint of the entity's revocation certificate.
+     */
+    revocationThumbprint?: string;
+};
+
+export type SessionOutcomeWarningDto = {
+    /**
+     * Machine-readable warning code.
+     */
+    code: string;
+    /**
+     * Short, safe message.
+     */
+    message: string;
+};
+
+export type SessionOutcomeCredentialDto = {
+    /**
+     * Requested credential ID (DCQL).
+     */
+    id?: string;
+    /**
+     * Credential format, e.g. `mso_mdoc` or `dc+sd-jwt`.
+     */
+    format?: string;
+    /**
+     * mDOC docType or SD-JWT VC vct.
+     */
+    docType?: string;
+    /**
+     * Whether the credential was verified.
+     */
+    verified: boolean;
+    /**
+     * Machine-readable failure code.
+     */
+    error?: string;
+    /**
+     * Short, safe failure message.
+     */
+    message?: string;
+    /**
+     * Trust provenance of a verified credential.
+     */
+    trust?: VerificationProvenanceDto;
+    /**
+     * Reserved for non-fatal conditions observed during verification; currently never set.
+     */
+    warnings?: Array<SessionOutcomeWarningDto>;
+};
+
+export type SessionOutcomeDto = {
+    result: 'success' | 'failed';
+    /**
+     * Who decided the result: the wallet (an error response or an OID4VCI notification) or EUDIPLO while verifying a presentation.
+     */
+    source?: 'wallet' | 'verifier';
+    /**
+     * Machine-readable failure code, as in `failureCode`.
+     */
+    error?: string;
+    /**
+     * Short, safe failure message.
+     */
+    message?: string;
+    /**
+     * Free text the wallet sent with its error or notification. Wallet-controlled: show it as plain text only.
+     */
+    description?: string;
+    /**
+     * Per credential query: on success every presented query, on a classified verification failure the credential that failed.
+     */
+    credentials?: Array<SessionOutcomeCredentialDto>;
+};
+
 export type AuthorizeQueries = {
     issuer_state?: string;
     response_type?: string;
@@ -3830,6 +3919,13 @@ export type Session = {
      * Status of the session.
      */
     status: 'active' | 'fetched' | 'completed' | 'expired' | 'failed' | 'cancelled';
+    /**
+     * Structured outcome (success or failure, who decided it, provenance and
+     * diagnostics, per credential). Set when a presentation is answered or a
+     * wallet sends its first OID4VCI notification; verbose detail stays in
+     * the session log only.
+     */
+    outcome?: SessionOutcomeDto | null;
     /**
      * Unique identifier for the session.
      */
@@ -4034,21 +4130,19 @@ export type Session = {
      * Error reason if the session failed.
      * Stores the error message when status is 'failed'.
      */
-    errorReason?: string;
+    errorReason?: string | null;
     /**
      * Machine-readable failure code when status is 'failed' (e.g.
      * `trust_chain_not_trusted`). Stable across credential and trust-list
      * formats; consumers branch on this rather than parsing {@link errorReason}.
      */
-    failureCode?: string;
+    failureCode?: string | null;
     /**
-     * Structured verification outcome (success or failure, provenance and
-     * diagnostics, per credential). Additive to {@link status} /
-     * {@link errorReason}; verbose detail stays in the session log only.
+     * Reason the operator gave when cancelling the session (status
+     * `cancelled`). Null when none was given or for sessions cancelled before
+     * the reason was stored; the session log keeps it as well.
      */
-    outcome?: {
-        [key: string]: unknown;
-    } | null;
+    cancelReason?: string | null;
     /**
      * Number of failed tx_code (transaction code) validation attempts.
      * Used to enforce brute-force protection in the pre-authorized code flow.

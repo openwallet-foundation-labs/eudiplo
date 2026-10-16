@@ -1,9 +1,46 @@
 @if (session) {
   <div fxLayout="column" fxFlex fxLayoutGap="16px">
-    <!-- Header with navigation -->
-    <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Session Details: {{ session.id }}</h2>
-      <div fxLayout="row" fxLayoutGap="8px">
+    <!-- Header: what this session is, its state and the actions on it -->
+    <div
+      class="page-header"
+      fxLayout="row wrap"
+      fxLayoutAlign="space-between center"
+      fxLayoutGap="8px"
+    >
+      <div class="page-title" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+        <button
+          matIconButton
+          (click)="goBack()"
+          matTooltip="Back to sessions"
+          aria-label="Back to sessions"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <h2>{{ isIssuanceSession() ? 'Issuance' : 'Presentation' }} Session</h2>
+            <mat-chip [class]="getStatusClass(session.status)" selected>
+              {{ getStatusDisplayText(session.status) }}
+            </mat-chip>
+            @if (isPolling()) {
+              <div class="polling-indicator">
+                <mat-icon class="spinning" aria-hidden="true">refresh</mat-icon>
+                <span class="polling-text">Live updates</span>
+              </div>
+            }
+          </div>
+          <p class="page-subtitle">
+            @if (configurationIds().length > 0) {
+              <span>{{ configurationIds().join(', ') }}</span> ·
+            }
+            @if (session.reference) {
+              <span>Reference {{ session.reference }}</span> ·
+            }
+            <span>Created {{ formatDate(session.createdAt) }}</span>
+          </p>
+        </div>
+      </div>
+      <div fxLayout="row wrap" fxLayoutGap="8px">
         @if (grafanaEnabled) {
           <button
             mat-button
@@ -28,10 +65,14 @@
             color="warn"
             (click)="cancelSession()"
             [disabled]="cancelling"
-            matTooltip="Cancel this offer, so a wallet can no longer use it"
+            [matTooltip]="
+              isIssuanceSession()
+                ? 'Cancel this offer, so a wallet can no longer use it'
+                : 'Cancel this request, so a wallet can no longer answer it'
+            "
           >
             <mat-icon>cancel</mat-icon>
-            Cancel Offer
+            {{ isIssuanceSession() ? 'Cancel Offer' : 'Cancel Request' }}
           </button>
         }
         @if (canRecreateOffer()) {
@@ -48,93 +89,256 @@
             {{ isIssuanceSession() ? 'Recreate Offer' : 'Recreate Request' }}
           </button>
         }
-        <button matIconButton (click)="goBack()" matTooltip="Go back">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
       </div>
     </div>
 
-    <!-- Status chip with polling indicator -->
-    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-      <mat-chip [class]="getStatusClass(session.status)" selected>
-        {{ getStatusDisplayText(session.status) }}
-      </mat-chip>
-      @if (isPolling()) {
-        <div class="polling-indicator">
-          <mat-icon class="spinning">refresh</mat-icon>
-          <span class="polling-text">Live updates</span>
-        </div>
+    <!-- How the session ended; announced when polling picks up the change -->
+    <div aria-live="polite">
+      @if (result(); as result) {
+        <mat-card class="result-card" [class]="'result-' + result.tone">
+          <mat-card-content>
+            <div class="result-summary">
+              <mat-icon class="result-icon" aria-hidden="true">{{ result.icon }}</mat-icon>
+              <div class="result-text">
+                <h3 class="result-title">{{ result.title }}</h3>
+                @if (result.message) {
+                  <p class="result-message">{{ result.message }}</p>
+                }
+                @if (result.cancelReason) {
+                  <p class="result-message">
+                    <span class="result-label">Reason:</span>
+                    {{ result.cancelReason }}
+                  </p>
+                }
+                @if (result.walletDescription) {
+                  <p class="result-message">
+                    <span class="result-label">The wallet says:</span>
+                    {{ result.walletDescription }}
+                  </p>
+                }
+                @if (result.code) {
+                  <p class="result-code">
+                    Failure code: <code>{{ result.code }}</code>
+                    <a
+                      class="result-code-link"
+                      [routerLink]="['../']"
+                      [queryParams]="failureCodeParams(result.code)"
+                      >Show sessions with this failure</a
+                    >
+                  </p>
+                }
+                @if (result.checkRequest) {
+                  <p class="result-hint">
+                    The wallet refused the request before sending a presentation. Check what the
+                    wallet requires of the request, for example a registration certificate or a
+                    trusted access certificate.
+                  </p>
+                }
+              </div>
+            </div>
+
+            @if (showCredentialResults(result)) {
+              <ul class="result-credentials" aria-label="Results per credential">
+                @for (credential of result.credentials; track $index) {
+                  <li class="result-credential" [class.verified]="credential.verified">
+                    <mat-icon aria-hidden="true">{{
+                      credential.verified ? 'verified' : 'gpp_bad'
+                    }}</mat-icon>
+                    <div>
+                      <div class="result-credential-name">
+                        {{ credential.id || 'Credential ' + ($index + 1) }}
+                        <span class="visually-hidden">{{
+                          credential.verified ? 'verified' : 'not verified'
+                        }}</span>
+                        @if (credential.format || credential.docType) {
+                          <span class="result-credential-type">
+                            {{ credential.format }}
+                            @if (credential.docType) {
+                              · {{ credential.docType }}
+                            }
+                          </span>
+                        }
+                      </div>
+                      @if (credential.message || credential.error) {
+                        <div class="result-credential-detail">
+                          {{ credential.message || credential.error }}
+                          @if (credential.message && credential.error) {
+                            (<code>{{ credential.error }}</code
+                            >)
+                          }
+                        </div>
+                      }
+                      @for (warning of credential.warnings; track $index) {
+                        <div class="result-credential-detail result-warning">
+                          <mat-icon aria-hidden="true">warning</mat-icon>
+                          {{ warning.message || warning.code }}
+                        </div>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </mat-card-content>
+        </mat-card>
       }
-      <span class="creation-date">Last Update: {{ formatDate(session.updatedAt) }}</span>
     </div>
 
-    <!-- Main session information -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>General Information</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="info-grid">
-          <div class="info-item">
-            <strong>Session ID:</strong>
-            <span class="value-with-copy">
-              {{ session.id }}
-              <button matIconButton (click)="copyToClipboard(session.id)" matTooltip="Copy ID">
-                <mat-icon>content_copy</mat-icon>
-              </button>
-            </span>
+    <!-- While pending: what the wallet needs. The backend returns the offer or
+         request only to the session's side. -->
+    @if (session.status === 'fetched') {
+      <mat-card class="waiting-card">
+        <mat-card-header>
+          <h3 mat-card-title>Waiting for the wallet</h3>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="no-uri-message">
+            <mat-icon aria-hidden="true">hourglass_top</mat-icon>
+            <p>
+              {{
+                isIssuanceSession()
+                  ? 'The credentials were issued. Waiting for the wallet to confirm them.'
+                  : 'A wallet fetched the request. Waiting for its answer.'
+              }}
+            </p>
           </div>
-
-          @if (session.requestId) {
-            <div class="info-item">
-              <strong>Request ID:</strong>
-              <span class="value-with-copy">
-                {{ session.requestId }}
-                <button
-                  matIconButton
-                  (click)="copyToClipboard(session.requestId)"
-                  matTooltip="Copy Request ID"
-                >
-                  <mat-icon>content_copy</mat-icon>
+        </mat-card-content>
+      </mat-card>
+    } @else if (!result()) {
+      @if (canSeeOffer()) {
+        <mat-card class="qr-card">
+          <mat-card-header>
+            <mat-card-title>
+              @if (session.useDcApi) {
+                <mat-icon>api</mat-icon>
+                @if (isIssuanceSession()) {
+                  Issuance Offer
+                } @else {
+                  Presentation Request
+                }
+              } @else {
+                <mat-icon>qr_code</mat-icon>
+                @if (isIssuanceSession()) {
+                  Issuance Offer QR Code
+                } @else {
+                  Presentation Request QR Code
+                }
+              }
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (session.useDcApi) {
+              <div class="dc-api-section" fxLayout="row" fxLayoutAlign="center center">
+                <button mat-flat-button color="primary" (click)="getDcApiCall()">
+                  <mat-icon>api</mat-icon>
+                  DC API
                 </button>
-              </span>
-            </div>
-          }
+              </div>
+            } @else if (getOfferUri()) {
+              <div class="qr-section">
+                @if (qrCodeDataUrl) {
+                  <div class="qr-container">
+                    <img
+                      [src]="qrCodeDataUrl"
+                      [alt]="
+                        isIssuanceSession() ? 'QR code of the offer' : 'QR code of the request'
+                      "
+                      class="qr-image"
+                    />
+                  </div>
+                } @else if (generatingQR) {
+                  <div class="qr-placeholder">
+                    <mat-spinner diameter="40"></mat-spinner>
+                    <p>Generating QR code...</p>
+                  </div>
+                }
+                <div class="value-with-copy">
+                  <span class="uri-value">
+                    <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
+                  </span>
+                  <button
+                    matIconButton
+                    (click)="copyToClipboard(getOfferUri()!)"
+                    [matTooltip]="isIssuanceSession() ? 'Copy offer link' : 'Copy request link'"
+                    [attr.aria-label]="
+                      isIssuanceSession() ? 'Copy offer link' : 'Copy request link'
+                    "
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="no-uri-message">
+                <mat-icon aria-hidden="true">info</mat-icon>
+                <p>No {{ isIssuanceSession() ? 'offer' : 'request' }} link is available.</p>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <p class="role-hint">
+          The {{ isIssuanceSession() ? 'offer' : 'request' }} link and its QR code are shown only to
+          clients with
+          {{
+            isIssuanceSession()
+              ? 'issuance:offer or issuance:manage'
+              : 'presentation:request or presentation:manage'
+          }}.
+        </p>
+      }
+    }
 
-          @if (session.authorization_code) {
-            <div class="info-item">
-              <strong>Authorization Code:</strong>
-              <span class="value-with-copy">
-                {{ session.authorization_code }}
-                <button
-                  matIconButton
-                  (click)="copyToClipboard(session.authorization_code)"
-                  matTooltip="Copy Authorization Code"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </span>
-            </div>
+    <!-- What the wallet presented, as readable claims -->
+    @if (presented().length > 0) {
+      <mat-card class="presented-card">
+        <mat-card-header>
+          <h3 mat-card-title>Presented credentials</h3>
+        </mat-card-header>
+        <mat-card-content>
+          @for (credential of presented(); track $index) {
+            <section class="presented-credential">
+              <h4 class="presented-title">
+                {{ credential.queryId }}
+                @if (credential.type || outcomeCredential(credential.queryId)?.docType; as type) {
+                  <span class="presented-type">{{ type }}</span>
+                }
+              </h4>
+              @if (credential.issuer || trustedIssuer(credential.queryId)) {
+                <p class="presented-meta">
+                  @if (trustedIssuer(credential.queryId); as trusted) {
+                    <mat-icon aria-hidden="true">verified</mat-icon>
+                    Trusted issuer: {{ trusted }}
+                  } @else {
+                    Issuer: {{ credential.issuer }}
+                  }
+                </p>
+              }
+              @if (credential.claims.length > 0) {
+                <table class="claims-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Claim</th>
+                      <th scope="col">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (claim of credential.claims; track claim.path) {
+                      <tr>
+                        <th scope="row">{{ claim.path }}</th>
+                        <td>{{ claim.value }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p class="presented-meta">No claims were disclosed.</p>
+              }
+            </section>
           }
-
-          @if (session.request_uri) {
-            <div class="info-item">
-              <strong>Request URI:</strong>
-              <span class="value-with-copy">
-                {{ session.request_uri }}
-                <button
-                  matIconButton
-                  (click)="copyToClipboard(session.request_uri)"
-                  matTooltip="Copy Request URI"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </span>
-            </div>
-          }
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-content>
+      </mat-card>
+    }
 
     @if (canReadCredentialStatus()) {
       <app-credential-status-card
@@ -144,102 +348,117 @@
       />
     }
 
-    <!-- QR Code Section: the backend returns the offer or request only to the session's side -->
-    @if (canSeeOffer()) {
-      <mat-card class="qr-card">
-        <mat-card-header>
-          <mat-card-title>
-            @if (session.useDcApi) {
-              <mat-icon>api</mat-icon>
-              @if (isIssuanceSession()) {
-                Issuance Offer
-              } @else {
-                Presentation Request
-              }
-            } @else {
-              <mat-icon>qr_code</mat-icon>
-              @if (isIssuanceSession()) {
-                Issuance Offer QR Code
-              } @else {
-                Presentation Request QR Code
-              }
-            }
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (session.useDcApi) {
-            <!-- Show only DC API button when useDcApi is enabled -->
-            <div class="dc-api-section" fxLayout="row" fxLayoutAlign="center center">
-              <button mat-flat-button color="primary" (click)="getDcApiCall()">
-                <mat-icon>api</mat-icon>
-                DC API
+    <!-- Identifiers and timing -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <dl class="info-grid">
+          <div class="info-item">
+            <dt>Session ID</dt>
+            <dd class="value-with-copy">
+              <span class="mono">{{ session.id }}</span>
+              <button
+                matIconButton
+                (click)="copyToClipboard(session.id)"
+                matTooltip="Copy session ID"
+                aria-label="Copy session ID"
+              >
+                <mat-icon>content_copy</mat-icon>
               </button>
-            </div>
-          } @else if (getOfferUri()) {
-            <!-- Show QR code and URI when useDcApi is not enabled -->
-            <div class="qr-section">
-              <!-- Offer URI -->
-              <div class="info-item">
-                <strong>Offer URI:</strong>
-                <div class="value-with-copy">
-                  <span class="uri-value">
-                    <a href="{{ getOfferUri() }}">{{ getOfferUri() }}</a>
-                  </span>
-                  <button
-                    matIconButton
-                    (click)="copyToClipboard(getOfferUri()!)"
-                    matTooltip="Copy offer URI"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </button>
-                </div>
-              </div>
+            </dd>
+          </div>
 
-              <!-- QR Code Display -->
-              @if (qrCodeDataUrl) {
-                <div class="qr-container">
-                  <img [src]="qrCodeDataUrl" alt="QR Code for offer" class="qr-image" />
-                </div>
-              } @else if (generatingQR) {
-                <div class="qr-placeholder">
-                  <mat-spinner diameter="40"></mat-spinner>
-                  <p>Generating QR code...</p>
-                </div>
-              } @else {
-                <div class="qr-placeholder">
-                  <mat-icon>qr_code</mat-icon>
-                  <p>Click refresh to generate QR code</p>
-                </div>
-              }
-            </div>
-          } @else {
-            <div class="no-uri-message">
-              <mat-icon>info</mat-icon>
-              <p>
-                No offer URI available for this session available anymore,
-                @if (session.status === 'fetched' || session.status === 'completed') {
-                  credential already fetched
-                } @else {
-                  session {{ session.status }}
-                }
-              </p>
+          @for (id of configurationIds(); track id) {
+            <div class="info-item">
+              <dt>
+                {{
+                  isIssuanceSession() ? 'Credential configuration' : 'Presentation configuration'
+                }}
+              </dt>
+              <dd class="value-with-copy">
+                <span>{{ id }}</span>
+                <button
+                  matIconButton
+                  (click)="copyToClipboard(id)"
+                  [matTooltip]="'Copy ' + id"
+                  [attr.aria-label]="'Copy configuration ID ' + id"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </dd>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
-    } @else {
-      <p class="role-hint">
-        The {{ isIssuanceSession() ? 'offer' : 'request' }} link and its QR code are shown only to
-        clients with
-        {{
-          isIssuanceSession()
-            ? 'issuance:offer or issuance:manage'
-            : 'presentation:request or presentation:manage'
-        }}.
-      </p>
-    }
 
-    <!-- Detailed information in tabs -->
+          @if (session.reference) {
+            <div class="info-item">
+              <dt>Reference</dt>
+              <dd>{{ session.reference }}</dd>
+            </div>
+          }
+
+          <div class="info-item">
+            <dt>Created</dt>
+            <dd>{{ formatDate(session.createdAt) }}</dd>
+          </div>
+
+          <div class="info-item">
+            <dt>Last update</dt>
+            <dd>{{ formatDate(session.updatedAt) }}</dd>
+          </div>
+
+          @if (session.expiresAt) {
+            <div class="info-item">
+              <dt>Valid until</dt>
+              <dd>{{ formatDate(session.expiresAt) }}</dd>
+            </div>
+          }
+
+          <div class="info-item">
+            <dt>Delivery</dt>
+            <dd>{{ session.useDcApi ? 'Digital Credentials API' : 'QR code or link' }}</dd>
+          </div>
+
+          @if (session.authorization_code) {
+            <div class="info-item">
+              <dt>Authorization code</dt>
+              <dd class="value-with-copy">
+                <span class="mono">{{ session.authorization_code }}</span>
+                <button
+                  matIconButton
+                  (click)="copyToClipboard(session.authorization_code)"
+                  matTooltip="Copy authorization code"
+                  aria-label="Copy authorization code"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </dd>
+            </div>
+          }
+
+          @if (session.request_uri) {
+            <div class="info-item">
+              <dt>Request URI</dt>
+              <dd class="value-with-copy">
+                <span class="mono">{{ session.request_uri }}</span>
+                <button
+                  matIconButton
+                  (click)="copyToClipboard(session.request_uri)"
+                  matTooltip="Copy request URI"
+                  aria-label="Copy request URI"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </dd>
+            </div>
+          }
+        </dl>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Raw data for integrators and debugging -->
+    <h3 class="section-heading">Technical data</h3>
     <mat-tab-group>
       <!-- Credentials Tab -->
       @if (session.credentials && session.credentials.length > 0) {

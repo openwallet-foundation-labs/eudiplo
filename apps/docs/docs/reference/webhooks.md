@@ -68,6 +68,7 @@ EUDIPLO sends one `POST` per presentation after the session reached its final st
     "status": "completed",
     "outcome": {
         "result": "success",
+        "source": "verifier",
         "credentials": [{ "id": "membership", "verified": true }]
     },
     "credentials": [
@@ -95,6 +96,7 @@ EUDIPLO sends one `POST` per presentation after the session reached its final st
     "status": "failed",
     "outcome": {
         "result": "failed",
+        "source": "verifier",
         "error": "trust_chain_not_trusted",
         "message": "The credential issuer is not in the trusted list.",
         "credentials": [
@@ -120,7 +122,7 @@ EUDIPLO sends one `POST` per presentation after the session reached its final st
 | `reference`        | Your [reference](../concepts/sessions.md#your-own-reference) of the request; only present when set                                                |
 | `transaction_data` | The transaction data of the request, if it had any                                                                                               |
 
-A wallet that declines sends an OAuth error; the webhook then reports `failed` with the wallet's error code (for example `access_denied`) as `outcome.error`. Expired requests do not trigger a webhook.
+A wallet that declines sends an OAuth error; the webhook then reports `failed` with `outcome.source` set to `wallet`, the wallet's error code (for example `access_denied`) as `outcome.error` and its `error_description`, if any, as `outcome.description`; see [wallet error responses](session-outcome.md#wallet-error-responses). Expired requests do not trigger a webhook.
 
 ### Raw tokens
 
@@ -138,7 +140,7 @@ Other response fields are ignored.
 
 ## Notification webhook
 
-When the wallet calls the [notification endpoint](../issuance/notifications.md), EUDIPLO records the event on the session, sets the session status and then forwards the event to the webhook endpoint named in the offer:
+When the wallet calls the [notification endpoint](../issuance/notifications.md), EUDIPLO records the event on the session, sets the session status if it is the session's first event, and then forwards the event to the webhook endpoint named in the offer. Later events of the same session are forwarded as well but leave the status alone ([Issuance notifications](session-outcome.md#issuance-notifications)):
 
 ```json
 {
@@ -193,5 +195,5 @@ The response body is ignored.
 - **Redirects.** EUDIPLO follows up to 5 redirects. Each target must pass the outbound URL policy below; `307` and `308` repeat the `POST`, other redirects continue with a `GET` without body. The API key header is only sent to the origin of the webhook URL, not to a redirect target on another origin.
 - **Presentation failures are best effort.** The session status is final before the webhook is sent. A failed delivery (connection error, non-2xx status, blocked URL) is logged and changes neither the session nor the wallet's result. Use [polling or the event stream](../presentation/receive-results.md) as a fallback.
 - **Cancellation webhooks are best effort.** The session is cancelled before the webhook is sent; a failed delivery is only logged.
-- **Notification failures are best effort.** EUDIPLO records the event and sets the session status before it sends the webhook. A failed delivery is logged and changes neither the session nor the answer to the wallet. The recorded events stay in `notifications` of the session.
+- **Notification failures are best effort.** EUDIPLO records the event and, for the session's first event, the session status before it sends the webhook. A failed delivery is logged and changes neither the session nor the answer to the wallet. The recorded events stay in `notifications` of the session.
 - **Outbound URL policy.** Webhook URLs must use HTTPS and resolve to public addresses unless `OUTBOUND_URL_ALLOW_HTTP` or `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK` allow otherwise. With `OUTBOUND_URL_ALLOWED_HOSTS` set, the host must also be on that list; see [environment variables](environment-variables.md#webhook). A blocked URL counts as a failed delivery.

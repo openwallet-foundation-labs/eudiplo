@@ -3,6 +3,7 @@ import type {
     ExternalSessionBinding,
     NewSession,
     SessionData,
+    SessionResultUpdate,
     SessionUpdate,
 } from "../domain/session-data.js";
 import type {
@@ -176,14 +177,15 @@ export interface SessionRepository {
         update: SessionStateUpdate,
     ): Promise<void>;
     /**
-     * Compare-and-set: apply the state update only while the status is one of
-     * `from`. Return whether this call changed the session.
+     * Compare-and-set: apply the state update (and the result fields written
+     * with it) only while the status is one of `from`. Return whether this
+     * call changed the session.
      */
     changeStateFrom(
         tenantId: string,
         sessionId: string,
         from: readonly SessionStatus[],
-        update: SessionStateUpdate,
+        update: SessionStateUpdate & SessionResultUpdate,
     ): Promise<boolean>;
 
     findCredentialOffer(

@@ -69,6 +69,7 @@ describe("presentation completion and publication", () => {
             status: "completed",
             outcome: {
                 result: "success",
+                source: "verifier",
                 credentials: [{ id: "pid", verified: true }],
             },
             credentials: input.credentials,

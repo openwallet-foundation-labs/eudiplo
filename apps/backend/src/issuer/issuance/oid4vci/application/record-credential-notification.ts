@@ -22,7 +22,7 @@ export class RecordCredentialNotification {
     async execute(
         session: SessionData,
         notificationId: string,
-        event: Notification["event"],
+        event: NonNullable<Notification["event"]>,
         eventDescription?: string,
     ): Promise<Notification> {
         const notification = session.notifications.find(
@@ -35,6 +35,9 @@ export class RecordCredentialNotification {
         notification.event = event;
         // Wallets may notify several times; a description belongs to its event.
         notification.eventDescription = eventDescription;
+        // The latest event is kept on its notification; only the session's
+        // first event decides its status and outcome, see
+        // HandleCredentialNotification.
         await this.sessions.updateForTenant(session.tenantId, session.id, {
             notifications: session.notifications,
         });

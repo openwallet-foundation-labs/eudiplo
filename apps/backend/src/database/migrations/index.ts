@@ -62,3 +62,4 @@ export { HashAuthorizationCodes1784700000000 } from "./1784700000000-HashAuthori
 export { AddTokensValidAfterToClient1784800000000 } from "./1784800000000-AddTokensValidAfterToClient.js";
 export { AddAccessKeyChainIdToSession1784900000000 } from "./1784900000000-AddAccessKeyChainIdToSession.js";
 export { AddWalletAttestationStatusCheckMode1785000000000 } from "./1785000000000-AddWalletAttestationStatusCheckMode.js";
+export { AddCancelReasonToSession1785100000000 } from "./1785100000000-AddCancelReasonToSession.js";
