@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
 import { delimiter, join } from "node:path";
+import { redactUrl } from "./url.js";
 
 export interface BrowserLauncher {
     command: string;
@@ -24,11 +25,11 @@ export function assertWebUrl(value: string): URL {
     try {
         url = new URL(value);
     } catch {
-        throw new Error(`${value} is not a valid absolute URL.`);
+        throw new Error(`${redactUrl(value)} is not a valid absolute URL.`);
     }
     if (url.protocol !== "http:" && url.protocol !== "https:") {
         throw new Error(
-            `Refusing to open ${value}: only http and https URLs are supported.`,
+            `Refusing to open ${redactUrl(value)}: only http and https URLs are supported.`,
         );
     }
     return url;

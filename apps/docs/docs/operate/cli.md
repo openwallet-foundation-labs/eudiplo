@@ -52,7 +52,7 @@ with `podman compose`. Docker is preferred; set
 Every command acts on an *instance*: a registered deployment with a name, a
 target and its public API URL. Instances are stored in `~/.eudiplo/config.json`
 (change the directory with `EUDIPLO_CLI_HOME`, or the file with
-`EUDIPLO_CLI_CONFIG`). The file never contains secrets.
+`EUDIPLO_CLI_CONFIG`). The CLI adds no secrets of its own to it.
 
 | Target       | Created by                                   | Lifecycle commands                                  |
 | ------------ | -------------------------------------------- | --------------------------------------------------- |
@@ -74,22 +74,17 @@ eudiplo instance remove old-staging  # unregister (does not touch the deployment
 eudiplo instance remove production --default staging  # remove the default, pick the next
 ```
 
-Use these commands instead of editing the file by hand. Every change is
-validated before it is written, so a mistyped URL is rejected instead of
-breaking later commands, and the file is replaced atomically with mode `0600`
-(where the platform supports it). If `config.json` is a symlink, for example
-into a dotfiles repository, the file it points to is replaced and the link is
-kept. The default instance always points at a registered instance: removing it
-requires `--default <name>`, unless it is the last one; `--default` is refused
-when you remove any other instance, use `instance use` for that. The CLI never
-prints credentials embedded in a URL: `instance list`, `instance show`,
-`config validate`, `status` and `doctor` show them as `https://***@host`.
+Use these commands instead of editing the file: each change is checked before
+it is written, a new file is owner-only (`0600`) and a symlinked file keeps its
+link. Removing the default needs `--default <name>` unless it is the last
+instance. Keep credentials out of instance URLs: `add` and `update` warn that
+they are stored in plain text, the CLI cannot use them for its requests, and
+its output masks them as `https://***@host/` (`open` leaves them out of the
+browser launch; `open --print`, and `open` outside a terminal, print the URL
+as configured).
 
 Commands that call the management API read credentials from the environment,
-never from the instance file: `doctor` uses `EUDIPLO_CLIENT_ID` and
-`EUDIPLO_CLIENT_SECRET` for its authenticated checks, and the `config export`,
-`plan`, `import`, `operations` and `recover` commands take an access token from
-`--token` or `EUDIPLO_TOKEN`.
+never from the instance file (see [Environment variables](#environment-variables)).
 
 ## Demo or init
 
@@ -248,7 +243,7 @@ is skipped; a
 | `EUDIPLO_CLI_HOME`                           | Directory of `config.json` (default `~/.eudiplo`)                              |
 | `EUDIPLO_CLI_CONFIG`                         | Path of the CLI config file; overrides `EUDIPLO_CLI_HOME`                     |
 | `EUDIPLO_CLIENT_ID`, `EUDIPLO_CLIENT_SECRET` | Client credentials for the authenticated `doctor` checks                      |
-| `EUDIPLO_TOKEN`                              | Access token for `config export`, `plan`, `import`, `operations`, `recover`   |
+| `EUDIPLO_TOKEN`                              | Access token for `config export`, `plan`, `import`, `operations`, `recover` (or `--token`) |
 | `EUDIPLO_IMAGE_TAG`                          | Image tag for `demo` and `init` (default `latest`)                            |
 | `EUDIPLO_CONTAINER_RUNTIME`                  | `docker` or `podman` for Compose instances                                    |
 | `EUDIPLO_KUBECTL`                            | Path of the `kubectl` binary for Kubernetes instances                         |

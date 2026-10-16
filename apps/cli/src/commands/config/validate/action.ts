@@ -1,6 +1,6 @@
 import { basename, isAbsolute, join } from "node:path";
 import { readStringFlag } from "../../../options.js";
-import { redactUrl } from "../../../services/cli-config.js";
+import { redactUrl } from "../../../services/url.js";
 import type { CliConfig, CommandContext, ParsedArgs } from "../../../types.js";
 import { buildJsonReport, formatTextReport } from "./report.js";
 import { loadTenantConfigSchemas } from "./schemas.js";

@@ -17,7 +17,7 @@ import {
     readProviderHealth,
     summarizeProviderHealth,
 } from "./backend-checks.js";
-import { redactUrl } from "./cli-config.js";
+import { describeRequestError, redactUrl } from "./url.js";
 import {
     type CertificateReader,
     checkTlsCertificate,
@@ -389,8 +389,7 @@ async function checkEndpoint(
         return {
             name,
             status: "fail",
-            // fetch refuses URLs with user info and repeats the URL in its error.
-            message: `${redactUrl(url.href)} could not be reached: ${String(error).replaceAll(url.href, redactUrl(url.href))}`,
+            message: `${redactUrl(url.href)} could not be reached: ${describeRequestError(error, url)}`,
         };
     }
 }

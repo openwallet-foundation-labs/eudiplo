@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import {
+    chmod,
     lstat,
     mkdir,
     readFile,
@@ -7,8 +8,10 @@ import {
     realpath,
     rename,
     rm,
+    stat,
     writeFile,
 } from "node:fs/promises";
+import type { Stats } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { homedir } from "node:os";
 import {
@@ -17,6 +20,7 @@ import {
     assertWorkloadReference,
 } from "./kubectl.js";
 import type { CliConfig, InstanceConfig } from "../types.js";
+import { validateHttpUrl } from "./url.js";
 
 const emptyConfig = (): CliConfig => ({ instances: {} });
 
@@ -47,8 +51,14 @@ export async function loadConfig(path: string): Promise<CliConfig> {
 /**
  * Writes the config atomically: the content goes to a new file in the same
  * directory, which then replaces the config in one rename. A crash or a full
- * disk never leaves a truncated config behind, and the new file is created
- * with mode 0600 where the platform supports it.
+ * disk never leaves a truncated config behind. A new config is created with
+ * mode 0600 where the platform supports it; an existing one keeps its mode.
+ *
+ * Where a rename cannot replace the file as it is, the config is rewritten in
+ * place as before: when another user or group owns it (a rename would change
+ * the owner), when it has hard links, and when the directory is not writable or
+ * the file is a mount of its own (a single file bind-mounted into a
+ * container).
  *
  * The config is validated first, so no command can save a config that the
  * next command would fail to load. A symlinked config (for example into a
@@ -63,6 +73,12 @@ export async function saveConfig(
 
     const target = await resolveSymlinks(path);
     await mkdir(dirname(target), { recursive: true, mode: 0o700 });
+    const existing = await statIfExists(target);
+    if (existing && !canReplace(existing)) {
+        await writeFile(target, contents, "utf8");
+        return;
+    }
+
     const temporaryPath = `${target}.${process.pid}.${randomBytes(6).toString("hex")}.tmp`;
     try {
         await writeFile(temporaryPath, contents, {
@@ -70,11 +86,59 @@ export async function saveConfig(
             mode: 0o600,
             flag: "wx",
         });
+        if (existing) {
+            await chmod(temporaryPath, existing.mode & 0o777);
+        }
         await replaceFile(temporaryPath, target);
     } catch (error) {
         await rm(temporaryPath, { force: true });
+        if (existing && isInPlaceFallback(error)) {
+            await writeFile(target, contents, "utf8");
+            return;
+        }
         throw error;
     }
+}
+
+async function statIfExists(path: string): Promise<Stats | undefined> {
+    try {
+        return await stat(path);
+    } catch (error) {
+        if (isNodeError(error) && error.code === "ENOENT") {
+            return undefined;
+        }
+        throw error;
+    }
+}
+
+function canReplace(existing: Stats): boolean {
+    if (existing.isFile() && existing.nlink > 1) {
+        return false;
+    }
+    // A rename gives the file the writer's owner and primary group.
+    const uid = process.getuid?.();
+    const gid = process.getgid?.();
+    return (
+        (uid === undefined || existing.uid === uid) &&
+        (gid === undefined || existing.gid === gid)
+    );
+}
+
+/**
+ * Errors after which the old in-place write still works: no write access to
+ * the directory (EACCES, EPERM, EROFS for a read-only mount of the directory
+ * only), or a target that cannot be renamed over (EBUSY for a bind-mounted
+ * file, EXDEV across mounts).
+ */
+function isInPlaceFallback(error: unknown): boolean {
+    return (
+        isNodeError(error) &&
+        (error.code === "EACCES" ||
+            error.code === "EPERM" ||
+            error.code === "EROFS" ||
+            error.code === "EBUSY" ||
+            error.code === "EXDEV")
+    );
 }
 
 /**
@@ -299,28 +363,6 @@ export function removeInstance(
     };
 }
 
-/**
- * Hides user info such as `user:password@` in a URL before it is printed.
- * URLs without user info are returned exactly as configured. The masked form
- * is built from the parsed URL, so spellings the URL parser accepts without
- * `//`, such as `https:user:secret@host`, are masked too. A value that is not
- * a URL is hidden entirely if it could contain user info.
- */
-export function redactUrl(value: string): string {
-    let url: URL;
-    try {
-        url = new URL(value);
-    } catch {
-        return value.includes("@") ? "***" : value;
-    }
-    if (url.username === "" && url.password === "") {
-        return value;
-    }
-    url.username = "***";
-    url.password = "";
-    return url.href;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -460,17 +502,5 @@ function optionalStringArray(
 function validateOptionalHttpUrl(value: unknown, label: string): void {
     if (typeof value === "string") {
         validateHttpUrl(value, label);
-    }
-}
-
-/** Throws unless `value` is an absolute HTTP(S) URL, as config loading requires. */
-export function validateHttpUrl(value: string, label: string): void {
-    try {
-        const url = new URL(value);
-        if (url.protocol !== "http:" && url.protocol !== "https:") {
-            throw new Error("Unsupported URL protocol.");
-        }
-    } catch {
-        throw new Error(`${label} must be an absolute HTTP(S) URL.`);
     }
 }

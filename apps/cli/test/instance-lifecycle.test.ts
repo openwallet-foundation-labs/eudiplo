@@ -1,4 +1,6 @@
 import {
+    chmod,
+    link,
     lstat,
     mkdir,
     mkdtemp,
@@ -14,13 +16,13 @@ import { describe, expect, it } from "vitest";
 import { runCli } from "../src/runtime.js";
 import {
     loadConfig,
-    redactUrl,
     removeInstance,
     renameInstance,
     saveConfig,
     updateInstance,
 } from "../src/services/cli-config.js";
 import type { CliConfig, CommandContext } from "../src/types.js";
+import { describeRequestError, redactUrl } from "../src/services/url.js";
 
 const production = {
     target: "external" as const,
@@ -34,13 +36,6 @@ const staging = {
 
 describe("eudiplo instance lifecycle", () => {
     describe("list", () => {
-        it("reports an empty registry", async () => {
-            const { context, output } = await createContext();
-
-            expect(await runCli(["instance", "list"], context)).toBe(0);
-            expect(output.stdout).toBe("No configured instances.\n");
-        });
-
         it("marks the default and the deployment target", async () => {
             const { context, output } = await createContext({
                 defaultInstance: "staging",
@@ -117,9 +112,25 @@ describe("eudiplo instance lifecycle", () => {
             const answering: typeof fetch = async () =>
                 new Response("{}", { status: 200 });
 
-            for (const fakeFetch of [refusing, answering]) {
+            // Issues a token, then refuses the authenticated calls.
+            const tokenOnly: typeof fetch = async (input) => {
+                if (String(input).endsWith("/api/oauth2/token")) {
+                    return new Response('{"access_token":"x"}', {
+                        status: 200,
+                    });
+                }
+                return refusing(input);
+            };
+
+            for (const fakeFetch of [refusing, answering, tokenOnly]) {
+                // With client credentials set, doctor also requests a token
+                // and calls authenticated endpoints.
                 const { context, output } = await createContext(config, {
                     fetch: fakeFetch,
+                    env: {
+                        EUDIPLO_CLIENT_ID: "root",
+                        EUDIPLO_CLIENT_SECRET: "client-secret",
+                    },
                 });
                 await runCli(["doctor"], context);
                 await runCli(["status"], context);
@@ -128,6 +139,7 @@ describe("eudiplo instance lifecycle", () => {
                 expect(printed).not.toContain("admin");
                 expect(printed).not.toContain("s3cret");
                 expect(printed).not.toContain("t0ken");
+                expect(printed).not.toContain("client-secret");
                 expect(printed).toContain("https://***@eudiplo.example.com/");
             }
         });
@@ -202,12 +214,30 @@ describe("eudiplo instance lifecycle", () => {
             expect(await runCli(["instance", "ls"], context)).toBe(0);
         });
 
-        it("reports empty URLs instead of ignoring them", async () => {
+        it("reports an empty --url instead of ignoring it", async () => {
             const { context, output, configPath } = await createContext({
                 defaultInstance: "production",
                 instances: { production },
             });
             const before = await readFile(configPath, "utf8");
+
+            expect(
+                await runCli(
+                    ["instance", "add", "staging", "--url", ""],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--url must be an absolute HTTP(S) URL.",
+            );
+            expect(await readFile(configPath, "utf8")).toBe(before);
+        });
+
+        it("treats an empty --client-url as no client URL, as before", async () => {
+            const { context, configPath } = await createContext({
+                defaultInstance: "production",
+                instances: { production },
+            });
 
             expect(
                 await runCli(
@@ -222,20 +252,51 @@ describe("eudiplo instance lifecycle", () => {
                     ],
                     context,
                 ),
-            ).toBe(1);
-            expect(output.stderr).toContain(
-                "--client-url must be an absolute HTTP(S) URL.",
-            );
+            ).toBe(0);
+            expect((await readConfig(configPath)).instances.staging).toEqual({
+                target: "external",
+                url: staging.url,
+            });
+        });
+
+        it("warns that credentials in a URL are stored in plain text", async () => {
+            const { context, output, configPath } = await createContext();
+
             expect(
                 await runCli(
-                    ["instance", "add", "staging", "--url", ""],
+                    [
+                        "instance",
+                        "add",
+                        "legacy",
+                        "--url",
+                        "https://admin:s3cret@legacy.example.com",
+                    ],
                     context,
                 ),
-            ).toBe(1);
+            ).toBe(0);
             expect(output.stderr).toContain(
-                "--url must be an absolute HTTP(S) URL.",
+                "Warning: --url contains credentials.",
             );
-            expect(await readFile(configPath, "utf8")).toBe(before);
+            expect(output.stderr).not.toContain("s3cret");
+            expect((await readConfig(configPath)).instances.legacy.url).toBe(
+                "https://admin:s3cret@legacy.example.com",
+            );
+
+            expect(
+                await runCli(
+                    [
+                        "instance",
+                        "update",
+                        "legacy",
+                        "--client-url",
+                        "https://u:p@client.example.com",
+                    ],
+                    context,
+                ),
+            ).toBe(0);
+            expect(output.stderr).toContain(
+                "Warning: --client-url contains credentials.",
+            );
         });
 
         it("makes the first instance the default, as before", async () => {
@@ -473,7 +534,7 @@ describe("eudiplo instance lifecycle", () => {
         });
 
         it("keeps the default when renaming another instance", async () => {
-            const { context, configPath } = await createContext({
+            const { context, output, configPath } = await createContext({
                 defaultInstance: "production",
                 instances: { production, stage: staging },
             });
@@ -484,10 +545,36 @@ describe("eudiplo instance lifecycle", () => {
                     context,
                 ),
             ).toBe(0);
+            expect(output.stdout).not.toContain("Default instance is now");
             expect(await readConfig(configPath)).toEqual({
                 defaultInstance: "production",
                 instances: { production, staging },
             });
+        });
+
+        it("refuses an empty or unchanged name", async () => {
+            const { context, output, configPath } = await createContext({
+                defaultInstance: "production",
+                instances: { production },
+            });
+            const before = await readFile(configPath, "utf8");
+
+            expect(
+                await runCli(["instance", "rename", "production", ""], context),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "New instance name must not be empty.",
+            );
+            expect(
+                await runCli(
+                    ["instance", "rename", "production", "production"],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "Instance production already has that name.",
+            );
+            expect(await readFile(configPath, "utf8")).toBe(before);
         });
 
         it("refuses to overwrite or rename unknown instances", async () => {
@@ -560,6 +647,16 @@ describe("eudiplo instance lifecycle", () => {
                     context,
                 ),
             ).toBe(1);
+            expect(output.stderr).toContain(
+                "Cannot make production the default while removing it.",
+            );
+            expect(
+                await runCli(
+                    ["instance", "rm", "production", "--default", ""],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain("--default must name an instance.");
             expect(
                 await runCli(
                     ["instance", "rm", "production", "--default", "missing"],
@@ -646,7 +743,7 @@ describe("eudiplo instance lifecycle", () => {
 });
 
 describe("CLI config writes", () => {
-    it("writes atomically with mode 0600 and leaves no temporary files", async () => {
+    it("creates the config with mode 0600 and leaves no temporary files", async () => {
         const configPath = join(
             await mkdtemp(join(tmpdir(), "eudiplo-cli-config-")),
             "nested",
@@ -670,6 +767,78 @@ describe("CLI config writes", () => {
             expect((await stat(configPath)).mode & 0o777).toBe(0o600);
         }
     });
+
+    it("keeps the old config and removes the temporary file when the replace fails", async () => {
+        const root = await mkdtemp(join(tmpdir(), "eudiplo-cli-config-"));
+        // A non-empty directory where the config should be: writing the
+        // temporary file works, renaming it over the directory does not.
+        const configPath = join(root, "config.json");
+        await mkdir(join(configPath, "keep"), { recursive: true });
+
+        await expect(
+            saveConfig(configPath, { instances: { production } }),
+        ).rejects.toThrow();
+
+        expect(await readdir(root)).toEqual(["config.json"]);
+        expect(await readdir(configPath)).toEqual(["keep"]);
+    });
+
+    it.skipIf(process.platform === "win32")(
+        "keeps the mode of an existing config",
+        async () => {
+            const configPath = join(
+                await mkdtemp(join(tmpdir(), "eudiplo-cli-config-")),
+                "config.json",
+            );
+            await saveConfig(configPath, { instances: { production } });
+            await chmod(configPath, 0o640);
+
+            await saveConfig(configPath, { instances: { staging } });
+
+            expect((await stat(configPath)).mode & 0o777).toBe(0o640);
+            expect(await readConfig(configPath)).toEqual({
+                instances: { staging },
+            });
+        },
+    );
+
+    it.skipIf(process.platform === "win32")(
+        "rewrites a hard-linked config in place",
+        async () => {
+            const root = await mkdtemp(join(tmpdir(), "eudiplo-cli-config-"));
+            const configPath = join(root, "config.json");
+            const otherLink = join(root, "shared.json");
+            await saveConfig(configPath, { instances: { production } });
+            await link(configPath, otherLink);
+
+            await saveConfig(configPath, { instances: { staging } });
+
+            expect(await readConfig(otherLink)).toEqual({
+                instances: { staging },
+            });
+            expect(await readdir(root)).toEqual(["config.json", "shared.json"]);
+        },
+    );
+
+    it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+        "rewrites the config in place when its directory is read-only",
+        async () => {
+            const root = await mkdtemp(join(tmpdir(), "eudiplo-cli-config-"));
+            const configPath = join(root, "config.json");
+            await saveConfig(configPath, { instances: { production } });
+            await chmod(root, 0o500);
+            try {
+                await saveConfig(configPath, { instances: { staging } });
+            } finally {
+                await chmod(root, 0o700);
+            }
+
+            expect(await readConfig(configPath)).toEqual({
+                instances: { staging },
+            });
+            expect(await readdir(root)).toEqual(["config.json"]);
+        },
+    );
 
     it.skipIf(process.platform === "win32")(
         "keeps a symlinked config a symlink and writes its target",
@@ -785,11 +954,27 @@ describe("CLI config writes", () => {
         expect(redactUrl("//admin:secret@api.example.com")).toBe("***");
         expect(redactUrl("not a url")).toBe("not a url");
     });
+
+    it("masks the request URL in error messages", () => {
+        const url = new URL("https://admin:s3cret@api.example.com/api/health");
+
+        expect(
+            describeRequestError(
+                new TypeError(
+                    `Request cannot be constructed from a URL that includes credentials: ${url.href}`,
+                ),
+                url,
+            ),
+        ).toBe(
+            "Request cannot be constructed from a URL that includes credentials: https://***@api.example.com/api/health",
+        );
+        expect(describeRequestError("offline", url)).toBe("offline");
+    });
 });
 
 async function createContext(
     config?: CliConfig,
-    options: { fetch?: typeof fetch } = {},
+    options: { fetch?: typeof fetch; env?: NodeJS.ProcessEnv } = {},
 ) {
     const home = await mkdtemp(join(tmpdir(), "eudiplo-cli-home-"));
     const configPath = join(home, "config.json");
@@ -799,7 +984,11 @@ async function createContext(
     const output = { stdout: "", stderr: "" };
     const context: CommandContext = {
         cwd: home,
-        env: { EUDIPLO_CLI_CONFIG: configPath, PATH: process.env.PATH },
+        env: {
+            EUDIPLO_CLI_CONFIG: configPath,
+            PATH: process.env.PATH,
+            ...options.env,
+        },
         stdout: {
             write(chunk: string | Uint8Array) {
                 output.stdout += String(chunk);

@@ -1,14 +1,12 @@
 import { readStringFlag } from "../../options.js";
 import {
     getInstance,
-    redactUrl,
     removeInstance,
     renameInstance,
     saveConfig,
     setDefaultInstance,
     updateInstance,
     upsertInstance,
-    validateHttpUrl,
 } from "../../services/cli-config.js";
 import { parseTarget } from "../../services/deployment-target.js";
 import {
@@ -17,6 +15,7 @@ import {
     defaultWorkloads,
     parseWorkloadMap,
 } from "../../services/kubectl.js";
+import { hasUserInfo, redactUrl, validateHttpUrl } from "../../services/url.js";
 import type { CliConfig, CommandContext, ParsedArgs } from "../../types.js";
 
 export async function runInstanceAdd(
@@ -30,7 +29,7 @@ export async function runInstanceAdd(
         throw new Error("Instance name is required.");
     }
 
-    const url = readUrlFlag(parsed.flags, "url");
+    const url = readUrlFlag(parsed.flags, "url", context);
     if (url === undefined) {
         throw new Error("--url is required.");
     }
@@ -38,7 +37,12 @@ export async function runInstanceAdd(
     const target = parseTarget(
         readStringFlag(parsed.flags, "target") ?? "external",
     );
-    const clientUrl = readUrlFlag(parsed.flags, "client-url");
+    // `instance add` has always treated an empty --client-url as "no client
+    // URL"; scripts pass `--client-url "$CLIENT_URL"` with the variable unset.
+    const clientUrl =
+        parsed.flags["client-url"] === ""
+            ? undefined
+            : readUrlFlag(parsed.flags, "client-url", context);
     const kubernetes =
         target === "kubernetes"
             ? readKubernetesOptions(parsed.flags)
@@ -169,6 +173,9 @@ export async function runInstanceRemove(
     context: CommandContext,
 ): Promise<number> {
     const name = requireInstanceName(parsed);
+    if (parsed.flags.default === "") {
+        throw new Error("--default must name an instance.");
+    }
     const newDefault = readStringFlag(parsed.flags, "default");
     const nextConfig = removeInstance(config, name, { newDefault });
     await saveConfig(configPath, nextConfig);
@@ -191,11 +198,11 @@ export async function runInstanceUpdate(
     context: CommandContext,
 ): Promise<number> {
     const name = requireInstanceName(parsed);
-    const url = readUrlFlag(parsed.flags, "url");
+    const url = readUrlFlag(parsed.flags, "url", context);
     const clientUrl =
         parsed.flags["no-client-url"] === true
             ? null
-            : readUrlFlag(parsed.flags, "client-url");
+            : readUrlFlag(parsed.flags, "client-url", context);
     await saveConfig(
         configPath,
         updateInstance(config, name, { url, clientUrl }),
@@ -225,18 +232,27 @@ export async function runInstanceRename(
 /**
  * Reads and validates a URL option. The value is taken as given, so
  * `--url ""` (an unset variable in a script) is reported as an invalid URL
- * instead of a missing option. This is the only place URL options are
+ * instead of a missing option; only `instance add` keeps ignoring an empty
+ * `--client-url`. This is the only place URL options are
  * checked; saveConfig validates the whole config again before writing.
+ * User info is stored as given, with a warning: the file is plain text and
+ * the CLI's own requests cannot use it.
  */
 function readUrlFlag(
     flags: ParsedArgs["flags"],
     name: "url" | "client-url",
+    context: CommandContext,
 ): string | undefined {
     const value = flags[name];
     if (typeof value !== "string") {
         return undefined;
     }
     validateHttpUrl(value, `--${name}`);
+    if (hasUserInfo(value)) {
+        context.stderr.write(
+            `Warning: --${name} contains credentials. They are stored in plain text in the CLI config, and the CLI cannot use them for its own requests.\n`,
+        );
+    }
     return value;
 }
 

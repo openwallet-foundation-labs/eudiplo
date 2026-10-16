@@ -1,4 +1,5 @@
 import type { CommandContext } from "../types.js";
+import { describeRequestError } from "./url.js";
 
 /**
  * Minimal client-credentials token fetch for the checks that need an
@@ -58,7 +59,7 @@ export async function requestAccessToken(
     } catch (error) {
         return {
             kind: "error",
-            reason: `the token endpoint could not be reached: ${error instanceof Error ? error.message : String(error)}`,
+            reason: `the token endpoint could not be reached: ${describeRequestError(error, tokenUrl)}`,
         };
     }
 }
@@ -90,7 +91,7 @@ export async function fetchAuthenticated(
     } catch (error) {
         return {
             ok: false,
-            reason: `${url.pathname} could not be reached: ${error instanceof Error ? error.message : String(error)}`,
+            reason: `${url.pathname} could not be reached: ${describeRequestError(error, url)}`,
         };
     }
 }
