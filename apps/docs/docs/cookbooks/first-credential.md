@@ -32,7 +32,7 @@ A tenant `membership-demo` that issues an SD-JWT VC of type `urn:example:members
 4. Choose **Create tenant**. The dialog **Client Secret Generated** shows the client ID `membership-demo-admin` and its secret. Copy both and store them; the secret is not shown again.
 5. Choose **Login as this Client**.
 
-**Checkpoint:** the menu at the top right shows **Client ID: membership-demo-admin**, and the navigation shows **Credential Issuance** and **Credential Verification**. Create everything that follows in this tenant. All roles are listed in the [roles reference](../reference/roles.md).
+**Checkpoint:** the account menu (⋮) at the top right shows **Client ID: membership-demo-admin**, and the navigation shows **Credential Issuance** and **Credential Verification**. Create everything that follows in this tenant. All roles are listed in the [roles reference](../reference/roles.md).
 
 ## Step 2: Create the signing and access keys
 
@@ -115,7 +115,7 @@ It keeps status lists out of the first run. [Revocable credentials](revocable-cr
 
 1. Open **Credential Issuance → New Issuance**.
 2. In **Select Flow**, choose **Pre-Authorized Code** and **Next**.
-3. In **Select Credentials**, select `membership` under **Credential Configuration IDs** and continue.
+3. In **Select Credentials**, check that `membership` is selected under **Credential Configuration IDs** and continue. As the tenant's only credential type, it is preselected and shown as a chip.
 4. In **Configure Claims**, keep **Form Input** and choose **Use Pre-configured Default Values**. The form now shows `name: Max` and `member_id: M-001`.
 5. Leave **Transaction Code (Optional)** empty, then choose **Generate Offer**.
 6. Scan the QR code with the wallet's credential-offer scanner and accept the credential.
@@ -126,8 +126,8 @@ It keeps status lists out of the first run. [Revocable credentials](revocable-cr
 
 | Symptom                                          | Cause                                                                  | Fix                                                                                                    |
 | ------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `membership` is missing in the offer form        | Created in another tenant, or saved with authorization actions         | Check the client ID in the top-right menu; remove interactive authorization actions for this recipe.  |
-| **Credential Issuance** is missing in the menu   | The tenant client lacks `issuance:manage` or `issuance:offer`          | Open **Administration → API Clients**, add the roles to `membership-demo-admin`, then sign in again.  |
+| `membership` is missing in the offer form        | Created in another tenant, or saved with authorization actions         | Check the client ID in the account menu (⋮) at the top right; remove interactive authorization actions for this recipe.  |
+| **Credential Issuance** is missing in the menu   | The tenant client lacks `issuance:manage` or `issuance:offer`          | A client cannot add roles to itself. Sign in with the root client, delete `membership-demo` under **Administration → Tenants** and repeat step 1. |
 | Wallet asks for an attestation                   | Proof type **Attestation** or required wallet attestation is set       | Use proof type **JWT** only and keep wallet attestation optional.                                      |
 | Wallet shows other claim values                  | The offer overrode the defaults, or the credential is an older one     | Generate a new offer with the default values; a wallet keeps the claims it was issued with.           |
 

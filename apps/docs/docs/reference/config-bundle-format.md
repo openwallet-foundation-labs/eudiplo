@@ -23,9 +23,9 @@ Every portable resource is one JSON document:
 | Field                 | Required | Meaning                                                                                                   |
 | --------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
 | `$schema`             | yes      | Resource type and format version. Only the canonical URLs below are accepted; they are resolved from schemas bundled with the backend and CLI, never fetched. |
-| `metadata.generation` | no       | Integer ≥ 1. An import whose generation is lower than the stored one is blocked (`STALE_GENERATION`).      |
-| `metadata.ownership`  | no       | `unmanaged` or `file-managed`. Reported on export; ignored on import, which always records `file-managed`. |
-| `spec`                | yes      | The desired configuration, without runtime state. The ID is `spec.id`, for clients `spec.clientId`.       |
+| `metadata.generation` | no       | Integer ≥ 1. A bundle import whose generation is lower than the stored one is blocked (`STALE_GENERATION`); the startup import skips that resource instead. |
+| `metadata.ownership`  | no       | `unmanaged` or `file-managed`. Reported on export, where a detached resource is reported as `unmanaged`; ignored on import, which always records `file-managed`. |
+| `spec`                | yes      | The desired configuration, without runtime state. The ID is `spec.id`, for clients `spec.clientId`, which is unique across tenants: a client ID another tenant uses blocks the plan (`CLIENT_ID_TAKEN`). |
 
 Tenant, KMS, registrar and issuance settings exist once per tenant and have no ID.
 In tenant config folders, the importer also accepts *bare* files (only the
@@ -41,19 +41,20 @@ rejects versions newer than its own.
 | Kind                 | `<File>`                      | Current version | Singleton |
 | -------------------- | ----------------------------- | --------------- | --------- |
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
-| `Client`             | `ClientConfigFile`            | 1               |           |
+| `Client`             | `ClientConfigFile`            | 2               |           |
 | `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
-| `KeyChain`           | `KeyChainConfigFile`          | 1               |           |
+| `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
-| `CredentialConfig`   | `CredentialConfigFile`        | 1               |           |
+| `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
 | `WebhookEndpoint`    | `WebhookEndpointConfigFile`   | 1               |           |
 | `TrustList`          | `TrustListConfigFile`         | 1               |           |
 | `StatusList`         | `StatusListConfigFile`        | 1               |           |
 
-Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
+IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
+9.0; 8.x cannot read them:
 
 - **IssuanceConfig v2** adds the optional `offerLifetimeSeconds`. A v1 document
   is migrated unchanged.
@@ -70,6 +71,28 @@ Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
 (PEM public key of the list signer) to `walletProviderTrustLists` entries. A v2
 document is migrated unchanged; releases that only know v2, such as 9.0, cannot
 read v3 files.
+
+**CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
+`frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
+certificate in `value`. A v1 document is migrated unchanged; 9.x cannot read v2
+files.
+
+**KeyChain v2** came with EUDIPLO 10.0. It adds the optional `type`
+(`standalone` or `internalChain`), which exports write. For a `private-jwk` key
+source without `activeJwk` it says whether `jwk` is the signing key or a CA key
+under which the import creates a new signing key, as `type` does for
+[`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate).
+For `regenerate` it is the type of the new key chain, like
+`keySource.keyChainType`; without either, a document with `activeCertificate`
+becomes an internal chain. For the other key sources, and for a `regenerate`
+key source with both, it must match the key chain they describe, or the plan
+reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
+9.x cannot read v2 files. A bare key chain file with `type`, as
+`GET /api/key-chain/{id}/export` writes it, is read as v2.
+
+**Client v2** came with EUDIPLO 10.0 as well. It accepts the roles
+`audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1
+document is migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 
@@ -130,14 +153,35 @@ Exports never contain secret values or database-held private keys:
 
 | Value                                                                 | In the export                                                | Requirement code         | On import                                                             |
 | --------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------------- |
-| Retrievable secrets (KMS, registrar, webhook and attribute-provider credentials) | `${…}` placeholder                              | `SECRET_REQUIRED`        | Set the environment variable or replace the value                    |
+| Retrievable secrets (KMS, registrar, webhook and attribute-provider credentials, upstream client secrets of chained authorization servers) | `${…}` placeholder | `SECRET_REQUIRED`        | Set the environment variable or replace the value                    |
 | Client secrets (stored as bcrypt hash)                                | `${…}` placeholder                                           | `CLIENT_SECRET_REQUIRED` | Supply a secret, or `"secret": "!generate"` to get a new one once in `generatedSecrets` |
 | Private keys of `db` key chains                                       | `keySource: { "type": "required", "publicJwk": … }`          | `PRIVATE_KEY_REQUIRED`   | Supply `private-jwk`, or `{ "type": "regenerate" }` for new key material |
 | Keys in an external KMS                                               | `keySource: { "type": "external-reference", provider, externalKeyId, publicJwk }` | -  | The target provider must reach the same key; checked by signing a challenge |
 | Sessions, status values, caches                                       | not exported                                                 | -                        | -                                                                     |
 
+A secret that is not set, such as the client secret of a registrar account without one, is left out of the export and adds no requirement.
+
 `regenerate` keeps the key chain ID but creates a new cryptographic identity:
 certificates and anything bound to the old key must be renewed.
+
+A `private-jwk` key source takes one of two forms:
+
+- With only `jwk`, the document is imported like
+  [`POST /api/key-chain/import`](../trust/keys-and-certificates.md#import-a-key-and-certificate)
+  and accepts only that request's fields. To restore an exported internal
+  chain, put its root CA key from `GET /api/key-chain/{id}/export` into `jwk`,
+  remove `activeCertificate` and keep `"type": "internalChain"`: EUDIPLO keeps
+  the root CA certificate and creates a new signing key under it. Without
+  `type` and rotation, the root CA key itself becomes the signing key.
+- With `activeJwk` as well, it stores an internal chain as given, in the
+  database: `jwk` is the root CA key and `crt` holds exactly its certificate,
+  `activeJwk` is the signing key and `activeCertificate` its certificate,
+  which may be followed by the root certificate. Both certificates must be
+  PEM and match their keys, the root certificate must be a CA certificate,
+  and `kmsProvider` must be `db` or left out; the plan blocks the resource
+  otherwise. Exports never contain the signing key of an internal chain
+  ([key chain export](../trust/keys-and-certificates.md#import-a-key-and-certificate)),
+  so this form needs key material you hold outside EUDIPLO.
 
 **Placeholders.** Any string value can be `${VAR}` or `${VAR:default}`
 (uppercase letters, digits, `_`; an empty variable counts as unset). Values are
@@ -160,11 +204,28 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | Plan action | Meaning                                                                                     |
 | ----------- | ------------------------------------------------------------------------------------------- |
 | `create`    | The resource will be created                                                                |
-| `update`    | The resource will change; the plan lists redacted field changes                            |
-| `unchanged` | Already matches; only ownership metadata may be updated                                     |
-| `skip`      | Exists and is left alone (`create` mode)                                                    |
+| `update`    | The resource will change; the plan lists its field changes, secrets redacted               |
+| `unchanged` | Already matches, or a key chain or `!generate` client document this source already applied (see below); only ownership metadata may be updated |
+| `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
-| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
+| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, `REGISTRATION_CERTIFICATE_REFUSED` for an imported registration certificate that fails its checks, for example because it is expired or does not cover the DCQL query ([Validation and caching](../trust/registration-certificates.md#validation-and-caching)), a missing secret or key, or `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). One blocked item blocks the whole plan |
+
+An `update` item lists its field changes in `changes`: the `path` in the document, the stored value as `before` and the value after the import as `after`. Without `before`, the import adds the field; without `after`, it removes the stored value. Entries with `redacted: true` hide the values: a secret reads `[redacted]`, and a value that changes between an object, a list and a plain value reads `[changed]` on both sides.
+
+A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the type, description and rotation policy:
+
+- The plan lists `type` as the import creates it, also for a document without `type` ([KeyChain v2](#resource-types-and-versions)).
+- A `description` it leaves out is removed.
+- Without `rotationPolicy`, rotation is disabled.
+- A rotation value it leaves out or sets to `null` is not set. Exception: a `private-jwk` key source without `activeJwk` is imported like `POST /api/key-chain/import`, so with rotation enabled a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365, and with rotation disabled no intervals are stored.
+
+The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
+
+A `KeyChain` document that is identical to the one last applied from the same source (the same config folder, or bundles whose manifest names the same tenant) plans `unchanged` while the key chain is `file-managed`, without comparing it with the stored key chain: importers add key IDs, EUDIPLO creates the signing key of a CA key, and rotation or registrar enrollment replace keys and certificates later. These changes stay, so certificates EUDIPLO created during the import are only renewed by rotation. Reattaching always applies the folder version. To apply an unchanged document again, for example to regenerate a key, raise `metadata.generation`; in a bundle, also update the document's `sha256` in `manifest.json`.
+
+The same rule covers a `Client` document with `"secret": "!generate"`, since applying it generates a new secret: once this source applied it, the client keeps its secret while the document stays the same. A changed document, a raised `metadata.generation`, another source or reattaching generates a new secret, returned once in `generatedSecrets`. Other `Client` documents are compared field by field. With Keycloak (`OIDC` set), every `Client` document is applied on every import, because the plan cannot see changes made in Keycloak; a `!generate` client applied as it is keeps its secret.
+
+The tenant's encryption key chain is managed by EUDIPLO and is not configuration: exports leave it out, and plans neither change nor delete it. A `KeyChain` document with its ID, such as the one exports of earlier versions contain, is skipped (warning `KEY_CHAIN_ID_RESERVED`).
 
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in
@@ -177,19 +238,36 @@ different layout.
 ## Management API
 
 All endpoints act on the tenant of the access token and accept `tenant:admin` or
-`tenants:manage` ([roles](roles.md)).
+`tenants:manage` ([roles](roles.md)), except where noted below.
 
 | Endpoint                                                          | Purpose                                   |
 | ----------------------------------------------------------------- | ----------------------------------------- |
 | `GET /api/config-bundles/export?format=zip\|json`                  | Export the tenant (default `json`)        |
 | `POST /api/config-bundles/plan?mode=…`                            | Plan a JSON bundle                        |
 | `POST /api/config-bundles/plan/archive?mode=…`                    | Plan a ZIP bundle (multipart field `bundle`) |
-| `POST /api/config-bundles/import?mode=…&planFingerprint=…`        | Apply a JSON bundle                       |
+| `POST /api/config-bundles/import?mode=…&planFingerprint=…`        | Apply a JSON bundle; `replace` also needs `confirmReplace=true` |
 | `POST /api/config-bundles/import/archive?mode=…&planFingerprint=…` | Apply a ZIP bundle; `replace` also needs `confirmReplace=true` |
 | `POST /api/config-bundles/documents/upgrade`                      | Upgrade one document to the current version |
 | `GET /api/config-bundles/operations`, `GET …/operations/:id`      | Latest 50 operation reports, or one report |
 | `POST /api/config-bundles/operations/:id/acknowledge-interruption?confirmWorkerStopped=true` | Release the lock of an interrupted operation |
 | `GET /api/config-bundles/resources`                               | Ownership and generation of every resource |
-| `POST /api/config-bundles/resources/:kind/:id/detach`             | Make a `file-managed` resource `unmanaged` |
+| `GET /api/config-bundles/resources/:kind`                         | Ownership and generation of one kind's resources |
+| `POST /api/config-bundles/resources/:kind/:id/detach`             | Make a `file-managed` resource `detached`  |
+| `POST /api/config-bundles/resources/:kind/:id/reattach/plan`      | Plan resetting a resource to its version in `CONFIG_FOLDER` |
+| `POST /api/config-bundles/resources/:kind/:id/reattach?planFingerprint=…` | Apply that plan and make the resource `file-managed` again |
 
-Exports, imports and detach actions are recorded in the tenant audit log.
+Exports, imports, detach and reattach actions are recorded in the tenant audit log.
+
+`GET /api/config-bundles/resources/:kind` also accepts the roles that change
+resources of that kind, so screens can lock file-managed resources for them:
+
+| Kind                                                                    | Also readable with                                      |
+| ----------------------------------------------------------------------- | ------------------------------------------------------- |
+| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage`                |
+| `KeyChain`                                                              | `issuance:manage`, `presentation:manage`, `keys:manage` |
+| `WebhookEndpoint`, `TrustList`                                          | `issuance:manage`, `presentation:manage`                |
+| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                                       |
+| `PresentationConfig`                                                    | `presentation:manage`                                   |
+| `Client`                                                                | `clients:manage`                                        |
+| `RegistrarConfig`                                                       | `registrar:manage`                                      |
+| `KmsConfig`                                                             | no other role                                           |

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://eudiplo.dev/schemas/v1/ClientConfigFile.schema.json",
+  "$schema": "https://eudiplo.dev/schemas/v2/ClientConfigFile.schema.json",
   "metadata": {
     "generation": 1
   },
@@ -12,7 +12,12 @@
       "issuance:offer",
       "issuance:manage",
       "presentation:request",
-      "presentation:manage"
+      "presentation:manage",
+      "registrar:manage",
+      "sessions:read",
+      "credentials:status",
+      "audit:read",
+      "keys:manage"
     ]
   }
 }

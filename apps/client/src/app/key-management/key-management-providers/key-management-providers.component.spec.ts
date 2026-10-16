@@ -66,6 +66,24 @@ describe('KeyManagementProvidersComponent tenant KMS configuration', () => {
     expect(snackBar.open.mock.lastCall?.[0]).toContain('tenant:admin');
   });
 
+  it("shows the backend's reason when saving or resetting fails for another reason", async () => {
+    roles = ['tenant:admin'];
+    const conflict = { statusCode: 409, message: 'The KMS configuration is file-managed.' };
+    keyChainService['updateTenantKmsConfig'].mockRejectedValue(conflict);
+    keyChainService['deleteTenantKmsConfig'].mockRejectedValue(conflict);
+    const component = create();
+
+    await component.saveTenantConfig({ providers: [] } as never);
+    expect(snackBar.open.mock.lastCall?.[0]).toBe(
+      'Failed to save tenant KMS configuration: The KMS configuration is file-managed.'
+    );
+
+    await component.resetTenantConfig();
+    expect(snackBar.open.mock.lastCall?.[0]).toBe(
+      'Failed to reset tenant KMS configuration: The KMS configuration is file-managed.'
+    );
+  });
+
   it('edits only the tenant providers, never the global ones', async () => {
     roles = ['tenant:admin'];
     keyChainService['getTenantKmsConfig'].mockResolvedValue({

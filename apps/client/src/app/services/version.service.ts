@@ -13,6 +13,11 @@ export interface BuildInfo {
  */
 export type VersionCompatibility = 'match' | 'mismatch' | 'unknown';
 
+/** Version with the short commit, for example `10.0.0 (commit abcdef0)`. */
+export function formatBuild(info: BuildInfo): string {
+  return info.revision ? `${info.version} (commit ${info.revision.slice(0, 7)})` : info.version;
+}
+
 const SEMVER = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
 
 /**

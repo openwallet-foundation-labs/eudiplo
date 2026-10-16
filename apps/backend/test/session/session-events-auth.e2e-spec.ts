@@ -5,6 +5,7 @@ import { Role } from "../../src/auth/roles/role.enum.js";
 import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto.js";
 import { PresentationConfigCreateDto } from "../../src/verifier/presentations/dto/presentation-config-create.dto.js";
 import {
+    clientToken,
     type IssuanceTestContext,
     readConfig,
     setupIssuanceTestApp,
@@ -20,24 +21,8 @@ describe("Session events authorization", () => {
     let issuanceSession: string;
     let presentationSession: string;
     let verifierToken: string;
+    let sessionReaderToken: string;
     let clientsOnlyToken: string;
-
-    async function clientToken(clientId: string, roles: Role[]) {
-        const client = await request(ctx.app.getHttpServer())
-            .post("/client")
-            .set("Authorization", `Bearer ${ctx.authToken}`)
-            .send({ clientId, roles })
-            .expect(201);
-        const response = await request(ctx.app.getHttpServer())
-            .post("/api/oauth2/token")
-            .send({
-                client_id: clientId,
-                client_secret: client.body.clientSecret,
-                grant_type: "client_credentials",
-            })
-            .expect(201);
-        return response.body.access_token as string;
-    }
 
     /** Opens the stream like a backend would and reads the first event. */
     async function subscribe(
@@ -72,7 +57,7 @@ describe("Session events authorization", () => {
     }
 
     beforeAll(async () => {
-        ctx = await setupIssuanceTestApp();
+        ctx = await setupIssuanceTestApp({ extraRoles: [Role.SessionsRead] });
         const server = ctx.app.getHttpServer();
 
         await request(server)
@@ -110,12 +95,24 @@ describe("Session events authorization", () => {
                 .expect(201)
         ).body.session;
 
-        verifierToken = await clientToken("events-verifier", [
-            Role.PresentationRequest,
-        ]);
-        clientsOnlyToken = await clientToken("events-client-admin", [
-            Role.Clients,
-        ]);
+        verifierToken = await clientToken(
+            ctx.app,
+            ctx.authToken,
+            "events-verifier",
+            [Role.PresentationRequest],
+        );
+        sessionReaderToken = await clientToken(
+            ctx.app,
+            ctx.authToken,
+            "events-session-reader",
+            [Role.SessionsRead],
+        );
+        clientsOnlyToken = await clientToken(
+            ctx.app,
+            ctx.authToken,
+            "events-client-admin",
+            [Role.Clients],
+        );
     });
 
     afterAll(async () => {
@@ -158,6 +155,59 @@ describe("Session events authorization", () => {
         expect(outOfScope.status).not.toBe(200);
         expect(outOfScope.status).toBe(unknown.status);
         expect(outOfScope.contentType).not.toContain("text/event-stream");
+    });
+
+    test("streams sessions of both types to sessions:read once a wallet can no longer use them", async () => {
+        const server = ctx.app.getHttpServer();
+        const closed = [
+            (
+                await request(server)
+                    .post("/issuer/offer")
+                    .set("Authorization", `Bearer ${ctx.authToken}`)
+                    .send({
+                        response_type: "uri",
+                        credentialConfigurationIds: ["pid-no-key"],
+                        flow: "pre_authorized_code",
+                    })
+                    .expect(201)
+            ).body.session,
+            (
+                await request(server)
+                    .post("/verifier/offer")
+                    .set("Authorization", `Bearer ${ctx.authToken}`)
+                    .send({
+                        response_type: ResponseType.URI,
+                        requestId: "pid-no-hook",
+                    })
+                    .expect(201)
+            ).body.session,
+        ];
+        for (const session of closed) {
+            await request(server)
+                .post(`/session/${session}/cancel`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(204);
+            const result = await subscribe(session, {
+                token: sessionReaderToken,
+            });
+
+            expect(result.status).toBe(200);
+            expect(result.firstEvent).toContain(`"id":"${session}"`);
+            expect(result.firstEvent).toContain('"status":"cancelled"');
+        }
+
+        // Open sessions look like unknown ones: their ID lets a wallet use them.
+        const unknown = await subscribe(
+            "00000000-0000-0000-0000-000000000000",
+            { token: sessionReaderToken },
+        );
+        for (const session of [issuanceSession, presentationSession]) {
+            const result = await subscribe(session, {
+                token: sessionReaderToken,
+            });
+            expect(result.status).not.toBe(200);
+            expect(result.status).toBe(unknown.status);
+        }
     });
 
     test("rejects a token in the query string", async () => {

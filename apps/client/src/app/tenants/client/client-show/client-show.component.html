@@ -1,10 +1,16 @@
 <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px" class="mb-2">
-  <button matIconButton routerLink="../" matTooltip="Back to Clients List">
+  <button
+    matIconButton
+    routerLink="../"
+    matTooltip="Back to Clients List"
+    aria-label="Back to Clients List"
+  >
     <mat-icon>arrow_back</mat-icon>
   </button>
 </div>
 @if (client) {
   <app-config-ownership-notice kind="Client" [resourceId]="client.clientId" />
+  <app-role-lock-notice subject="client" [roles]="unmanageableRoles" />
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ client.clientId }}</mat-card-title>
@@ -24,6 +30,7 @@
       <button
         mat-button
         routerLink="edit"
+        [disabled]="!canManage || deleting"
         appConfigManaged
         managedKind="Client"
         [managedResourceId]="client.clientId"
@@ -33,6 +40,8 @@
       <button
         mat-button
         color="warn"
+        (click)="deleteClient()"
+        [disabled]="!canManage || deleting"
         appConfigManaged
         managedKind="Client"
         [managedResourceId]="client.clientId"

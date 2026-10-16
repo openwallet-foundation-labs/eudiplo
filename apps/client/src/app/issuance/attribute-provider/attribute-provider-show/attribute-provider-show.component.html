@@ -97,4 +97,10 @@
       </mat-card-content>
     </mat-card>
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="load()">
+    <a mat-button [routerLink]="['../']">Back to the list</a>
+  </app-load-error>
+} @else {
+  <p><output>Loading attribute provider…</output></p>
 }

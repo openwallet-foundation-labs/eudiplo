@@ -1,13 +1,16 @@
+import { webcrypto } from "node:crypto";
 import type { ExecutionContext } from "@nestjs/common";
-import { ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
 import { Role } from "../../auth/roles/role.enum.js";
 import { RolesGuard } from "../../auth/roles/roles.guard.js";
 import type { TokenPayload } from "../../auth/token.decorator.js";
-import { KeyChainEntity } from "./entities/key-chain.entity.js";
+import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainController } from "./key-chain.controller.js";
 import { KeyChainService } from "./key-chain.service.js";
+import { KeyChainImportSchema } from "./schemas/key-chain.schema.js";
 import { KeyUsageType } from "./types/key-usage-type.js";
 
 const privateJwk = {
@@ -19,6 +22,8 @@ const privateJwk = {
     kid: "key-active",
     alg: "ES256",
 };
+
+const rootJwk = { ...privateJwk, kid: "key-root" };
 
 function keyChain(overrides: Partial<KeyChainEntity>): KeyChainEntity {
     return Object.assign(new KeyChainEntity(), {
@@ -82,14 +87,370 @@ describe("KeyChainService.export", () => {
         expect(exported.key).not.toHaveProperty("d");
     });
 
-    it("scopes the lookup to the tenant", async () => {
+    it("leaves out unset optional columns so the import accepts the export", async () => {
+        // Nullable columns are read back as null, not undefined.
+        const service = serviceFor(
+            keyChain({
+                description: null,
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+                certValidityDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+            "db",
+        );
+
+        const exported = JSON.parse(
+            JSON.stringify(await service.export("tenant", "key")),
+        );
+
+        expect(exported).not.toHaveProperty("description");
+        expect(exported.rotationPolicy).toEqual({ enabled: true });
+        expect(KeyChainImportSchema.safeParse(exported).success).toBe(true);
+    });
+
+    it("exports the description and rotation intervals that are set", async () => {
+        const service = serviceFor(
+            keyChain({
+                description: "Signing",
+                rotationEnabled: true,
+                rotationIntervalDays: 90,
+                certValidityDays: 365,
+            }),
+            "db",
+        );
+
+        const exported = await service.export("tenant", "key");
+
+        expect(exported).toMatchObject({
+            description: "Signing",
+            rotationPolicy: {
+                enabled: true,
+                intervalDays: 90,
+                certValidityDays: 365,
+            },
+        });
+    });
+
+    it.each([
+        ["a standalone key chain", {}, "standalone", privateJwk, ["leaf"]],
+        [
+            "the root of an internal chain",
+            { rootJwk: rootJwk, rootCertificate: "root" },
+            "internalChain",
+            rootJwk,
+            ["root"],
+        ],
+    ])("exports the type of %s", async (_, overrides, type, key, crt) => {
+        const service = serviceFor(
+            keyChain({ activeCertificate: "leaf", ...overrides }),
+            "db",
+        );
+
+        const exported = await service.export("tenant", "key");
+
+        expect(exported).toMatchObject({ type, key, crt });
+        expect(KeyChainImportSchema.safeParse(exported).success).toBe(true);
+    });
+
+    it("scopes the lookup to the tenant's signing key chains", async () => {
         const service = serviceFor(keyChain({}), "db") as any;
 
         await service.export("tenant", "key");
 
         expect(service.keyChainRepository.findOne).toHaveBeenCalledWith({
-            where: { tenantId: "tenant", id: "key" },
+            where: { tenantId: "tenant", id: "key", usage: KeyUsage.Sign },
         });
+    });
+});
+
+describe("KeyChainService.getById public keys", () => {
+    const { d: _d, ...publicJwk } = privateJwk;
+
+    it("returns the active and previous public keys as complete public JWKs", async () => {
+        const service = serviceFor(
+            keyChain({
+                previousJwk: { ...privateJwk, kid: "key-previous" },
+                // Required with previousJwk; its content does not matter here.
+                previousCertificate: "not a certificate",
+            }),
+            "db",
+        );
+
+        const response = await service.getById("tenant", "key");
+
+        expect(response.activePublicKey).toEqual(publicJwk);
+        expect(response.previousPublicKey).toEqual({
+            ...publicJwk,
+            kid: "key-previous",
+        });
+    });
+
+    it("returns the public parameters of OKP and RSA keys but no private members", async () => {
+        const okp = {
+            kty: "OKP",
+            crv: "Ed25519",
+            x: "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+            d: "nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A",
+        };
+        const rsa = {
+            kty: "RSA",
+            alg: "RS256",
+            n: "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+            e: "AQAB",
+            d: "X4cTteJY_gn4FYPsXB8rdXix5vwsg1FLN5E3EaG6RJoVH-HLLKD9M7dx5oo7GURknchnrRweUkC7hT5fJLM0WbFAKNLWY2vv7B6NqXSzUvxT0_YSfqijwp3RTzlBaCxWp4doFk5N2o8Gy_nHNKroADIkJ46pRUohsXywbReAdYaMwFs9tv8d_cPVY3i07a3t8MN6TNwm0dSawm9v47UiCl3Sk5ZiG7xojPLu4sbg1U2jx4IBTNBznbJSzFHK66jT8bgkuqsk0GjskDJk19Z4qwjwbsnn4j2WBii3RL-Us2lGVkY8fkFzme1z0HbIkfz0Y6mqnOYtqc0X4jfcKoAC8Q",
+            p: "83i-7IvMGXoMXCskv73TKr8637FiO7Z27zv8oj6pbWUQyLPQBQxtPVnwD20R-60eTDmD2ujnMt5PoqMrm8RfmNhVWDtjjMmCMjOpSXicFHj7XOuVIYQyqVWlWEh6dN36GVZYk93N8Bc9vY41xy8B9RzzOGVQzXvNEvn7O0nVbfs",
+            q: "3dfOR9cuYq-0S-mkFLzgItgMEfFzB2q3hWehMuG0oCuqnb3vobLyumqjVZQO1dIrdwgTnCdpYzBcOfW5r370AFXjiWft_NGEiovonizhKpo9VVS78TzFgxkIdrecRezsZ-1kYd_s1qDbxtkDEgfAITAG9LUnADun4vIcb6yelxk",
+        };
+
+        const okpInfo = await serviceFor(
+            keyChain({ kmsProvider: "vault", activeJwk: okp }),
+            "vault",
+        ).getById("tenant", "key");
+        const rsaInfo = await serviceFor(
+            keyChain({ activeJwk: rsa }),
+            "db",
+        ).getById("tenant", "key");
+
+        expect(okpInfo.activePublicKey).toEqual({
+            kty: "OKP",
+            crv: "Ed25519",
+            x: okp.x,
+        });
+        expect(rsaInfo.activePublicKey).toEqual({
+            kty: "RSA",
+            alg: "RS256",
+            n: rsa.n,
+            e: rsa.e,
+        });
+    });
+});
+
+describe("KeyChainService.update rotation policy", () => {
+    function updateServiceFor(entity: KeyChainEntity) {
+        const service = serviceFor(entity, "db") as any;
+        service.keyChainRepository.update = vi.fn();
+        service.logger = { log: vi.fn() };
+        return service as KeyChainService & {
+            keyChainRepository: { update: ReturnType<typeof vi.fn> };
+        };
+    }
+
+    it("rejects enabling rotation without an interval", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await expect(
+            service.update("tenant", "key", {
+                rotationPolicy: { enabled: true },
+            }),
+        ).rejects.toThrow(BadRequestException);
+        expect(service.keyChainRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("enables rotation with the interval of the request", async () => {
+        const service = updateServiceFor(keyChain({}));
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: true, intervalDays: 30 },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: true, rotationIntervalDays: 30 },
+        );
+    });
+
+    it("enables rotation with the stored interval", async () => {
+        const service = updateServiceFor(
+            keyChain({ rotationIntervalDays: 90 }),
+        );
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: true },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: true },
+        );
+    });
+
+    it("turns off rotation of a key chain without interval", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await service.update("tenant", "key", {
+            rotationPolicy: { enabled: false },
+        });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { rotationEnabled: false },
+        );
+    });
+
+    it("leaves other updates of a key chain without interval alone", async () => {
+        const service = updateServiceFor(
+            keyChain({
+                rotationEnabled: true,
+                rotationIntervalDays: null,
+            } as unknown as Partial<KeyChainEntity>),
+        );
+
+        await service.update("tenant", "key", { description: "Signing" });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { description: "Signing" },
+        );
+    });
+
+    it("keeps the description when only the certificate changes", async () => {
+        const service = updateServiceFor(keyChain({}));
+
+        await service.update("tenant", "key", { activeCertificate: "PEM" });
+
+        expect(service.keyChainRepository.update).toHaveBeenCalledWith(
+            { tenantId: "tenant", id: "key" },
+            { activeCertificate: "PEM" },
+        );
+    });
+});
+
+describe("KeyChainService.findByUsageType", () => {
+    /** A repository whose `findOne` returns the first row matching `where`. */
+    function serviceWith(rows: KeyChainEntity[]) {
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: async ({ where }: { where: Record<string, unknown> }) =>
+                rows.find((row) =>
+                    Object.entries(where).every(
+                        ([key, value]) =>
+                            row[key as keyof KeyChainEntity] === value,
+                    ),
+                ) ?? null,
+        };
+        return service as KeyChainService;
+    }
+
+    const encryptionKeyChain = keyChain({
+        id: "system",
+        usageType: KeyUsageType.Encrypt,
+        usage: KeyUsage.Encrypt,
+    });
+    const signingKeyChain = (id: string) =>
+        keyChain({
+            id,
+            usageType: KeyUsageType.Encrypt,
+            usage: KeyUsage.Sign,
+        });
+
+    it("prefers the encryption key chain over signing key chains with usage type encrypt", async () => {
+        const service = serviceWith([
+            signingKeyChain("user"),
+            encryptionKeyChain,
+        ]);
+
+        const found = await service.findByUsageType(
+            "tenant",
+            KeyUsageType.Encrypt,
+        );
+
+        expect(found.id).toBe("system");
+    });
+
+    it("still finds an encryption key chain that an import turned into a signing key chain", async () => {
+        const service = serviceWith([signingKeyChain("converted")]);
+
+        const found = await service.findByUsageType(
+            "tenant",
+            KeyUsageType.Encrypt,
+        );
+
+        expect(found.id).toBe("converted");
+    });
+});
+
+describe("KeyChainService default access key chain", () => {
+    const issuedCertificate = async () => {
+        const algorithm = {
+            name: "ECDSA",
+            namedCurve: "P-256",
+            hash: "SHA-256",
+        };
+        const keys = (await webcrypto.subtle.generateKey(algorithm, true, [
+            "sign",
+            "verify",
+        ])) as CryptoKeyPair;
+        const cert = await x509.X509CertificateGenerator.create(
+            {
+                serialNumber: "01",
+                subject: "CN=Relying party",
+                issuer: "CN=Registrar CA",
+                notBefore: new Date(Date.now() - 60_000),
+                notAfter: new Date(Date.now() + 3_600_000),
+                signingAlgorithm: algorithm,
+                publicKey: keys.publicKey,
+                signingKey: keys.privateKey,
+            },
+            webcrypto as Crypto,
+        );
+        return cert.toString("pem");
+    };
+
+    it("uses the registrar-issued access key chain when none is named, not the first row", async () => {
+        const selfSigned = keyChain({
+            id: "self-signed",
+            usageType: KeyUsageType.Access,
+            createdAt: new Date(0),
+            activeCertificate: "unreadable, so ranked as self-signed",
+        });
+        const enrolled = keyChain({
+            id: "enrolled",
+            usageType: KeyUsageType.Access,
+            createdAt: new Date(1000),
+            activeCertificate: await issuedCertificate(),
+        });
+        const rows = [selfSigned, enrolled];
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = {
+            find: vi.fn(async () => rows),
+            findOne: vi.fn(
+                async ({ where }) =>
+                    rows.find((row) => row.id === where.id) ?? rows[0],
+            ),
+        };
+
+        const found = await (service as KeyChainService).findByUsageType(
+            "tenant",
+            KeyUsageType.Access,
+        );
+
+        expect(found.id).toBe("enrolled");
+        expect(service.keyChainRepository.find).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { tenantId: "tenant", usageType: KeyUsageType.Access },
+            }),
+        );
+    });
+
+    it("throws not found without an access key chain", async () => {
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = { find: vi.fn(async () => []) };
+
+        await expect(
+            (service as KeyChainService).findByUsageType(
+                "tenant",
+                KeyUsageType.Access,
+            ),
+        ).rejects.toThrow("No key chain found with usage type 'access'");
     });
 });
 

@@ -119,21 +119,28 @@ export function buildSchemaModel(schema: z.ZodType): SchemaField {
 }
 
 /**
- * Replaces the description of fields by path (`a.b`; arrays and nullable
- * wrappers are crossed implicitly). Throws for a path that does not exist, so
- * a renamed field cannot leave a stale override behind.
+ * Replaces the description of fields by path (`a.b`; arrays, nullable
+ * wrappers and union variants are crossed implicitly, and a path that reaches
+ * a field in several variants changes each of them). Throws for a path that
+ * does not exist, so a renamed field cannot leave a stale override behind.
  */
 export function overrideDescriptions(model: SchemaField, descriptions: Record<string, string>): SchemaField {
     for (const [path, description] of Object.entries(descriptions)) {
-        let field: SchemaField | undefined = model;
+        let fields: SchemaField[] = [model];
         for (const name of path.split(".")) {
-            while (field?.items) field = field.items;
-            field = field?.properties?.[name];
+            fields = fields.flatMap((field) => fieldsNamed(field, name));
         }
-        if (!field) {
+        if (fields.length === 0) {
             throw new Error(`Description override for unknown field "${path}"`);
         }
-        field.description = description;
+        for (const field of fields) field.description = description;
     }
     return model;
+}
+
+/** The properties called `name` of `field`, its array items or its union variants. */
+function fieldsNamed(field: SchemaField, name: string): SchemaField[] {
+    while (field.items) field = field.items;
+    const own = field.properties?.[name];
+    return own ? [own] : (field.variants ?? []).flatMap((variant) => fieldsNamed(variant, name));
 }

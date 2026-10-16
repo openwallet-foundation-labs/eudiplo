@@ -88,10 +88,12 @@ export interface SessionData {
     /** Caller reference of the offer; plaintext, never personal data. */
     reference?: string | null;
     status: SessionStatus;
+    /** SHA-256 hash of the authorization or pre-authorized code. */
     authorization_code?: string;
     authorization_code_expires_at?: Date;
     dpop_jkt?: string;
     client_key_jkt?: string;
+    /** SHA-256 hash of the refresh token; the token itself is not stored. */
     refresh_token?: string;
     refresh_token_expires_at?: Date;
     request_uri?: string;
@@ -111,6 +113,7 @@ export interface SessionData {
     credentials?: VerificationResult[];
     vp_nonce?: string;
     clientId?: string;
+    accessKeyChainId?: string;
     walletNonce?: string;
     responseCode?: string;
     responseUri?: string;

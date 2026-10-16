@@ -12,6 +12,7 @@ import {
 } from './issuance/issuance.routes';
 import { webhookEndpointRoutes } from './webhook-endpoint/webhook-endpoint.routes';
 import { keyManagementRoutes } from './key-management/key-management.routes';
+import { KEY_CHAIN_ROLES } from './key-management/key-chain.service';
 import {
   presentationConfigRoutes,
   presentationOfferRoutes,
@@ -79,7 +80,7 @@ export const routes: Routes = [
   {
     path: 'admin/activity-logs',
     canActivate: [AuthGuard, RoleGuard],
-    data: { role: getRole('clients:manage') },
+    data: { role: [getRole('clients:manage'), getRole('audit:read')] },
     loadComponent: () =>
       import('./admin/admin-activity-logs/admin-activity-logs.component').then(
         (m) => m.AdminActivityLogsComponent
@@ -109,12 +110,14 @@ export const routes: Routes = [
   // Issuance routes
   {
     path: 'issuance-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
     children: issuanceConfigRoutes,
   },
   {
     path: 'credential-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
     children: credentialConfigRoutes,
   },
   {
@@ -125,19 +128,22 @@ export const routes: Routes = [
   },
   {
     path: 'webhook-endpoints',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: webhookEndpointRoutes,
   },
 
   // Key & Certificate routes
   {
     path: 'keys',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: KEY_CHAIN_ROLES },
     children: keyManagementRoutes,
   },
   {
     path: 'kms',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: KEY_CHAIN_ROLES },
     loadComponent: () =>
       import('./key-management/key-management-providers/key-management-providers.component').then(
         (m) => m.KeyManagementProvidersComponent
@@ -180,14 +186,16 @@ export const routes: Routes = [
   // Presentation config routes
   {
     path: 'presentation-config',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('presentation:manage') },
     children: presentationConfigRoutes,
   },
 
-  // Trust list routes
+  // Trust list routes: issuers publish trust lists, verifiers accept issuers from them
   {
     path: 'trust-list',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: trustListRoutes,
   },
 

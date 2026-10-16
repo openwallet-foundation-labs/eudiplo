@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "capacity": {
-      "description": "Capacity override. Set null to reset to defaults.",
+      "description": "Capacity override. Omit or set null to follow STATUS_CAPACITY.",
       "anyOf": [
         {
           "type": "integer",
@@ -16,7 +16,7 @@
       ]
     },
     "bits": {
-      "description": "Bits-per-status override. Set null to reset to defaults.",
+      "description": "Bits-per-status override. Omit or set null to follow STATUS_BITS.",
       "anyOf": [
         {
           "anyOf": [
@@ -44,7 +44,7 @@
       ]
     },
     "ttl": {
-      "description": "JWT TTL override in seconds. Set null to reset.",
+      "description": "JWT TTL override in seconds. Omit or set null to follow STATUS_TTL.",
       "anyOf": [
         {
           "type": "integer",
@@ -57,14 +57,14 @@
       ]
     },
     "immediateUpdate": {
-      "description": "Immediate regeneration toggle. Set null to reset.",
+      "description": "Immediate regeneration toggle. Omit or set null to follow STATUS_IMMEDIATE_UPDATE.",
       "type": [
         "boolean",
         "null"
       ]
     },
     "enableAggregation": {
-      "description": "Aggregation URI toggle. Set null to reset.",
+      "description": "Aggregation URI toggle. Omit or set null to follow STATUS_ENABLE_AGGREGATION.",
       "type": [
         "boolean",
         "null"

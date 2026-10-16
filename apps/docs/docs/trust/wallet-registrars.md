@@ -18,8 +18,8 @@ Do not confuse the HTTPS certificate of `PUBLIC_URL` with the certificates of th
 
 Access and attestation certificates belong to key chains ([Keys and Certificates](keys-and-certificates.md#certificates)). A registration certificate is a JWT configured per presentation configuration ([Registration Certificates](registration-certificates.md)).
 
-:::warning[Registration certificates need a registrar configuration]
-EUDIPLO attaches a verifier registration certificate only when the tenant has a [registrar configuration](registrar.md), even if you paste the JWT into `registration_cert.jwt`. Without the German registrar integration, presentation requests are sent without a registration certificate. Issuers can publish an imported certificate without a registrar (`registrationCertificate.mode: "import"`).
+:::note[Registration certificates without a registrar configuration]
+Without a [registrar configuration](registrar.md), verifiers and issuers can still use a registration certificate they obtained elsewhere: `registration_cert.jwt` in a presentation configuration, `registrationCertificate.mode: "import"` in the issuance configuration. Creating or reusing certificates at the registrar (`registration_cert.body` or `id`) needs the German registrar integration.
 :::
 
 ## Choose the wallet path
@@ -48,7 +48,7 @@ If Paradym rejects the certificate, check the wallet version and test environmen
 
 1. Obtain the access key and certificate from the reference implementation's ecosystem operator.
 2. In **Keys → Create Key**, choose **Access Certificate → External Certificate** and provide the private key (EC JWK or PKCS#8 PEM) and the certificate chain, leaf first. Via the API, use `POST /api/key-chain/import` ([Keys and Certificates](keys-and-certificates.md#import-a-key-and-certificate)).
-3. Select this key chain as `accessKeyChainId` in the presentation configuration if the tenant has more than one access key chain.
+3. Select this key chain as `accessKeyChainId` in the presentation configuration if the tenant has more than one access key chain. Without it, the [default access key chain](keys-and-certificates.md#default-access-key-chain) prefers this certificate over a self-signed one while it is valid.
 4. Repeat the health, issuance and presentation checks with the wallet, keeping the public HTTPS address stable.
 
 ## German registrar path

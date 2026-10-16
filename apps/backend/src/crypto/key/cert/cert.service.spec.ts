@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { describe, expect, it, vi } from "vitest";
 import type { CertificateInfo } from "./cert.service.js";
 import { CertService } from "./cert.service.js";
@@ -60,4 +60,86 @@ describe("CertService.validateCertificate", () => {
             ["intermediate", "root"],
         );
     });
+});
+
+describe("CertService.addCertificate", () => {
+    it("stores the certificate chain and keeps the key chain description", async () => {
+        const update = vi.fn().mockResolvedValue(undefined);
+        const service = new CertService({ update } as never, {} as never);
+
+        await expect(
+            service.addCertificate("tenant", {
+                crt: ["leaf", "intermediate"],
+                keyId: "access",
+            }),
+        ).resolves.toBe("access");
+
+        expect(update).toHaveBeenCalledWith("tenant", "access", {
+            activeCertificate: "leaf\nintermediate",
+        });
+    });
+
+    it("keeps an existing description over the default description", async () => {
+        const update = vi.fn().mockResolvedValue(undefined);
+        const getEntity = vi
+            .fn()
+            .mockResolvedValue({ description: "Shop access key" });
+        const service = new CertService(
+            { update, getEntity } as never,
+            {} as never,
+        );
+
+        await service.addCertificate("tenant", {
+            crt: ["leaf"],
+            keyId: "access",
+            defaultDescription: "Access certificate from registrar (ID: 1)",
+        });
+
+        expect(update).toHaveBeenCalledWith("tenant", "access", {
+            activeCertificate: "leaf",
+        });
+    });
+
+    it("refuses an unknown key chain without updating it", async () => {
+        const update = vi.fn();
+        const getEntity = vi
+            .fn()
+            .mockRejectedValue(new NotFoundException("Key chain x not found"));
+        const service = new CertService(
+            { update, getEntity } as never,
+            {} as never,
+        );
+
+        await expect(
+            service.addCertificate("tenant", {
+                crt: ["leaf"],
+                keyId: "x",
+                defaultDescription: "Access certificate from registrar (ID: 1)",
+            }),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(update).not.toHaveBeenCalled();
+    });
+
+    it.each([undefined, "", "  "])(
+        "sets the default description on a key chain with description %j",
+        async (description) => {
+            const update = vi.fn().mockResolvedValue(undefined);
+            const getEntity = vi.fn().mockResolvedValue({ description });
+            const service = new CertService(
+                { update, getEntity } as never,
+                {} as never,
+            );
+
+            await service.addCertificate("tenant", {
+                crt: ["leaf"],
+                keyId: "access",
+                defaultDescription: "Access certificate from registrar (ID: 1)",
+            });
+
+            expect(update).toHaveBeenCalledWith("tenant", "access", {
+                activeCertificate: "leaf",
+                description: "Access certificate from registrar (ID: 1)",
+            });
+        },
+    );
 });

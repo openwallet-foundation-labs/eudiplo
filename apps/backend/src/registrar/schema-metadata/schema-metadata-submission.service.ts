@@ -4,6 +4,7 @@ import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { KeyChainService } from "../../crypto/key/key-chain.service.js";
 import { CredentialConfigService } from "../../issuer/configuration/credentials/credential-config/credential-config.service.js";
 import {
+    SchemaMetaConfig,
     SchemaMetadataPinMode,
     SignSchemaMetaConfigDto,
     SignVersionSchemaMetaConfigDto,
@@ -17,6 +18,7 @@ import {
 import { type CreateSchemaMetadataMultipartDto } from "../generated/index.js";
 import { type UpdateSchemaMetadataDto } from "./dto/schema-metadata.dto.js";
 import { SchemaMetadataService } from "./schema-metadata.service.js";
+import { parsesAsCertificate, readCertificates } from "./x509-certificates.js";
 
 type TrustedAuthorityInput = NonNullable<
     SignSchemaMetaConfigDto["config"]["trustedAuthorities"]
@@ -132,7 +134,7 @@ export class SchemaMetadataSubmissionService {
                 ref.tenantId,
                 trustList.keyChainId,
             );
-            const x509Certificate = this.toBase64Der(
+            const x509Certificate = this.signingCertificate(
                 keyChain.activeCertificate,
             );
             if (!x509Certificate) {
@@ -148,21 +150,14 @@ export class SchemaMetadataSubmissionService {
         }
     }
 
-    private toBase64Der(certificate: string): string | undefined {
-        const base64 = certificate
-            .replaceAll("-----BEGIN CERTIFICATE-----", "")
-            .replaceAll("-----END CERTIFICATE-----", "")
-            .replace(/\s/g, "");
-
-        if (
-            !base64 ||
-            !/^[A-Za-z0-9+/]*={0,2}$/.test(base64) ||
-            base64.length % 4 !== 0
-        ) {
-            return undefined;
-        }
-
-        return base64;
+    /**
+     * The certificate whose key signs a trust list, as base64 DER: the first
+     * one of the key chain's active certificate, which can be a chain with the
+     * signing certificate first. Pinned as TrustListService.getVerifierX509Der
+     * does.
+     */
+    private signingCertificate(activeCertificate: string): string | undefined {
+        return readCertificates(activeCertificate)?.first;
     }
 
     private toPemCertificate(base64Der: string): string {
@@ -187,12 +182,12 @@ export class SchemaMetadataSubmissionService {
                 continue;
             }
 
-            const base64Der = this.toBase64Der(certificate);
-            if (!base64Der) {
+            const certificates = readCertificates(certificate);
+            if (certificates?.count !== 1) {
                 continue;
             }
 
-            const pem = this.toPemCertificate(base64Der);
+            const pem = this.toPemCertificate(certificates.first);
             return typeof File === "function"
                 ? new File([pem], "trust-list-certificate.pem", {
                       type: "application/x-pem-file",
@@ -254,9 +249,17 @@ export class SchemaMetadataSubmissionService {
         index: number,
     ): Promise<Record<string, unknown>> {
         if (entry.frameworkType === "x509") {
-            if (!entry.value || !this.toBase64Der(entry.value)) {
+            const certificates = entry.value
+                ? readCertificates(entry.value)
+                : undefined;
+            if (certificates && certificates.count > 1) {
                 throw new BadRequestException(
-                    `trustedAuthorities[${index}].value must be a base64-encoded DER X.509 certificate for x509 authorities.`,
+                    `trustedAuthorities[${index}].value contains ${certificates.count} certificates; an x509 authority takes only its root certificate.`,
+                );
+            }
+            if (!certificates || !parsesAsCertificate(certificates.first)) {
+                throw new BadRequestException(
+                    `trustedAuthorities[${index}].value must be an X.509 certificate in PEM or base64 DER for x509 authorities.`,
                 );
             }
             if (entry.verificationMethod) {
@@ -267,7 +270,7 @@ export class SchemaMetadataSubmissionService {
 
             return {
                 frameworkType: "x509",
-                value: this.toBase64Der(entry.value),
+                value: certificates.first,
             };
         }
 
@@ -286,7 +289,7 @@ export class SchemaMetadataSubmissionService {
                 tenantId,
                 trustList.keyChainId,
             );
-            const x509Certificate = this.toBase64Der(
+            const x509Certificate = this.signingCertificate(
                 keyChain.activeCertificate,
             );
             if (!x509Certificate) {
@@ -590,31 +593,16 @@ export class SchemaMetadataSubmissionService {
                 ? config.name.trim()
                 : undefined;
 
-        const category = (config as { category?: unknown }).category;
-        const normalizedCategory =
-            typeof category === "string" ? category : undefined;
+        const { category, tags } = config;
 
-        const tags = (config as { tags?: unknown }).tags;
-        const normalizedTags =
-            Array.isArray(tags) && tags.every((tag) => typeof tag === "string")
-                ? tags
-                : undefined;
-
-        if (!displayName && !normalizedCategory && !normalizedTags?.length) {
+        if (!displayName && !category && !tags?.length) {
             return undefined;
         }
 
         return {
             ...(displayName ? { displayName } : {}),
-            ...(normalizedCategory
-                ? {
-                      category:
-                          normalizedCategory as UpdateSchemaMetadataDto["category"],
-                  }
-                : {}),
-            ...(normalizedTags?.length
-                ? { tags: normalizedTags as UpdateSchemaMetadataDto["tags"] }
-                : {}),
+            ...(category ? { category } : {}),
+            ...(tags?.length ? { tags } : {}),
         };
     }
 
@@ -658,9 +646,17 @@ export class SchemaMetadataSubmissionService {
             return;
         }
 
+        // Only SchemaMetaConfig fields belong in the credential config; the
+        // publish-only ones (category, tags) exist only at the registrar, and
+        // its schemaMeta (part of the config file format) rejects them.
+        const schemaMeta = Object.fromEntries(
+            Object.entries(normalizedConfig).filter(([key]) =>
+                Object.hasOwn(SchemaMetaConfig.schema.shape, key),
+            ),
+        );
         const schemaMetaForLink = {
             ...existing.schemaMeta,
-            ...normalizedConfig,
+            ...schemaMeta,
             id: generatedSchemaMetadataId,
         };
 
@@ -683,6 +679,13 @@ export class SchemaMetadataSubmissionService {
                 normalizedConfig.rulebookURI.trim().length === 0);
 
         if (isLinkOnlyRequest) {
+            // Nothing is published, so there is no new entry to set them on.
+            if (normalizedConfig.category || normalizedConfig.tags?.length) {
+                throw new BadRequestException(
+                    "config.category and config.tags only apply when publishing; omit them when linking a credential config to an existing schema metadata id",
+                );
+            }
+
             await this.updateCredentialConfigSchemaMetaLink(
                 tenantId,
                 body.credentialConfigId!,

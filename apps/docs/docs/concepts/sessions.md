@@ -47,7 +47,7 @@ A pre-authorized code is also only valid until the session's creation time plus 
 A presentation session has two identifiers, because the QR code is visible to anyone near the screen:
 
 - The **session ID** is for your backend: the management API, webhooks and the event stream use it. Whoever has it can read the result.
-- The **`walletNonce`** is for the wallet: it appears in `request_uri`, `response_uri` and as `state`. Seeing the QR code reveals only the `walletNonce`, not the session ID.
+- The **`walletNonce`** is for the wallet: it appears in `request_uri`, `response_uri` and as `state`. Seeing the QR code reveals only the `walletNonce`, not the session ID. The OID4VP endpoints do not accept the session ID in its place.
 
 Two more values bind the response to the request:
 
@@ -124,6 +124,34 @@ The search term can contain a pre-authorized code, so its value is replaced by `
 ### From a log line to the session
 
 Once a wallet request has resolved its session (by offer ID, `walletNonce`, `issuer_state`, code or access token), every following log line of that request carries `sessionId` and `tenantId`, with or without OpenTelemetry, and the request's trace gets the `session.id` attribute. See [Logging](../operate/logging.md#correlate-logs-with-sessions).
+
+### Counting sessions
+
+`GET /api/session/stats` counts the tenant's sessions over all pages, with the same role scope as the list. `createdFrom` and `createdTo` limit it to sessions created in a time range, with the same format and checks as in the list. The response has one entry per session type the client may read, `issuance` and `presentation`, each with:
+
+- `total` and a count for every state in `byStatus` (`0` when there is none),
+- `failureCodes`, the [failure codes](../reference/session-outcome.md#failure-codes) of the failed sessions, most frequent first, at most 10 and cut to 255 characters; failed sessions without a code are not listed, and only presentations record codes, so `issuance` lists none,
+- `lastCompletedAt`, the last update of the most recently updated completed session (`null` when none completed).
+
+Only stored sessions count: in the default `full` [cleanup](#session-cleanup) mode, sessions older than the TTL are deleted and drop out. `retention` reports the tenant's effective `ttlSeconds` and `cleanupMode`, so a client can tell how far back the counts reach.
+
+The web client's dashboard shows these numbers for all stored sessions and for an activity window that retention allows: the last seven days by day when sessions are kept for a week or anonymized, fewer days when they are kept for two to six days, and otherwise the last hours by hour, for example the last 24 hours with the default TTL.
+
+```http
+GET /api/session/stats?createdFrom=2026-10-04T00:00:00%2B02:00&createdTo=2026-10-10T23:59:59%2B02:00
+```
+
+```json
+{
+  "presentation": {
+    "total": 42,
+    "byStatus": { "active": 3, "fetched": 1, "completed": 35, "expired": 2, "failed": 1, "cancelled": 0 },
+    "failureCodes": [{ "code": "trust_chain_not_trusted", "count": 1 }],
+    "lastCompletedAt": "2026-10-10T08:12:44.000Z"
+  },
+  "retention": { "ttlSeconds": 86400, "cleanupMode": "full" }
+}
+```
 
 ## Session cleanup
 

@@ -1,5 +1,13 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -13,21 +21,31 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
   CredentialConfig,
-  SchemaMetaConfig,
+  PresentationConfig,
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
-  trustListControllerExportTrustList,
   trustListControllerGetTrustList,
   trustListControllerGetTrustListVersions,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { focusAfterRenderIfLost } from '../../common/focus-if-lost.util';
+import { LoadErrorComponent } from '../../common/load-error.component';
 import { FrontendConfigService } from '../../services/frontend-config.service';
+import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
+import { getApiErrorMessage, hasHttpStatus } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { TrustListService } from '../trust-list.service';
+import {
+  credentialConfigReferencesTrustList,
+  presentationConfigReferencesTrustList,
+} from '../trust-list-reference';
 
 interface EntityInfo {
   name: string;
@@ -75,6 +93,7 @@ type TrustListEntity = InternalEntity | ExternalEntity;
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './trust-list-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -86,7 +105,14 @@ export class TrustListShowComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly apiService = inject(ApiService);
   private readonly credentialConfigService = inject(CredentialConfigService);
+  private readonly presentationService = inject(PresentationManagementService);
   private readonly frontendConfigService = inject(FrontendConfigService);
+  private readonly jwtService = inject(JwtService);
+  private readonly trustListService = inject(TrustListService);
+  private readonly injector = inject(Injector);
+
+  @ViewChild('pageHeading', { read: ElementRef })
+  private readonly pageHeading?: ElementRef<HTMLElement>;
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
@@ -98,6 +124,15 @@ export class TrustListShowComponent implements OnInit {
    */
   publicUrlIsInstanceUrl = false;
   relatedCredentialConfigs: CredentialConfig[] = [];
+  relatedCredentialConfigsLoading = false;
+  relatedCredentialConfigsFailed = false;
+  relatedPresentationConfigs: PresentationConfig[] = [];
+  relatedPresentationConfigsLoading = false;
+  relatedPresentationConfigsFailed = false;
+  /** Set when the list could not be loaded, so the page is not left blank. */
+  loadError = '';
+  /** True while a delete request runs, so it is not sent twice. */
+  deleting = false;
   private readonly id: string;
 
   constructor() {
@@ -105,17 +140,29 @@ export class TrustListShowComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    const retrying = this.loadError !== '';
+    this.loadError = '';
     trustListControllerGetTrustList({ path: { id: this.id } }).then(
       async (res) => {
         this.trustList = res.data;
+        // The retry removed the error card with its focused Retry button.
+        if (retrying) {
+          focusAfterRenderIfLost(this.injector, () => this.pageHeading?.nativeElement);
+        }
         this.parseEntities();
         this.loadVersions(this.id);
         void this.buildPublicUrl();
-        await this.loadRelatedCredentialConfigs();
+        await Promise.all([
+          this.loadRelatedCredentialConfigs(),
+          this.loadRelatedPresentationConfigs(),
+        ]);
       },
-      () => {
-        this.snackBar.open('Error loading trust list', 'Close', { duration: 3000 });
-        this.router.navigate(['/trust-list']);
+      (error) => {
+        this.loadError = getApiErrorMessage(error, 'Failed to load trust list');
       }
     );
   }
@@ -167,22 +214,104 @@ export class TrustListShowComponent implements OnInit {
     );
   }
 
+  /** Credential configs, and so their references to this list, need `issuance:manage`. */
+  get canReadCredentialConfigs(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
+  }
+
   private async loadRelatedCredentialConfigs(): Promise<void> {
-    if (!this.trustList) return;
+    const trustList = this.trustList;
+    if (!trustList || !this.canReadCredentialConfigs) return;
 
-    const allConfigs = await this.credentialConfigService.loadConfigurations();
-    const trustListId = this.trustList.id;
-    const trustListPathSegment = `/trust-list/${trustListId}`;
+    this.relatedCredentialConfigsLoading = true;
+    this.relatedCredentialConfigsFailed = false;
+    try {
+      const allConfigs = await this.credentialConfigService.loadConfigurations();
+      this.relatedCredentialConfigs = allConfigs.filter((config) =>
+        credentialConfigReferencesTrustList(config, trustList)
+      );
+    } catch {
+      this.relatedCredentialConfigsFailed = true;
+    } finally {
+      this.relatedCredentialConfigsLoading = false;
+    }
+  }
 
-    this.relatedCredentialConfigs = allConfigs.filter((config) => {
-      const authorities =
-        (config.schemaMeta as SchemaMetaConfig | undefined)?.trustedAuthorities ?? [];
-      return authorities.some((ta) => {
-        if (ta.frameworkType !== 'etsi_tl') return false;
-        const value = ta.value ?? '';
-        return value === trustListId || value.includes(trustListPathSegment);
-      });
-    });
+  /** Presentation configs, and so their DCQL trust references, need a presentation role. */
+  get canReadPresentationConfigs(): boolean {
+    return this.jwtService.hasRole(['presentation:manage', 'presentation:request']);
+  }
+
+  private async loadRelatedPresentationConfigs(): Promise<void> {
+    const trustList = this.trustList;
+    if (!trustList || !this.canReadPresentationConfigs) return;
+
+    this.relatedPresentationConfigsLoading = true;
+    this.relatedPresentationConfigsFailed = false;
+    try {
+      const allConfigs = await this.presentationService.loadConfigurations();
+      this.relatedPresentationConfigs = allConfigs.filter((config) =>
+        presentationConfigReferencesTrustList(config, trustList)
+      );
+    } catch {
+      this.relatedPresentationConfigsFailed = true;
+    } finally {
+      this.relatedPresentationConfigsLoading = false;
+    }
+  }
+
+  /** The kinds of config that can reference the list, with what this page knows about them. */
+  private referenceKinds() {
+    return [
+      {
+        noun: 'credential config',
+        count: this.relatedCredentialConfigs.length,
+        known:
+          this.canReadCredentialConfigs &&
+          !this.relatedCredentialConfigsLoading &&
+          !this.relatedCredentialConfigsFailed,
+      },
+      {
+        noun: 'presentation config',
+        count: this.relatedPresentationConfigs.length,
+        known:
+          this.canReadPresentationConfigs &&
+          !this.relatedPresentationConfigsLoading &&
+          !this.relatedPresentationConfigsFailed,
+      },
+    ];
+  }
+
+  /** The list as messages name it: its description and ID, or its ID alone. */
+  private listName(): string {
+    const description = this.trustList?.description;
+    return description ? `"${description}" (${this.id})` : `"${this.id}"`;
+  }
+
+  /**
+   * Why the backend would refuse the delete, when this page already sees configs that reference
+   * the list; undefined otherwise.
+   */
+  deleteBlockedReason(): string | undefined {
+    const used = this.referenceKinds().filter((kind) => kind.known && kind.count > 0);
+    if (!used.length) return undefined;
+    const counts = used.map((kind) => `${kind.count} ${kind.noun}${kind.count === 1 ? '' : 's'}`);
+    return (
+      `Trust list ${this.listName()} is still referenced by ${counts.join(' and ')}.` +
+      ' Remove these references before deleting it.'
+    );
+  }
+
+  /**
+   * Asks before deleting a list that this page sees no references to. References it cannot see,
+   * still loading, not readable with the caller's roles or in the issuance configuration, make
+   * the backend refuse the delete and name them.
+   */
+  deleteQuestion(): string {
+    return (
+      `Delete trust list ${this.listName()}? If a configuration still references it, the delete` +
+      ' is refused and the configurations are named. This cannot be undone.'
+    );
   }
 
   copyToClipboard(text: string, label: string): void {
@@ -197,17 +326,29 @@ export class TrustListShowComponent implements OnInit {
   }
 
   delete() {
-    if (!confirm('Are you sure you want to delete this trust list?')) {
+    if (this.deleting) return;
+    const blocked = this.deleteBlockedReason();
+    if (blocked) {
+      openErrorSnackBar(this.snackBar, blocked);
       return;
     }
-    const id = this.route.snapshot.paramMap.get('id')!;
-    trustListControllerDeleteTrustList({ path: { id } }).then(
+    if (!confirm(this.deleteQuestion())) {
+      return;
+    }
+    this.deleting = true;
+    trustListControllerDeleteTrustList({ path: { id: this.id } }).then(
       () => {
         this.snackBar.open('Trust list deleted', 'Close', { duration: 3000 });
         this.router.navigate(['/trust-list']);
       },
-      () => {
-        this.snackBar.open('Error deleting trust list', 'Close', { duration: 3000 });
+      (error) => {
+        this.deleting = false;
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error deleting trust list'));
+        // The backend found references this page did not show; show its current state.
+        if (hasHttpStatus(error, 409)) {
+          void this.loadRelatedCredentialConfigs();
+          void this.loadRelatedPresentationConfigs();
+        }
       }
     );
   }
@@ -215,18 +356,16 @@ export class TrustListShowComponent implements OnInit {
   /**
    * Downloads the current configuration as a JSON file.
    */
-  async download() {
-    const config = await trustListControllerExportTrustList({ path: { id: this.id } }).then(
-      (res) => res.data
-    );
-    const dataStr =
-      'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', `trustlist-${this.id}-config.json`);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-    this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
+  async download(): Promise<void> {
+    try {
+      await this.trustListService.downloadConfig(this.id);
+      this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
+    } catch (error) {
+      console.error('Error downloading config:', error);
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
+    }
   }
 }

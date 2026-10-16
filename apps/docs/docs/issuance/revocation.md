@@ -5,7 +5,7 @@ sidebar_label: Revocation
 
 Revoke or suspend credentials you issued, using Token Status Lists ([draft-ietf-oauth-status-list](https://datatracker.ietf.org/doc/draft-ietf-oauth-status-list/)). EUDIPLO assigns every credential an entry in a signed status list that verifiers fetch; you change entries per issuance session. For an end-to-end walkthrough, see the [revocable credentials cookbook](../cookbooks/revocable-credentials.md).
 
-**Prerequisites:** a [credential configuration](credential-configuration.md) and a client with the `issuance:manage` role (configuration) and `issuance:offer` (revocation).
+**Prerequisites:** a [credential configuration](credential-configuration.md) and a client with the `issuance:manage` role, which covers configuration and revocation, or `credentials:status` for revocation only. To open the session in the Web Client, the user also needs `issuance:offer` or `sessions:read`.
 
 ## 1. Enable status management
 
@@ -50,10 +50,10 @@ curl -X POST "$EUDIPLO_URL/api/session/revoke" \
 | `status` | yes | `0` = valid, `1` = revoked, `2` = suspended. |
 
 - The call answers `204 No Content`. It updates every credential of the session and type, including all credentials of a batch; without `credentialConfigurationId` it updates all credentials of the session. If the session has no status entry for the type, it answers `409`. A value that does not fit a list's bits per entry (for example `2` on a 1-bit list) is rejected with `400` before anything is changed.
-- Allowed roles: `issuance:offer` or `issuance:manage`.
+- Allowed roles: `credentials:status` or `issuance:manage`. `issuance:offer` creates offers but cannot change the status.
 - Revocation is final: setting `0` or `2` on a revoked credential is rejected with `409`, and nothing is changed. A suspension can be lifted (`0`) or turned into a revocation (`1`).
 
-In the web client, open the session under **All Sessions**. The **Credential Status** card lists the credentials of the session per credential type and offers **Revoke**, **Suspend** and **Reinstate** where the change is allowed; Suspend only appears when every list of that type has at least 2 bits per entry.
+In the web client, open the session under **All Sessions**. The **Credential Status** card lists the credentials of the session per credential type and offers **Revoke**, **Suspend** and **Reinstate** where the change is allowed; Suspend only appears when every list of that type has at least 2 bits per entry. Opening the session needs `issuance:offer`, `presentation:request` or `sessions:read`, and changing the status on the card needs `credentials:status` or `issuance:manage`: `issuance:offer` alone shows the status without the buttons, and `issuance:manage` alone cannot open the session.
 
 ## 3. Check the result
 
@@ -76,7 +76,7 @@ curl "$EUDIPLO_URL/api/session/a6318799-dff4-4b60-9d1d-58703611bd23/credential-s
 ]
 ```
 
-There is one entry per issued credential that carries a status, so a batch issuance returns several entries for the same type. The list is empty when no credential of the session carries a status. Allowed roles: `issuance:offer` or `issuance:manage`.
+There is one entry per issued credential that carries a status, so a batch issuance returns several entries for the same type. The list is empty when no credential of the session carries a status. Allowed roles: `issuance:offer`, `issuance:manage`, `credentials:status` or `sessions:read`.
 
 Verifiers resolve `status_list.uri` and read the bit at `idx`. Status list tokens are cached:
 

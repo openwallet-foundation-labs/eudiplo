@@ -31,6 +31,13 @@ example with an IP allow list, a VPN or an identity-aware proxy. Except for the
 token endpoint and the Swagger UI (`/api/docs`, `/api/docs-json`), every call
 also needs a bearer token, so the network rule is a second layer.
 
+The web client sends its token requests to the token endpoint of the
+discovery document, `PUBLIC_URL/api/oauth2/token` (with `OIDC` set, the
+provider's), even when operators enter another backend address on its login
+page. Allow `OPTIONS` (CORS preflight) and `POST` on `/api/oauth2/token` from
+operators' browsers on the `PUBLIC_URL` host too
+([web client addresses](docker-compose.md#web-client-addresses)).
+
 | Setting       | Value                                                                                                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Methods       | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, and `OPTIONS` for the CORS preflight of the web client                                                                         |
@@ -86,8 +93,8 @@ Wallets call these from phones on mobile networks, so:
 | `/issuers/{tenant}/credentials-metadata/vct/{id}`                                                                                        | GET       | –                                                                  | Wallets, verifiers            |
 | `/issuers/{tenant}/status-management/status-list/{id}`, `/issuers/{tenant}/status-management/status-list-aggregation`                    | GET       | –                                                                  | Wallets, verifiers            |
 | `/issuers/{tenant}/trust-list/{id}`                                                                                                      | GET       | –                                                                  | Verifiers, wallets            |
-| `/presentations/{session}/oid4vp/request`, `/presentations/{session}/oid4vp/request/no-redirect`                                         | GET, POST | POST: form (`wallet_metadata`, `wallet_nonce`)                     | Wallets                       |
-| `/presentations/{session}/oid4vp`                                                                                                        | POST      | Form (`response` or `vp_token`) from wallets; JSON from your page (DC API) | Wallets, your page      |
+| `/presentations/{walletNonce}/oid4vp/request`, `/presentations/{walletNonce}/oid4vp/request/no-redirect`                                 | GET, POST | POST: form (`wallet_metadata`, `wallet_nonce`)                     | Wallets                       |
+| `/presentations/{walletNonce}/oid4vp`                                                                                                    | POST      | Form (`response` or `vp_token`) from wallets; JSON from your page (DC API) | Wallets, your page      |
 | `/presentations/{session}/iso-18013-7`                                                                                                   | POST      | JSON (`data`)                                                      | Your page (DC API)            |
 | `/storage/{key}`                                                                                                                         | GET       | –                                                                  | Wallets (logos, images)       |
 

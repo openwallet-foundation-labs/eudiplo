@@ -1,4 +1,5 @@
 import {
+    bareFileVersion,
     isConfigDocument,
     migrateDocument,
     normalizeDocument,
@@ -14,6 +15,7 @@ import type {
     ConfigMigrationResult,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { withoutNullRotationValues } from "./key-chain-document.js";
 
 type Spec = Record<string, any>;
 @Injectable()
@@ -32,8 +34,8 @@ export class ConfigMigrationService {
         }
     }
 
-    detectLegacyVersion(_kind: ConfigResourceKind, _spec: Spec): number {
-        return 1;
+    detectLegacyVersion(kind: ConfigResourceKind, spec: Spec): number {
+        return bareFileVersion(kind, spec);
     }
 
     wrapLegacy(
@@ -74,7 +76,9 @@ export class ConfigMigrationService {
     }
 
     unwrapForLegacyImporter(document: ConfigDocument): Record<string, unknown> {
-        const spec = structuredClone(document.spec) as Spec;
+        let spec = structuredClone(document.spec) as Spec;
+        if (document.kind === "KeyChain")
+            spec = withoutNullRotationValues(spec);
         if (
             document.kind === "KeyChain" &&
             spec.keySource?.type === "private-jwk"

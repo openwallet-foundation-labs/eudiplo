@@ -5,6 +5,7 @@ import { request as httpsRequest } from "node:https";
 import { isIP, type LookupFunction } from "node:net";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { isNonPublicIp } from "./domain/non-public-ip.js";
 
 /** Response of {@link OutboundUrlPolicyService.get}; redirects are not followed. */
 export interface OutboundResponse {
@@ -38,6 +39,9 @@ interface OutboundGetOptions {
     rejectUnauthorized?: boolean;
 }
 
+/** Raised by {@link OutboundUrlPolicyService.safeLookup} for a blocked address. */
+export class OutboundAddressBlockedError extends Error {}
+
 @Injectable()
 export class OutboundUrlPolicyService {
     constructor(private readonly configService: ConfigService) {}
@@ -57,12 +61,10 @@ export class OutboundUrlPolicyService {
                 if (
                     !this.allowPrivateNetwork() &&
                     (addresses.length === 0 ||
-                        addresses.some(({ address }) =>
-                            this.isPrivateIp(address),
-                        ))
+                        addresses.some(({ address }) => isNonPublicIp(address)))
                 ) {
                     return callback(
-                        new Error(
+                        new OutboundAddressBlockedError(
                             "Outbound URL target resolves to a private or loopback IP",
                         ),
                         "",
@@ -188,10 +190,14 @@ export class OutboundUrlPolicyService {
     /**
      * @param overrides.allowHttp allow `http:` even when
      * `OUTBOUND_URL_ALLOW_HTTP` is off
+     * @param overrides.resolveHost `false` skips the DNS lookup of a host
+     * name, for URLs that are stored now and requested later: the scheme,
+     * allowlist, reserved names and address literals are still checked, and
+     * {@link safeLookup} checks the address when the URL is requested
      */
     async assertSafeUrl(
         url: string,
-        overrides: { allowHttp?: boolean } = {},
+        overrides: { allowHttp?: boolean; resolveHost?: boolean } = {},
     ): Promise<void> {
         let parsed: URL;
         try {
@@ -233,13 +239,18 @@ export class OutboundUrlPolicyService {
             );
         }
 
-        const directIpVersion = isIP(hostname);
-        if (directIpVersion > 0) {
-            if (this.isPrivateIp(hostname)) {
+        // URL hostnames carry IPv6 literals in brackets.
+        const literal = hostname.replace(/^\[(.*)\]$/, "$1");
+        if (isIP(literal) > 0) {
+            if (isNonPublicIp(literal)) {
                 throw new BadRequestException(
                     "Outbound URL target resolves to a private or loopback IP",
                 );
             }
+            return;
+        }
+
+        if (overrides.resolveHost === false) {
             return;
         }
 
@@ -258,7 +269,7 @@ export class OutboundUrlPolicyService {
             );
         }
 
-        if (resolved.some((entry) => this.isPrivateIp(entry.address))) {
+        if (resolved.some((entry) => isNonPublicIp(entry.address))) {
             throw new BadRequestException(
                 "Outbound URL target resolves to a private or loopback IP",
             );
@@ -319,41 +330,5 @@ export class OutboundUrlPolicyService {
 
     private isReservedHost(hostname: string): boolean {
         return hostname === "localhost" || hostname.endsWith(".localhost");
-    }
-
-    private isPrivateIp(address: string): boolean {
-        const normalized = address.toLowerCase();
-
-        if (normalized.startsWith("::ffff:")) {
-            return this.isPrivateIp(normalized.slice("::ffff:".length));
-        }
-
-        const version = isIP(normalized);
-        if (version === 4) {
-            const octets = normalized
-                .split(".")
-                .map((v) => Number.parseInt(v, 10));
-            const [a, b] = octets;
-            if (a === 10) return true;
-            if (a === 127) return true;
-            if (a === 100 && b >= 64 && b <= 127) return true; // carrier-grade NAT
-            if (a === 198 && (b === 18 || b === 19)) return true; // benchmarking
-            if (a === 169 && b === 254) return true;
-            if (a === 172 && b >= 16 && b <= 31) return true;
-            if (a === 192 && b === 168) return true;
-            if (a === 0) return true;
-            return false;
-        }
-
-        if (version === 6) {
-            if (normalized === "::1" || normalized === "::") return true;
-            if (normalized.startsWith("fc") || normalized.startsWith("fd")) {
-                return true;
-            }
-            if (/^fe[89ab]/i.test(normalized)) return true;
-            return false;
-        }
-
-        return true;
     }
 }

@@ -947,3 +947,15 @@
     margin-right: 8px;
   }
 }
+
+.config-option-id {
+  display: block;
+}
+
+.config-option-description {
+  display: block;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: normal;
+}

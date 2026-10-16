@@ -2,8 +2,15 @@ import { ConflictException } from "@nestjs/common";
 import type { LoTEDocument } from "@owf/eudi-lote";
 import * as x509 from "@peculiar/x509";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { TrustListReferences } from "./application/trust-list-references.js";
+import {
+    type ManagedTrustList,
+    TrustListInUseError,
+    type TrustListReference,
+} from "./domain/trust-list-reference.js";
 import type { TrustListCreateDto } from "./dto/trust-list-create.dto.js";
 import type { TrustList } from "./entities/trust-list.entity.js";
+import { TrustListCreateSchema } from "./schemas/trust-list.schema.js";
 import { TrustListService } from "./trustlist.service.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -47,6 +54,7 @@ function createService(
     rows: TrustList[],
     store = new Map(rows.map((row) => [row.id, structuredClone(row)])),
     versions: object[] = [],
+    references = new TrustListReferences(),
 ) {
     const manager = {
         update: vi.fn(
@@ -77,6 +85,13 @@ function createService(
         findOneByOrFail: vi.fn(async ({ id }: { id: string }) =>
             structuredClone(store.get(id)),
         ),
+        existsBy: vi.fn(
+            async ({ tenantId, id }: { tenantId: string; id: string }) =>
+                store.get(id)?.tenantId === tenantId,
+        ),
+        delete: vi.fn(async ({ id }: { id: string }) => {
+            store.delete(id);
+        }),
         create: vi.fn((value: object) => value),
         save: vi.fn(async (value: object) => value),
         manager: {
@@ -102,6 +117,7 @@ function createService(
                 .mockResolvedValue({ id: "tenant", name: "Tenant" }),
         } as any,
         { register: vi.fn() } as any,
+        references,
     );
     const generateJwt = vi
         .spyOn(service, "generateJwt")
@@ -258,6 +274,150 @@ describe("TrustListService", () => {
             expect(saved.sequenceNumber).toBe(1);
         });
 
+        it("accepts external certificates as Base64 DER", async () => {
+            const { service, trustListRepo } = createService([]);
+            const pem = (externalEntity as { issuerCertPem: string })
+                .issuerCertPem;
+            const der = pem
+                .replaceAll(/-----(BEGIN|END) CERTIFICATE-----/g, "")
+                .replaceAll(/\s/g, "");
+
+            await service.create(
+                {
+                    id: "der",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            issuerCertPem: der,
+                            revocationCertPem: der,
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const saved = trustListRepo.save.mock.calls[0][0] as TrustList;
+            expect(JSON.stringify(saved.data)).toContain(der);
+        });
+
+        it("publishes the parsed certificate, not stray characters around it", async () => {
+            const { service, trustListRepo } = createService([]);
+            const pem = (externalEntity as { issuerCertPem: string })
+                .issuerCertPem;
+            const der = pem
+                .replaceAll(/-----(BEGIN|END) CERTIFICATE-----/g, "")
+                .replaceAll(/\s/g, "");
+            const spaced = `${der.slice(0, 10)} \t${der.slice(10)}`;
+
+            await service.create(
+                {
+                    id: "spaced",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            issuerCertPem: spaced,
+                            revocationCertPem: spaced,
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const published = JSON.stringify(
+                (trustListRepo.save.mock.calls[0][0] as TrustList).data,
+            );
+            expect(published).toContain(der);
+        });
+
+        it("publishes each PEM certificate as the DER of its first certificate", async () => {
+            const { service, trustListRepo } = createService([]);
+            const issuer = externalEntity as {
+                issuerCertPem: string;
+            };
+            const keys = await globalThis.crypto.subtle.generateKey(
+                { name: "ECDSA", namedCurve: "P-256" },
+                true,
+                ["sign", "verify"],
+            );
+            const other = await x509.X509CertificateGenerator.createSelfSigned({
+                name: "CN=Revocation",
+                keys,
+                signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
+            });
+            const issuerDer = Buffer.from(
+                new x509.X509Certificate(issuer.issuerCertPem).rawData,
+            ).toString("base64");
+            const otherDer = Buffer.from(other.rawData).toString("base64");
+
+            await service.create(
+                {
+                    id: "pem",
+                    entities: [
+                        {
+                            ...externalEntity,
+                            // A chain in one field publishes its first certificate only.
+                            issuerCertPem: `${issuer.issuerCertPem}\n${other.toString("pem")}`,
+                            revocationCertPem: other.toString("pem"),
+                        } as TrustListCreateDto["entities"][number],
+                    ],
+                },
+                { id: "tenant", name: "Tenant" },
+            );
+
+            const services = (
+                (trustListRepo.save.mock.calls[0][0] as TrustList)
+                    .data as LoTEDocument
+            ).LoTE.TrustedEntitiesList![0].TrustedEntityServices.map(
+                (service) =>
+                    JSON.stringify(
+                        service.ServiceInformation.ServiceDigitalIdentity,
+                    ),
+            );
+            expect(services[0]).toContain(issuerDer);
+            expect(services[0]).not.toContain(otherDer);
+            expect(services[1]).toContain(otherDer);
+        });
+
+        it("rejects an invalid revocation certificate by its field name", async () => {
+            const { service } = createService([]);
+
+            await expect(
+                service.create(
+                    {
+                        id: "bad-revocation",
+                        entities: [
+                            {
+                                ...externalEntity,
+                                revocationCertPem: "bm90IGEgY2VydGlmaWNhdGU=",
+                            } as TrustListCreateDto["entities"][number],
+                        ],
+                    },
+                    { id: "tenant", name: "Tenant" },
+                ),
+            ).rejects.toThrow(
+                "revocationCertPem is not a valid X.509 certificate",
+            );
+        });
+
+        it("rejects an external certificate that is neither PEM nor Base64 DER", async () => {
+            const { service } = createService([]);
+
+            await expect(
+                service.create(
+                    {
+                        id: "bad",
+                        entities: [
+                            {
+                                ...externalEntity,
+                                issuerCertPem: "bm90IGEgY2VydGlmaWNhdGU=",
+                            } as TrustListCreateDto["entities"][number],
+                        ],
+                    },
+                    { id: "tenant", name: "Tenant" },
+                ),
+            ).rejects.toThrow("issuerCertPem is not a valid X.509 certificate");
+        });
+
         it("publishes updates with compare-and-set and keeps the previous version", async () => {
             const { service, store, versions, manager } = createService([
                 storedList("list", inDays(20)),
@@ -306,6 +466,140 @@ describe("TrustListService", () => {
             ).rejects.toBeInstanceOf(ConflictException);
             expect(store.get("list")!.jwt).toBe("list-jwt-3");
             expect(versions).toHaveLength(1);
+        });
+    });
+
+    describe("exportTrustList", () => {
+        it("leaves out an unset description so the create endpoint accepts the export", async () => {
+            // A nullable column is read back as null, not undefined.
+            const { service } = createService([
+                storedList("list", inDays(20), {
+                    description: null,
+                    entityConfig: [
+                        {
+                            type: "internal",
+                            issuerKeyChainId: "issuer-key",
+                            revocationKeyChainId: "status-key",
+                            info: { name: "Issuer" },
+                        },
+                    ],
+                } as unknown as Partial<TrustList>),
+            ]);
+
+            const exported = JSON.parse(
+                JSON.stringify(await service.exportTrustList("tenant", "list")),
+            );
+
+            expect(exported).not.toHaveProperty("description");
+            expect(TrustListCreateSchema.safeParse(exported).success).toBe(
+                true,
+            );
+        });
+
+        it("exports a description that is set", async () => {
+            const { service } = createService([
+                storedList("list", inDays(20), { description: "Issuers" }),
+            ]);
+
+            const exported = await service.exportTrustList("tenant", "list");
+
+            expect(exported.description).toBe("Issuers");
+        });
+    });
+
+    describe("removeUnreferenced", () => {
+        function referencesFound(found: TrustListReference[]) {
+            const references = new TrustListReferences();
+            const findReferences = vi.fn(
+                async (_list: ManagedTrustList) => found,
+            );
+            references.register({
+                kind: "PresentationConfig",
+                findReferences,
+                namesList: () => false,
+            });
+            return { references, findReferences };
+        }
+
+        it("deletes a list that no configuration references", async () => {
+            const { references, findReferences } = referencesFound([]);
+            const { service, store } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await service.removeUnreferenced("tenant", "list");
+
+            expect(findReferences).toHaveBeenCalledWith({
+                tenantId: "tenant",
+                id: "list",
+            });
+            expect(store.has("list")).toBe(false);
+        });
+
+        it("keeps a referenced list and names the references", async () => {
+            const found: TrustListReference[] = [
+                { kind: "PresentationConfig", id: "pid", description: "PID" },
+                { kind: "IssuanceConfig" },
+            ];
+            const { references } = referencesFound(found);
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            const error = await service
+                .removeUnreferenced("tenant", "list")
+                .catch((e: unknown) => e);
+
+            expect(error).toBeInstanceOf(TrustListInUseError);
+            expect((error as TrustListInUseError).references).toEqual(found);
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
+        });
+
+        it("keeps the list when a reference source fails", async () => {
+            const references = new TrustListReferences();
+            references.register({
+                kind: "PresentationConfig",
+                findReferences: async () => {
+                    throw new Error("database unavailable");
+                },
+                namesList: () => false,
+            });
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await expect(
+                service.removeUnreferenced("tenant", "list"),
+            ).rejects.toThrow("database unavailable");
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
+        });
+
+        it("does nothing for a list of another tenant or an unknown ID", async () => {
+            const { references, findReferences } = referencesFound([]);
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await service.removeUnreferenced("other-tenant", "list");
+            await service.removeUnreferenced("tenant", "unknown");
+
+            expect(findReferences).not.toHaveBeenCalled();
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
         });
     });
 });

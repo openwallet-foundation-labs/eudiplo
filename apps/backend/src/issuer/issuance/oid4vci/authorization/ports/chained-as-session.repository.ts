@@ -27,13 +27,15 @@ export interface ChainedAsSessionRepository {
         status?: ChainedAsSessionStatus,
     ): Promise<ChainedAsSession | null>;
     /** Session whose authorization code was issued and not yet redeemed. */
+    /** Authorized session holding this code hash, see `hashAuthorizationCode`. */
     findAuthorizedByCode(
         tenantId: string,
-        authorizationCode: string,
+        authorizationCodeHash: string,
     ): Promise<ChainedAsSession | null>;
+    /** Session holding this refresh token hash, see `hashRefreshToken`. */
     findByRefreshToken(
         tenantId: string,
-        refreshToken: string,
+        refreshTokenHash: string,
     ): Promise<ChainedAsSession | null>;
     /** Session of the tenant's issuance session with this `issuer_state`. */
     findByIssuerState(

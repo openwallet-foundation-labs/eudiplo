@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,21 +16,42 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatRadioButton, MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { merge } from 'rxjs';
 import { KeyChainService } from '../key-chain.service';
-import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.service';
+import {
+  accessKeyEnrollmentFailure,
+  RegistrarConfig,
+  RegistrarService,
+} from '../../registrar/registrar.service';
 import { KeyChainCreateDto, KeyChainImportDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
+import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { JwtService } from '../../services/jwt.service';
+import { focusIfFocusWasLost } from '../../common/focus-if-lost.util';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
 export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
+
+/** Why a registrar enrollment was refused, shown next to Create & Enroll. */
+export interface EnrollmentError {
+  message: string;
+  /** False when the registrar configuration is not the cause, for example a missing role. */
+  offerRegistrar: boolean;
+  /** A key EUDIPLO kept although the enrollment failed, offered for deletion. */
+  keptKeyId?: string;
+  /** True when the outcome is unknown and the user should check Keys. */
+  offerKeys?: boolean;
+}
 
 @Component({
   selector: 'app-key-create-wizard',
@@ -37,6 +67,7 @@ export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
     MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
+    MatSlideToggleModule,
     MatSnackBarModule,
     MatStepperModule,
     MatTooltipModule,
@@ -48,8 +79,25 @@ export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './key-create-wizard.component.scss',
 })
-export class KeyCreateWizardComponent implements OnInit {
+export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   @ViewChild('stepper') stepper!: MatStepper;
+
+  /**
+   * The Create & Enroll button is replaced while the enrollment runs, so focus
+   * falls back to the page; it moves to the error that appears afterwards.
+   */
+  @ViewChild('enrollmentErrorBox') set enrollmentErrorBox(
+    box: ElementRef<HTMLElement> | undefined
+  ) {
+    focusIfFocusWasLost(box?.nativeElement);
+  }
+
+  @ViewChild('registrarRetry', { read: ElementRef })
+  private readonly registrarRetry?: ElementRef<HTMLButtonElement>;
+  @ViewChildren(MatRadioButton) private readonly radioButtons?: QueryList<MatRadioButton>;
+
+  /** Set when the user left the wizard, so a running enrollment does not pull them back. */
+  private destroyed = false;
 
   // Form groups for each step
   usageForm: FormGroup;
@@ -62,6 +110,9 @@ export class KeyCreateWizardComponent implements OnInit {
   isLoadingKmsProviders = false;
   registrarConfig: RegistrarConfig | null = null;
   registrarConfigChecked = false;
+  /** Why the registrar configuration could not be read; null when it was read or is missing. */
+  registrarConfigError: string | null = null;
+  enrollmentError: EnrollmentError | null = null;
   availableKmsProviders: KmsProviderInfoDto[] = [];
   defaultKmsProvider = 'db';
 
@@ -103,9 +154,13 @@ export class KeyCreateWizardComponent implements OnInit {
       value: 'internalChain' as KeyChainTypeSelection,
       label: 'Create Key Chain (Recommended)',
       icon: 'account_tree',
-      description: 'Create a key chain with embedded root CA and rotating signing key.',
+      description: 'Create a key chain with embedded root CA and a signing key under it.',
       hint: 'Recommended for production. Each credential type gets its own isolated trust chain.',
-      features: ['Automatic certificate rotation', 'Embedded root CA', 'Full lifecycle management'],
+      features: [
+        'Optional rotation (on by default)',
+        'Embedded root CA',
+        'Full lifecycle management',
+      ],
     },
     {
       value: 'standalone' as KeyChainTypeSelection,
@@ -119,9 +174,13 @@ export class KeyCreateWizardComponent implements OnInit {
       value: 'externalCaChain' as KeyChainTypeSelection,
       label: 'External CA Chain',
       icon: 'verified',
-      description: 'Use an external CA certificate to sign rotating leaf certificates.',
-      hint: 'EUDIPLO manages leaf-key rotation while your CA key remains the signing anchor.',
-      features: ['External CA certificate', 'Automatic leaf rotation', 'CA key remains managed'],
+      description: 'Import your CA key and certificate to issue the signing certificate.',
+      hint: 'EUDIPLO creates the signing key under your CA and can rotate it, while your CA certificate stays the trust anchor.',
+      features: [
+        'External CA certificate',
+        'Optional rotation (on by default)',
+        'CA key remains managed',
+      ],
     },
   ];
 
@@ -146,7 +205,7 @@ export class KeyCreateWizardComponent implements OnInit {
       label: 'External Certificate',
       icon: 'upload_file',
       description: 'Use a certificate issued by an external CA or PKI.',
-      hint: 'Provide the matching private JWK and certificate chain below.',
+      hint: 'Provide the JWK or PEM private key and certificate chain in the next step.',
     },
   ];
 
@@ -156,7 +215,8 @@ export class KeyCreateWizardComponent implements OnInit {
     private readonly registrarService: RegistrarService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly jwtService: JwtService
   ) {
     // Step 1: Usage selection
     this.usageForm = this.fb.group({
@@ -179,19 +239,48 @@ export class KeyCreateWizardComponent implements OnInit {
       description: [''],
       // KMS provider for key storage/signing
       kmsProvider: ['db', Validators.required],
-      // Rotation settings (only for internal chain)
+      // Rotation settings (only for internal and external CA chains)
       rotationEnabled: [true],
-      rotationIntervalDays: [30, [Validators.min(1)]],
-      certValidityDays: [365, [Validators.min(1)]],
+      rotationIntervalDays: [30, [Validators.required, Validators.min(1), Validators.max(3650)]],
+      certValidityDays: [365, [Validators.required, Validators.min(1), Validators.max(3650)]],
       externalPrivateKey: [''],
       externalCertificate: [''],
       useExternalCertificate: [false],
     });
+
+    // Fields of the hidden Rotation Policy card must not block the form.
+    this.usageForm.valueChanges.subscribe(() => this.syncRotationControls());
+    this.caSourceForm.valueChanges.subscribe(() => this.syncRotationControls());
+    this.configForm
+      .get('rotationEnabled')!
+      .valueChanges.subscribe(() => this.syncRotationControls());
+    this.syncRotationControls();
+
+    // A refusal belongs to the registrar enrollment it reports.
+    merge(this.usageForm.valueChanges, this.accessSourceForm.valueChanges).subscribe(() => {
+      this.enrollmentError = null;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+  }
+
+  /** Enables the interval and validity fields only while the Rotation Policy card shows them. */
+  private syncRotationControls(): void {
+    const toggle = (name: string, enabled: boolean) => {
+      const control = this.configForm.get(name)!;
+      if (enabled) control.enable({ emitEvent: false });
+      else control.disable({ emitEvent: false });
+    };
+    toggle('certValidityDays', this.isInternalChain);
+    toggle('rotationIntervalDays', this.rotationEnabled);
   }
 
   ngOnInit(): void {
     // Pre-check registrar config so we can show status quickly
-    this.checkRegistrarConfig();
+    // checkRegistrarConfig handles its own errors.
+    if (this.canUseRegistrar) void this.checkRegistrarConfig();
     this.loadKmsProviders();
   }
 
@@ -222,9 +311,10 @@ export class KeyCreateWizardComponent implements OnInit {
       this.availableKmsProviders = [];
       this.defaultKmsProvider = 'db';
       this.configForm.patchValue({ kmsProvider: 'db' });
-      this.snackBar.open('Failed to load KMS providers. Falling back to db.', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        `${asSentence(getApiErrorMessage(error, 'Failed to load KMS providers'))} Falling back to db.`
+      );
     } finally {
       this.isLoadingKmsProviders = false;
     }
@@ -234,14 +324,34 @@ export class KeyCreateWizardComponent implements OnInit {
    * Check if registrar credentials are configured.
    */
   async checkRegistrarConfig(): Promise<void> {
+    if (this.isCheckingRegistrar) return;
     this.isCheckingRegistrar = true;
     try {
       this.registrarConfig = await this.registrarService.getConfig();
-    } catch {
+      this.registrarConfigError = null;
+    } catch (error) {
+      // getConfig answers null for a missing configuration, so this is a failed load.
       this.registrarConfig = null;
+      this.registrarConfigError = getHttpErrorMessage(
+        error,
+        'Could not check the registrar configuration'
+      );
     } finally {
       this.isCheckingRegistrar = false;
       this.registrarConfigChecked = true;
+    }
+  }
+
+  /**
+   * Reads the registrar configuration again. The Retry button stays while it
+   * runs and goes away once the configuration is read, so focus then moves
+   * from it to the selected certificate source, where a radio group takes it.
+   */
+  async retryRegistrarCheck(): Promise<void> {
+    await this.checkRegistrarConfig();
+    const retryHadFocus = document.activeElement === this.registrarRetry?.nativeElement;
+    if (!this.registrarConfigError && retryHadFocus) {
+      this.radioButtons?.find((radio) => radio.value === this.selectedAccessSource)?.focus();
     }
   }
 
@@ -250,6 +360,15 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   get hasRegistrarConfig(): boolean {
     return this.registrarConfig !== null;
+  }
+
+  /** Reading the registrar configuration and enrolling through it need registrar:manage. */
+  get canUseRegistrar(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
+  }
+
+  isAccessSourceAvailable(source: AccessSourceSelection): boolean {
+    return source !== 'registrar' || this.canUseRegistrar;
   }
 
   get selectedUsage(): KeyUsageSelection | null {
@@ -294,8 +413,8 @@ export class KeyCreateWizardComponent implements OnInit {
   }
 
   get rotationEnabled(): boolean {
-    // Rotation can be enabled for internal chain keys
-    return this.isInternalChain && this.configForm.value.rotationEnabled;
+    // Rotation is optional for internal and external CA chains
+    return this.isInternalChain && !!this.configForm.value.rotationEnabled;
   }
 
   get isExternalCertificate(): boolean {
@@ -339,6 +458,16 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   onAccessSourceNext(): void {
     if (this.selectedAccessSource === 'registrar') {
+      if (!this.canUseRegistrar) {
+        this.snackBar.open(
+          'Enrolling through the registrar needs the registrar:manage role',
+          'Close',
+          {
+            duration: 5000,
+          }
+        );
+        return;
+      }
       if (!this.hasRegistrarConfig) {
         // Config not yet set - user can go to registrar page via UI link
         // but we don't force navigation automatically
@@ -363,6 +492,7 @@ export class KeyCreateWizardComponent implements OnInit {
   async createKey(): Promise<void> {
     if (this.isSubmitting) return;
     this.isSubmitting = true;
+    this.enrollmentError = null;
 
     try {
       const usage = this.selectedUsage!;
@@ -370,29 +500,12 @@ export class KeyCreateWizardComponent implements OnInit {
       const isRegistrarEnrollment = usage === 'access' && this.selectedAccessSource === 'registrar';
 
       if (this.isExternalCertificate) {
-        const externalKey = this.parseExternalPrivateKey();
-        const externalCertificates = this.parseCertificateChain(
-          this.configForm.value.externalCertificate
-        );
-        const importDto: KeyChainImportDto = {
-          ...externalKey,
-          usageType: usage,
-          description: description || this.getDefaultDescription(),
-          kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
-          crt: externalCertificates,
-          rotationPolicy: this.isExternalCaChain
-            ? {
-                enabled: true,
-                intervalDays: this.configForm.value.rotationIntervalDays,
-                certValidityDays: this.configForm.value.certValidityDays,
-              }
-            : undefined,
-        };
-        const result = await this.keyChainService.import(importDto);
-        this.snackBar.open('External certificate imported successfully!', 'View Key', {
-          duration: 5000,
-        });
-        this.router.navigate(['/keys', result.id]);
+        await this.importExternalKey(usage, description);
+        return;
+      }
+
+      if (isRegistrarEnrollment) {
+        await this.enrollWithRegistrar(description);
         return;
       }
 
@@ -402,45 +515,137 @@ export class KeyCreateWizardComponent implements OnInit {
         type: usage === 'access' || !this.isInternalChain ? 'standalone' : 'internalChain',
         description: description || this.getDefaultDescription(),
         kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
-        rotationPolicy: {
-          enabled: this.rotationEnabled,
-          intervalDays: this.rotationEnabled
-            ? this.configForm.value.rotationIntervalDays
-            : undefined,
-          certValidityDays: this.configForm.value.certValidityDays,
-        },
+        rotationPolicy: this.rotationPolicy(),
       };
 
       const result = await this.keyChainService.create(createDto);
-
-      // For registrar enrollment, request the certificate after creating the key
-      if (isRegistrarEnrollment) {
-        try {
-          await this.registrarService.createAccessCertificate(result.id);
-          this.snackBar.open(
-            'Access certificate enrolled via registrar successfully!',
-            'View Key',
-            { duration: 5000 }
-          );
-        } catch (error: any) {
-          console.error('Error enrolling certificate:', error);
-          const message = error.error?.message || 'Failed to enroll certificate from registrar';
-          this.snackBar.open(`Key created, but enrollment failed: ${message}`, 'View Key', {
-            duration: 8000,
-          });
-        }
-        this.router.navigate(['/keys', result.id]);
-        return;
-      }
 
       // Show success message with next steps
       this.showSuccessMessage(usage);
       this.router.navigate(['/keys', result.id]);
     } catch (error) {
       console.error('Error creating key chain:', error);
-      this.snackBar.open('Failed to create key chain', 'Close', { duration: 3000 });
+      const fallback = this.isExternalCertificate
+        ? 'Failed to import key chain'
+        : 'Failed to create key chain';
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, fallback));
     } finally {
       this.isSubmitting = false;
+    }
+  }
+
+  /** Imports the pasted key and certificate chain and opens the imported key chain. */
+  private async importExternalKey(usage: KeyUsageSelection, description?: string): Promise<void> {
+    const importDto: KeyChainImportDto = {
+      ...this.parseExternalPrivateKey(),
+      usageType: usage,
+      // Without type, the backend guesses from rotationPolicy and the certificate.
+      type: this.isExternalCaChain ? 'internalChain' : 'standalone',
+      description: description || this.getDefaultDescription(),
+      kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+      crt: this.parseCertificateChain(this.configForm.value.externalCertificate),
+      // certValidityDays also sets the validity of the first signing certificate.
+      rotationPolicy: this.isExternalCaChain ? this.rotationPolicy() : undefined,
+    };
+    const result = await this.keyChainService.import(importDto);
+    this.snackBar.open(
+      this.isExternalCaChain
+        ? 'CA imported and signing key created.'
+        : 'Key and certificate imported.',
+      'Close',
+      { duration: 5000 }
+    );
+    this.router.navigate(['/keys', result.id]);
+  }
+
+  /** The rotation policy of the Rotation Policy card; the interval only with rotation. */
+  private rotationPolicy(): NonNullable<KeyChainCreateDto['rotationPolicy']> {
+    return {
+      enabled: this.rotationEnabled,
+      intervalDays: this.rotationEnabled ? this.configForm.value.rotationIntervalDays : undefined,
+      certValidityDays: this.configForm.value.certValidityDays,
+    };
+  }
+
+  /**
+   * Creates an access key enrolled at the registrar in one request. When the
+   * enrollment fails, EUDIPLO deletes the new key itself, so the tenant is not
+   * left with a self-signed access key. A refusal is shown next to Create &
+   * Enroll, so the user can check the registrar configuration and try again.
+   * A server error carries the backend's reason, which names a key EUDIPLO
+   * could not delete. Without an answer the outcome is unknown, so the message
+   * says how to tell an enrolled key from a self-signed one. A user who left
+   * the wizard meanwhile gets the outcome in a snackbar and stays where they are.
+   */
+  private async enrollWithRegistrar(description?: string): Promise<void> {
+    let keyId: string;
+    try {
+      ({ certId: keyId } = await this.registrarService.createAccessKeyChain({
+        description: description || this.getDefaultDescription(),
+        kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+      }));
+    } catch (error) {
+      console.error('Error enrolling certificate:', error);
+      this.showEnrollmentError(this.enrollmentErrorFor(error));
+      return;
+    }
+    this.snackBar
+      .open('Access certificate enrolled via registrar successfully!', 'View Key', {
+        duration: 5000,
+      })
+      .onAction()
+      .subscribe(() => this.router.navigate(['/keys', keyId]));
+    if (!this.destroyed) this.router.navigate(['/keys', keyId]);
+  }
+
+  /** What to tell the user about a failed {@link enrollWithRegistrar}. */
+  private enrollmentErrorFor(error: unknown): EnrollmentError {
+    // Names an unreachable backend separately from a registrar failure.
+    const reason = asSentence(
+      getHttpErrorMessage(error, 'Failed to enroll certificate from registrar')
+    );
+    const failure = accessKeyEnrollmentFailure(error);
+    switch (failure.kind) {
+      case 'role':
+        return {
+          message:
+            'Enrolling through the registrar needs the registrar:manage role. No key was kept.',
+          offerRegistrar: false,
+        };
+      case 'registrar':
+        return {
+          message: `${reason} No key was kept. Check the registrar configuration and try again.`,
+          offerRegistrar: true,
+        };
+      case 'refused':
+      case 'failed':
+        return { message: `${reason} No key was kept.`, offerRegistrar: false };
+      case 'keyLeft':
+        return {
+          message:
+            `${reason} The new key has only its self-signed certificate: open it and ` +
+            'select Enroll with Registrar on its Active Certificate, or delete it.',
+          offerRegistrar: false,
+          keptKeyId: failure.keyId,
+        };
+      case 'unknown':
+        return {
+          message:
+            `${reason} EUDIPLO may still have created the key. If Keys lists a new access key, open it: ` +
+            'a different Issuer than Subject in its Active Certificate means it is enrolled; ' +
+            'the same Issuer as Subject means it is self-signed: select Enroll with Registrar ' +
+            'on that certificate, or delete the key.',
+          offerRegistrar: false,
+          offerKeys: true,
+        };
+    }
+  }
+
+  private showEnrollmentError(enrollmentError: EnrollmentError): void {
+    if (this.destroyed) {
+      openErrorSnackBar(this.snackBar, enrollmentError.message);
+    } else {
+      this.enrollmentError = enrollmentError;
     }
   }
 
@@ -540,7 +745,7 @@ export class KeyCreateWizardComponent implements OnInit {
       summary.push({
         label: 'Type',
         value: this.isExternalCaChain
-          ? 'External CA Chain (Rotating Signing Key)'
+          ? 'External CA Chain (Your CA + Signing Key)'
           : 'Internal Chain (Root CA + Signing Key)',
       });
       if (this.rotationEnabled) {
@@ -548,6 +753,8 @@ export class KeyCreateWizardComponent implements OnInit {
           label: 'Rotation Interval',
           value: `${this.configForm.value.rotationIntervalDays} days`,
         });
+      } else {
+        summary.push({ label: 'Rotation', value: 'Off' });
       }
       summary.push({
         label: 'Certificate Validity',

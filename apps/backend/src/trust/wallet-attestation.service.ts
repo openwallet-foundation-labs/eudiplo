@@ -12,7 +12,10 @@ import { Span } from "nestjs-otel";
 import { CryptoService } from "../crypto/crypto.service.js";
 import { CryptoImplementationService } from "../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { TrustListRef } from "../verifier/presentations/entities/presentation-config.entity.js";
-import { StatusListVerifierService } from "./status-list-verifier.service.js";
+import {
+    StatusCheckResult,
+    StatusListVerifierService,
+} from "./status-list-verifier.service.js";
 import { BuiltTrustStore, TrustStoreService } from "./trust-store.service.js";
 import {
     normalizeTrustListRefs,
@@ -236,7 +239,8 @@ export class WalletAttestationService {
      * Validate the status of a wallet attestation JWT if it contains a status claim.
      * The status claim is optional per the spec, so if not present, validation passes.
      * Also verifies that the status list JWT is signed by the revocation certificate
-     * from the same trusted entity that issued the wallet attestation.
+     * from the same trusted entity that issued the wallet attestation, or by
+     * its wallet attestation certificate if it has no revocation certificate.
      * @param clientAttestationJwt The wallet attestation JWT
      * @param matchedEntity The matched trusted entity from certificate validation
      * @param trustStore The trust store used for validation
@@ -277,16 +281,30 @@ export class WalletAttestationService {
 
             if (!signatureValid) {
                 throw new UnauthorizedException(
-                    "Status list JWT signature verification failed - not signed by trusted revocation certificate",
+                    "Status list JWT signature verification failed - not signed by the wallet provider's trusted revocation or wallet attestation certificate",
                 );
             }
 
-            // Now check the actual status value
-            const statusResult =
-                await this.statusListVerifierService.checkStatus(
-                    statusEntry.uri,
-                    statusEntry.idx,
+            // Read the status from the token whose signature was just
+            // verified. Fetching the list again could return another token.
+            // A token signed by the provider that is not the list this
+            // attestation names (another sub), has expired or cannot be read
+            // rejects the attestation.
+            let statusResult: StatusCheckResult;
+            try {
+                statusResult =
+                    this.statusListVerifierService.getStatusFromStatusListJwt(
+                        statusListJwt,
+                        statusEntry,
+                        this.settings.cryptoToleranceSeconds,
+                    );
+            } catch (err) {
+                // Fail closed: the list is signed by the provider, so any
+                // error reading it rejects rather than skips the check.
+                throw new UnauthorizedException(
+                    `Wallet attestation status list rejected: ${err instanceof Error ? err.message : "Unknown error"}`,
                 );
+            }
 
             // Check if the status indicates the attestation is valid
             if (!statusResult.isValid) {
@@ -315,11 +333,12 @@ export class WalletAttestationService {
 
     /**
      * Verify the signature of a status list JWT against the revocation certificate
-     * from the matched trusted entity.
+     * from the matched trusted entity, or its wallet attestation (issuance)
+     * certificate if it has no revocation certificate.
      * @param statusListJwt The status list JWT to verify
      * @param matchedEntity The matched trusted entity
      * @param trustStore The trust store
-     * @returns true if the signature is valid and from the trusted revocation cert
+     * @returns true if the signature is valid and from the trusted signer cert
      */
     private async verifyStatusListSignature(
         statusListJwt: string,
@@ -356,30 +375,40 @@ export class WalletAttestationService {
                 statusListJwt.split(".");
             const data = `${headerB64}.${payloadB64}`;
 
-            const sigOk = await verifier(data, signatureB64)
-                .then(() => true)
-                .catch((e) => {
-                    this.logger.debug(
-                        `Status list JWT signature invalid: ${e?.message ?? e}`,
-                    );
-                    return false;
-                });
-
-            if (!sigOk) return false;
+            // The verifier resolves to false on a bad signature; it only
+            // rejects when the signature cannot be checked at all.
+            const sigOk = await verifier(data, signatureB64).catch((e) => {
+                this.logger.debug(
+                    `Status list JWT signature check failed: ${e?.message ?? e}`,
+                );
+                return false;
+            });
+            if (!sigOk) {
+                this.logger.debug("Status list JWT signature invalid");
+                return false;
+            }
 
             // If no entity was matched (no trust list configured), accept if signature is valid
             if (!matchedEntity || !trustStore) {
                 return true;
             }
 
-            // Check if the matched entity has a revocation certificate
-            if (!matchedEntity.revocationCert) {
-                this.logger.warn(
-                    `TrustedEntity ${matchedEntity.entity.entityId ?? "unknown"} ` +
-                        `has no revocation certificate configured - accepting status list`,
-                );
-                return true;
-            }
+            // The status list must be signed under the entity's revocation
+            // certificate. An entity without one must sign it under the
+            // certificate that its wallet attestations are signed under.
+            const signer =
+                matchedEntity.revocationCert &&
+                matchedEntity.revocationThumbprint
+                    ? {
+                          cert: matchedEntity.revocationCert,
+                          thumb: matchedEntity.revocationThumbprint,
+                          kind: "revocation",
+                      }
+                    : {
+                          cert: matchedEntity.issuanceCert,
+                          thumb: matchedEntity.issuanceThumbprint,
+                          kind: "wallet attestation",
+                      };
 
             // Build and verify the status list's certificate chain
             const presented = this.x509ValidationService.parseX5c(x5c);
@@ -410,27 +439,20 @@ export class WalletAttestationService {
             const statusLeafThumb = await this.getThumbprint(presented[0]);
             const statusEndThumb = await this.getThumbprint(path.at(-1)!);
 
-            // Check if the status list is signed by the revocation cert from the same entity
-            const revocationThumb = matchedEntity.revocationThumbprint!;
-            const revocationIsCa = this.x509ValidationService.isCaCert(
-                matchedEntity.revocationCert,
-            );
+            // Check if the status list is signed under the signer cert from the same entity
+            // CA: the path must terminate at this cert. Pinned (non-CA): the
+            // leaf must match.
+            const statusMatchesSigner = this.x509ValidationService.isCaCert(
+                signer.cert,
+            )
+                ? signer.thumb === statusEndThumb
+                : signer.thumb === statusLeafThumb;
 
-            let statusMatchesRevocation = false;
-
-            if (revocationIsCa) {
-                // Revocation cert is CA: path must terminate at this cert
-                statusMatchesRevocation = revocationThumb === statusEndThumb;
-            } else {
-                // Revocation cert is pinned (non-CA): leaf must match
-                statusMatchesRevocation = revocationThumb === statusLeafThumb;
-            }
-
-            if (!statusMatchesRevocation) {
+            if (!statusMatchesSigner) {
                 this.logger.warn(
-                    `Status list is NOT signed by the revocation certificate from the same TrustedEntity. ` +
+                    `Status list is NOT signed by the ${signer.kind} certificate from the same TrustedEntity. ` +
                         `Entity: ${matchedEntity.entity.entityId ?? "unknown"}, ` +
-                        `Expected revocation cert: ${revocationThumb}, ` +
+                        `Expected ${signer.kind} cert: ${signer.thumb}, ` +
                         `Status list leaf cert: ${statusLeafThumb}, ` +
                         `Status list end cert: ${statusEndThumb}`,
                 );
@@ -438,7 +460,7 @@ export class WalletAttestationService {
             }
 
             this.logger.debug(
-                `Status list verified against revocation cert from entity: ${matchedEntity.entity.entityId ?? "unknown"}`,
+                `Status list verified against ${signer.kind} cert from entity: ${matchedEntity.entity.entityId ?? "unknown"}`,
             );
             return true;
         } catch (e: any) {

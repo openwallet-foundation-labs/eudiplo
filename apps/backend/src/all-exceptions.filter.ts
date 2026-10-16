@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { EntityNotFoundError } from "typeorm";
+import { ConflictError } from "./shared/domain/conflict-error.js";
 import { NotFoundError } from "./shared/domain/not-found-error.js";
 
 @Catch()
@@ -29,6 +30,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
             exception instanceof NotFoundError
         ) {
             status = HttpStatus.NOT_FOUND;
+        } else if (exception instanceof ConflictError) {
+            status = HttpStatus.CONFLICT;
         } else {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
@@ -49,15 +52,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
             } else {
                 message = httpResponse;
             }
-        } else if (exception instanceof Error && !isProduction) {
+        } else if (
+            exception instanceof Error &&
+            (!isProduction || exception instanceof ConflictError)
+        ) {
+            // Conflict messages name the taken resource, never internals.
             message = exception.message;
         } else {
             message = "Internal Server Error";
         }
 
+        // OAuth error responses (RFC 6749 Section 5.2) carry `error` and
+        // `error_description` instead of `message`.
+        const logMessage =
+            message ?? responseBody?.error_description ?? responseBody?.error;
+
         // Log the error with stack trace if available using NestJS Logger
         this.logger.error(
-            `[${request.method}] ${requestPath} ${status} - ${JSON.stringify(message)}`,
+            `[${request.method}] ${requestPath} ${status} - ${JSON.stringify(logMessage)}`,
             exception instanceof Error ? exception.stack : undefined,
         );
 

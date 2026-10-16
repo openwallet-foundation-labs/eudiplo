@@ -24,8 +24,9 @@ import { StatusListConfigService } from "./status-list-config.service.js";
 
 /**
  * Controller for managing status list configuration per tenant.
- * Note: Configuration changes only affect newly created status lists.
- * Existing status lists retain their original configuration.
+ * Note: Capacity and bits apply to status lists created afterwards; existing
+ * lists keep theirs. TTL, update mode and aggregation apply to all status
+ * lists of the tenant.
  */
 @ApiTags("status-list-config")
 @Controller("status-list-config")
@@ -57,13 +58,12 @@ export class StatusListConfigController {
 
     /**
      * Update the status list configuration for the tenant.
-     * Note: Changes only affect newly created status lists.
      */
     @Put()
     @ApiOperation({
         summary: "Update status list configuration",
         description:
-            "Update the status list configuration. Changes only affect newly created status lists. Set a field to null to reset to global default.",
+            "Update the status list configuration. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant. Set a field to null to reset to global default.",
     })
     @ApiOkResponse({
         description: "The updated status list configuration",
@@ -84,14 +84,13 @@ export class StatusListConfigController {
 
     /**
      * Reset the status list configuration to global defaults.
-     * Note: This only affects newly created status lists.
      */
     @Delete()
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({
         summary: "Reset status list configuration",
         description:
-            "Reset the status list configuration to global defaults. Only affects newly created status lists.",
+            "Reset the status list configuration to global defaults. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.",
     })
     @ApiNoContentResponse({
         description: "Configuration reset successfully",

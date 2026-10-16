@@ -28,7 +28,6 @@ export class StatusListConfig {
         description:
             "Bits per status entry: 1 (valid/revoked), 2 (with suspended), 4/8 (extended). If not set, uses global STATUS_BITS.",
         enum: [1, 2, 4, 8],
-        default: 1,
     })
     bits?: BitsPerStatus;
 
@@ -48,13 +47,13 @@ export class StatusListConfig {
 
     /**
      * If true, the JWT is regenerated immediately on every status change.
-     * If false (default), the JWT is only regenerated when requested and the TTL has expired.
+     * If false, the JWT is only regenerated when requested and the TTL has expired.
+     * If not set, uses the global STATUS_IMMEDIATE_UPDATE environment variable (default: false).
      * Use immediate mode for high-security scenarios where revocation must be visible instantly.
      */
     @ApiPropertyOptional({
         description:
-            "If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.",
-        default: false,
+            "If true, regenerate JWT immediately on status changes. If false, use lazy regeneration on TTL expiry. If not set, uses global STATUS_IMMEDIATE_UPDATE.",
     })
     immediateUpdate?: boolean;
 
@@ -64,11 +63,11 @@ export class StatusListConfig {
      * pointing to an endpoint that returns all status list URIs for this tenant.
      * This allows relying parties to pre-fetch all status lists for offline validation.
      * See RFC draft-ietf-oauth-status-list Section 9.
+     * If not set, uses the global STATUS_ENABLE_AGGREGATION environment variable (default: true).
      */
     @ApiPropertyOptional({
         description:
-            "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
-        default: true,
+            "If true, include aggregation_uri in status list JWTs for pre-fetching support. If not set, uses global STATUS_ENABLE_AGGREGATION.",
     })
     enableAggregation?: boolean;
 }

@@ -30,9 +30,31 @@ curl -X POST "$EUDIPLO_URL/api/config-bundles/resources/PresentationConfig/age-c
   -H "Authorization: Bearer $EUDIPLO_TOKEN"
 ```
 
-The web client lists ownership and offers the detach action under
-**Settings > Config Portability** (shown with `tenant:admin` or
-`tenants:manage`).
+A detached resource has the ownership `detached` and stays detached while you
+edit it. The startup import skips it with the warning `RESOURCE_DETACHED`, and
+the rest of the tenant is still imported.
+
+To discard your edits and return to the file version, reattach the resource. Plan
+first, review the changes, then apply with the plan's fingerprint:
+
+```bash
+curl -X POST "$EUDIPLO_URL/api/config-bundles/resources/PresentationConfig/age-check/reattach/plan" \
+  -H "Authorization: Bearer $EUDIPLO_TOKEN"
+curl -X POST "$EUDIPLO_URL/api/config-bundles/resources/PresentationConfig/age-check/reattach?planFingerprint=$FINGERPRINT" \
+  -H "Authorization: Bearer $EUDIPLO_TOKEN"
+```
+
+Reattaching reads the resource from the tenant folder in `CONFIG_FOLDER`,
+applies it, and makes the resource `file-managed` again. Its stored generation
+becomes the file's generation, so later startups apply the folder again.
+
+The web client lists ownership and offers **Detach** and **Reset to file**, and
+for clients from the config folder **Apply from file**, under
+**Settings > Config Portability** (shown to a tenant's clients and users with
+`tenant:admin` or `tenants:manage`). On the screens of a `file-managed` resource
+it shows a lock notice and disables editing and deleting, also for clients that
+only have the role managing that resource, such as `issuance:manage` for
+credential configs.
 
 ## Provision tenants from a folder
 
@@ -50,12 +72,38 @@ CONFIG_IMPORT_MODE=create
 | `upsert`             | Creates missing and updates existing resources                                      |
 | `replace`            | Like `upsert`, and deletes resources this folder created earlier but no longer contains |
 
+If a resource in the folder has a lower `metadata.generation` than the stored
+one, it was changed through the API or web client. The startup import skips it
+with the warning `STALE_GENERATION` and imports the rest of the tenant. Reattach
+the resource to apply the file version, or raise `metadata.generation` in the
+file to at least the stored generation shown under **Settings > Config
+Portability**.
+
 A folder of a tenant that does not exist yet is imported only if it contains
 `info.json`. String values can reference environment variables as `${VAR}` or
 `${VAR:default}`; with the default `CONFIG_VARIABLE_STRICT=skip`, an unresolved
 placeholder fails the import of that tenant while other tenants continue.
 Restart the backend to apply changed files. The folder layout is listed in the
 [format reference](../reference/config-bundle-format.md#tenant-folder-layout).
+
+### Clients with generated secrets
+
+A client file with `"secret": "!generate"` gets a random secret when it is first
+imported from this folder or its file changes, but a startup import cannot return it. The backend
+writes a warning to its application log (not to the audit log) that names the
+client, never the secret:
+
+```text
+[acme] Client 'shop-backend' got a generated secret ("secret": "!generate"), which a startup import does not show. ...
+```
+
+To get a secret you can use, apply the client from the file again: choose
+**Apply from file** in its row under **Settings > Config Portability**, or
+reattach it through the API as above, with `Client/shop-backend` in the path.
+The client stays `file-managed`, its old secret stops working, and the new one
+is shown once in the result. Later startups keep the secret while the file does
+not change. To skip this step, give the secret in the file as an environment
+variable, for example `"secret": "${SHOP_BACKEND_SECRET}"`.
 
 ## Validate in CI
 
@@ -69,7 +117,10 @@ eudiplo config upgrade ./config --check                  # exit 1 if a file need
 ```
 
 The commands exit non-zero on any invalid document, which is enough for a CI
-gate:
+gate. The backend runs a few checks on top that the schemas cannot express,
+such as the rule that registrar URLs have no query, fragment or credentials,
+so an import can still fail on a folder that passed validation. A workflow
+that validates every tenant folder and checks for pending upgrades:
 
 ```yaml title=".github/workflows/config.yml"
 jobs:
@@ -80,8 +131,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npx @eudiplo/cli@9 config validate tenants ./config
-      - run: npx @eudiplo/cli@9 config upgrade ./config --check
+      - run: npx @eudiplo/cli@10 config validate tenants ./config
+      - run: npx @eudiplo/cli@10 config upgrade ./config --check
 ```
 
 Use the CLI major version that matches your backend. For completion and inline
@@ -106,8 +157,10 @@ eudiplo config export --instance production --output acme.zip
 ```
 
 The export never contains secrets or database-held private keys. It replaces
-them with `${…}` placeholders and lists them as requirements in `manifest.json`;
-supply the values on the target instance or let the import generate them (see
+secrets with `${…}` placeholders and private keys with
+`keySource: { "type": "required" }`, and lists both as requirements in
+`manifest.json`; supply the values on the target instance or let the import
+generate them (see
 [secret and key policy](../reference/config-bundle-format.md#secret-and-key-policy)).
 
 ## Upgrade old files
@@ -122,9 +175,10 @@ eudiplo config upgrade ./config --output ./config-upgraded --diff
 ```
 
 The command writes to a separate output, never invents missing security-relevant
-values, and leaves the output untouched when validation fails. A 9.0 bundle
-cannot be imported into 8.x: since 9.0, IssuanceConfig files are format
-version 2 and PresentationConfig files version 3.
+values, and leaves the output untouched when validation fails. A bundle exported
+by a newer release cannot be imported into a release that does not know its
+format versions, for example a 10.0 bundle into 9.x
+([format versions](../reference/config-bundle-format.md#resource-types-and-versions)).
 
 ## Plan and import
 
@@ -136,14 +190,28 @@ eudiplo config import acme-upgraded.zip --instance staging --mode upsert --plan 
 ```
 
 The plan lists every resource as `create`, `update`, `unchanged`, `skip`,
-`delete` or `blocked`, with redacted field changes. A plan with a `blocked` item
+`delete` or `blocked`, with its field changes (secrets redacted). A plan with a `blocked` item
 cannot be applied: fix the reported issue (missing secret, stale generation,
-unknown reference) and plan again. The import sends the plan's fingerprint; if
+unknown reference, client ID used by another tenant, a deleted trust list that
+a configuration still uses) and plan again. A plan
+that grants roles beyond the caller's own, or changes a client with more
+roles, answers `403` ([granting roles](../reference/roles.md#granting-roles)). The import sends the plan's fingerprint; if
 the bundle, the mode or the target configuration changed in between, it fails
 with `CONFIG_PLAN_STALE` before writing anything.
 
+The web client does the same under **Settings > Config Portability**:
+**Plan and validate** lists each changed field with its current value and its
+value after the import, marking secrets as `secret`, values whose type changes
+as `changed`, and values the import deletes as `removed`, and **Apply bundle**
+imports that plan. It asks for confirmation before applying a plan that removes
+stored values, and before every `replace` import.
+
 `replace` deletes resources that the same bundle source created earlier and the
-bundle no longer contains. It needs its own plan and an explicit confirmation:
+bundle no longer contains. The plan blocks deleting a trust list that a
+configuration surviving the import still references, including a configuration
+created through the API or Web Client (`TRUST_LIST_IN_USE`, see
+[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). It needs
+its own plan and an explicit confirmation:
 
 ```bash
 eudiplo config plan acme.zip --instance staging --mode replace --output replace-plan.json
@@ -152,7 +220,12 @@ eudiplo config import acme.zip --instance staging --mode replace \
 ```
 
 Client secrets generated during the import (`"secret": "!generate"`) are
-returned once in the import result; store them immediately.
+returned once in the import result; store them immediately. The client keeps its
+secret on later imports of the same document from the same source; change the
+document or raise `metadata.generation` to get a new one
+([details](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
+A startup import cannot return the secret; see
+[clients with generated secrets](#clients-with-generated-secrets).
 
 ## Plans, locks and recovery
 

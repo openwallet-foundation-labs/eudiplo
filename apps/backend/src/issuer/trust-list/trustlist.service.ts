@@ -30,10 +30,12 @@ import {
     ImportPhase,
 } from "../../platform/config-import/config-import-orchestrator.service.js";
 import { loadConfigDto } from "../../shared/utils/config-file-loader.util.js";
+import { TrustListReferences } from "./application/trust-list-references.js";
 import {
     isTrustListRenewalDue,
     trustListNextUpdate,
 } from "./domain/trust-list-validity.js";
+import { TrustListInUseError } from "./domain/trust-list-reference.js";
 import {
     TrustListCreateDto,
     TrustListEntity,
@@ -84,6 +86,7 @@ export class TrustListService {
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly references: TrustListReferences,
     ) {
         configImportOrchestrator.register(
             "status-lists",
@@ -129,9 +132,11 @@ export class TrustListService {
         id: string,
     ): Promise<TrustListCreateDto> {
         const entry = await this.findOne(tenantId, id);
+        // A nullable column comes back as null; the create schema only
+        // accepts an absent field, so leave it out to keep the export importable.
         return {
             id: entry.id,
-            description: entry.description,
+            description: entry.description ?? undefined,
             keyChainId: entry.keyChainId,
             entities: entry.entityConfig ?? [],
             data: entry.data,
@@ -229,12 +234,29 @@ export class TrustListService {
     }
 
     /**
-     * Remove a trust list
+     * Remove a trust list, whether configurations reference it or not
      * @param tenantId
      * @param id
      */
     async remove(tenantId: string, id: string): Promise<void> {
         await this.trustListRepo.delete({ tenantId, id });
+    }
+
+    /**
+     * Remove a trust list that no presentation, credential or issuance
+     * configuration of its tenant references. An unknown ID removes nothing.
+     * @throws TrustListInUseError naming the configurations that reference it
+     */
+    async removeUnreferenced(tenantId: string, id: string): Promise<void> {
+        if (!(await this.trustListRepo.existsBy({ tenantId, id }))) return;
+        // Not atomic: a config saved between this lookup and the delete can
+        // still name the list. Accepted for administrative CRUD; verification
+        // then fails as it did before this check.
+        const references = await this.references.find({ tenantId, id });
+        if (references.length > 0) {
+            throw new TrustListInUseError(id, references);
+        }
+        await this.remove(tenantId, id);
     }
 
     /**
@@ -281,11 +303,14 @@ export class TrustListService {
         tenant: Pick<TenantEntity, "id" | "name">,
         existing?: TrustList,
     ): Promise<TrustList> {
-        // Validate PEM certificates for external entities
+        // Validate external certificates before findOrCreate below can create a key chain.
         for (const entity of config.entities || []) {
             if (entity.type === "external") {
-                this.validatePem(entity.issuerCertPem, "issuerCertPem");
-                this.validatePem(entity.revocationCertPem, "revocationCertPem");
+                this.certificateBase64(entity.issuerCertPem, "issuerCertPem");
+                this.certificateBase64(
+                    entity.revocationCertPem,
+                    "revocationCertPem",
+                );
             }
         }
 
@@ -494,16 +519,19 @@ export class TrustListService {
     }
 
     /**
-     * Validate that a string is a valid PEM certificate
-     * @param pem The PEM string to validate
-     * @param fieldName The field name for error messages
+     * The Base64 DER of the certificate in `pem`, given as PEM or Base64 DER.
+     * The trust list publishes this parsed value, never the input as given.
      */
-    private validatePem(pem: string, fieldName: string): void {
+    private certificateBase64(pem: string, fieldName: string): string {
         if (!pem || pem.trim() === "") {
             throw new BadRequestException(`${fieldName} is required`);
         }
         try {
-            new X509Certificate(pem);
+            return new X509Certificate(
+                pem.includes("-----BEGIN")
+                    ? pem
+                    : Buffer.from(pem.replaceAll(/\s/g, ""), "base64"),
+            ).raw.toString("base64");
         } catch {
             throw new BadRequestException(
                 `${fieldName} is not a valid X.509 certificate`,
@@ -595,8 +623,8 @@ export class TrustListService {
         providerType?: TrustListEntity["providerType"],
     ): LoTETrustedEntity {
         return this.createEntityFromData(
-            this.formatPem(issuerCertPem),
-            this.formatPem(revocationCertPem),
+            this.certificateBase64(issuerCertPem, "issuerCertPem"),
+            this.certificateBase64(revocationCertPem, "revocationCertPem"),
             info,
             providerType,
         );

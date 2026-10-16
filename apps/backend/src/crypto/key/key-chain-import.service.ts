@@ -1,6 +1,11 @@
 import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    Logger,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { exportJWK, importPKCS8, type JWK } from "jose";
@@ -18,6 +23,8 @@ import {
 } from "./cert/certificate-builder.service.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
+import { importedKeyChainType } from "./domain/key-chain-import-type.js";
+import { importedRotationIntervals } from "./key-chain-import-rotation.js";
 import type { KmsAdapter, KmsKeyRef } from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
 
@@ -95,10 +102,18 @@ export class KeyChainImportService {
         const hostname = this.getHostname();
 
         const privateKey = await this.resolvePrivateKey(dto);
-        const replacing = await this.keyChainRepository.existsBy({
-            tenantId,
-            id,
+        const existing = await this.keyChainRepository.findOne({
+            where: { tenantId, id },
+            select: { id: true, usage: true },
         });
+        // Only signing key chains are user-manageable; an import must not
+        // turn the tenant's encryption key chain into one.
+        if (existing && existing.usage !== KeyUsage.Sign) {
+            throw new ConflictException(
+                `Key chain id ${id} belongs to a key chain that EUDIPLO manages itself. Use another id.`,
+            );
+        }
+        const replacing = existing !== null;
         if (!privateKey.kid) {
             privateKey.kid = `${id}-active`;
         }
@@ -111,9 +126,13 @@ export class KeyChainImportService {
         if (replacing && adapter.type !== "db")
             privateKey.kid = `${id}-import-${v4()}`;
         const normalizedCertificates = this.resolveCertificateChain(dto);
+        const rotationEnabled = dto.rotationPolicy?.enabled ?? false;
 
-        if (dto.rotationPolicy?.enabled) {
-            return this.importKeyChainWithRotation(
+        if (
+            importedKeyChainType({ ...dto, crt: normalizedCertificates }) ===
+            "internalChain"
+        ) {
+            return this.importInternalChain(
                 id,
                 tenantId,
                 tenant.name,
@@ -151,6 +170,9 @@ export class KeyChainImportService {
             );
         }
 
+        const intervals = rotationEnabled
+            ? importedRotationIntervals(dto.rotationPolicy)
+            : undefined;
         await this.keyChainRepository.save({
             id,
             tenantId,
@@ -164,13 +186,13 @@ export class KeyChainImportService {
             rootJwk: null as any,
             rootCertificate: null as any,
             rootExternalKeyId: null as any,
-            rotationEnabled: false,
-            rotationIntervalDays: null as any,
-            certValidityDays: null as any,
+            rotationEnabled,
+            rotationIntervalDays: intervals?.intervalDays ?? (null as any),
+            certValidityDays: intervals?.certValidityDays ?? (null as any),
         });
 
         this.logger.log(
-            `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId})`,
+            `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId}, rotation: ${rotationEnabled})`,
         );
         return id;
     }
@@ -198,7 +220,11 @@ export class KeyChainImportService {
         }
     }
 
-    private async importKeyChainWithRotation(
+    /**
+     * Imports `key` as the CA key of an internal chain and generates a new
+     * signing key with a certificate issued by it.
+     */
+    private async importInternalChain(
         id: string,
         tenantId: string,
         subjectCN: string,
@@ -208,8 +234,10 @@ export class KeyChainImportService {
         dto: KeyChainImportDto,
     ): Promise<string> {
         const now = new Date();
-        const certValidityDays = dto.rotationPolicy?.certValidityDays || 365;
-        const rotationIntervalDays = dto.rotationPolicy?.intervalDays || 90;
+        const rotationEnabled = dto.rotationPolicy?.enabled ?? false;
+        const { intervalDays, certValidityDays } = importedRotationIntervals(
+            dto.rotationPolicy,
+        );
         const notAfter = new Date(
             now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
         );
@@ -223,8 +251,8 @@ export class KeyChainImportService {
         let rootCertificate: string;
         const normalizedCertificates = this.resolveCertificateChain(dto);
         if (normalizedCertificates && normalizedCertificates.length > 0) {
-            // `crt` is modeled as leaf-first. In rotation mode we need the root CA
-            // certificate that will sign newly generated leaf certificates.
+            // `crt` is modeled as leaf-first. An internal chain needs the root
+            // CA certificate that will sign newly generated leaf certificates.
             rootCertificate = normalizedCertificates.at(-1)!;
         } else {
             const rootNotAfter = new Date(
@@ -240,10 +268,7 @@ export class KeyChainImportService {
             );
         }
 
-        this.validateRotationRootCertificate(
-            rootCertificate,
-            rootMat.ref.publicJwk,
-        );
+        this.validateRootCertificate(rootCertificate, rootMat.ref.publicJwk);
 
         const activeMat = await adapter.generateKey({
             kid: `${id}-active-${Date.now()}`,
@@ -272,13 +297,18 @@ export class KeyChainImportService {
             activeJwk: this.storedKeyForEntity(adapter, activeMat.ref),
             activeCertificate: chain.join("\n"),
             externalKeyId: activeMat.ref.externalKeyId ?? (null as any),
-            rotationEnabled: true,
-            rotationIntervalDays,
-            certValidityDays,
+            rotationEnabled,
+            // Without rotation no intervals are stored, as for a standalone import.
+            rotationIntervalDays: rotationEnabled
+                ? intervalDays
+                : (null as any),
+            certValidityDays: rotationEnabled
+                ? certValidityDays
+                : (null as any),
         });
 
         this.logger.log(
-            `Imported key chain ${id} with rotation for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId})`,
+            `Imported internal key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType}, provider: ${adapter.providerId}, rotation: ${rotationEnabled})`,
         );
         return id;
     }
@@ -354,7 +384,7 @@ export class KeyChainImportService {
         );
     }
 
-    private validateRotationRootCertificate(
+    private validateRootCertificate(
         rootCertificatePem: string,
         expectedPublicJwk: JWK,
     ): void {
@@ -363,13 +393,13 @@ export class KeyChainImportService {
             certificate = new X509Certificate(rootCertificatePem);
         } catch (error) {
             throw new BadRequestException(
-                `Invalid rotation root certificate: ${String(error)}`,
+                `Invalid root CA certificate: ${String(error)}`,
             );
         }
 
         if (!certificate.ca) {
             throw new BadRequestException(
-                "Invalid rotation root certificate: certificate must be a CA (basicConstraints CA=true)",
+                "Invalid root CA certificate: certificate must be a CA (basicConstraints CA=true)",
             );
         }
 
@@ -384,7 +414,7 @@ export class KeyChainImportService {
             )
         ) {
             throw new BadRequestException(
-                "Invalid rotation root certificate: certificate public key does not match the provided private key",
+                "Invalid root CA certificate: certificate public key does not match the provided private key",
             );
         }
     }

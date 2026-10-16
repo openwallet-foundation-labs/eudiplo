@@ -1,0 +1,13 @@
+// Hides an element visually but keeps it available to screen readers.
+// Global styles expose it as the `.visually-hidden` class (styles.scss).
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

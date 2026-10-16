@@ -28,7 +28,9 @@ export interface TokenPayload {
     roles: Role[];
 
     /**
-     * Client entity (includes resource-level restrictions)
+     * Stored client the token was issued to, with its resource-level
+     * restrictions. Always set for tokens of the built-in server; with
+     * Keycloak only for clients EUDIPLO created.
      */
     client?: ClientData;
 
@@ -53,4 +55,17 @@ export interface InternalTokenPayload extends TokenPayload {
      * Client ID (subject of the token)
      */
     sub?: string;
+
+    /** Issued at, in seconds since the epoch. */
+    iat?: number;
+
+    /** Expiry, in seconds since the epoch. */
+    exp?: number;
+
+    /**
+     * The client's `tokensValidAfter` in milliseconds since the epoch, read
+     * together with the secret when the token was issued. Absent for clients
+     * from before 10.0, which have none.
+     */
+    credentials_at?: number;
 }

@@ -30,7 +30,7 @@ Management endpoints carry the `/api` prefix, for example `POST /api/issuer/offe
 | `/issuers/{tenant}/credentials-metadata/...`        | SD-JWT VC type metadata                                              |
 | `/issuers/{tenant}/status-management/...`           | Status lists                                                         |
 | `/issuers/{tenant}/trust-list/...`                  | Published trust lists                                                |
-| `/presentations/{id}/oid4vp/...`                    | OID4VP request object and response endpoint                          |
+| `/presentations/{walletNonce}/oid4vp/...`           | OID4VP request object and response endpoint                          |
 | `/presentations/{session}/iso-18013-7`              | ISO 18013-7 Annex C response endpoint                                |
 | `/storage/{key}`                                    | Public files such as credential logos                                |
 | `/health`                                           | Health check                                                         |
@@ -50,7 +50,7 @@ curl -X POST https://eudiplo.example.com/api/oauth2/token \
   -d client_secret="$CLIENT_SECRET"
 ```
 
-The endpoint accepts the credentials in the form or JSON body or as HTTP Basic authentication. The response contains an `access_token` that is valid for 24 hours (`expires_in: 86400`); send it as `Authorization: Bearer <token>`. `GET /.well-known/oauth-authorization-server` advertises the token endpoint for OAuth client libraries.
+The endpoint accepts the credentials in the form or JSON body or as HTTP Basic authentication. The response contains an `access_token` that is valid for 24 hours (`expires_in: 86400`) and no refresh token; send it as `Authorization: Bearer <token>`, and request a new one when it expires. `GET /.well-known/oauth-authorization-server` advertises the token endpoint for OAuth client libraries.
 
 When `OIDC` is set, for example to use [Keycloak](../operate/keycloak.md), `/api/oauth2/token` is disabled and tokens come from the external provider.
 

@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, isDevMode, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  isDevMode,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -11,6 +18,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -22,14 +30,17 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   CredentialConfig,
   TrustList,
+  type PublishSchemaMetaConfig,
   type VocabularyEntryDto,
   trustListControllerGetAllTrustLists,
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
-
-const SEMVER_REGEX =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+import { certificateBase64, certificateValidator } from '../../utils/certificate-validator';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { SourceLoadState, loadSource, reportSourceFailures } from '../../common/load-source';
+import { SEMVER_REGEX } from '../schema-version';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-schema-create',
@@ -56,8 +67,11 @@ const SEMVER_REGEX =
 export class SchemaCreateComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = false;
+  /** Set by the first Submit, so the missing-fields note does not show while filling in. */
+  submitAttempted = false;
   readonly demoDefaultsEnabled = isDevMode();
   /** Credential config ID passed via query param — linked back to the schema metadata on submit */
   credentialConfigId: string | undefined;
@@ -70,6 +84,9 @@ export class SchemaCreateComponent implements OnInit {
   categoryVocabularies: VocabularyEntryDto[] = [];
   /** Predefined vocabulary entries for tag selection */
   tagVocabularies: VocabularyEntryDto[] = [];
+  /** Load state of each source, so an empty select is not mistaken for "none exist" */
+  readonly loadState: Record<'credentialConfigs' | 'trustLists' | 'vocabularies', SourceLoadState> =
+    { credentialConfigs: 'loading', trustLists: 'loading', vocabularies: 'loading' };
 
   readonly attestationLoSOptions = [
     { value: 'iso_18045_high', label: 'High (ISO 18045)' },
@@ -114,6 +131,23 @@ export class SchemaCreateComponent implements OnInit {
   /** For selecting trust lists to include as trusted authorities */
   importTrustListIds = new FormControl<string[]>([]);
 
+  /**
+   * The import selects are not validated themselves: they fill the
+   * `schemaURIs` and `trustedAuthorities` arrays, which are required. These
+   * matchers show the arrays' error on the selects once the user opened one
+   * or tried to submit.
+   */
+  readonly schemaURIsErrorMatcher: ErrorStateMatcher = {
+    isErrorState: () =>
+      this.schemaURIs.hasError('required') &&
+      (this.schemaURIs.touched || this.importSchemaConfigIds.touched),
+  };
+  readonly trustedAuthoritiesErrorMatcher: ErrorStateMatcher = {
+    isErrorState: () =>
+      this.trustedAuthorities.hasError('required') &&
+      (this.trustedAuthorities.touched || this.importTrustListIds.touched),
+  };
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly schemaService: SchemaService,
@@ -156,6 +190,17 @@ export class SchemaCreateComponent implements OnInit {
     return this.composeForm.get('trustedAuthorities') as FormArray<FormGroup>;
   }
 
+  /**
+   * The root certificates in `trustedAuthorities`, with their index in that
+   * FormArray. Selected trust lists come first in the same array, so the
+   * FormArray index does not count root certificates.
+   */
+  get rootCertificates(): { group: FormGroup; index: number }[] {
+    return this.trustedAuthorities.controls
+      .map((group, index) => ({ group, index }))
+      .filter(({ group }) => group.get('frameworkType')?.value === 'x509');
+  }
+
   /** Display label for a credential config (used in select dropdown). */
   configLabel(c: CredentialConfig): string {
     return c.description ? `${c.description} (${c.id})` : c.id;
@@ -195,26 +240,14 @@ export class SchemaCreateComponent implements OnInit {
     return group;
   }
 
-  private createTrustedAuthorityGroup(
-    frameworkType = '',
-    value = '',
-    isLoTE = false,
-    verificationMethod = '',
-    imported = false
-  ): FormGroup {
-    const group = this.fb.group({
-      frameworkType: [frameworkType, Validators.required],
-      value: [value, Validators.required],
-      isLoTE: [isLoTE],
-      verificationMethod: [verificationMethod],
-      imported: [imported],
+  /** A root certificate the user enters, in base64 DER or PEM. */
+  private createRootCertificateGroup(): FormGroup {
+    return this.fb.group({
+      frameworkType: ['x509', Validators.required],
+      value: ['', [Validators.required, certificateValidator]],
     });
-    if (imported) {
-      group.get('frameworkType')!.disable();
-      group.get('value')!.disable();
-    }
-    return group;
   }
+
   private createTrustListGroup(trustListId: string, label: string, isLoTE = true): FormGroup {
     return this.fb.group({
       trustListId: [trustListId],
@@ -225,7 +258,7 @@ export class SchemaCreateComponent implements OnInit {
   }
 
   addX509TrustAnchor(): void {
-    this.trustedAuthorities.push(this.createTrustedAuthorityGroup('x509', '', false, '', false));
+    this.trustedAuthorities.push(this.createRootCertificateGroup());
   }
 
   removeTrustedAuthority(index: number): void {
@@ -258,9 +291,11 @@ export class SchemaCreateComponent implements OnInit {
       }
     }
 
-    const directAuthorities = this.trustedAuthorities.controls
-      .filter((group) => !group.get('trustListId')?.value)
-      .map((group) => group.getRawValue());
+    // Root certificates keep their FormGroup, so their values and the errors
+    // a Submit revealed stay.
+    const rootCertificates = this.trustedAuthorities.controls.filter(
+      (group) => !group.get('trustListId')?.value
+    );
 
     this.trustedAuthorities.clear();
     for (const id of selectedIds) {
@@ -272,43 +307,41 @@ export class SchemaCreateComponent implements OnInit {
       this.trustedAuthorities.push(this.createTrustListGroup(id, label, isLoTE));
     }
 
-    for (const authority of directAuthorities) {
-      this.trustedAuthorities.push(
-        this.createTrustedAuthorityGroup(
-          authority['frameworkType'] ?? 'x509',
-          authority['value'] ?? '',
-          authority['isLoTE'] ?? false,
-          authority['verificationMethod'] ?? '',
-          false
-        )
-      );
+    for (const group of rootCertificates) {
+      this.trustedAuthorities.push(group);
     }
   }
 
+  /**
+   * Loads the three sources independently: each select fills in as soon as
+   * its source answers, and one that fails (registrar not configured or
+   * unreachable, or a missing role) leaves the others usable. Failed sources
+   * are named in a snackbar and in the hint of their select.
+   */
   async loadData(): Promise<void> {
-    try {
-      const [configs, tlResponse, vocabularies] = await Promise.all([
-        this.credentialConfigService.loadConfigurations(),
-        trustListControllerGetAllTrustLists(),
-        this.schemaService.getVocabularies(),
-      ]);
-      this.credentialConfigs = configs;
-      this.trustLists = Array.isArray(tlResponse.data) ? tlResponse.data : [];
-      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
-        ? vocabularies.categories
-        : [];
-      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
+    const failures = await Promise.all([
+      loadSource(this.loadState, 'credentialConfigs', 'credential configs', async () => {
+        const configs = await this.credentialConfigService.loadConfigurations();
+        this.credentialConfigs = configs;
+        // Auto-select linked credential config when provided via query param.
+        if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
+          this.importSchemaConfigIds.setValue([this.credentialConfigId]);
+        }
+        this.syncSchemaURIsFromSelection();
+      }),
+      loadSource(this.loadState, 'trustLists', 'trust lists', async () => {
+        const response = await trustListControllerGetAllTrustLists();
+        this.trustLists = Array.isArray(response.data) ? response.data : [];
+        this.syncTrustedAuthoritiesFromSelection();
+      }),
+      loadSource(this.loadState, 'vocabularies', 'the registrar vocabulary', async () => {
+        const vocabularies = await this.schemaService.getVocabularies();
+        this.categoryVocabularies = vocabularies.categories;
+        this.tagVocabularies = vocabularies.tags;
+      }),
+    ]);
 
-      // Auto-select linked credential config when provided via query param.
-      if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
-        this.importSchemaConfigIds.setValue([this.credentialConfigId]);
-      }
-
-      this.syncSchemaURIsFromSelection();
-      this.syncTrustedAuthoritiesFromSelection();
-    } catch {
-      // non-fatal — selects will simply be empty
-    }
+    reportSourceFailures(this.snackBar, failures);
   }
 
   /**
@@ -337,8 +370,9 @@ export class SchemaCreateComponent implements OnInit {
       trustedAuthorities: (raw.trustedAuthorities as Record<string, unknown>[]).map((e) => ({
         ...(e['trustListId'] ? { trustListId: e['trustListId'] } : {}),
         ...(e['frameworkType'] ? { frameworkType: e['frameworkType'] } : {}),
-        ...(e['value'] ? { value: String(e['value']).replace(/\s/g, '') } : {}),
-        ...(e['verificationMethod'] ? { verificationMethod: e['verificationMethod'] } : {}),
+        ...(typeof e['value'] === 'string' && e['value']
+          ? { value: certificateBase64(e['value']) }
+          : {}),
       })),
     };
   }
@@ -382,6 +416,7 @@ export class SchemaCreateComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    this.submitAttempted = true;
     if (this.composeForm.invalid) {
       this.composeForm.markAllAsTouched();
       return;
@@ -402,17 +437,20 @@ export class SchemaCreateComponent implements OnInit {
       // it to the registrar in a single call — we just receive the resulting
       // metadata entry.
       const created = await this.schemaService.publishSchemaMetadata(
-        this.buildConfigFromForm(),
+        // Version, LoS and binding type are required controls of the form.
+        this.buildConfigFromForm() as Omit<PublishSchemaMetaConfig, 'id'>,
         undefined,
         this.resolveLinkedCredentialConfigId()
       );
 
       this.snackBar.open('Schema submitted', 'Close', { duration: 3000 });
-      this.router.navigate(['/schema', created.id]);
+      // The user may have left the page while the publish was running.
+      if (!this.destroyRef.destroyed) {
+        this.router.navigate(['/schema', created.id]);
+      }
     } catch (error) {
       console.error('Failed to submit schema metadata:', error);
-      const msg = error instanceof Error ? error.message : 'Failed to submit schema';
-      this.snackBar.open(msg, 'Close', { duration: 5000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to submit schema'));
     } finally {
       this.loading = false;
     }

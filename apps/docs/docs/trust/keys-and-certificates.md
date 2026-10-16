@@ -4,7 +4,7 @@ title: Keys and Certificates
 
 A key chain is a signing key together with its certificate chain. Each tenant needs one per purpose: an access key chain to sign presentation requests, an attestation key chain to sign credentials, and optionally status list and trust list key chains. Create them in the Web Client under **Cryptographic Assets → Keys → Create Key**, or with the API below; where the private keys live is set by the [KMS provider](../operate/kms.md).
 
-**Prerequisites:** the `issuance:manage` or `presentation:manage` role.
+**Prerequisites:** the `issuance:manage`, `presentation:manage` or `keys:manage` role.
 
 ## Usage types
 
@@ -15,7 +15,7 @@ A key chain is a signing key together with its certificate chain. Each tenant ne
 | `statusList`  | Status lists for [revocation](../issuance/revocation.md)                                       | Status List Signing               |
 | `trustList`   | [Trust lists](trust-lists.md) you publish                                                      | Trust List Signing                |
 
-`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself; it is not listed with the other key chains.
+`encrypt` is reserved for the tenant's encryption key, which EUDIPLO creates and manages itself. It is not listed with the other key chains, and the key chain endpoints do not change it: updating, rotating, deleting or exporting its ID answers `404`, and an import with its ID answers `409`. Configuration bundles leave it out and skip a document with its ID ([Config Bundle Format](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
 
 ## Key chain types
 
@@ -23,10 +23,10 @@ A key chain is a signing key together with its certificate chain. Each tenant ne
 | ----------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Standalone        | `POST /api/key-chain` with `"type": "standalone"`                    | Self-signed; subject is the tenant name, DNS name the host of `PUBLIC_URL`                                     | New key with a new self-signed certificate     |
 | Internal chain    | `POST /api/key-chain` with `"type": "internalChain"`                 | EUDIPLO creates a root CA (valid 10 years) and a leaf certificate signed by it                                | New leaf key signed by the same root           |
-| Imported key      | `POST /api/key-chain/import` without `rotationPolicy`                | Your chain from `crt` (leaf first), or a self-signed certificate if `crt` is omitted                           | New key with a self-signed certificate (see warning below) |
-| External CA chain | `POST /api/key-chain/import` with `"rotationPolicy": {"enabled": true}` | `key` is your CA key and the last `crt` entry its CA certificate; EUDIPLO generates leaf keys signed by it | New leaf key signed by your CA                 |
+| Imported key      | `POST /api/key-chain/import` with `"type": "standalone"`             | Your chain from `crt` (leaf first), or a self-signed certificate valid 365 days if `crt` is omitted                           | New key with a self-signed certificate (see warning below) |
+| External CA chain | `POST /api/key-chain/import` with `"type": "internalChain"`          | `key` is your CA key and the last `crt` entry its CA certificate, or a self-signed CA certificate EUDIPLO creates if `crt` is omitted; EUDIPLO generates leaf keys signed by it | New leaf key signed by your CA                 |
 
-In the Web Client, attestation keys offer **Create Key Chain** (internal chain), **Standalone Key** and **External CA Chain**; access keys offer **Self-Signed Certificate**, **Registrar Enrollment** ([Registrar](registrar.md)) and **External Certificate** (import). The wizard accepts pasted PEM values and PEM, CRT, CER or DER files and checks that key and certificate match.
+In the Web Client, attestation keys offer **Create Key Chain** (internal chain), **Standalone Key** and **External CA Chain** (external CA chain; the last certificate must be the CA certificate); access keys offer **Self-Signed Certificate**, **Registrar Enrollment** ([Registrar](registrar.md)) and **External Certificate** (imported key). Standalone Key and the other usage types import a key with **Use an externally issued certificate and matching private key**. Create Key Chain and External CA Chain rotate the signing key by default; with **Enable automatic key rotation** off, the signing certificate expires after **Certificate Validity** and is renewed only once you turn rotation on by editing the key chain. The other options create key chains without rotation. The wizard accepts pasted PEM values and PEM, CRT, CER or DER files; EUDIPLO checks that key and certificate match.
 
 Use an internal or external CA chain for attestation keys: trust lists publish the CA certificate, so entries stay valid when the leaf key rotates.
 
@@ -44,7 +44,9 @@ curl -X POST "$EUDIPLO_URL/api/key-chain" \
   }'
 ```
 
-The response is `{ "id": "<key chain id>" }`. `kmsProvider` selects a provider ID from `kms.json`; without it the default provider is used. `certValidityDays` defaults to 365. Automatic rotation needs `rotationPolicy.enabled` and `intervalDays`; without them the key is only rotated on request.
+The response is `{ "id": "<key chain id>" }`. `kmsProvider` selects a provider ID from `kms.json`; without it the default provider is used. `certValidityDays` defaults to 365. `intervalDays` is required when `rotationPolicy.enabled` is `true`; without rotation the key is only rotated on request.
+
+`GET /api/key-chain/{id}` and `GET /api/key-chain` return the active key's public key as a JWK in `activePublicKey` (after a rotation, the old one in `previousPublicKey`), without private key material. In the Web Client, **Copy Public Key (JWK)** next to a key's certificate copies it.
 
 ## Import a key and certificate
 
@@ -62,15 +64,17 @@ Import material issued by your own PKI or an ecosystem operator with `POST /api/
 }
 ```
 
-The first certificate must contain the public key of the imported private key. For an **external CA chain**, add `"rotationPolicy": { "enabled": true, "intervalDays": 30, "certValidityDays": 365 }` and pass the CA key and a chain whose last certificate is the CA certificate (`CA=true`, matching the key). EUDIPLO then creates and rotates the signing leaf itself; `intervalDays` defaults to 90.
+For an imported key, the first certificate must contain the public key of the imported private key. For an **external CA chain**, add `"type": "internalChain"` and pass the CA key and a chain whose last certificate is the CA certificate (`CA=true`, matching the key); the certificates before it are not used. EUDIPLO then creates the signing leaf itself, and rotates it with `"rotationPolicy": { "enabled": true, "intervalDays": 30, "certValidityDays": 365 }`. With rotation enabled, a missing `intervalDays` becomes 90 and a missing `certValidityDays` 365; without rotation, no intervals are stored. For an external CA chain, `certValidityDays` (default 365) also sets the validity of the first signing certificate, with or without rotation.
 
-To provision key chains as files, put the same JSON into `config/<tenant>/key-chains/`; see [Configuration as Code](../operate/configuration-as-code.md). `GET /api/key-chain/{id}/export` returns a key chain in this format and needs `tenant:admin` or `tenants:manage`. For the `db` provider it contains the private key; for an external KMS only the public key, because the private key never leaves the KMS, so that file cannot be imported again.
+Without `type`, as in files written before 10.0, the import decides from `rotationPolicy`: with rotation enabled it is an external CA chain, unless `crt` is one self-signed certificate that is not a CA (the export of a standalone key chain); otherwise it is an imported key.
+
+To provision key chains as files, put the same JSON into `config/<tenant>/key-chains/`; see [Configuration as Code](../operate/configuration-as-code.md). `GET /api/key-chain/{id}/export` returns a key chain in this format, with its `type`, and needs `tenant:admin` or `tenants:manage`. For an internal or external CA chain it contains the CA key and certificate but not the signing key, so its import keeps the CA and creates a new signing key, as a rotation does. For the `db` provider the export contains the private key; for an external KMS only the public key, because the private key never leaves the KMS, so that file cannot be imported again. For 9.x exports, see the [10.0 upgrade guide](../upgrade/9.x-to-10.0.md#configuration-files). A startup import does not apply an unchanged file again and so renews no certificate ([details](../reference/config-bundle-format.md#import-modes-and-plan-actions)).
 
 ## Rotate keys
 
 - **Automatic:** once a day, every key chain with `rotationPolicy.enabled` and an `intervalDays` that has passed since creation or the last rotation is rotated.
 - **Manual:** `POST /api/key-chain/{id}/rotate` rotates immediately (`204`).
-- **Change the policy:** `PUT /api/key-chain/{id}` with `rotationPolicy` or `description`.
+- **Change the policy:** `PUT /api/key-chain/{id}` with `rotationPolicy` or `description`. Enabling rotation needs `intervalDays`, unless the key chain already has one.
 
 Rotation creates a new key and certificate as listed in the table above. Credentials issued before keep their certificate chain in `x5c`; with an internal or external CA chain, old and new credentials chain to the same CA, so trust lists need no update.
 
@@ -91,7 +95,19 @@ Certificates always belong to a key chain. Which one a wallet or verifier has to
 | Status list certificate     | Verifiers, as the revocation certificate of your trust list entry             | Standalone or internal chain                                                                    |
 | Trust list certificate      | Consumers of your trust list, who pin it as `verifierX509Der`                  | Standalone or internal chain                                                                    |
 
-A presentation configuration uses the access key chain in `accessKeyChainId`, or an access key chain of the tenant when it is not set. Registration certificates are JWTs issued by a registrar, not key chains; see [Registration Certificates](registration-certificates.md).
+A presentation configuration uses the access key chain in `accessKeyChainId`, or the default access key chain when it is not set. Registration certificates are JWTs issued by a registrar, not key chains; see [Registration Certificates](registration-certificates.md).
+
+### Default access key chain
+
+Presentation requests (OID4VP and ISO 18013-7) of a configuration without `accessKeyChainId`, signed issuer metadata and the link of a registration certificate to its access certificate use the tenant's default access key chain. With several access key chains, EUDIPLO picks it in this order:
+
+1. A certificate that is valid now before an expired or not yet valid one, which could not sign.
+2. The kind of the active certificate: one issued by another CA, such as a registrar certificate or that of an imported key, before an internal chain (an External CA chain included), before a self-signed certificate.
+3. The key chain created first.
+
+A new access key chain therefore only becomes the default when its certificate is of a better kind, or when the certificate of the current default is no longer valid. To use a particular key chain, set `accessKeyChainId`.
+
+An OpenID4VP request keeps the access key chain chosen when it was created: the request object a wallet fetches later is signed with the key chain its `client_id` was derived from, even when the default or the configuration's `accessKeyChainId` has changed in between. Its registration certificate is resolved for that key chain as well; see [Registration Certificates](registration-certificates.md#validation-and-caching). If that key chain is deleted or rotated before the wallet fetches the request, the wallet cannot use the request; create a new one.
 
 ### Revocation check
 

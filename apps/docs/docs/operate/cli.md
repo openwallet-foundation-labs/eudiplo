@@ -239,7 +239,7 @@ fail when the variables are set.
 KMS provider health is read per tenant, so with the root client the KMS check
 is skipped; a
 [tenant client](tenants-and-access.md#api-clients-with-least-privilege) with
-`issuance:manage` or `presentation:manage` covers it too.
+`issuance:manage`, `presentation:manage` or `keys:manage` covers it too.
 
 ## Environment variables
 

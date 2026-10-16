@@ -1,4 +1,14 @@
-import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  type ElementRef,
+  Injector,
+  type OnDestroy,
+  type OnInit,
+  ChangeDetectionStrategy,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -12,11 +22,29 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { OAuth2HttpError } from '@badgateway/oauth2-client';
+import { map, merge, Subscription, take } from 'rxjs';
 
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { ApiService } from '../core';
 import { OidcService } from '../core/oidc.service';
+
+/** The client and instance of a session the login page resumes or reports as ended. */
+interface PreviousSession {
+  clientId?: string;
+  baseUrl?: string;
+}
+
+/** The return path if it stays inside the client and does not lead back to the login page. */
+function appPath(returnUrl: unknown): string | undefined {
+  return typeof returnUrl === 'string' &&
+    returnUrl.startsWith('/') &&
+    !returnUrl.startsWith('//') &&
+    !returnUrl.startsWith('/login')
+    ? returnUrl
+    : undefined;
+}
 
 @Component({
   selector: 'app-login',
@@ -38,7 +66,7 @@ import { OidcService } from '../core/oidc.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   isLoading = false;
   hideClientSecret = true;
@@ -47,6 +75,21 @@ export class LoginComponent implements OnInit {
   selectedLoginMode: 'sso' | 'client' = 'sso';
   private discoveredIssuer?: string;
   private discoveredUiClientId?: string;
+  /** The kept session this page waits for instead of showing the form. */
+  readonly keptSession = signal<PreviousSession | null>(null);
+  /**
+   * The session this page resumes or that just ended: the form starts from it,
+   * and only a sign-in as the same client returns to its page.
+   */
+  private previousSession?: PreviousSession;
+  /** The in-app page the guard sent the user away from. */
+  private returnUrl?: string;
+  readonly retryingKeptSession = signal(false);
+  private keptSessionEvents?: Subscription;
+  private readonly apiUrlInput = viewChild<ElementRef<HTMLInputElement>>('apiUrlInput');
+  private readonly clientSecretInput = viewChild<ElementRef<HTMLInputElement>>('clientSecretInput');
+  /** An ended session signed in with client credentials, so the form stays on that tab even where SSO is offered. */
+  private keepClientCredentialsTab = false;
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -55,16 +98,24 @@ export class LoginComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
     private readonly environmentService: EnvironmentService,
-    private readonly oidcService: OidcService
+    private readonly oidcService: OidcService,
+    private readonly injector: Injector
   ) {}
 
   ngOnInit(): void {
     this.isDevelopmentMode = this.environmentService.isDevelopment();
 
     // Check if user is already authenticated
+    this.returnUrl = appPath(this.route.snapshot.queryParams['returnUrl']);
     if (this.apiService.getAuthenticationStatus()) {
-      this.router.navigate(['/dashboard']);
+      this.continueToApp();
       return;
+    }
+    if (this.apiService.hasKeptSession()) {
+      this.waitForKeptSession();
+    } else {
+      // The session may have expired or been rejected before this page opened.
+      this.reportEndedSession();
     }
     console.log('Initializing login form');
     this.initializeForm();
@@ -76,6 +127,110 @@ export class LoginComponent implements OnInit {
 
     // Auto-login if all required params are provided via URL
     this.autoLoginIfParamsProvided();
+  }
+
+  ngOnDestroy(): void {
+    this.keptSessionEvents?.unsubscribe();
+  }
+
+  /** Waits until the kept session renews its token or ends, instead of asking for credentials it has. */
+  private waitForKeptSession(): void {
+    this.previousSession = {
+      clientId: this.apiService.getClientId(),
+      baseUrl: this.apiService.getBaseUrl(),
+    };
+    this.keptSession.set(this.previousSession);
+    this.keptSessionEvents = merge(
+      this.apiService.tokenRenewed$.pipe(map(() => true)),
+      this.apiService.sessionEnded$.pipe(map(() => false))
+    )
+      .pipe(take(1))
+      .subscribe((resumed) => {
+        if (resumed) {
+          this.keptSession.set(null);
+          this.continueToApp();
+          return;
+        }
+        this.showForm();
+        this.reportEndedSession();
+      });
+    // Nothing may be due soon, for example after the laptop slept past the token's expiry.
+    // This joins a renewal already in flight; failures are retried or end the session.
+    void this.apiService.refreshAccessToken().catch(() => undefined);
+  }
+
+  /** Says why the previous session ended; the form starts from its client and instance. */
+  private reportEndedSession(): void {
+    const ended = this.apiService.takeEndedSession();
+    if (!ended) return;
+    this.previousSession = { clientId: ended.clientId, baseUrl: ended.baseUrl };
+    this.keepClientCredentialsTab = true;
+    this.selectedLoginMode = 'client';
+    if (ended.reason === 'expired') {
+      // Only the secret is left to enter. Rejected credentials may need another client.
+      afterNextRender(() => this.clientSecretInput()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    }
+    const [message, panelClass] =
+      ended.reason === 'expired'
+        ? [
+            `The session of ${ended.clientId} expired. Log in again to continue.`,
+            'warning-snackbar',
+          ]
+        : [
+            `The credentials of ${ended.clientId} were rejected, for example because the client was deleted or its secret changed. Log in again.`,
+            'error-snackbar',
+          ];
+    this.snackBar.open(message, 'Close', { duration: 10_000, panelClass: [panelClass] });
+  }
+
+  /** Renews the kept session now instead of waiting for the next automatic attempt. */
+  async retryKeptSession(): Promise<void> {
+    this.retryingKeptSession.set(true);
+    try {
+      await this.apiService.refreshAccessToken();
+    } catch (error) {
+      // A rejection ends the session, and waitForKeptSession reports it.
+      if (this.keptSession()) {
+        const reason =
+          error instanceof OAuth2HttpError
+            ? `The token request failed with status ${error.httpCode}`
+            : 'The backend still cannot be reached';
+        this.snackBar.open(`${reason}. This page keeps trying.`, 'Close', {
+          duration: 5000,
+          panelClass: ['error-snackbar'],
+        });
+      }
+    } finally {
+      this.retryingKeptSession.set(false);
+    }
+  }
+
+  /** Forgets the kept session, so the user can sign in with other credentials. */
+  discardKeptSession(): void {
+    this.stopWaitingForKeptSession();
+    this.apiService.logout();
+    // Another client or instance may lack the page the old session was on.
+    this.returnUrl = undefined;
+    this.showForm();
+  }
+
+  /** Shows the form in place of the kept session and moves focus to its first field. */
+  private showForm(): void {
+    this.keptSession.set(null);
+    afterNextRender(() => this.apiUrlInput()?.nativeElement.focus(), { injector: this.injector });
+  }
+
+  private stopWaitingForKeptSession(): void {
+    this.keptSessionEvents?.unsubscribe();
+    this.keptSessionEvents = undefined;
+    this.keptSession.set(null);
+  }
+
+  /** Opens the page the guard sent the user away from, or the dashboard. */
+  private continueToApp(): void {
+    void this.router.navigateByUrl(this.returnUrl ?? '/dashboard');
   }
 
   private autoLoginIfParamsProvided(): void {
@@ -94,11 +249,18 @@ export class LoginComponent implements OnInit {
     const env = this.environmentService.getEnvironment();
     const queryParams = this.route.snapshot.queryParams;
 
-    // Priority order: URL params > environment values (in dev) > empty strings
-    const getParamValue = (paramName: string, envValue: string): string => {
+    const kept = this.previousSession;
+
+    // Priority order: URL params > the previous session > environment values (in dev) > empty strings
+    const getParamValue = (paramName: string, envValue: string, keptValue?: string): string => {
       // First check URL query parameters
       if (queryParams[paramName]) {
         return queryParams[paramName];
+      }
+
+      // Then the session this page resumes or that just ended
+      if (keptValue) {
+        return keptValue;
       }
 
       // Then check environment values if in development mode
@@ -116,9 +278,9 @@ export class LoginComponent implements OnInit {
     };
 
     const defaultValues = {
-      clientId: getParamValue('clientId', env.oidc.clientId),
+      clientId: getParamValue('clientId', env.oidc.clientId, kept?.clientId),
       clientSecret: getParamValue('clientSecret', env.oidc.clientSecret),
-      apiUrl: getParamValue('apiUrl', env.api.baseUrl),
+      apiUrl: getParamValue('apiUrl', env.api.baseUrl, kept?.baseUrl),
     };
 
     this.loginForm = this.formBuilder.group({
@@ -145,6 +307,8 @@ export class LoginComponent implements OnInit {
 
   onLoginTabChange(index: number): void {
     this.selectedLoginMode = index === 0 ? 'sso' : 'client';
+    // The user chose SSO after an ended session; detecting the mode again keeps that choice.
+    if (index === 0) this.keepClientCredentialsTab = false;
     this.syncLoginModeState();
   }
 
@@ -183,7 +347,9 @@ export class LoginComponent implements OnInit {
 
       if (discovery?.ui_client_id) {
         this.detectedMode = 'oidc';
-        this.selectedLoginMode = 'sso';
+        // Another instance than the ended session's opens like a fresh login page.
+        const sameInstance = normalizedUrl === this.previousSession?.baseUrl;
+        this.selectedLoginMode = this.keepClientCredentialsTab && sameInstance ? 'client' : 'sso';
         this.discoveredIssuer = discovery.issuer;
         this.discoveredUiClientId = discovery.ui_client_id;
       } else {
@@ -220,6 +386,8 @@ export class LoginComponent implements OnInit {
 
   async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
+      // Signing in with the form replaces a kept session.
+      this.stopWaitingForKeptSession();
       this.isLoading = true;
 
       try {
@@ -260,8 +428,15 @@ export class LoginComponent implements OnInit {
           panelClass: ['success-snackbar'],
         });
 
-        // Navigate to dashboard
-        this.router.navigate(['/dashboard']);
+        // Only the previous session's client returns to its page; another one may lack it.
+        const previous = this.previousSession;
+        if (
+          previous &&
+          (formValue.clientId !== previous.clientId || normalizedUrl !== previous.baseUrl)
+        ) {
+          this.returnUrl = undefined;
+        }
+        this.continueToApp();
       } catch (error: any) {
         console.error('Login failed:', error);
 

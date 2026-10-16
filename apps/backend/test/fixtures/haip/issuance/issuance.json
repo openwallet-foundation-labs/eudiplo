@@ -13,8 +13,8 @@
     ],
     "batchSize": 10,
     "dPopRequired": true,
-    "credentialResponseEncryption": true,
-    "credentialRequestEncryption": true,
+    "credentialResponseEncryption": false,
+    "credentialRequestEncryption": false,
     "display": [
       {
         "locale": "en-US",

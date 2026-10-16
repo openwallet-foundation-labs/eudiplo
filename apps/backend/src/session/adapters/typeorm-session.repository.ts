@@ -12,6 +12,7 @@ import {
     type SelectQueryBuilder,
 } from "typeorm";
 import type { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
+import { hashAuthorizationCode } from "../../issuer/issuance/oid4vci/authorization/domain/token-grant-rules.js";
 import type {
     ExternalSessionBinding,
     NewSession,
@@ -34,12 +35,52 @@ import {
     type SessionStateUpdate,
     SessionStatus,
 } from "../domain/session-state.js";
+import {
+    MAX_FAILURE_CODE_LENGTH,
+    type SessionCountFilter,
+    type SessionFailureCodeCount,
+    type SessionTypeStatusCount,
+} from "../domain/session-stats.js";
 import { Session } from "../entities/session.entity.js";
 import type {
     SessionCount,
     SessionCredentialOffer,
     SessionRepository,
 } from "../ports/session.repository.js";
+
+/** Issuance sessions have no `requestId`, as in {@link typeWhere}. */
+const ISSUANCE_CASE = "CASE WHEN s.requestId IS NULL THEN 1 ELSE 0 END";
+
+interface TypeStatusCountRow {
+    issuance: number | string | boolean;
+    status: SessionStatus;
+    count: number | string;
+}
+
+/** Replace the selection with counts per session type and status. */
+function countByTypeAndStatus(
+    query: SelectQueryBuilder<Session>,
+): SelectQueryBuilder<Session> {
+    return query
+        .select(ISSUANCE_CASE, "issuance")
+        .addSelect("s.status", "status")
+        .addSelect("COUNT(*)", "count")
+        .groupBy(ISSUANCE_CASE)
+        .addGroupBy("s.status");
+}
+
+/** Reads the {@link ISSUANCE_CASE} column of a raw row. */
+function sessionTypeOf(issuance: number | string | boolean): SessionType {
+    return Number(issuance) === 1 ? "issuance" : "presentation";
+}
+
+function toTypeStatusCount(row: TypeStatusCountRow): SessionTypeStatusCount {
+    return {
+        type: sessionTypeOf(row.issuance),
+        status: row.status,
+        count: Number(row.count),
+    };
+}
 
 /** Where clause selecting one session type; any type when omitted. */
 function typeWhere(type?: SessionType): FindOptionsWhere<Session> {
@@ -119,20 +160,19 @@ export class TypeOrmSessionRepository implements SessionRepository {
     findByIdForInternalFlow(id: string) {
         return this.findSession({ id });
     }
-    async findForWalletRequest(walletNonce: string) {
-        return (
-            (await this.findSession({ walletNonce })) ??
-            this.findSession({ id: walletNonce })
-        );
+    findForWalletRequest(walletNonce: string) {
+        // Never by session ID: it is no secret. Issuance offers carry it, the
+        // management API lists it and ISO 18013-7 pages post with it.
+        return this.findSession({ walletNonce });
     }
     findIso18013Session(id: string) {
         return this.findSession({ id, dcApiProtocol: "iso-18013-7" });
     }
-    findByAuthorizationCode(tenantId: string, authorization_code: string) {
-        return this.findSession({ tenantId, authorization_code });
+    findByAuthorizationCode(tenantId: string, codeHash: string) {
+        return this.findSession({ tenantId, authorization_code: codeHash });
     }
-    findByRefreshToken(tenantId: string, refresh_token: string) {
-        return this.findSession({ tenantId, refresh_token });
+    findByRefreshToken(tenantId: string, refreshTokenHash: string) {
+        return this.findSession({ tenantId, refresh_token: refreshTokenHash });
     }
     findByRequestUri(tenantId: string, request_uri: string) {
         return this.findSession({ tenantId, request_uri });
@@ -243,10 +283,65 @@ export class TypeOrmSessionRepository implements SessionRepository {
         };
     }
 
+    async countForTenant(
+        tenantId: string,
+        filter: SessionCountFilter,
+    ): Promise<SessionTypeStatusCount[]> {
+        const rows: TypeStatusCountRow[] = await countByTypeAndStatus(
+            this.filteredSessions(tenantId, filter),
+        ).getRawMany();
+        return rows.map(toTypeStatusCount);
+    }
+
+    async topFailureCodesForTenant(
+        tenantId: string,
+        filter: SessionCountFilter & { type: SessionType },
+        limit: number,
+    ): Promise<SessionFailureCodeCount[]> {
+        // Wallets choose the codes of their errors; keep the result small in SQL.
+        const code = `SUBSTR(s.failureCode, 1, ${MAX_FAILURE_CODE_LENGTH})`;
+        const rows: { code: string; count: number | string }[] =
+            await this.filteredSessions(tenantId, {
+                ...filter,
+                status: [SessionStatus.Failed],
+            })
+                .andWhere("s.failureCode IS NOT NULL")
+                .select(code, "code")
+                .addSelect("COUNT(*)", "count")
+                .groupBy(code)
+                .orderBy("COUNT(*)", "DESC")
+                .addOrderBy(code, "ASC")
+                .limit(limit)
+                .getRawMany();
+        return rows.map((row) => ({
+            code: row.code,
+            count: Number(row.count),
+        }));
+    }
+
+    async lastUpdatedForTenant(
+        tenantId: string,
+        {
+            status,
+            ...filter
+        }: SessionCountFilter & { type: SessionType; status: SessionStatus },
+    ): Promise<Date | null> {
+        // Read through the entity, so both databases return a Date.
+        const session = await this.filteredSessions(tenantId, {
+            ...filter,
+            status: [status],
+        })
+            .select(["s.id", "s.updatedAt"])
+            .orderBy("s.updatedAt", "DESC")
+            .limit(1)
+            .getOne();
+        return session?.updatedAt ?? null;
+    }
+
     /** The tenant's sessions matching every filter of the query. */
     private filteredSessions(
         tenantId: string,
-        query: SessionListQuery,
+        query: Omit<SessionListQuery, "page" | "pageSize">,
     ): SelectQueryBuilder<Session> {
         const qb = this.sessions
             .createQueryBuilder("s")
@@ -294,6 +389,14 @@ export class TypeOrmSessionRepository implements SessionRepository {
         }
         if (query.q)
             qb.andWhere(this.matchesSearch(parseSessionSearch(query.q)));
+        for (const type of query.hideOpen ?? []) {
+            // `NOT s.consumed` instead of a boolean parameter, which
+            // better-sqlite3 cannot bind.
+            qb.andWhere(
+                `NOT (s.requestId IS ${type === "issuance" ? "" : "NOT "}NULL AND NOT s.consumed AND s.status IN (:...openStatuses))`,
+                { openStatuses: [...OPEN_SESSION_STATUSES] },
+            );
+        }
         return qb;
     }
 
@@ -331,7 +434,10 @@ export class TypeOrmSessionRepository implements SessionRepository {
                 });
             if (search.authorizationCode)
                 qb.orWhere("s.authorization_code = :searchAuthorizationCode", {
-                    searchAuthorizationCode: search.authorizationCode,
+                    // Only the hash of the code is stored.
+                    searchAuthorizationCode: hashAuthorizationCode(
+                        search.authorizationCode,
+                    ),
                 });
             if (search.reference)
                 qb.orWhere("s.reference = :searchReference", {
@@ -382,30 +488,20 @@ export class TypeOrmSessionRepository implements SessionRepository {
     }
 
     async countSessionsByStatus(): Promise<SessionCount[]> {
-        const rows: {
-            tenantId: string;
-            issuance: number | string | boolean;
-            status: SessionStatus;
-            count: number | string;
-        }[] = await this.sessions
-            .createQueryBuilder("s")
-            .select("s.tenantId", "tenantId")
-            .addSelect(
-                "CASE WHEN s.requestId IS NULL THEN 1 ELSE 0 END",
-                "issuance",
-            )
-            .addSelect("s.status", "status")
-            .addSelect("COUNT(*)", "count")
-            .groupBy("s.tenantId")
-            .addGroupBy("CASE WHEN s.requestId IS NULL THEN 1 ELSE 0 END")
-            .addGroupBy("s.status")
-            .getRawMany();
-        return rows.map((row) => ({
-            tenantId: row.tenantId,
-            kind: Number(row.issuance) === 1 ? "issuance" : "verification",
-            status: row.status,
-            count: Number(row.count),
-        }));
+        const rows: (TypeStatusCountRow & { tenantId: string })[] =
+            await countByTypeAndStatus(this.sessions.createQueryBuilder("s"))
+                .addSelect("s.tenantId", "tenantId")
+                .addGroupBy("s.tenantId")
+                .getRawMany();
+        return rows.map((row) => {
+            const { type, status, count } = toTypeStatusCount(row);
+            return {
+                tenantId: row.tenantId,
+                kind: type === "issuance" ? "issuance" : "verification",
+                status,
+                count,
+            };
+        });
     }
 
     async deleteSessionsCreatedBefore(
@@ -428,9 +524,8 @@ export class TypeOrmSessionRepository implements SessionRepository {
         tenantId: string,
         cutoff: Date,
     ): Promise<number> {
-        const result = await this.sessions
-            .createQueryBuilder()
-            .update()
+        const query = this.sessions.createQueryBuilder().update();
+        const result = await query
             .set({
                 credentials: () => "NULL",
                 credentialPayload: () => "NULL",
@@ -438,6 +533,8 @@ export class TypeOrmSessionRepository implements SessionRepository {
                 offer: () => "NULL",
                 requestObject: () => "NULL",
                 responseEncryptionPrivateJwk: () => "NULL",
+                // Otherwise TypeORM sets it to now; anonymizing keeps the timestamps.
+                updatedAt: () => query.escape("updatedAt"),
             })
             .where("tenantId = :tenantId", { tenantId })
             .andWhere("createdAt < :cutoffDate", { cutoffDate: cutoff })

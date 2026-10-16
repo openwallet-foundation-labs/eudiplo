@@ -12,10 +12,24 @@ const MAX_ID_LENGTH = 255;
 const MAX_SEARCH_LENGTH = 4096;
 
 // ISO 8601 with an explicit offset, so the range never depends on server time zone.
-const timestamp = z.iso
+export const timestamp = z.iso
     .datetime({ offset: true })
     .transform((value) => new Date(value));
 const identifier = z.string().trim().min(1).max(MAX_ID_LENGTH);
+
+/** Zod refinement that rejects a time range whose start lies after its end. */
+export function orderedRange<K extends string>(
+    from: K,
+    to: K,
+): [
+    (query: Partial<Record<K, Date>>) => boolean,
+    { message: string; path: string[] },
+] {
+    return [
+        (query) => !query[from] || !query[to] || query[from] <= query[to],
+        { message: `${from} must not be after ${to}`, path: [from] },
+    ];
+}
 
 const SessionQuerySchema = z
     .object({
@@ -44,26 +58,8 @@ const SessionQuerySchema = z
         sortOrder: z.enum(["asc", "desc"]).optional(),
     })
     .strict()
-    .refine(
-        (query) =>
-            !query.createdFrom ||
-            !query.createdTo ||
-            query.createdFrom <= query.createdTo,
-        {
-            message: "createdFrom must not be after createdTo",
-            path: ["createdFrom"],
-        },
-    )
-    .refine(
-        (query) =>
-            !query.updatedFrom ||
-            !query.updatedTo ||
-            query.updatedFrom <= query.updatedTo,
-        {
-            message: "updatedFrom must not be after updatedTo",
-            path: ["updatedFrom"],
-        },
-    );
+    .refine(...orderedRange("createdFrom", "createdTo"))
+    .refine(...orderedRange("updatedFrom", "updatedTo"));
 
 /**
  * Query parameters for filtering and paginating the session list.

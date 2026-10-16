@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import { CreateAttributeProviderSchema } from "../../../backend/src/issuer/configuration/attribute-provider/schemas/attribute-provider.schema.js";
 import { CredentialConfigCreateSchema } from "../../../backend/src/issuer/configuration/credentials/schemas/credential-config.schema.js";
+import { SignSchemaMetaConfigSchema } from "../../../backend/src/issuer/configuration/credentials/dto/schema-meta-config.schema.js";
 import { OfferRequestSchema } from "../../../backend/src/issuer/issuance/oid4vci/dto/offer-request.schema.js";
 import {
     AwsKmsConfigSchema,
@@ -21,8 +22,9 @@ export interface SchemaDoc {
     /** The Zod schema the backend validates with; the docs are generated from it. */
     schema: z.ZodType;
     /**
-     * Corrected descriptions by field path (`a.b`, arrays are crossed
-     * implicitly). Only for descriptions frozen in a published config file
+     * Corrected descriptions by field path (`a.b`; arrays and union variants
+     * are crossed implicitly, and a field in several variants gets the
+     * description in each). Only for descriptions frozen in a published config file
      * format: changing them in the schema would change the format snapshot
      * under `schemas/v*`. Fix them in the schema with the next format version.
      */
@@ -37,16 +39,7 @@ export interface SchemaDoc {
  */
 export const schemaDocs: SchemaDoc[] = [
     { name: "presentation-request", schema: PresentationRequestSchema },
-    {
-        name: "credential-configuration",
-        schema: CredentialConfigCreateSchema,
-        descriptions: {
-            iaeActions:
-                "Interactive authorization steps (a presentation or a web flow) that the wallet completes, in order, before the credential is issued.",
-            webhookEndpointId:
-                "Not used for notifications: they go to the webhook endpoint of the offer.",
-        },
-    },
+    { name: "credential-configuration", schema: CredentialConfigCreateSchema },
     // One entry of `fields[]`; recursive (`children`), so it gets its own table.
     { name: "credential-field", schema: CredentialConfigCreateSchema.shape.fields.element },
     { name: "offer-request", schema: OfferRequestSchema },
@@ -63,7 +56,17 @@ export const schemaDocs: SchemaDoc[] = [
                 "Access key chain that signs the request, determines the `client_id` and signs `readerAuth`; without it, an access key chain of the tenant is used.",
         },
     },
-    { name: "trust-list", schema: TrustListCreateSchema },
+    {
+        name: "trust-list",
+        schema: TrustListCreateSchema,
+        descriptions: {
+            "entities.type":
+                "`internal` references key chains of this tenant; `external` carries the certificates directly, as PEM or Base64 DER.",
+            "entities.issuerCertPem": "Issuer certificate as PEM or Base64 DER.",
+            "entities.revocationCertPem": "Revocation/status certificate as PEM or Base64 DER.",
+        },
+    },
+    { name: "schema-metadata-publish", schema: SignSchemaMetaConfigSchema },
     { name: "kms-config", schema: KmsConfigSchema },
     { name: "kms-provider-db", schema: DbKmsConfigSchema },
     { name: "kms-provider-vault", schema: VaultKmsConfigSchema },

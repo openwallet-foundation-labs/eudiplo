@@ -48,7 +48,11 @@ describe.each([false, true])(
             // otherwise starts/stops its implicit listener per request.
             await app.listen(0, "127.0.0.1");
             db = app.get(DataSource);
-            await db.getRepository(TenantEntity).save({ id: "tenant-a" });
+            // tenant-b exists, so its 404 comes from the offer lookup and not
+            // from the unknown-tenant guard.
+            await db
+                .getRepository(TenantEntity)
+                .save([{ id: "tenant-a" }, { id: "tenant-b" }]);
             seed = async (hasOffer = true, values = {}) => {
                 const id = randomUUID();
                 await db.getRepository(Session).save({

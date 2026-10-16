@@ -1,9 +1,4 @@
-import {
-    createHash,
-    createPrivateKey,
-    randomBytes,
-    X509Certificate,
-} from "node:crypto";
+import { randomBytes } from "node:crypto";
 import {
     normalizeDocument,
     resourceId,
@@ -20,6 +15,9 @@ import {
     CLIENTS_PROVIDER,
     ClientsProvider,
 } from "../../auth/client/client.provider.js";
+import { ClientAccessService } from "../../auth/client/client-access.service.js";
+import { isRole } from "../../auth/roles/role.enum.js";
+import { assertMayGrantRoles } from "../../auth/roles/role-grants.js";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
 import { KeyChainType } from "../../crypto/key/dto/key-chain-create.dto.js";
 import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
@@ -47,9 +45,21 @@ import type {
     ConfigDocument,
     ConfigImportMode,
     ConfigImportPlan,
+    ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import {
+    documentAppliedAsIs,
+    documentSourceHash,
+} from "./config-source-hash.js";
 import type { ConfigImportRunEntity } from "./entities/config-import-run.entity.js";
+import {
+    appliedKeyChainType,
+    appliedKmsProvider,
+    internalChainProblems,
+    isInternalChainWithPrivateKeys,
+    keyChainSettingsColumns,
+} from "./key-chain-document.js";
 
 function redactDiagnosticMessage(message: string): string {
     return message
@@ -92,7 +102,59 @@ export class ConfigBundleApplyService {
         @Inject(CLIENTS_PROVIDER)
         private readonly clientsProvider: ClientsProvider,
         private readonly repos: ConfigBundleRepositories,
+        private readonly clientAccess: ClientAccessService,
     ) {}
+
+    /**
+     * Applies the client API's grant rule to the client documents of an API
+     * caller's import: a client may keep its roles, but not gain one the
+     * caller may not grant. Runs before planning.
+     */
+    async assertCallerMayAssignRoles(
+        tenantId: string,
+        bundle: ConfigBundle,
+        callerRoles: readonly string[],
+    ): Promise<void> {
+        for (const document of bundle.documents ?? []) {
+            const spec = document?.spec;
+            if (!Array.isArray(spec?.roles)) continue;
+            // Unknown role names are left to the document validation.
+            const roles = spec.roles.filter(isRole);
+            if (typeof spec.clientId === "string") {
+                await this.clientAccess.assertMayAssignRoles(
+                    callerRoles,
+                    tenantId,
+                    spec.clientId,
+                    roles,
+                );
+            } else {
+                assertMayGrantRoles(callerRoles, roles);
+            }
+        }
+    }
+
+    /**
+     * Refuses an API caller's import whose plan changes or deletes a client
+     * with a role the caller neither holds nor may grant.
+     */
+    async assertCallerMayChangeClients(
+        tenantId: string,
+        plan: ConfigImportPlan,
+        callerRoles: readonly string[],
+    ): Promise<void> {
+        for (const item of plan.items) {
+            if (
+                item.kind === "Client" &&
+                (item.action === "update" || item.action === "delete")
+            ) {
+                await this.clientAccess.assertMayManage(
+                    callerRoles,
+                    tenantId,
+                    item.id,
+                );
+            }
+        }
+    }
 
     private get tenants() {
         return this.repos.tenants;
@@ -134,16 +196,21 @@ export class ConfigBundleApplyService {
         mode: ConfigImportMode,
         ownershipSource = `bundle:${bundle.manifest.tenant}`,
         expectedFingerprint?: string,
+        options: ConfigPlanOptions = {},
     ): Promise<ConfigImportPlan> {
-        return this.journal.run(tenantId, mode, (run) =>
-            this.applyLocked(
-                tenantId,
-                bundle,
-                mode,
-                ownershipSource,
-                run,
-                expectedFingerprint,
-            ),
+        return this.journal.run(
+            tenantId,
+            options.reattach ? "reattach" : mode,
+            (run) =>
+                this.applyLocked(
+                    tenantId,
+                    bundle,
+                    mode,
+                    ownershipSource,
+                    run,
+                    expectedFingerprint,
+                    options,
+                ),
         );
     }
 
@@ -154,13 +221,29 @@ export class ConfigBundleApplyService {
         ownershipSource: string,
         run: ConfigImportRunEntity,
         expectedFingerprint?: string,
+        options: ConfigPlanOptions = {},
     ): Promise<ConfigImportPlan> {
+        if (options.callerRoles) {
+            await this.assertCallerMayAssignRoles(
+                tenantId,
+                bundle,
+                options.callerRoles,
+            );
+        }
         const plan = await this.bundleService.plan(
             tenantId,
             bundle,
             mode,
             ownershipSource,
+            options,
         );
+        if (options.callerRoles) {
+            await this.assertCallerMayChangeClients(
+                tenantId,
+                plan,
+                options.callerRoles,
+            );
+        }
         if (
             expectedFingerprint &&
             plan.planFingerprint !== expectedFingerprint
@@ -238,9 +321,7 @@ export class ConfigBundleApplyService {
                 ownership: "file-managed" as const,
                 generation: document.metadata.generation ?? 1,
                 source: ownershipSource,
-                sourceHash: createHash("sha256")
-                    .update(JSON.stringify(document))
-                    .digest("hex"),
+                sourceHash: documentSourceHash(document),
             };
             if (write && document.kind === "Tenant") {
                 // These writes share a database, so commit the config and ownership together.
@@ -261,6 +342,7 @@ export class ConfigBundleApplyService {
                                 await this.ownershipService.markApplied(
                                     ownership,
                                     manager,
+                                    options.reattach,
                                 );
                             },
                         );
@@ -283,9 +365,24 @@ export class ConfigBundleApplyService {
                         id: resourceId(document),
                     },
                     async () => {
+                        // With Keycloak, the plan lists a client applied as it is
+                        // as an update, which keeps its secret.
+                        const appliedAsIs =
+                            document.kind === "Client" &&
+                            !options.reattach &&
+                            documentAppliedAsIs(
+                                document,
+                                await this.ownershipService.get(
+                                    tenantId,
+                                    document.kind,
+                                    resourceId(document),
+                                ),
+                                ownershipSource,
+                            );
                         const secret = await this.applyDocument(
                             tenantId,
                             document,
+                            appliedAsIs,
                         );
                         if (secret) generatedSecrets.push(secret);
                     },
@@ -298,7 +395,11 @@ export class ConfigBundleApplyService {
                     id: resourceId(document),
                 },
                 async () => {
-                    await this.ownershipService.markApplied(ownership);
+                    await this.ownershipService.markApplied(
+                        ownership,
+                        undefined,
+                        options.reattach,
+                    );
                 },
             );
         }
@@ -400,6 +501,11 @@ export class ConfigBundleApplyService {
                 await this.webhookEndpointService.delete(tenantId, id);
                 return;
             case "TrustList":
+                // Unlike DELETE /trust-list/{id}, without the reference check:
+                // the plan, which apply runs again under the import lock, blocks
+                // deleting a list that a surviving configuration references.
+                // Checking here would refuse a list whose referencing
+                // configuration this plan deletes later (lower import phase).
                 await this.trustListService.remove(tenantId, id);
                 return;
             case "StatusList":
@@ -410,6 +516,7 @@ export class ConfigBundleApplyService {
     private async applyDocument(
         tenantId: string,
         document: ConfigDocument,
+        appliedAsIs: boolean,
     ): Promise<
         | {
               kind: "Client";
@@ -449,7 +556,8 @@ export class ConfigBundleApplyService {
                         resourceId(document),
                         client,
                     );
-                    if (generated) {
+                    // The secret was generated when this document was applied.
+                    if (generated && !appliedAsIs) {
                         const value =
                             await this.clientsProvider.rotateClientSecret(
                                 tenantId,
@@ -475,12 +583,12 @@ export class ConfigBundleApplyService {
                         secret,
                     });
                 }
-                return generated
+                return generated && secret
                     ? {
                           kind: "Client",
                           id: resourceId(document),
                           path: "/spec/secret",
-                          value: secret!,
+                          value: secret,
                       }
                     : undefined;
             }
@@ -494,7 +602,7 @@ export class ConfigBundleApplyService {
                 await this.applyKeyChain(tenantId, document);
                 return;
             case "RegistrarConfig":
-                await this.registrarConfigService.saveConfig(
+                await this.registrarConfigService.replaceConfig(
                     tenantId,
                     spec as any,
                 );
@@ -598,11 +706,7 @@ export class ConfigBundleApplyService {
                 resourceId(document),
                 {
                     usageType: spec.usageType,
-                    type:
-                        spec.keySource.keyChainType ??
-                        (spec.activeCertificate
-                            ? KeyChainType.InternalChain
-                            : KeyChainType.Standalone),
+                    type: appliedKeyChainType(spec) as KeyChainType,
                     description: spec.description,
                     kmsProvider:
                         spec.keySource.provider ?? spec.kmsProvider ?? "db",
@@ -612,45 +716,31 @@ export class ConfigBundleApplyService {
             return;
         }
         if (spec.keySource?.type === "private-jwk") {
-            if (spec.keySource.activeJwk) {
-                // Validate both key/certificate pairs before touching the live row.
-                for (const [jwk, certificate] of [
-                    [spec.keySource.jwk, spec.crt?.at(-1)],
-                    [spec.keySource.activeJwk, spec.activeCertificate],
-                ]) {
-                    const key = createPrivateKey({ key: jwk, format: "jwk" });
-                    if (
-                        !certificate ||
-                        !new X509Certificate(certificate).checkPrivateKey(key)
-                    ) {
-                        throw new BadRequestException(
-                            "Imported certificate does not match its private key",
-                        );
-                    }
-                }
+            if (isInternalChainWithPrivateKeys(spec)) {
+                // The plan blocks on these problems; check again before touching the live row.
+                const [problem] = internalChainProblems(spec);
+                if (problem) throw new BadRequestException(problem.message);
                 await this.keyChains.save({
                     id: resourceId(document),
                     tenantId,
-                    description: spec.description,
                     usageType: spec.usageType,
                     usage: KeyUsage.Sign,
-                    kmsProvider: "db",
+                    kmsProvider: appliedKmsProvider(spec),
                     externalKeyId: null as any,
                     rootExternalKeyId: null as any,
                     rootJwk: spec.keySource.jwk,
                     rootCertificate: spec.crt?.at(-1),
                     activeJwk: spec.keySource.activeJwk,
                     activeCertificate: spec.activeCertificate,
-                    rotationEnabled: spec.rotationPolicy?.enabled ?? true,
-                    rotationIntervalDays: spec.rotationPolicy?.intervalDays,
-                    certValidityDays: spec.rotationPolicy?.certValidityDays,
+                    ...keyChainSettingsColumns(spec),
                 });
                 return;
             }
-            await this.keyChainService.importKeyChain(
-                tenantId,
-                this.migrationService.unwrapForLegacyImporter(document) as any,
-            );
+            // The importer sets rotation itself but keeps an omitted description.
+            await this.keyChainService.importKeyChain(tenantId, {
+                ...this.migrationService.unwrapForLegacyImporter(document),
+                description: spec.description ?? null,
+            } as any);
             return;
         }
         if (spec.keySource?.type !== "external-reference") {
@@ -662,7 +752,6 @@ export class ConfigBundleApplyService {
         await this.keyChains.save({
             id: resourceId(document),
             tenantId,
-            description: spec.description,
             usageType: spec.usageType,
             usage: KeyUsage.Sign,
             kmsProvider: spec.keySource.provider,
@@ -682,11 +771,7 @@ export class ConfigBundleApplyService {
                 spec.keySource.externalKeyId,
             activeCertificate:
                 spec.activeCertificate ?? spec.crt?.join("\n") ?? "",
-            rotationEnabled: spec.rotationPolicy?.enabled ?? false,
-            rotationIntervalDays:
-                spec.rotationPolicy?.intervalDays ?? (null as any),
-            certValidityDays:
-                spec.rotationPolicy?.certValidityDays ?? (null as any),
+            ...keyChainSettingsColumns(spec),
         });
     }
 

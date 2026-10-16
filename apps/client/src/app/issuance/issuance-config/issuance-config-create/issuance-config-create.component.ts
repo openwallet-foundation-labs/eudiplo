@@ -1,4 +1,5 @@
 import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import {
   FormArray,
   FormControl,
@@ -24,7 +25,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { IssuanceConfig, UpdateIssuanceDto } from '@eudiplo/sdk-core';
+import {
+  IssuanceConfig,
+  TrustList,
+  trustListControllerGetAllTrustLists,
+  UpdateIssuanceDto,
+  WalletProviderTrustListRefDto,
+} from '@eudiplo/sdk-core';
 import {
   defaultAccessTokenLifetimeSeconds,
   IssuanceConfigService,
@@ -39,6 +46,18 @@ import { PresentationManagementService } from '../../../presentation/presentatio
 import { RegistrarService } from '../../../registrar/registrar.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { certificateBase64, certificateValidator } from '../../../utils/certificate-validator';
+
+/** A managed list of this tenant, or an external list given by URL and signer certificate. */
+type WalletProviderTrustListMode = 'managed' | 'external';
+
+/** A stored wallet provider trust list entry; older entries may hold the JWK as a JSON string. */
+type WalletProviderTrustListEntry = Omit<WalletProviderTrustListRefDto, 'verifierKey' | 'url'> & {
+  url?: string;
+  verifierKey?: Record<string, unknown> | string;
+};
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -59,6 +78,7 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
     MatTooltipModule,
     FlexLayoutModule,
     ReactiveFormsModule,
+    NgTemplateOutlet,
     RouterModule,
     MatSlideToggleModule,
     MatSlideToggle,
@@ -71,62 +91,62 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
   styleUrl: './issuance-config-create.component.scss',
 })
 export class IssuanceConfigCreateComponent implements OnInit {
-  private static readonly SPKI_PEM_PATTERN =
-    /^\s*-----BEGIN PUBLIC KEY-----[A-Za-z0-9+/=\s]+-----END PUBLIC KEY-----\s*$/;
-
-  private static jsonValidator(control: AbstractControl): ValidationErrors | null {
-    const value = control.value as string;
-    if (!value?.trim()) return null;
-    try {
-      JSON.parse(value);
-      return null;
-    } catch {
-      return { invalidJson: true };
-    }
-  }
-
   private trustListVerifierValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value as {
+      mode?: WalletProviderTrustListMode;
       trustListId?: string;
       url?: string;
-      verifierKey?: unknown;
-      verifierKeyPem?: unknown;
-      verifierX509Der?: unknown;
+      verifierCertificate?: string;
+      legacyVerifierKey?: unknown;
+      legacyVerifierKeyPem?: unknown;
     };
 
-    if (value?.trustListId?.trim()) return null;
+    if (value?.mode === 'managed') {
+      return value.trustListId?.trim() ? null : { missingTrustList: true };
+    }
     if (!value?.url?.trim()) return { missingUrl: true };
-    const keyStr = value?.verifierKey;
-    const hasVerifierKey = !!keyStr && typeof keyStr === 'string' && keyStr.trim().length > 0;
-    const hasVerifierKeyPem =
-      typeof value?.verifierKeyPem === 'string' && value.verifierKeyPem.trim().length > 0;
-    const hasVerifierX509Der =
-      !!value?.verifierX509Der &&
-      typeof value.verifierX509Der === 'string' &&
-      (value.verifierX509Der as string).trim().length > 0;
-
-    return hasVerifierKey || hasVerifierKeyPem || hasVerifierX509Der
-      ? null
-      : { missingVerifier: true };
+    if (value.verifierCertificate?.trim()) return null;
+    // Entries saved before only certificates were accepted keep their public key until replaced.
+    return value.legacyVerifierKey || value.legacyVerifierKeyPem ? null : { missingVerifier: true };
   }
 
-  private createWalletProviderTrustListGroup(value?: {
-    trustListId?: string;
-    url?: string;
-    verifierKey?: string;
-    verifierKeyPem?: string;
-    verifierX509Der?: string;
-  }): FormGroup {
+  /**
+   * Form group for one wallet provider trust list. The list signer is given as
+   * an X.509 certificate (PEM or Base64 DER); a public key stored on an
+   * existing entry is carried along unchanged until a certificate replaces it.
+   */
+  private createWalletProviderTrustListGroup(
+    entry?: WalletProviderTrustListEntry,
+    mode: WalletProviderTrustListMode = entry?.trustListId?.trim() ? 'managed' : 'external'
+  ): FormGroup {
+    let legacyVerifierKey: Record<string, unknown> | null = null;
+    if (entry?.verifierKey && typeof entry.verifierKey === 'object') {
+      legacyVerifierKey = entry.verifierKey;
+    } else if (typeof entry?.verifierKey === 'string' && entry.verifierKey.trim()) {
+      try {
+        legacyVerifierKey = JSON.parse(entry.verifierKey) as Record<string, unknown>;
+      } catch {
+        legacyVerifierKey = null;
+      }
+    }
     return this.fb.group(
       {
-        trustListId: [value?.trustListId ?? ''],
-        url: [value?.url ?? ''],
-        verifierKey: [value?.verifierKey ?? '', [IssuanceConfigCreateComponent.jsonValidator]],
-        verifierKeyPem: [
-          value?.verifierKeyPem ?? '',
-          [Validators.pattern(IssuanceConfigCreateComponent.SPKI_PEM_PATTERN)],
+        mode: [mode],
+        trustListId: [entry?.trustListId ?? ''],
+        url: [entry?.url ?? ''],
+        verifierCertificate: [
+          typeof entry?.verifierX509Der === 'string' ? entry.verifierX509Der : '',
+          [certificateValidator],
         ],
-        verifierX509Der: [value?.verifierX509Der ?? ''],
+        legacyVerifierKey: [legacyVerifierKey],
+        legacyVerifierKeyPem: [
+          typeof entry?.verifierKeyPem === 'string' && entry.verifierKeyPem.trim()
+            ? entry.verifierKeyPem
+            : null,
+        ],
+        storedVerifierX509Der: [
+          typeof entry?.verifierX509Der === 'string' ? entry.verifierX509Der : null,
+        ],
       },
       {
         validators: [this.trustListVerifierValidator.bind(this)],
@@ -134,28 +154,39 @@ export class IssuanceConfigCreateComponent implements OnInit {
     );
   }
 
+  /**
+   * Names the public key a stored trust list entry pins ("JWK", "PEM" or
+   * both), or null when there is none or a different certificate replaces it on save.
+   */
+  pinnedPublicKey(trustList: AbstractControl): string | null {
+    const { verifierCertificate, storedVerifierX509Der, legacyVerifierKey, legacyVerifierKeyPem } =
+      trustList.value;
+    const kinds = [legacyVerifierKey && 'JWK', legacyVerifierKeyPem && 'PEM'].filter(Boolean);
+    if (!kinds.length) return null;
+    return IssuanceConfigCreateComponent.newCertificate(verifierCertificate, storedVerifierX509Der)
+      ? null
+      : kinds.join(' and ');
+  }
+
+  /**
+   * The entered certificate as Base64 DER when it differs from the stored one,
+   * so it replaces any stored public key on save; otherwise undefined.
+   */
+  private static newCertificate(entered: unknown, stored: unknown): string | undefined {
+    const certificate =
+      typeof entered === 'string' && entered.trim() ? certificateBase64(entered) : undefined;
+    const previous = typeof stored === 'string' ? certificateBase64(stored) : undefined;
+    return certificate !== previous ? certificate : undefined;
+  }
+
   private createWalletProviderTrustListArray(entries?: any[]): FormArray {
     const trustLists = this.fb.array<FormGroup>([]);
     if (Array.isArray(entries)) {
       for (const entry of entries) {
-        if (typeof entry === 'string') {
-          trustLists.push(this.createWalletProviderTrustListGroup({ url: entry }));
-          continue;
-        }
-
         trustLists.push(
-          this.createWalletProviderTrustListGroup({
-            trustListId: entry?.trustListId ?? '',
-            url: entry?.url ?? '',
-            verifierKey:
-              typeof entry?.verifierKey === 'string'
-                ? entry.verifierKey
-                : entry?.verifierKey
-                  ? JSON.stringify(entry.verifierKey, null, 2)
-                  : '',
-            verifierKeyPem: entry?.verifierKeyPem ?? '',
-            verifierX509Der: entry?.verifierX509Der ?? '',
-          })
+          this.createWalletProviderTrustListGroup(
+            typeof entry === 'string' ? { url: entry } : entry
+          )
         );
       }
     }
@@ -187,17 +218,28 @@ export class IssuanceConfigCreateComponent implements OnInit {
     return value?.length
       ? value
           .map((entry: any) => {
-            if (entry?.trustListId?.trim()) return { trustListId: entry.trustListId.trim() };
-            let verifierKey: Record<string, unknown> | undefined;
-            if (typeof entry?.verifierKey === 'string' && entry.verifierKey.trim()) {
-              verifierKey = JSON.parse(entry.verifierKey) as Record<string, unknown>;
+            if (entry?.mode !== 'external' && entry?.trustListId?.trim()) {
+              return { trustListId: entry.trustListId.trim() };
             }
-
+            const url = entry?.url?.trim() || undefined;
+            const certificate =
+              typeof entry?.verifierCertificate === 'string' && entry.verifierCertificate.trim()
+                ? certificateBase64(entry.verifierCertificate)
+                : undefined;
+            // A new certificate replaces any stored public key; otherwise the entry is kept as loaded.
+            if (
+              IssuanceConfigCreateComponent.newCertificate(
+                entry?.verifierCertificate,
+                entry?.storedVerifierX509Der
+              )
+            ) {
+              return { url, verifierX509Der: certificate };
+            }
             return {
-              url: entry?.url?.trim() || undefined,
-              verifierKey,
-              verifierKeyPem: entry?.verifierKeyPem?.trim() || undefined,
-              verifierX509Der: entry?.verifierX509Der?.trim() || undefined,
+              url,
+              verifierKey: entry?.legacyVerifierKey ?? undefined,
+              verifierKeyPem: entry?.legacyVerifierKeyPem?.trim() || undefined,
+              verifierX509Der: certificate,
             };
           })
           .filter((entry: any) => !!entry.trustListId || !!entry.url)
@@ -210,6 +252,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
   stepError = '';
   loadingConfig = true;
   loadError = '';
+  trustLists: TrustList[] = [];
+  trustListsLoading = false;
+  trustListsLoaded = false;
+  trustListsError = '';
   readonly stepNames = ['Identity', 'Wallet access', 'Trust', 'Review'];
   expandedSections = new Set<string>();
   expandedServers = new Set<AbstractControl>();
@@ -398,6 +444,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.loadPresentationConfigs();
       void this.loadConfigForEdit();
       void this.loadRegistrarDefaults();
+      void this.loadTrustLists();
     }, 0);
   }
 
@@ -438,10 +485,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.snackBar.open('Loaded privacy policy and support URI from registrar defaults', 'Close', {
         duration: 2500,
       });
-    } catch {
-      this.snackBar.open('Failed to load registrar defaults', 'Close', {
-        duration: 3000,
-      });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getHttpErrorMessage(error, 'Failed to load registrar defaults')
+      );
     }
   }
 
@@ -484,8 +532,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
       this.guidedMode =
         !config.display?.length || this.route.snapshot.queryParamMap?.get('setup') === 'true';
       if (!this.displays.length) this.addDisplay();
-    } catch {
-      this.loadError = 'Could not load issuer settings. Retry before making changes.';
+    } catch (error) {
+      this.loadError = `${asSentence(getApiErrorMessage(error, 'Could not load issuer settings'))} Retry before making changes.`;
     } finally {
       this.loadingConfig = false;
     }
@@ -603,30 +651,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
     await this.yieldToUi();
 
     // Load wallet provider trust lists
-    const walletTrustListsArray = this.form.get('walletProviderTrustLists') as FormArray;
-    walletTrustListsArray.clear();
-    if (config.walletProviderTrustLists && Array.isArray(config.walletProviderTrustLists)) {
-      for (const entry of config.walletProviderTrustLists as any[]) {
-        if (typeof entry === 'string') {
-          walletTrustListsArray.push(this.createWalletProviderTrustListGroup({ url: entry }));
-          continue;
-        }
-
-        walletTrustListsArray.push(
-          this.createWalletProviderTrustListGroup({
-            trustListId: entry?.trustListId ?? '',
-            url: entry?.url ?? '',
-            verifierKey:
-              entry?.verifierKey && typeof entry.verifierKey === 'object'
-                ? JSON.stringify(entry.verifierKey, null, 2)
-                : '',
-            verifierKeyPem: typeof entry?.verifierKeyPem === 'string' ? entry.verifierKeyPem : '',
-            verifierX509Der:
-              typeof entry?.verifierX509Der === 'string' ? entry.verifierX509Der : '',
-          })
-        );
-      }
-    }
+    this.form.setControl(
+      'walletProviderTrustLists',
+      this.createWalletProviderTrustListArray(config.walletProviderTrustLists as any[])
+    );
 
     await this.yieldToUi();
 
@@ -806,7 +834,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
                 upstream: {
                   issuer: server.chained?.issuer,
                   clientId: server.chained?.clientId,
-                  clientSecret: server.chained?.clientSecret,
+                  // Shown as <redacted> when stored, which keeps it; empty means no secret.
+                  clientSecret: server.chained?.clientSecret || undefined,
                   scopes: server.chained?.scopes,
                 },
               };
@@ -882,7 +911,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
     try {
       issuanceDto = this.buildConfigurationPayload();
     } catch {
-      this.stepError = 'Check the JSON in your trust settings.';
+      this.stepError = 'Check the highlighted fields in Trust.';
       this.activeStep = 2;
       return;
     }
@@ -894,10 +923,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
           this.snackBar.open(`Configuration saved successfully`, 'Close', { duration: 3000 });
           this.router.navigate(['../'], { relativeTo: this.route });
         },
-        (error: string) => {
-          this.snackBar.open(`Failed to save configuration: ${error}`, 'Close', {
-            duration: 3000,
-          });
+        (error: unknown) => {
+          openErrorSnackBar(
+            this.snackBar,
+            getApiErrorMessage(error, 'Failed to save configuration', { allIssues: true })
+          );
         }
       )
       .finally(() => {
@@ -1117,14 +1147,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
     return this.authorizationServers.at(index).get('walletProviderTrustLists') as FormArray;
   }
 
-  addAuthorizationServerWalletProviderTrustList(index: number): void {
-    this.getAuthorizationServerWalletProviderTrustLists(index).push(
-      this.createWalletProviderTrustListGroup()
-    );
-  }
-
-  removeAuthorizationServerWalletProviderTrustList(index: number, trustListIndex: number): void {
-    this.getAuthorizationServerWalletProviderTrustLists(index).removeAt(trustListIndex);
+  addAuthorizationServerWalletProviderTrustList(
+    index: number,
+    mode: WalletProviderTrustListMode
+  ): void {
+    this.addTrustListEntry(this.getAuthorizationServerWalletProviderTrustLists(index), mode);
   }
 
   moveAuthorizationServer(index: number, direction: 'up' | 'down'): void {
@@ -1180,12 +1207,65 @@ export class IssuanceConfigCreateComponent implements OnInit {
     this.trustAnchors.removeAt(index);
   }
 
-  addWalletProviderTrustList(): void {
-    this.walletProviderTrustLists.push(this.createWalletProviderTrustListGroup());
+  addWalletProviderTrustList(mode: WalletProviderTrustListMode): void {
+    this.addTrustListEntry(this.walletProviderTrustLists, mode);
   }
 
-  removeWalletProviderTrustList(index: number): void {
-    this.walletProviderTrustLists.removeAt(index);
+  private addTrustListEntry(trustLists: FormArray, mode: WalletProviderTrustListMode): void {
+    trustLists.push(this.createWalletProviderTrustListGroup(undefined, mode));
+    if (mode === 'managed') void this.loadTrustLists();
+  }
+
+  /** True when `trustLists` has a managed entry, which needs the tenant's lists. */
+  hasManagedEntry(trustLists: FormArray): boolean {
+    return trustLists.controls.some((entry) => entry.get('mode')?.value === 'managed');
+  }
+
+  removeTrustListEntry(trustLists: FormArray, index: number): void {
+    trustLists.removeAt(index);
+  }
+
+  /** The control `name` of a trust list entry, for the shared entry template. */
+  trustListControl(trustList: AbstractControl, name: string): FormControl {
+    return trustList.get(name) as FormControl;
+  }
+
+  /** The tenant's trust lists that name a wallet provider, the only ones a wallet attestation can match. */
+  get walletProviderTrustListOptions(): TrustList[] {
+    return this.trustLists.filter((list) =>
+      list.entityConfig?.some((entity) => entity['providerType'] === 'wallet-provider')
+    );
+  }
+
+  /**
+   * Why a stored managed list ID is not among the options, or null when it is
+   * or nothing is selected. The select shows the ID with this note, so a
+   * stored reference stays visible while the lists load or after they failed.
+   */
+  managedTrustListNote(id: string | null | undefined): string | null {
+    if (!id) return null;
+    if (!this.trustListsLoaded) return 'lists not loaded';
+    if (this.walletProviderTrustListOptions.some((list) => list.id === id)) return null;
+    return this.trustLists.some((list) => list.id === id) ? 'no wallet provider' : 'not found';
+  }
+
+  async loadTrustLists(): Promise<void> {
+    if (this.trustListsLoading || this.trustListsLoaded) return;
+    this.trustListsLoading = true;
+    this.trustListsError = '';
+    try {
+      this.trustLists = await this.fetchTrustLists();
+      this.trustListsLoaded = true;
+    } catch (error) {
+      this.trustListsError = `${asSentence(getApiErrorMessage(error, 'Could not load the trust lists of this tenant'))} Selected lists are kept; retry or add an external trust list.`;
+    } finally {
+      this.trustListsLoading = false;
+    }
+  }
+
+  /** Overridden in tests. */
+  protected fetchTrustLists(): Promise<TrustList[]> {
+    return trustListControllerGetAllTrustLists().then((response) => response.data ?? []);
   }
 
   private markFormGroupTouched(): void {
@@ -1203,7 +1283,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
     try {
       currentConfig = this.buildConfigurationPayload();
     } catch {
-      this.stepError = 'Fix invalid trust-list JSON before opening JSON view.';
+      this.stepError = 'Fix the highlighted settings before opening JSON View.';
       return;
     }
 

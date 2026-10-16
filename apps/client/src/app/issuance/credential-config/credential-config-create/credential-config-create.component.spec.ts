@@ -390,3 +390,31 @@ describe('CredentialConfigCreateComponent', () => {
     expect(flat[1].path).toEqual(['nationalities', null]);
   });
 });
+
+describe('CredentialConfigCreateComponent editing', () => {
+  it('hides the form and saves nothing when the configuration to edit cannot be loaded', async () => {
+    const update = vi.fn();
+    const component = new CredentialConfigCreateComponent(
+      {
+        getConfig: vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' }),
+        updateConfiguration: update,
+        saveConfiguration: update,
+      } as any,
+      { navigate: vi.fn() } as any,
+      { snapshot: { params: { id: 'pid' } } } as any,
+      { open: vi.fn() } as any,
+      {} as any,
+      { loadConfigurations: vi.fn().mockResolvedValue([]) } as any,
+      { getConfig: vi.fn().mockResolvedValue(null) } as any,
+      { getTenantId: () => 'tenant' } as any
+    );
+
+    component.ngOnInit();
+    await vi.waitFor(() => expect(component.loadingConfig).toBe(false));
+
+    expect(component.create).toBe(false);
+    expect(component.loadError).toBe('Failed to load credential configuration: Forbidden resource');
+    component.onSubmit();
+    expect(update).not.toHaveBeenCalled();
+  });
+});

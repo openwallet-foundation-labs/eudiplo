@@ -5,6 +5,7 @@ import {
     PrimaryColumn,
     UpdateDateColumn,
 } from "typeorm";
+import { EncryptedJsonTransformer } from "../../../../../../platform/data-encryption/index.js";
 import {
     type ChainedAsSession,
     ChainedAsSessionStatus,
@@ -126,18 +127,22 @@ export class ChainedAsSessionEntity implements ChainedAsSession {
 
     /**
      * ID token claims received from upstream OIDC (for user info).
+     * Encrypted at rest - contains personal information. The column stays
+     * `json` and holds the ciphertext as a JSON string.
      */
-    @Column("json", { nullable: true })
+    @Column("json", { nullable: true, transformer: EncryptedJsonTransformer })
     upstreamIdTokenClaims?: Record<string, unknown>;
 
     /**
      * Access token claims received from upstream OIDC.
+     * Encrypted at rest - may contain personal information.
      */
-    @Column("json", { nullable: true })
+    @Column("json", { nullable: true, transformer: EncryptedJsonTransformer })
     upstreamAccessTokenClaims?: Record<string, unknown>;
 
     /**
-     * Authorization code we issue to the wallet (after upstream callback).
+     * SHA-256 hash of the authorization code we issue to the wallet (after
+     * upstream callback), see `hashAuthorizationCode`.
      */
     @Column("varchar", { nullable: true })
     authorizationCode?: string;
@@ -155,7 +160,8 @@ export class ChainedAsSessionEntity implements ChainedAsSession {
     accessTokenJti?: string;
 
     /**
-     * Refresh token issued to the wallet (if refresh tokens are enabled).
+     * SHA-256 hash of the refresh token issued to the wallet (if refresh
+     * tokens are enabled), see `hashRefreshToken`.
      */
     @Column("varchar", { nullable: true })
     refreshToken?: string;

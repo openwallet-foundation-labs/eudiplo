@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SessionData } from "../domain/session-data.js";
+import { SessionStatus } from "../domain/session-state.js";
 import type { SessionRepository } from "../ports/session.repository.js";
 import { SessionNotFound } from "./session-errors.js";
 import { SessionStore } from "./session-store.js";
@@ -22,6 +23,9 @@ function createStore(
         updateUnconsumedForTenant: vi.fn().mockResolvedValue(true),
         consumeRequestUri: vi.fn().mockResolvedValue(true),
         listForTenant: vi.fn(),
+        countForTenant: vi.fn().mockResolvedValue([]),
+        topFailureCodesForTenant: vi.fn().mockResolvedValue([]),
+        lastUpdatedForTenant: vi.fn().mockResolvedValue(null),
         deleteForTenant: vi.fn().mockResolvedValue(undefined),
         findCredentialOffer: vi.fn(),
         consumeCredentialOffer: vi.fn(),
@@ -96,6 +100,61 @@ describe("SessionStore", () => {
             id: "session-1",
             tenantId: "tenant-1",
         });
+    });
+
+    it.each([
+        [SessionStatus.Active, false, ["issuance"], false],
+        [SessionStatus.Fetched, false, ["issuance"], false],
+        [SessionStatus.Active, true, ["issuance"], true],
+        [SessionStatus.Completed, false, ["issuance"], true],
+        [SessionStatus.Active, false, ["presentation"], true],
+        [SessionStatus.Active, false, [], true],
+    ] as const)(
+        "getForReader finds a %s issuance session with consumed %s and hideOpen %j: %s",
+        async (status, consumed, hideOpen, found) => {
+            const { store, repository } = createStore({
+                findForTenant: vi
+                    .fn()
+                    .mockResolvedValue({ ...session, status, consumed }),
+            });
+
+            const read = store.getForReader(
+                "tenant-1",
+                "session-1",
+                "issuance",
+                hideOpen,
+            );
+
+            if (found) await expect(read).resolves.toMatchObject({ status });
+            else await expect(read).rejects.toBeInstanceOf(SessionNotFound);
+            expect(repository.findForTenant).toHaveBeenCalledWith(
+                "tenant-1",
+                "session-1",
+                "issuance",
+            );
+        },
+    );
+
+    it("getForReader hides an open presentation session by its requestId", async () => {
+        const { store } = createStore({
+            findForTenant: vi.fn().mockResolvedValue({
+                ...session,
+                requestId: "age-check",
+                status: SessionStatus.Fetched,
+                consumed: false,
+            }),
+        });
+
+        await expect(
+            store.getForReader("tenant-1", "session-1", undefined, [
+                "presentation",
+            ]),
+        ).rejects.toBeInstanceOf(SessionNotFound);
+        await expect(
+            store.getForReader("tenant-1", "session-1", undefined, [
+                "issuance",
+            ]),
+        ).resolves.toMatchObject({ requestId: "age-check" });
     });
 
     it("rejects an absent session ID without querying", async () => {
@@ -224,5 +283,79 @@ describe("SessionStore", () => {
             totalPages: 0,
         });
         expect(repository.listForTenant).not.toHaveBeenCalled();
+    });
+
+    it("counts both types for an unscoped caller", async () => {
+        const lastPresentation = new Date("2026-10-10T08:00:00Z");
+        const { store, repository } = createStore({
+            countForTenant: vi.fn().mockResolvedValue([
+                { type: "issuance", status: SessionStatus.Active, count: 2 },
+                {
+                    type: "presentation",
+                    status: SessionStatus.Failed,
+                    count: 4,
+                },
+            ]),
+            topFailureCodesForTenant: vi.fn(async (_tenant, { type }) =>
+                type === "presentation"
+                    ? [{ code: "invalid_proof", count: 4 }]
+                    : [],
+            ),
+            lastUpdatedForTenant: vi.fn(async (_tenant, { type }) =>
+                type === "presentation" ? lastPresentation : null,
+            ),
+        });
+
+        const stats = await store.statsForTenant("tenant-a");
+
+        expect(stats.issuance).toMatchObject({
+            total: 2,
+            byStatus: { active: 2, failed: 0 },
+            failureCodes: [],
+            lastCompletedAt: null,
+        });
+        expect(stats.presentation).toMatchObject({
+            total: 4,
+            byStatus: { active: 0, failed: 4 },
+            failureCodes: [{ code: "invalid_proof", count: 4 }],
+            lastCompletedAt: lastPresentation,
+        });
+        expect(repository.countForTenant).toHaveBeenCalledExactlyOnceWith(
+            "tenant-a",
+            { type: undefined },
+        );
+        for (const type of ["issuance", "presentation"])
+            expect(repository.lastUpdatedForTenant).toHaveBeenCalledWith(
+                "tenant-a",
+                { type, status: SessionStatus.Completed },
+            );
+    });
+
+    it("counts only the scoped type, within the creation time range", async () => {
+        const { store, repository } = createStore();
+        const range = {
+            createdFrom: new Date("2026-10-10T00:00:00Z"),
+            createdTo: new Date("2026-10-10T23:59:59Z"),
+        };
+
+        const stats = await store.statsForTenant(
+            "tenant-a",
+            "presentation",
+            range,
+        );
+
+        expect(Object.keys(stats)).toEqual(["presentation"]);
+        const scoped = { ...range, type: "presentation" };
+        expect(repository.countForTenant).toHaveBeenCalledExactlyOnceWith(
+            "tenant-a",
+            scoped,
+        );
+        expect(
+            repository.topFailureCodesForTenant,
+        ).toHaveBeenCalledExactlyOnceWith("tenant-a", scoped, 10);
+        expect(repository.lastUpdatedForTenant).toHaveBeenCalledExactlyOnceWith(
+            "tenant-a",
+            { ...scoped, status: SessionStatus.Completed },
+        );
     });
 });

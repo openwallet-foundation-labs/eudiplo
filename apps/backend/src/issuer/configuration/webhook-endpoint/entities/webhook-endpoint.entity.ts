@@ -5,6 +5,7 @@ import {
 } from "@nestjs/swagger";
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entities/tenant.entity.js";
+import { encryptedJsonPaths } from "../../../../platform/data-encryption/encrypted-column.transformer.js";
 import {
     WebHookAuthConfigHeader,
     WebHookAuthConfigNone,
@@ -14,9 +15,10 @@ import {
  * A Webhook Endpoint is a reusable notification target that receives
  * fire-and-forget event callbacks (e.g. credential_accepted / credential_failed).
  *
- * Webhook Endpoints are configured once per tenant and can be
- * referenced by credential configurations via `webhookEndpointId` or
- * per-offer via `webhookEndpointId` on the offer request.
+ * Webhook Endpoints are configured once per tenant and referenced via
+ * `webhookEndpointId` by presentation configurations and credential offer
+ * requests. Issuance notifications go to the endpoint of the offer; the field
+ * of the same name on a credential configuration is stored but not used.
  */
 @Entity()
 export class WebhookEndpointEntity {
@@ -51,6 +53,7 @@ export class WebhookEndpointEntity {
             { $ref: getSchemaPath(WebHookAuthConfigHeader) },
         ],
     })
-    @Column("json")
+    // The API key is encrypted at rest.
+    @Column("json", { transformer: encryptedJsonPaths("config.value") })
     auth!: WebHookAuthConfigNone | WebHookAuthConfigHeader;
 }

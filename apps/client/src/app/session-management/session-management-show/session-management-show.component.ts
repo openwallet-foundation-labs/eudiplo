@@ -20,6 +20,7 @@ import {
 } from '../cancel-session-dialog/cancel-session-dialog.component';
 import {
   isCancelConflict,
+  isPresentationSession,
   isCancellable,
   SessionManagementService,
   type SessionLogEntry,
@@ -27,9 +28,17 @@ import {
 import { GrafanaLinkService } from '../../services/grafana-link.service';
 import { JwtService } from '../../services/jwt.service';
 import { CredentialStatusCardComponent } from '../credential-status/credential-status-card.component';
-import { HttpClient } from '@angular/common/http';
+import {
+  CREDENTIAL_STATUS_CHANGER_ROLES,
+  CREDENTIAL_STATUS_READER_ROLES,
+  maySessionChange,
+  sessionOfferRole,
+} from '../session-roles';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { decodeJwt } from 'jose';
+import { getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 @Component({
   selector: 'app-session-management-show',
   imports: [
@@ -63,6 +72,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
    * Check if this session can be recreated as a new offer
    */
   canRecreateOffer(): boolean {
+    if (!this.session || !this.jwtService.hasRole(sessionOfferRole(this.session))) return false;
     if (this.isIssuanceSession()) {
       return !!this.session?.credentialPayload;
     }
@@ -102,10 +112,23 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     private jwtService: JwtService
   ) {}
 
-  /** Changing credential status is an issuer action, like on the backend. */
-  canManageCredentialStatus(): boolean {
+  /** Credential status is issuer data, like on the backend. */
+  canReadCredentialStatus(): boolean {
+    return this.isIssuanceSession() && this.jwtService.hasRole(CREDENTIAL_STATUS_READER_ROLES);
+  }
+
+  /** Revoking, suspending and reinstating needs credentials:status or issuance:manage. */
+  canChangeCredentialStatus(): boolean {
+    return this.jwtService.hasRole(CREDENTIAL_STATUS_CHANGER_ROLES);
+  }
+
+  /**
+   * Whether the backend returns the session's offer or request: only to
+   * callers that may cancel the session (see `maySessionChange`).
+   */
+  canSeeOffer(): boolean {
     return (
-      this.isIssuanceSession() && this.jwtService.hasRole(['issuance:offer', 'issuance:manage'])
+      !!this.session && maySessionChange((roles) => this.jwtService.hasRole(roles), this.session)
     );
   }
 
@@ -113,7 +136,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   /** Only offers and requests a wallet has neither redeemed nor finished can be cancelled. */
   canCancel(): boolean {
-    return !!this.session && isCancellable(this.session);
+    return !!this.session && isCancellable(this.session) && this.canSeeOffer();
   }
 
   cancelSession(): void {
@@ -137,21 +160,20 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
           this.snackBar.open('Offer cancelled', 'Close', { duration: 3000 });
         } catch (error) {
           console.error('Error cancelling session:', error);
-          this.snackBar.open(
-            isCancelConflict(error)
-              ? 'The session could not be cancelled, it is no longer pending'
-              : 'The session could not be cancelled, please try again',
-            'Close',
-            {
-              duration: 4000,
-              panelClass: ['error-snackbar'],
-            }
-          );
+          openErrorSnackBar(this.snackBar, this.cancelErrorMessage(error), 'Close', {
+            panelClass: ['error-snackbar'],
+          });
           await this.loadSession(session.id);
         } finally {
           this.cancelling = false;
         }
       });
+  }
+
+  private cancelErrorMessage(error: unknown): string {
+    return isCancelConflict(error)
+      ? 'The session could not be cancelled, it is no longer pending'
+      : getApiErrorMessage(error, 'The session could not be cancelled');
   }
 
   async ngOnInit(): Promise<void> {
@@ -175,9 +197,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
     } catch (error) {
       console.error('Error loading session:', error);
-      this.snackBar.open('Failed to load session', 'Close', {
-        duration: 3000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to load session'));
       this.router.navigate(['../'], { relativeTo: this.route });
     } finally {
       this.loading = false;
@@ -271,11 +291,11 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       await this.loadSession(this.session.id);
     } catch (error) {
       console.error('DC API error:', error);
-      this.snackBar.open(
-        `DC API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        'Close',
-        { duration: 5000 }
-      );
+      openErrorSnackBar(this.snackBar, dcApiErrorMessage(error));
+      // A rejected response ends the session; its status says why.
+      if (error instanceof HttpErrorResponse && error.status === 400) {
+        await this.loadSession(this.session.id);
+      }
     }
   }
 
@@ -448,7 +468,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Helper to check if this is an issuance session that might have a QR code
   isIssuanceSession(): boolean {
-    return !this.session?.requestId;
+    return !isPresentationSession(this.session);
   }
 
   // Get the offer URI if available in session data
@@ -499,5 +519,31 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     if (!detail) return null;
     const traceId = detail['traceId'] ?? detail['trace_id'];
     return typeof traceId === 'string' ? traceId : null;
+  }
+}
+
+/**
+ * Message for a failed Digital Credentials API presentation. When the verifier
+ * rejects the wallet's response, it answers 400 with no message, or with a
+ * redirect URI whose `error_description` says why.
+ */
+function dcApiErrorMessage(error: unknown): string {
+  if (error instanceof HttpErrorResponse && error.status === 400) {
+    const body = error.error as { redirect_uri?: unknown; message?: unknown } | null;
+    const description =
+      typeof body?.redirect_uri === 'string' ? errorDescription(body.redirect_uri) : null;
+    if (description) return `The verifier rejected the presentation: ${description}`;
+    if (typeof body?.message !== 'string') {
+      return 'The verifier rejected the presentation; the session status shows why.';
+    }
+  }
+  return getHttpErrorMessage(error, 'DC API error');
+}
+
+function errorDescription(redirectUri: string): string | null {
+  try {
+    return new URL(redirectUri, window.location.href).searchParams.get('error_description');
+  } catch {
+    return null;
   }
 }

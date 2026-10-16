@@ -10,12 +10,17 @@ import type {
     SessionSummary,
     SessionType,
 } from "../domain/session-list.js";
-
 import type {
     SessionLifecycleContext,
     SessionStateUpdate,
     SessionStatus,
 } from "../domain/session-state.js";
+import type {
+    MAX_FAILURE_CODE_LENGTH,
+    SessionCountFilter,
+    SessionFailureCodeCount,
+    SessionTypeStatusCount,
+} from "../domain/session-stats.js";
 
 export const SESSION_REPOSITORY = Symbol("SESSION_REPOSITORY");
 
@@ -71,16 +76,18 @@ export interface SessionRepository {
     ): Promise<boolean>;
     /** Internal flow correlation only; never use an untrusted management request ID. */
     findByIdForInternalFlow(id: string): Promise<SessionData | null>;
-    /** Wallet nonce first, then legacy session-ID fallback for existing wallet URLs. */
+    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
     findForWalletRequest(nonce: string): Promise<SessionData | null>;
     findIso18013Session(id: string): Promise<SessionData | null>;
+    /** Session holding this code hash (only the hash of a code is stored). */
     findByAuthorizationCode(
         tenantId: string,
-        code: string,
+        codeHash: string,
     ): Promise<SessionData | null>;
+    /** Session holding this refresh token hash (only the hash is stored). */
     findByRefreshToken(
         tenantId: string,
-        token: string,
+        refreshTokenHash: string,
     ): Promise<SessionData | null>;
     findByRequestUri(
         tenantId: string,
@@ -105,6 +112,29 @@ export interface SessionRepository {
         tenantId: string,
         query: SessionListQuery,
     ): Promise<{ items: SessionSummary[]; total: number }>;
+    /** The tenant's session counts per type and status; empty ones are omitted. */
+    countForTenant(
+        tenantId: string,
+        filter: SessionCountFilter,
+    ): Promise<SessionTypeStatusCount[]>;
+    /**
+     * The `limit` most frequent failure codes of the tenant's failed sessions of
+     * one type, most frequent first. Sessions without a code are omitted, and
+     * codes are cut to {@link MAX_FAILURE_CODE_LENGTH} characters.
+     */
+    topFailureCodesForTenant(
+        tenantId: string,
+        filter: SessionCountFilter & { type: SessionType },
+        limit: number,
+    ): Promise<SessionFailureCodeCount[]>;
+    /** Last update of the tenant's most recently updated session of this type and status. */
+    lastUpdatedForTenant(
+        tenantId: string,
+        filter: SessionCountFilter & {
+            type: SessionType;
+            status: SessionStatus;
+        },
+    ): Promise<Date | null>;
     /**
      * Missing sessions, sessions owned by another tenant and, with `type`,
      * sessions of the other type are all no-ops.

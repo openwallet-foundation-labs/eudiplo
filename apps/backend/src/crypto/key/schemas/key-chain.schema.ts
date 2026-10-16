@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { KEY_CHAIN_TYPES } from "../domain/key-chain-import-type.js";
 import { KeyUsageType } from "../types/key-usage-type.js";
 
 export const RotationPolicyCreateSchema = z
@@ -11,7 +12,9 @@ export const RotationPolicyCreateSchema = z
             .min(1)
             .max(3650)
             .optional()
-            .describe("Rotation interval in days."),
+            .describe(
+                "Rotation interval in days. Required when `enabled` is true.",
+            ),
         certValidityDays: z
             .number()
             .min(1)
@@ -21,17 +24,21 @@ export const RotationPolicyCreateSchema = z
                 "Certificate validity period in days for generated leaf certificates.",
             ),
     })
+    .refine((policy) => !policy.enabled || policy.intervalDays !== undefined, {
+        message: "intervalDays is required when rotation is enabled.",
+        path: ["intervalDays"],
+    })
     .describe("Rotation policy used when creating key chains.")
     .strict();
+
+const KeyChainTypeSchema = z.enum(KEY_CHAIN_TYPES);
 
 export const KeyChainCreateSchema = z
     .object({
         usageType: z
             .enum(KeyUsageType)
             .describe("Key usage category for the key chain."),
-        type: z
-            .enum(["standalone", "internalChain"])
-            .describe("Key chain mode."),
+        type: KeyChainTypeSchema.describe("Key chain mode."),
         description: z
             .string()
             .optional()
@@ -102,6 +109,9 @@ export const KeyChainImportSchema = z
         usageType: z
             .enum(KeyUsageType)
             .describe("Key usage category for the imported key chain."),
+        type: KeyChainTypeSchema.optional().describe(
+            "Key chain type. `standalone`: `key` is the signing key and `crt` its chain, leaf first. `internalChain`: `key` is a CA key and the last `crt` entry its CA certificate (created if `crt` is omitted); the import generates a new signing key with a certificate issued by it. Without `type`, `key` is a CA key only if `rotationPolicy.enabled` is true and `crt` is not a single self-signed certificate that is not a CA.",
+        ),
         crt: z
             .array(z.string())
             .optional()
@@ -161,7 +171,7 @@ const PortableKeySourceSchema = z.discriminatedUnion("type", [
     z
         .object({
             type: z.literal("regenerate"),
-            keyChainType: z.enum(["standalone", "internalChain"]).optional(),
+            keyChainType: KeyChainTypeSchema.optional(),
         })
         .strict(),
 ]);
@@ -179,6 +189,9 @@ const PortableKeyChainSpecSchema = z
         id: z.string().optional(),
         description: z.string().optional(),
         usageType: z.enum(KeyUsageType),
+        type: KeyChainTypeSchema.optional().describe(
+            "Key chain type. For a `private-jwk` key source without `activeJwk`, `standalone` makes `jwk` the signing key and `crt` its chain, leaf first; `internalChain` makes `jwk` a CA key and the last `crt` entry its CA certificate (created if `crt` is omitted), and the import generates a new signing key with a certificate issued by it. Without `type`, `jwk` is a CA key only if `rotationPolicy.enabled` is true and `crt` is not a single self-signed certificate that is not a CA. For `regenerate`, it is the type of the new key chain and must equal `keySource.keyChainType` if both are set. For the other key sources, it must match the key chain they describe.",
+        ),
         keySource: PortableKeySourceSchema,
         crt: z.array(z.string()).optional(),
         activeCertificate: z
@@ -200,7 +213,7 @@ const ConfigDocumentMetadataSchema = z
 export const KeyChainConfigFileSchema = z.union([
     z.strictObject({
         $schema: z.literal(
-            "https://eudiplo.dev/schemas/v1/KeyChainConfigFile.schema.json",
+            "https://eudiplo.dev/schemas/v2/KeyChainConfigFile.schema.json",
         ),
         metadata: ConfigDocumentMetadataSchema,
         spec: PortableKeyChainSpecSchema,

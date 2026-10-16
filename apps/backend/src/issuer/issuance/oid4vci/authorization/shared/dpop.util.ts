@@ -15,7 +15,7 @@ import { describeLibraryError } from "../domain/token-errors.js";
  */
 const DPOP_PROOF_FRESHNESS = {
     maxProofAgeSeconds: 300,
-    allowedClockSkewSeconds: 60,
+    allowedSkewInSeconds: 60,
 } as const;
 
 type DpopProofVerificationOptions = NonNullable<
@@ -30,7 +30,7 @@ type DpopProofVerificationOptions = NonNullable<
 export function dpopProofExpiresAt(iat: number | undefined, now: Date): Date {
     const windowMs =
         (DPOP_PROOF_FRESHNESS.maxProofAgeSeconds +
-            DPOP_PROOF_FRESHNESS.allowedClockSkewSeconds) *
+            DPOP_PROOF_FRESHNESS.allowedSkewInSeconds) *
         1000;
     const issuedAtMs =
         typeof iat === "number" && Number.isFinite(iat)
@@ -50,7 +50,7 @@ export function dpopProofVerification(
 ): Required<
     Pick<
         DpopProofVerificationOptions,
-        "maxProofAgeSeconds" | "allowedClockSkewSeconds" | "assertJtiUniqueness"
+        "maxProofAgeSeconds" | "allowedSkewInSeconds" | "assertJtiUniqueness"
     >
 > {
     return {

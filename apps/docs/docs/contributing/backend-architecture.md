@@ -121,7 +121,7 @@ Placement rules: put protocol and business behavior in its feature directory; pu
 ### A management endpoint
 
 1. Add the handler to the feature controller. Controllers are served under the global `/api` prefix, so `@Controller("session")` becomes `/api/session`.
-2. Protect it with `@Secured([Role.…])` (`auth/secure.decorator.ts`, roles in `auth/roles/role.enum.ts`) and take the tenant from `@Token()`. Never trust a tenant id from the request body.
+2. Protect it with `@Secured([Role.…])` (`auth/secure.decorator.ts`, roles in `auth/roles/role.enum.ts`) and take the tenant from `@Token()`. Never trust a tenant id from the request body. One listed role is enough; `@Secured([…], { match: "all" })` requires every role. A handler's `@Secured` replaces the controller's roles instead of adding to them, so list every role the handler needs.
 3. Validate input with a DTO and describe it with Swagger decorators (`@ApiTags`, `@ApiOperation`, `@ApiResponse`); the OpenAPI spec at `/api/docs-json` and the SDK are generated from them.
 4. Put the logic in the owning service or use case, not in the controller.
 5. Add unit tests and an E2E test (`apps/backend/test/<area>/*.e2e-spec.ts`), then regenerate the SDK with the backend running (`pnpm gen:sdk`) and commit the result.
@@ -145,7 +145,7 @@ A pure source move of an entity needs no migration. Migrations run on startup, s
 2. Read the value once into typed settings in the module; do not inject `ConfigService` into core code.
 3. The [environment variable reference](../reference/environment-variables.md) is generated from this schema at docs build time (`<ConfigTable group="…" />`); a new group needs a section there.
 4. If the variable is required, add a placeholder to `.env.example`; CI runs `pnpm check:env-example`.
-5. A switch that turns off a check of the normal flow is named `SKIP_<CHECK>`, defaults to `false` and goes into `platform/config/skip-validation.schema.ts`, so it is logged on startup.
+5. A switch that turns off a check of the normal flow is named `SKIP_<CHECK>`, defaults to `false` and goes into `platform/config/skip-validation.schema.ts` with a `disables` meta, so the startup warning names the protection it turns off.
 
 ### An adapter or format
 

@@ -390,6 +390,34 @@ export const getSignJwtCallback = (privateJwks: Jwk[]): SignJwtCallback => {
 };
 
 /**
+ * Creates a client with `roles` in the tenant of `authToken` and returns an
+ * access token of that client.
+ */
+export async function clientToken(
+    app: INestApplication,
+    authToken: string,
+    clientId: string,
+    roles: Role[],
+): Promise<string> {
+    const client = await request(app.getHttpServer())
+        .post("/client")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({ clientId, roles })
+        .expect(201);
+    const response = await request(app.getHttpServer())
+        .post("/api/oauth2/token")
+        .trustLocalhost()
+        .send({
+            client_id: clientId,
+            client_secret: client.body.clientSecret,
+            grant_type: "client_credentials",
+        })
+        .expect(201);
+    return response.body.access_token as string;
+}
+
+/**
  * Creates a tenant and returns the access token for a client.
  * @param app
  * @param clientId
@@ -402,6 +430,7 @@ export async function getToken(
     clientId: string,
     clientSecret: string,
     tenantId = "root",
+    extraRoles: Role[] = [],
 ) {
     // Get JWT token using client credentials
     const tokenResponse = await request(app.getHttpServer())
@@ -430,6 +459,7 @@ export async function getToken(
                 Role.Issuances,
                 Role.PresentationRequest,
                 Role.Presentations,
+                ...extraRoles,
             ],
         })
         .then((res) => res.body.client);
@@ -507,8 +537,14 @@ export interface IssuanceTestContext {
 /**
  * Sets up a complete test application with all issuance configurations.
  * This is a shared setup for all issuance-related e2e tests.
+ * @param extraRoles - Roles of the tenant client besides the issuance and
+ * presentation roles, for example to grant them to other clients
  */
-export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
+export async function setupIssuanceTestApp({
+    extraRoles = [],
+}: {
+    extraRoles?: Role[];
+} = {}): Promise<IssuanceTestContext> {
     // Delete the database
     rmSync("../../tmp/service.db", { force: true });
 
@@ -528,7 +564,13 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
     await app.init();
     await app.listen(3000);
 
-    const authToken = await getToken(app, clientId, clientSecret);
+    const authToken = await getToken(
+        app,
+        clientId,
+        clientSecret,
+        "root",
+        extraRoles,
+    );
 
     const configFolder = resolve(__dirname + "/fixtures");
 
@@ -685,6 +727,18 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
 
     return { app, authToken, clientId, clientSecret };
 }
+
+/**
+ * `trusted_authorities` of a DCQL credential query that accepts the test
+ * issuer (attestation key chain), listed in the fixture trust list
+ * `haip/trust-lists/pid-tl.json`.
+ */
+export const FIXTURE_TRUSTED_AUTHORITIES = [
+    {
+        type: "etsi_tl" as const,
+        values: [{ trustListId: "580831bc-ef11-43f4-a3be-a2b6bf1b29a3" }],
+    },
+];
 
 /**
  * Shared test context returned by setupPresentationTestApp
@@ -965,6 +1019,14 @@ export function createTestFetch(
             headers: response.headers,
         };
     };
+}
+
+/** The wallet nonce in the `request_uri` of an OID4VP request URI. */
+export function walletNonceOf(uri: string): string {
+    const requestUri = new URL(uri).searchParams.get("request_uri") ?? "";
+    const match = /\/presentations\/([^/]+)\/oid4vp\//.exec(requestUri);
+    if (!match) throw new Error(`No wallet nonce in ${uri}`);
+    return match[1];
 }
 
 /**

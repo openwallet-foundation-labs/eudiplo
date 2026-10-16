@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as x509 from "@peculiar/x509";
+import { KeyChainUpdateDto } from "../dto/key-chain-update.dto.js";
 import { KeyChainEntity } from "../entities/key-chain.entity.js";
 import { KeyChainService } from "../key-chain.service.js";
 import { KeyUsageType } from "../types/key-usage-type.js";
@@ -258,25 +259,30 @@ export class CertService {
     /**
      * Add an external certificate to an existing key chain.
      * Used for storing certificates obtained from external sources (e.g., registrar).
+     * The key chain keeps its description, which users select it by;
+     * `defaultDescription` is only set on a key chain without one.
      */
     async addCertificate(
         tenantId: string,
         options: {
             crt: string[];
             keyId: string;
-            description?: string;
+            defaultDescription?: string;
         },
     ): Promise<string> {
-        const { crt, keyId, description } = options;
+        const { crt, keyId, defaultDescription } = options;
 
-        // Get the existing key chain
-        const keyChain = await this.keyChainService.getEntity(tenantId, keyId);
-
-        // Update the key chain with the new certificate
-        await this.keyChainService.update(tenantId, keyId, {
-            activeCertificate: crt.join("\n"),
-            description: description || keyChain.description,
-        });
+        const update: KeyChainUpdateDto = { activeCertificate: crt.join("\n") };
+        if (defaultDescription) {
+            const keyChain = await this.keyChainService.getEntity(
+                tenantId,
+                keyId,
+            );
+            if (!keyChain.description?.trim()) {
+                update.description = defaultDescription;
+            }
+        }
+        await this.keyChainService.update(tenantId, keyId, update);
 
         this.logger.log(
             `[${tenantId}] Added certificate to key chain ${keyId}`,

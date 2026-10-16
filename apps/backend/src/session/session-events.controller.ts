@@ -6,7 +6,7 @@ import { Secured } from "../auth/secure.decorator.js";
 import { Token, TokenPayload } from "../auth/token.decorator.js";
 import { SessionStore } from "./application/session-store.js";
 import { SessionEventsService } from "./session-events.service.js";
-import { sessionScope } from "./session-scope.js";
+import { readOnlySessionTypes, sessionReadScope } from "./session-scope.js";
 
 /**
  * Controller for Server-Sent Events (SSE) based session status updates.
@@ -29,7 +29,7 @@ import { sessionScope } from "./session-scope.js";
  * ```
  */
 @ApiTags("Session Events")
-@Secured([Role.IssuanceOffer, Role.PresentationRequest])
+@Secured([Role.IssuanceOffer, Role.PresentationRequest, Role.SessionsRead])
 @Controller("session")
 export class SessionEventsController {
     private readonly logger = new Logger(SessionEventsController.name);
@@ -96,10 +96,11 @@ export class SessionEventsController {
     ): Promise<Observable<MessageEvent>> {
         const tenantId = token.entity!.id;
         // Throws SessionNotFound (404) for unknown and out-of-scope sessions.
-        const session = await this.sessionStore.getForTenant(
+        const session = await this.sessionStore.getForReader(
             tenantId,
             id,
-            sessionScope(token),
+            sessionReadScope(token),
+            readOnlySessionTypes(token),
         );
         this.logger.debug(`Client subscribed to session ${id} events`);
 

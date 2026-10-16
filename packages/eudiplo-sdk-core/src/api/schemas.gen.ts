@@ -110,7 +110,11 @@ export const RoleDtoSchema = {
                 'users:manage',
                 'tenants:manage',
                 'tenant:admin',
-                'registrar:manage'
+                'registrar:manage',
+                'audit:read',
+                'sessions:read',
+                'credentials:status',
+                'keys:manage'
             ],
             type: 'string',
             description: 'OAuth2 roles',
@@ -147,10 +151,6 @@ export const TokenResponseSchema = {
         access_token: {
             type: 'string',
             description: 'Bearer access token'
-        },
-        refresh_token: {
-            type: 'string',
-            description: 'Optional refresh token'
         },
         token_type: {
             enum: [
@@ -339,8 +339,7 @@ export const StatusListConfigSchema = {
                 2,
                 4,
                 8
-            ],
-            default: 1
+            ]
         },
         ttl: {
             type: 'number',
@@ -350,13 +349,11 @@ export const StatusListConfigSchema = {
         },
         immediateUpdate: {
             type: 'boolean',
-            description: 'If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.',
-            default: false
+            description: 'If true, regenerate JWT immediately on status changes. If false, use lazy regeneration on TTL expiry. If not set, uses global STATUS_IMMEDIATE_UPDATE.'
         },
         enableAggregation: {
             type: 'boolean',
-            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).',
-            default: true
+            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. If not set, uses global STATUS_ENABLE_AGGREGATION.'
         }
     }
 } as const;
@@ -395,7 +392,11 @@ export const ClientEntitySchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             },
             description: 'Roles assigned to the client'
@@ -469,7 +470,7 @@ export const TenantResponseDtoSchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'
@@ -515,7 +516,7 @@ export const CreateTenantDtoSchema = {
         },
         roles: {
             type: 'array',
-            description: 'Optional default role assignments for the tenant.',
+            description: 'Roles of the tenant\'s admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.',
             items: {
                 type: 'string',
                 enum: [
@@ -527,7 +528,11 @@ export const CreateTenantDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -668,7 +673,7 @@ export const TenantCreateResponseDtoSchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'
@@ -821,6 +826,7 @@ export const AuditLogResponseDtoSchema = {
                 'config_bundle_imported',
                 'config_client_secret_generated',
                 'config_resource_detached',
+                'config_resource_reattached',
                 'session_cancelled'
             ],
             type: 'string'
@@ -906,7 +912,11 @@ export const UpdateClientDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -977,7 +987,11 @@ export const CreateClientDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             },
             description: 'Roles assigned to the client. At least one role is required.'
@@ -1054,10 +1068,6 @@ export const RegistrarConfigResponseDtoSchema = {
             description: 'The OIDC client ID for the registrar',
             example: 'registrar-client'
         },
-        clientSecret: {
-            type: 'string',
-            description: 'The OIDC client secret (optional, for confidential clients)'
-        },
         username: {
             type: 'string',
             description: 'The username for OIDC login',
@@ -1079,6 +1089,11 @@ export const RegistrarConfigResponseDtoSchema = {
             type: 'boolean',
             description: 'Indicates whether a password is configured (actual password is never returned)',
             example: true
+        },
+        hasClientSecret: {
+            type: 'boolean',
+            description: 'Indicates whether a client secret is configured (actual client secret is never returned)',
+            example: false
         }
     },
     required: [
@@ -1086,7 +1101,8 @@ export const RegistrarConfigResponseDtoSchema = {
         'oidcUrl',
         'clientId',
         'username',
-        'hasPassword'
+        'hasPassword',
+        'hasClientSecret'
     ]
 } as const;
 
@@ -1216,6 +1232,23 @@ export const CreateAccessCertificateDtoSchema = {
     additionalProperties: false
 } as const;
 
+export const CreateAccessKeyChainDtoSchema = {
+    type: 'object',
+    properties: {
+        description: {
+            description: 'Human-readable description for the new key chain.',
+            type: 'string',
+            example: 'Registrar access certificate'
+        },
+        kmsProvider: {
+            description: 'KMS provider for the new key chain (defaults to the configured default provider).',
+            type: 'string',
+            example: 'db'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ManagedUserDtoSchema = {
     type: 'object',
     properties: {
@@ -1248,7 +1281,11 @@ export const ManagedUserDtoSchema = {
                     'users:manage',
                     'tenants:manage',
                     'tenant:admin',
-                    'registrar:manage'
+                    'registrar:manage',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -1295,7 +1332,11 @@ export const CreateUserDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -1335,7 +1376,11 @@ export const UpdateUserDtoSchema = {
                     'clients:manage',
                     'users:manage',
                     'registrar:manage',
-                    'tenant:admin'
+                    'tenant:admin',
+                    'audit:read',
+                    'sessions:read',
+                    'credentials:status',
+                    'keys:manage'
                 ]
             }
         },
@@ -2546,8 +2591,27 @@ export const PublicKeyInfoDtoSchema = {
         },
         crv: {
             type: 'string',
-            description: 'Curve (for EC keys).',
+            description: 'Curve (for EC and OKP keys).',
             example: 'P-256'
+        },
+        x: {
+            type: 'string',
+            description: 'Public key coordinate (base64url): x coordinate for EC keys, public key for OKP keys.',
+            example: 'pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho'
+        },
+        y: {
+            type: 'string',
+            description: 'y coordinate (base64url, for EC keys).',
+            example: 'rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o'
+        },
+        n: {
+            type: 'string',
+            description: 'Modulus (base64url, for RSA keys).'
+        },
+        e: {
+            type: 'string',
+            description: 'Public exponent (base64url, for RSA keys).',
+            example: 'AQAB'
         }
     },
     required: [
@@ -2777,8 +2841,16 @@ export const KeyChainExportDtoSchema = {
             type: 'string',
             description: 'Usage type for this key chain.'
         },
+        type: {
+            enum: [
+                'standalone',
+                'internalChain'
+            ],
+            type: 'string',
+            description: 'Key chain type. For internalChain, key and crt are the root CA key and certificate; the import generates a new signing key.'
+        },
         key: {
-            description: 'The key in JWK format (EC). Contains the private key for database-held keys and only the public key for external KMS providers.',
+            description: 'The key in JWK format (EC): the root CA key of an internal chain, otherwise the signing key. Contains the private key for database-held keys and only the public key for external KMS providers.',
             allOf: [
                 {
                     $ref: '#/components/schemas/ExportEcJwk'
@@ -2786,7 +2858,7 @@ export const KeyChainExportDtoSchema = {
             ]
         },
         crt: {
-            description: 'Certificate chain in PEM format (leaf first, then intermediates/CA).',
+            description: 'Certificate chain in PEM format: the root CA certificate of an internal chain, otherwise the chain leaf first, then intermediates/CA.',
             type: 'array',
             items: {
                 type: 'string'
@@ -2808,6 +2880,7 @@ export const KeyChainExportDtoSchema = {
     required: [
         'id',
         'usageType',
+        'type',
         'key'
     ]
 } as const;
@@ -2828,7 +2901,7 @@ export const RotationPolicyCreateDtoSchema = {
             example: 90
         },
         certValidityDays: {
-            description: 'Certificate validity in days. Defaults to rotation interval + 30 days grace period.',
+            description: 'Certificate validity in days. Defaults to 365.',
             type: 'number',
             minimum: 1,
             maximum: 3650,
@@ -2883,7 +2956,7 @@ export const KeyChainCreateDtoSchema = {
                     description: 'Enable or disable automatic key rotation.'
                 },
                 intervalDays: {
-                    description: 'Rotation interval in days.',
+                    description: 'Rotation interval in days. Required when `enabled` is true.',
                     type: 'number',
                     minimum: 1,
                     maximum: 3650
@@ -2970,7 +3043,7 @@ export const RotationPolicyImportDtoSchema = {
     properties: {
         enabled: {
             type: 'boolean',
-            description: 'Whether rotation is enabled. When true, the imported key becomes a root CA signer.',
+            description: 'Whether rotation is enabled. Without type, true makes the imported key a root CA signer, unless crt is a single self-signed certificate that is not a CA.',
             default: false
         },
         intervalDays: {
@@ -3060,8 +3133,16 @@ export const KeyChainImportDtoSchema = {
             ],
             description: 'Usage type for this key chain.'
         },
+        type: {
+            description: 'Key chain type. standalone: key is the signing key and crt its chain, leaf first. internalChain: key is a CA key and the last crt entry its CA certificate (created if crt is omitted); a new signing key is generated with a certificate issued by it. Without type, key is a CA key only if rotationPolicy.enabled is true and crt is not a single self-signed certificate that is not a CA. The export writes it.',
+            type: 'string',
+            enum: [
+                'standalone',
+                'internalChain'
+            ]
+        },
         crt: {
-            description: 'Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. When rotationPolicy.enabled=true, the last certificate in the chain is treated as the root CA certificate.',
+            description: 'Certificate chain (leaf first). Each entry may be PEM or base64-encoded DER; values are normalized to PEM during import. For an internal chain (see type), the last certificate in the chain is treated as the root CA certificate.',
             items: {
                 type: 'string'
             },
@@ -3072,7 +3153,7 @@ export const KeyChainImportDtoSchema = {
             type: 'string'
         },
         rotationPolicy: {
-            description: 'Rotation policy. When enabled, the imported key becomes a root CA signer and a new leaf key is generated. If crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key.',
+            description: 'Rotation policy. Without type, enabling it makes the imported key a root CA signer and a new leaf key is generated; if crt is provided, the selected root CA certificate must have CA=true and its public key must match the imported private key. Exception: if crt is a single self-signed certificate that is not a CA, as in the export of a standalone key chain, the imported key stays the signing key and is rotated like a standalone key chain. With rotation enabled, intervalDays defaults to 90 and certValidityDays to 365; without it, no intervals are stored.',
             properties: {
                 enabled: {
                     type: 'boolean',
@@ -3109,7 +3190,7 @@ export const RotationPolicyUpdateDtoSchema = {
     type: 'object',
     properties: {
         enabled: {
-            description: 'Whether automatic key rotation is enabled.',
+            description: 'Whether automatic key rotation is enabled. Enabling it needs intervalDays, in the request or already set on the key chain.',
             type: 'boolean'
         },
         intervalDays: {
@@ -3212,7 +3293,7 @@ export const TenantEntitySchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'
@@ -3463,1199 +3544,6 @@ export const UpdateAttributeProviderDtoSchema = {
                 }
             ],
             description: 'Authentication configuration for outbound provider requests.'
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const AuthorizeQueriesSchema = {
-    type: 'object',
-    properties: {
-        issuer_state: {
-            type: 'string'
-        },
-        response_type: {
-            type: 'string'
-        },
-        client_id: {
-            type: 'string'
-        },
-        redirect_uri: {
-            type: 'string'
-        },
-        resource: {
-            type: 'string'
-        },
-        scope: {
-            type: 'string'
-        },
-        code_challenge: {
-            type: 'string'
-        },
-        code_challenge_method: {
-            type: 'string'
-        },
-        dpop_jkt: {
-            type: 'string'
-        },
-        request_uri: {
-            type: 'string'
-        },
-        auth_session: {
-            type: 'string'
-        },
-        state: {
-            type: 'string'
-        },
-        authorization_details: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'array',
-                    items: {}
-                }
-            ],
-            description: 'RFC 9396 authorization details. When passed via\napplication/x-www-form-urlencoded (PAR) the value is a JSON string; when\npassed inside a signed request object it can already be an array.'
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const OfferRequestDtoSchema = {
-    type: 'object',
-    properties: {
-        response_type: {
-            anyOf: [
-                {
-                    type: 'string',
-                    const: 'uri'
-                },
-                {
-                    type: 'string',
-                    const: 'dc-api'
-                },
-                {
-                    type: 'string',
-                    const: 'iso-18013-7'
-                }
-            ],
-            description: 'The type of response expected for the offer request.',
-            enum: [
-                'uri',
-                'dc-api',
-                'iso-18013-7'
-            ],
-            examples: [
-                {
-                    value: 'qrcode'
-                }
-            ]
-        },
-        authorization_server: {
-            description: 'Authorization server id from issuer configuration. If omitted, the first enabled server is used.',
-            type: 'string',
-            example: 'issuer-built-in'
-        },
-        credentialClaims: {
-            description: 'Credential claims configuration per credential. Keys must match credentialConfigurationIds.',
-            type: 'object',
-            propertyNames: {
-                type: 'string'
-            },
-            additionalProperties: {
-                oneOf: [
-                    {
-                        type: 'object',
-                        properties: {
-                            type: {
-                                type: 'string',
-                                enum: [
-                                    'inline'
-                                ]
-                            },
-                            claims: {
-                                type: 'object',
-                                additionalProperties: true
-                            }
-                        },
-                        required: [
-                            'type',
-                            'claims'
-                        ]
-                    },
-                    {
-                        type: 'object',
-                        properties: {
-                            type: {
-                                type: 'string',
-                                enum: [
-                                    'attributeProvider'
-                                ]
-                            },
-                            attributeProviderId: {
-                                type: 'string'
-                            }
-                        },
-                        required: [
-                            'type',
-                            'attributeProviderId'
-                        ]
-                    },
-                    {
-                        type: 'object',
-                        properties: {
-                            type: {
-                                type: 'string',
-                                enum: [
-                                    'webhook'
-                                ]
-                            },
-                            webhook: {
-                                type: 'object',
-                                properties: {
-                                    url: {
-                                        type: 'string'
-                                    },
-                                    auth: {
-                                        type: 'object'
-                                    }
-                                },
-                                required: [
-                                    'url'
-                                ]
-                            }
-                        },
-                        required: [
-                            'type',
-                            'webhook'
-                        ]
-                    }
-                ]
-            },
-            example: {
-                citizen: {
-                    type: 'inline',
-                    claims: {
-                        given_name: 'John',
-                        family_name: 'Doe'
-                    }
-                }
-            }
-        },
-        offerLifetimeSeconds: {
-            description: 'Lifetime of this offer in seconds. Overrides offerLifetimeSeconds of the issuance configuration. Without both, the offer does not expire.',
-            type: 'number',
-            minimum: 1,
-            maximum: 9007199254740991,
-            example: 600
-        },
-        reference: {
-            description: 'Your own reference for this offer, e.g. an order or case id. Stored in plaintext, searchable in the session list, included in webhooks and kept when the session is anonymized. Must not contain personal data.',
-            type: 'string',
-            minLength: 1,
-            maxLength: 255,
-            example: 'order-4711'
-        },
-        flow: {
-            anyOf: [
-                {
-                    type: 'string',
-                    const: 'authorization_code'
-                },
-                {
-                    type: 'string',
-                    const: 'pre_authorized_code'
-                }
-            ],
-            description: 'The flow type for the offer request.',
-            enum: [
-                'authorization_code',
-                'pre_authorized_code'
-            ]
-        },
-        tx_code: {
-            description: 'Transaction code for pre-authorized code flow.',
-            type: 'string'
-        },
-        tx_code_description: {
-            description: 'Description for the transaction code (e.g., "Please enter the PIN sent to your email").',
-            type: 'string'
-        },
-        credentialConfigurationIds: {
-            items: {
-                type: 'string'
-            },
-            description: 'List of credential configuration ids to be included in the offer.',
-            type: 'array'
-        },
-        webhookEndpointId: {
-            description: 'ID of the webhook endpoint to notify about the status of the issuance process.',
-            type: 'string'
-        }
-    },
-    required: [
-        'response_type',
-        'flow',
-        'credentialConfigurationIds'
-    ],
-    additionalProperties: false
-} as const;
-
-export const WebHookAuthConfigNoneSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string',
-            const: 'none',
-            description: 'The type of authentication used for the webhook.',
-            enum: [
-                'none'
-            ]
-        }
-    },
-    required: [
-        'type'
-    ],
-    additionalProperties: false
-} as const;
-
-export const ApiKeyConfigSchema = {
-    type: 'object',
-    properties: {
-        headerName: {
-            type: 'string',
-            description: 'The name of the header where the API key will be sent.'
-        },
-        value: {
-            type: 'string',
-            description: 'The value of the API key to be sent in the header.'
-        }
-    },
-    required: [
-        'headerName',
-        'value'
-    ],
-    additionalProperties: false
-} as const;
-
-export const WebHookAuthConfigHeaderSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string',
-            const: 'apiKey',
-            description: 'The type of authentication used for the webhook.',
-            enum: [
-                'apiKey'
-            ]
-        },
-        config: {
-            properties: {
-                headerName: {
-                    type: 'string'
-                },
-                value: {
-                    type: 'string'
-                }
-            },
-            additionalProperties: false,
-            description: 'Configuration for API key authentication.\nThis is required if the type is \'apiKey\'.',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/ApiKeyConfig'
-                }
-            ]
-        }
-    },
-    required: [
-        'type',
-        'config'
-    ],
-    additionalProperties: false
-} as const;
-
-export const WebhookConfigSchema = {
-    type: 'object',
-    properties: {
-        auth: {
-            oneOf: [
-                {
-                    $ref: '#/components/schemas/WebHookAuthConfigNone'
-                },
-                {
-                    $ref: '#/components/schemas/WebHookAuthConfigHeader'
-                }
-            ],
-            description: 'Optional authentication configuration for the webhook.\nIf not provided, no authentication will be used.'
-        },
-        includeRawTokensFor: {
-            items: {
-                type: 'string'
-            },
-            description: 'List of credential IDs to include raw tokens for (e.g., [\'sca_credential\'])',
-            type: 'array'
-        },
-        url: {
-            type: 'string',
-            description: 'The URL to which the webhook will send notifications.'
-        }
-    },
-    required: [
-        'auth',
-        'url'
-    ],
-    additionalProperties: false
-} as const;
-
-export const TransactionDataSchema = {
-    type: 'object',
-    properties: {
-        type: {
-            type: 'string'
-        },
-        credential_ids: {
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        }
-    },
-    required: [
-        'type',
-        'credential_ids'
-    ]
-} as const;
-
-export const SessionSchema = {
-    type: 'object',
-    properties: {
-        status: {
-            description: 'Status of the session.',
-            enum: [
-                'active',
-                'fetched',
-                'completed',
-                'expired',
-                'failed',
-                'cancelled'
-            ],
-            type: 'string'
-        },
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the session.'
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the request was created.'
-        },
-        updatedAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp when the request was last updated.'
-        },
-        expiresAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'The timestamp after which a wallet can no longer redeem the offer or\npresentation request. Not set for offers without a lifetime.'
-        },
-        useDcApi: {
-            type: 'boolean',
-            description: 'Flag indicating whether to use the DC API for the presentation request.'
-        },
-        dcApiProtocol: {
-            type: 'string',
-            description: 'DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).\nNull/undefined means the standard OID4VP flow (useDcApi=false).'
-        },
-        browserOrigin: {
-            type: 'string',
-            description: 'Browser page origin recorded at offer time for BrowserHandover session transcript.\nUsed exclusively by the ISO 18013-7 Annex C flow.'
-        },
-        tenantId: {
-            type: 'string',
-            description: 'Tenant ID for multi-tenancy support.'
-        },
-        tenant: {
-            description: 'The tenant that owns this object.',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/TenantEntity'
-                }
-            ]
-        },
-        reference: {
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'Caller-provided reference of the offer, e.g. an order or case id of the\nintegrating system. Stored in plaintext and kept when the session is\nanonymized, so it must not contain personal data.'
-        },
-        authorization_code: {
-            type: 'string'
-        },
-        authorization_code_expires_at: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Expiration timestamp of the authorization code issued by the authorization endpoint.\nNot set for pre-authorized codes.'
-        },
-        dpop_jkt: {
-            type: 'string',
-            description: 'JWK thumbprint of the DPoP key the session\'s tokens are bound to.\nSet from the PAR request (DPoP header or `dpop_jkt`) or at token issuance.'
-        },
-        client_key_jkt: {
-            type: 'string',
-            description: 'JWK thumbprint of the client instance key (client attestation `cnf`)\nthe refresh token is bound to.'
-        },
-        refresh_token: {
-            type: 'string',
-            description: 'Refresh token for the session - used to obtain a new access token.'
-        },
-        refresh_token_expires_at: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Expiration timestamp for the refresh token.\nUsed to validate refresh_token grant requests.'
-        },
-        request_uri: {
-            type: 'string',
-            description: 'Request URI from the authorization request.'
-        },
-        request_uri_expires_at: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Expiration timestamp of the PAR request_uri. Set to the time of use once\nthe request_uri was redeemed, making it single-use.'
-        },
-        auth_queries: {
-            description: 'Authorization queries associated with the session.\nEncrypted at rest.',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/AuthorizeQueries'
-                }
-            ]
-        },
-        offer: {
-            description: 'Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.',
-            type: [
-                'object',
-                'null'
-            ]
-        },
-        offerUrl: {
-            type: 'string',
-            description: 'Offer URL for the credential offer.'
-        },
-        credentialPayload: {
-            description: 'Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/OfferRequestDto'
-                }
-            ]
-        },
-        credentialConfigurationIds: {
-            description: 'Credential configuration ids of the issuance offer. Stored in plaintext\n(unlike {@link credentialPayload}) so the session list can filter by them.',
-            type: [
-                'array',
-                'null'
-            ],
-            items: {
-                type: 'string'
-            }
-        },
-        webhookEndpointId: {
-            type: 'string',
-            description: 'ID of the webhook endpoint to notify about issuance status.'
-        },
-        notifications: {
-            description: 'Notifications associated with the session.',
-            type: 'array',
-            items: {
-                type: 'object'
-            }
-        },
-        requestId: {
-            type: 'string'
-        },
-        requestUrl: {
-            type: 'string',
-            description: 'The URL of the presentation auth request.'
-        },
-        requestObject: {
-            type: 'string',
-            description: 'Signed presentation auth request.'
-        },
-        responseEncryptionPrivateJwk: {
-            type: [
-                'object',
-                'null'
-            ],
-            description: 'Per-authorization-request private encryption key used to decrypt\nwallet responses. Encrypted at rest.'
-        },
-        credentials: {
-            description: 'Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.',
-            type: 'array',
-            items: {
-                type: 'object'
-            }
-        },
-        vp_nonce: {
-            type: 'string',
-            description: 'Nonce from the Verifiable Presentation request.'
-        },
-        clientId: {
-            type: 'string',
-            description: 'Client ID used in the OID4VP authorization request.'
-        },
-        walletNonce: {
-            type: 'string',
-            description: 'Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation.'
-        },
-        responseCode: {
-            type: 'string',
-            description: 'Cryptographic random code generated after successful VP Token processing.\nPer OID4VP spec Section 13.3, included in redirect_uri so only the legitimate\nfrontend (which receives the redirect) can confirm the session completed.'
-        },
-        responseUri: {
-            type: 'string',
-            description: 'Response URI used in the OID4VP authorization request.'
-        },
-        redirectUri: {
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'Redirect URI to which the user-agent should be redirected after the presentation is completed.'
-        },
-        parsedWebhook: {
-            description: 'Where to send the claims webhook response.',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/WebhookConfig'
-                }
-            ]
-        },
-        transaction_data: {
-            description: 'Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration.',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/TransactionData'
-            }
-        },
-        skewSeconds: {
-            type: 'number',
-            description: 'Per-session clock skew tolerance for presentation credential JWT time validation.'
-        },
-        externalIssuer: {
-            type: 'string'
-        },
-        authorizationServerId: {
-            type: 'string',
-            description: 'Identifier of the authorization server selected when this issuance session\nwas created. Required for deterministic mapping of external AS access\ntokens back to the correct issuance session.'
-        },
-        externalSubject: {
-            type: 'string',
-            description: 'The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS.'
-        },
-        errorReason: {
-            type: 'string',
-            description: 'Error reason if the session failed.\nStores the error message when status is \'failed\'.'
-        },
-        failureCode: {
-            type: 'string',
-            description: 'Machine-readable failure code when status is \'failed\' (e.g.\n`trust_chain_not_trusted`). Stable across credential and trust-list\nformats; consumers branch on this rather than parsing {@link errorReason}.'
-        },
-        outcome: {
-            type: [
-                'object',
-                'null'
-            ],
-            description: 'Structured verification outcome (success or failure, provenance and\ndiagnostics, per credential). Additive to {@link status} /\n{@link errorReason}; verbose detail stays in the session log only.'
-        },
-        txCodeFailedAttempts: {
-            type: 'number',
-            description: 'Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully.'
-        },
-        consumed: {
-            type: 'boolean',
-            description: 'Flag indicating whether the session offer has been consumed.\nPrevents replay attacks by ensuring each offer can only be used once.\nFor OID4VCI: set after successful token exchange.\nFor OID4VP: set after successful response validation.'
-        },
-        consumedAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Timestamp of the first consumption event for the session offer.\nFor OID4VCI this can be URI resolution or later flow completion.\nNull if no consumption event has happened yet.'
-        }
-    },
-    required: [
-        'status',
-        'id',
-        'createdAt',
-        'updatedAt',
-        'useDcApi',
-        'tenantId',
-        'tenant',
-        'notifications',
-        'txCodeFailedAttempts',
-        'consumed'
-    ]
-} as const;
-
-export const PaginatedSessionResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        items: {
-            description: 'The sessions for the current page.',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/Session'
-            }
-        },
-        total: {
-            type: 'number',
-            description: 'Total number of sessions matching the query'
-        },
-        page: {
-            type: 'number',
-            description: 'Current page number (1-based)'
-        },
-        pageSize: {
-            type: 'number',
-            description: 'Number of items per page'
-        },
-        totalPages: {
-            type: 'number',
-            description: 'Total number of pages'
-        }
-    },
-    required: [
-        'items',
-        'total',
-        'page',
-        'pageSize',
-        'totalPages'
-    ]
-} as const;
-
-export const CancelSessionDtoSchema = {
-    type: 'object',
-    properties: {
-        reason: {
-            type: 'string',
-            minLength: 1,
-            maxLength: 500,
-            description: 'Why the offer was cancelled. Stored in the audit logs and sent to the session webhook.',
-            example: 'sent to wrong recipient'
-        }
-    },
-    default: {},
-    additionalProperties: false
-} as const;
-
-export const SessionLogEntryResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Log entry ID'
-        },
-        sessionId: {
-            type: 'string',
-            description: 'Session ID'
-        },
-        timestamp: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Timestamp of the log entry'
-        },
-        level: {
-            type: 'string',
-            description: 'Log level',
-            enum: [
-                'info',
-                'warn',
-                'error'
-            ]
-        },
-        stage: {
-            type: 'string',
-            description: 'Flow stage'
-        },
-        message: {
-            type: 'string',
-            description: 'Log message'
-        },
-        detail: {
-            type: 'object',
-            additionalProperties: true,
-            description: 'Additional structured detail'
-        }
-    },
-    required: [
-        'id',
-        'sessionId',
-        'timestamp',
-        'level',
-        'message'
-    ]
-} as const;
-
-export const CredentialStatusDtoSchema = {
-    type: 'object',
-    properties: {
-        credentialConfigurationId: {
-            type: 'string',
-            description: 'Credential configuration the credential was issued for.'
-        },
-        statusListId: {
-            type: 'string',
-            description: 'ID of the status list holding the entry.'
-        },
-        index: {
-            type: 'number',
-            description: 'Index of the entry in the status list.'
-        },
-        status: {
-            type: 'number',
-            description: 'Current status: 0 = valid, 1 = revoked, 2 = suspended. Lists with more bits per entry can hold higher values.'
-        },
-        bits: {
-            type: 'number',
-            description: 'Bits per entry of the status list. Suspension (2) needs at least 2.',
-            enum: [
-                1,
-                2,
-                4,
-                8
-            ]
-        }
-    },
-    required: [
-        'credentialConfigurationId',
-        'statusListId',
-        'index',
-        'status',
-        'bits'
-    ]
-} as const;
-
-export const StatusUpdateDtoSchema = {
-    type: 'object',
-    properties: {
-        sessionId: {
-            type: 'string',
-            minLength: 1,
-            description: 'Session identifier used to locate credentials for status updates.'
-        },
-        credentialConfigurationId: {
-            type: 'string',
-            description: 'Optional credential configuration id. If omitted, all credentials linked to the session are updated.',
-            minLength: 1
-        },
-        status: {
-            type: 'integer',
-            minimum: 0,
-            maximum: 2,
-            description: 'New credential status: 0 = valid, 1 = revoked, 2 = suspended. The value must fit every status list the credentials use: suspension needs lists with at least 2 bits per entry, otherwise the request is rejected with 400 and no status is changed.'
-        }
-    },
-    required: [
-        'sessionId',
-        'status'
-    ],
-    additionalProperties: false
-} as const;
-
-export const UpdateSessionConfigDtoSchema = {
-    type: 'object',
-    properties: {
-        ttlSeconds: {
-            description: 'Time-to-live for sessions in seconds. Set to null to use global default.',
-            example: 86400,
-            minimum: 60,
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            type: 'integer',
-                            minimum: 60,
-                            maximum: 9007199254740991
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        cleanupMode: {
-            type: 'string',
-            enum: [
-                'full',
-                'anonymize'
-            ],
-            description: 'Cleanup mode: \'full\' deletes everything, \'anonymize\' keeps metadata but removes PII.',
-            default: 'full'
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const StatusListImportDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the status list'
-        },
-        credentialConfigurationId: {
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.',
-            example: 'org.iso.18013.5.1.mDL'
-        },
-        keyChainId: {
-            type: 'string',
-            description: 'Key chain ID to use for signing. Leave empty to use the tenant\'s default StatusList key chain.',
-            example: 'my-status-list-keychain'
-        },
-        capacity: {
-            type: 'number',
-            description: 'Capacity of the status list. If not provided, uses tenant or global defaults.',
-            example: 10000,
-            minimum: 100
-        },
-        bits: {
-            description: 'Bits per status value. If not provided, uses tenant or global defaults.',
-            enum: [
-                1,
-                2,
-                4,
-                8
-            ],
-            type: 'number',
-            example: 1
-        }
-    },
-    required: [
-        'id'
-    ]
-} as const;
-
-export const StatusListAggregationDtoSchema = {
-    type: 'object',
-    properties: {
-        status_lists: {
-            description: 'Array of status list token URIs',
-            example: [
-                'https://example.com/tenant-123/status-management/status-list/list-1',
-                'https://example.com/tenant-123/status-management/status-list/list-2'
-            ],
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        }
-    },
-    required: [
-        'status_lists'
-    ]
-} as const;
-
-export const UpdateStatusListConfigDtoSchema = {
-    type: 'object',
-    properties: {
-        capacity: {
-            description: 'The capacity of the status list. Set to null to reset to global default.',
-            example: 10000,
-            minimum: 100,
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            type: 'integer',
-                            minimum: 100,
-                            maximum: 9007199254740991
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        bits: {
-            description: 'Bits per status entry. Set to null to reset to global default.',
-            enum: [
-                1,
-                2,
-                4,
-                8
-            ],
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            anyOf: [
-                                {
-                                    type: 'number',
-                                    const: 1
-                                },
-                                {
-                                    type: 'number',
-                                    const: 2
-                                },
-                                {
-                                    type: 'number',
-                                    const: 4
-                                },
-                                {
-                                    type: 'number',
-                                    const: 8
-                                }
-                            ]
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        ttl: {
-            description: 'TTL in seconds for the status list JWT. Set to null to reset to global default.',
-            example: 3600,
-            minimum: 60,
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            type: 'integer',
-                            minimum: 60,
-                            maximum: 9007199254740991
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        immediateUpdate: {
-            description: 'If true, regenerate JWT on every status change. Set to null to reset to default (false).',
-            type: [
-                'boolean',
-                'null'
-            ]
-        },
-        enableAggregation: {
-            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).',
-            type: [
-                'boolean',
-                'null'
-            ]
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const StatusListResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for the status list',
-            example: '550e8400-e29b-41d4-a716-446655440000'
-        },
-        tenantId: {
-            type: 'string',
-            description: 'The tenant ID',
-            example: 'root'
-        },
-        credentialConfigurationId: {
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'Credential configuration ID this list is bound to. Null means shared.',
-            example: 'org.iso.18013.5.1.mDL'
-        },
-        keyChainId: {
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'Key chain ID used for signing. Null means using the tenant\'s default.',
-            example: 'my-status-list-keychain'
-        },
-        bits: {
-            description: 'Bits per status value',
-            enum: [
-                1,
-                2,
-                4,
-                8
-            ],
-            type: 'number',
-            example: 1
-        },
-        capacity: {
-            type: 'number',
-            description: 'Total capacity of the status list',
-            example: 10000
-        },
-        usedEntries: {
-            type: 'number',
-            description: 'Number of entries in use',
-            example: 150
-        },
-        availableEntries: {
-            type: 'number',
-            description: 'Number of available entries',
-            example: 9850
-        },
-        uri: {
-            type: 'string',
-            description: 'The public URI for this status list',
-            example: 'https://example.com/demo/status-management/status-list/550e8400-e29b-41d4-a716-446655440000'
-        },
-        createdAt: {
-            format: 'date-time',
-            type: 'string',
-            description: 'Creation timestamp',
-            example: '2024-01-15T10:30:00.000Z'
-        },
-        expiresAt: {
-            format: 'date-time',
-            type: [
-                'string',
-                'null'
-            ],
-            description: 'JWT expiration timestamp. Null if JWT has not been generated yet.',
-            example: '2024-01-15T11:30:00.000Z'
-        }
-    },
-    required: [
-        'id',
-        'tenantId',
-        'bits',
-        'capacity',
-        'usedEntries',
-        'availableEntries',
-        'uri',
-        'createdAt'
-    ]
-} as const;
-
-export const CreateStatusListDtoSchema = {
-    type: 'object',
-    properties: {
-        credentialConfigurationId: {
-            description: 'Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.',
-            type: 'string',
-            minLength: 1,
-            example: 'org.iso.18013.5.1.mDL'
-        },
-        keyChainId: {
-            description: 'Key chain ID to use for signing. Leave empty to use the tenant\'s default StatusList key chain.',
-            type: 'string',
-            minLength: 1,
-            example: 'my-status-list-keychain'
-        },
-        bits: {
-            description: 'Bits per status value. More bits allow more status states. Defaults to tenant configuration.',
-            anyOf: [
-                {
-                    type: 'number',
-                    const: 1
-                },
-                {
-                    type: 'number',
-                    const: 2
-                },
-                {
-                    type: 'number',
-                    const: 4
-                },
-                {
-                    type: 'number',
-                    const: 8
-                }
-            ],
-            enum: [
-                1,
-                2,
-                4,
-                8
-            ],
-            example: 1
-        },
-        capacity: {
-            description: 'Maximum number of credential status entries. Defaults to tenant configuration.',
-            type: 'number',
-            minimum: 1000,
-            maximum: 9007199254740991,
-            example: 100000
-        }
-    },
-    additionalProperties: false
-} as const;
-
-export const UpdateStatusListDtoSchema = {
-    type: 'object',
-    properties: {
-        credentialConfigurationId: {
-            description: 'Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.',
-            example: 'org.iso.18013.5.1.mDL',
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            type: 'string',
-                            minLength: 1
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        keyChainId: {
-            description: 'Key chain ID to use for signing. Set to null to use the tenant\'s default StatusList key chain.',
-            example: 'my-status-list-keychain',
-            anyOf: [
-                {
-                    anyOf: [
-                        {
-                            type: 'string',
-                            minLength: 1
-                        },
-                        {
-                            type: 'null'
-                        }
-                    ]
-                },
-                {
-                    type: 'null'
-                }
-            ]
         }
     },
     additionalProperties: false
@@ -4990,26 +3878,26 @@ export const SchemaUriEntrySchema = {
     type: 'object',
     properties: {
         credentialConfigId: {
+            description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
             type: 'string',
-            description: 'Credential config ID to resolve and upload its schema content. When set, uri can be omitted and is resolved server-side.',
             example: 'pid_de_credential_config'
         },
         format: {
+            description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
             type: 'string',
-            description: 'Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)',
             example: 'dc+sd-jwt'
         },
         uri: {
-            type: 'string',
-            description: 'URI pointing to the schema document for this format'
+            description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
+            type: 'string'
         },
         meta: {
+            description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
             type: 'object',
             propertyNames: {
                 type: 'string'
             },
-            additionalProperties: true,
-            description: 'Schema-format specific metadata (for example { vct: \'urn:example:vct\' } for dc+sd-jwt).'
+            additionalProperties: true
         }
     },
     additionalProperties: false
@@ -5019,24 +3907,25 @@ export const TrustAuthorityEntrySchema = {
     type: 'object',
     properties: {
         trustListId: {
-            type: 'string',
-            description: 'Trust list ID to resolve from the database. When set, frameworkType, value, and verificationMethod are derived automatically.'
+            description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
+            type: 'string'
         },
         frameworkType: {
+            description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
             type: 'string',
             enum: [
                 'aki',
                 'etsi_tl',
                 'openid_federation',
                 'x509'
-            ],
-            description: 'Trust framework type (ignored when trustListId is set)'
+            ]
         },
         value: {
-            type: 'string',
-            description: 'Trust list URI for etsi_tl or base64-encoded DER root certificate for x509 (ignored when trustListId is set)'
+            description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
+            type: 'string'
         },
         verificationMethod: {
+            description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
             anyOf: [
                 {
                     type: 'object',
@@ -5049,7 +3938,6 @@ export const TrustAuthorityEntrySchema = {
                     type: 'string'
                 }
             ],
-            description: 'Optional verification material for external trusted authorities (for example a JWK). Required for etsi_tl and omitted for x509 root certificate anchors. For internal trust-list URLs, EUDIPLO resolves verification material from the database.',
             oneOf: [
                 {
                     type: 'object',
@@ -5069,23 +3957,23 @@ export const SchemaMetaConfigSchema = {
     type: 'object',
     properties: {
         id: {
+            description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.',
             type: 'string',
-            description: 'Optional override for the schema ID (attestation identifier URI). When not set, derived from vct (dc+sd-jwt) or docType (mso_mdoc).',
             example: 'https://example.com/attestations/my-credential'
         },
         name: {
+            description: 'Human-readable name. Required when publishing; not needed for a link-only request.',
             type: 'string',
-            description: 'Human-readable name of the schema metadata entry. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.',
             example: 'German PID'
         },
         version: {
             type: 'string',
-            description: 'Schema version in SemVer format',
+            description: 'Schema version, for example `1.0.0`.',
             example: '1.0.0'
         },
         rulebookURI: {
+            description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.',
             type: 'string',
-            description: 'URI of the Attestation Rulebook. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.',
             example: 'https://example.com/rulebooks/my-credential/1.0.0.md'
         },
         attestationLoS: {
@@ -5096,7 +3984,7 @@ export const SchemaMetaConfigSchema = {
                 'iso_18045_enhanced-basic',
                 'iso_18045_basic'
             ],
-            description: 'Attestation Level of Security'
+            description: 'Attestation level of security.'
         },
         bindingType: {
             type: 'string',
@@ -5106,22 +3994,27 @@ export const SchemaMetaConfigSchema = {
                 'biometric',
                 'none'
             ],
-            description: 'Cryptographic binding type'
+            description: 'Cryptographic binding type.'
         },
         schemaURIs: {
+            description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
             items: {
                 type: 'object',
                 properties: {
                     credentialConfigId: {
+                        description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
                         type: 'string'
                     },
                     format: {
+                        description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
                         type: 'string'
                     },
                     uri: {
+                        description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
                         type: 'string'
                     },
                     meta: {
+                        description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
                         type: 'object',
                         propertyNames: {
                             type: 'string'
@@ -5131,17 +4024,19 @@ export const SchemaMetaConfigSchema = {
                 },
                 additionalProperties: false
             },
-            description: 'Schema URIs per attestation format. When omitted, the format is derived from the credential config format field.',
             type: 'array'
         },
         trustedAuthorities: {
+            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
             items: {
                 type: 'object',
                 properties: {
                     trustListId: {
+                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                         type: 'string'
                     },
                     frameworkType: {
+                        description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
                         type: 'string',
                         enum: [
                             'aki',
@@ -5151,9 +4046,11 @@ export const SchemaMetaConfigSchema = {
                         ]
                     },
                     value: {
+                        description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                         type: 'string'
                     },
                     verificationMethod: {
+                        description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
                         anyOf: [
                             {
                                 type: 'object',
@@ -5170,10 +4067,14 @@ export const SchemaMetaConfigSchema = {
                 },
                 additionalProperties: false
             },
-            description: 'Trust authorities for this attestation schema',
             type: 'array'
         }
     },
+    required: [
+        'version',
+        'attestationLoS',
+        'bindingType'
+    ],
     additionalProperties: false
 } as const;
 
@@ -5773,7 +4674,7 @@ export const CredentialConfigSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         webhookEndpoint: {
             $ref: '#/components/schemas/WebhookEndpointEntity'
@@ -5928,7 +4829,7 @@ export const CredentialConfigCreateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'
@@ -6076,7 +4977,7 @@ export const CredentialConfigUpdateSchema = {
                 'string',
                 'null'
             ],
-            description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
+            description: 'Not used for notifications: they go to the webhook endpoint of the offer.'
         },
         keyBinding: {
             type: 'boolean'
@@ -6425,6 +5326,25 @@ export const DCQLSchema = {
             }
         }
     }
+} as const;
+
+export const TransactionDataSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string'
+        },
+        credential_ids: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: [
+        'type',
+        'credential_ids'
+    ]
 } as const;
 
 export const RegistrationCertificatePurposeSchema = {
@@ -8963,6 +7883,79 @@ export const TrustListVersionSchema = {
     ]
 } as const;
 
+export const TrustListReferenceDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'PresentationConfig',
+                'CredentialConfig',
+                'IssuanceConfig'
+            ],
+            type: 'string',
+            description: 'Kind of configuration that references the trust list.'
+        },
+        id: {
+            type: 'string',
+            description: 'ID of the presentation or credential config. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the configuration; absent for configurations the caller may not read.'
+        }
+    },
+    required: [
+        'kind'
+    ]
+} as const;
+
+export const TrustListInUseDtoSchema = {
+    type: 'object',
+    properties: {
+        statusCode: {
+            type: 'number',
+            description: 'HTTP status code.',
+            example: 409
+        },
+        timestamp: {
+            type: 'string',
+            description: 'Time of the response.',
+            example: '2026-10-11T12:00:00.000Z'
+        },
+        path: {
+            type: 'string',
+            description: 'Path of the request.',
+            example: '/api/trust-list/pid-issuers'
+        },
+        code: {
+            enum: [
+                'TRUST_LIST_IN_USE'
+            ],
+            type: 'string',
+            description: 'Configurations still reference the trust list.'
+        },
+        message: {
+            type: 'string',
+            description: 'Names the referencing configurations the caller may read and counts the others.',
+            example: 'Trust list "pid-issuers" is still referenced by 1 presentation config ("pid") and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.'
+        },
+        references: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrustListReferenceDto'
+            }
+        }
+    },
+    required: [
+        'statusCode',
+        'timestamp',
+        'path',
+        'code',
+        'message',
+        'references'
+    ]
+} as const;
+
 export const TrustListCacheStatsDtoSchema = {
     type: 'object',
     properties: {
@@ -9018,6 +8011,1523 @@ export const CacheStatsResponseDtoSchema = {
     ]
 } as const;
 
+export const AuthorizeQueriesSchema = {
+    type: 'object',
+    properties: {
+        issuer_state: {
+            type: 'string'
+        },
+        response_type: {
+            type: 'string'
+        },
+        client_id: {
+            type: 'string'
+        },
+        redirect_uri: {
+            type: 'string'
+        },
+        resource: {
+            type: 'string'
+        },
+        scope: {
+            type: 'string'
+        },
+        code_challenge: {
+            type: 'string'
+        },
+        code_challenge_method: {
+            type: 'string'
+        },
+        dpop_jkt: {
+            type: 'string'
+        },
+        request_uri: {
+            type: 'string'
+        },
+        auth_session: {
+            type: 'string'
+        },
+        state: {
+            type: 'string'
+        },
+        authorization_details: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'array',
+                    items: {}
+                }
+            ],
+            description: 'RFC 9396 authorization details. When passed via\napplication/x-www-form-urlencoded (PAR) the value is a JSON string; when\npassed inside a signed request object it can already be an array.'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const OfferRequestDtoSchema = {
+    type: 'object',
+    properties: {
+        response_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    const: 'uri'
+                },
+                {
+                    type: 'string',
+                    const: 'dc-api'
+                },
+                {
+                    type: 'string',
+                    const: 'iso-18013-7'
+                }
+            ],
+            description: 'The type of response expected for the offer request.',
+            enum: [
+                'uri',
+                'dc-api',
+                'iso-18013-7'
+            ],
+            examples: [
+                {
+                    value: 'qrcode'
+                }
+            ]
+        },
+        authorization_server: {
+            description: 'Authorization server id from issuer configuration. If omitted, the first enabled server is used.',
+            type: 'string',
+            example: 'issuer-built-in'
+        },
+        credentialClaims: {
+            description: 'Credential claims configuration per credential. Keys must match credentialConfigurationIds.',
+            type: 'object',
+            propertyNames: {
+                type: 'string'
+            },
+            additionalProperties: {
+                oneOf: [
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {
+                                type: 'string',
+                                enum: [
+                                    'inline'
+                                ]
+                            },
+                            claims: {
+                                type: 'object',
+                                additionalProperties: true
+                            }
+                        },
+                        required: [
+                            'type',
+                            'claims'
+                        ]
+                    },
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {
+                                type: 'string',
+                                enum: [
+                                    'attributeProvider'
+                                ]
+                            },
+                            attributeProviderId: {
+                                type: 'string'
+                            }
+                        },
+                        required: [
+                            'type',
+                            'attributeProviderId'
+                        ]
+                    },
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {
+                                type: 'string',
+                                enum: [
+                                    'webhook'
+                                ]
+                            },
+                            webhook: {
+                                type: 'object',
+                                properties: {
+                                    url: {
+                                        type: 'string'
+                                    },
+                                    auth: {
+                                        type: 'object'
+                                    }
+                                },
+                                required: [
+                                    'url'
+                                ]
+                            }
+                        },
+                        required: [
+                            'type',
+                            'webhook'
+                        ]
+                    }
+                ]
+            },
+            example: {
+                citizen: {
+                    type: 'inline',
+                    claims: {
+                        given_name: 'John',
+                        family_name: 'Doe'
+                    }
+                }
+            }
+        },
+        offerLifetimeSeconds: {
+            description: 'Lifetime of this offer in seconds. Overrides offerLifetimeSeconds of the issuance configuration. Without both, the offer does not expire.',
+            type: 'number',
+            minimum: 1,
+            maximum: 9007199254740991,
+            example: 600
+        },
+        reference: {
+            description: 'Your own reference for this offer, e.g. an order or case id. Stored in plaintext, searchable in the session list, included in webhooks and kept when the session is anonymized. Must not contain personal data.',
+            type: 'string',
+            minLength: 1,
+            maxLength: 255,
+            example: 'order-4711'
+        },
+        flow: {
+            anyOf: [
+                {
+                    type: 'string',
+                    const: 'authorization_code'
+                },
+                {
+                    type: 'string',
+                    const: 'pre_authorized_code'
+                }
+            ],
+            description: 'The flow type for the offer request.',
+            enum: [
+                'authorization_code',
+                'pre_authorized_code'
+            ]
+        },
+        tx_code: {
+            description: 'Transaction code for pre-authorized code flow.',
+            type: 'string'
+        },
+        tx_code_description: {
+            description: 'Description for the transaction code (e.g., "Please enter the PIN sent to your email").',
+            type: 'string'
+        },
+        credentialConfigurationIds: {
+            items: {
+                type: 'string'
+            },
+            description: 'List of credential configuration ids to be included in the offer.',
+            type: 'array'
+        },
+        webhookEndpointId: {
+            description: 'ID of the webhook endpoint to notify about the status of the issuance process.',
+            type: 'string'
+        }
+    },
+    required: [
+        'response_type',
+        'flow',
+        'credentialConfigurationIds'
+    ],
+    additionalProperties: false
+} as const;
+
+export const WebHookAuthConfigNoneSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            const: 'none',
+            description: 'Disable authentication.',
+            enum: [
+                'none'
+            ]
+        }
+    },
+    required: [
+        'type'
+    ],
+    additionalProperties: false
+} as const;
+
+export const ApiKeyConfigSchema = {
+    type: 'object',
+    properties: {
+        headerName: {
+            type: 'string',
+            minLength: 1,
+            description: 'The header name used to send the API key.'
+        },
+        value: {
+            type: 'string',
+            minLength: 1,
+            description: 'The API key value.'
+        }
+    },
+    required: [
+        'headerName',
+        'value'
+    ],
+    additionalProperties: false
+} as const;
+
+export const WebHookAuthConfigHeaderSchema = {
+    type: 'object',
+    properties: {
+        type: {
+            type: 'string',
+            const: 'apiKey',
+            description: 'Use API key authentication.',
+            enum: [
+                'apiKey'
+            ]
+        },
+        config: {
+            properties: {
+                headerName: {
+                    type: 'string',
+                    minLength: 1,
+                    description: 'The header name used to send the API key.'
+                },
+                value: {
+                    type: 'string',
+                    minLength: 1,
+                    description: 'The API key value.'
+                }
+            },
+            additionalProperties: false,
+            description: 'API key authentication settings.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/ApiKeyConfig'
+                }
+            ]
+        }
+    },
+    required: [
+        'type',
+        'config'
+    ],
+    additionalProperties: false
+} as const;
+
+export const WebhookConfigSchema = {
+    type: 'object',
+    properties: {
+        auth: {
+            oneOf: [
+                {
+                    $ref: '#/components/schemas/WebHookAuthConfigNone'
+                },
+                {
+                    $ref: '#/components/schemas/WebHookAuthConfigHeader'
+                }
+            ],
+            description: 'Webhook authentication strategy.'
+        },
+        includeRawTokensFor: {
+            description: 'List of credential IDs to include raw tokens for (for example [\'sca_credential\']).',
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        url: {
+            type: 'string',
+            minLength: 1,
+            description: 'The URL to which the webhook will send notifications.'
+        }
+    },
+    required: [
+        'auth',
+        'url'
+    ],
+    additionalProperties: false
+} as const;
+
+export const SessionSchema = {
+    type: 'object',
+    properties: {
+        status: {
+            description: 'Status of the session.',
+            enum: [
+                'active',
+                'fetched',
+                'completed',
+                'expired',
+                'failed',
+                'cancelled'
+            ],
+            type: 'string'
+        },
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the session.'
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the request was created.'
+        },
+        updatedAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp when the request was last updated.'
+        },
+        expiresAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'The timestamp after which a wallet can no longer redeem the offer or\npresentation request. Not set for offers without a lifetime.'
+        },
+        useDcApi: {
+            type: 'boolean',
+            description: 'Flag indicating whether to use the DC API for the presentation request.'
+        },
+        dcApiProtocol: {
+            type: 'string',
+            description: 'DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).\nNull/undefined means the standard OID4VP flow (useDcApi=false).'
+        },
+        browserOrigin: {
+            type: 'string',
+            description: 'Browser page origin recorded at offer time for BrowserHandover session transcript.\nUsed exclusively by the ISO 18013-7 Annex C flow.'
+        },
+        tenantId: {
+            type: 'string',
+            description: 'Tenant ID for multi-tenancy support.'
+        },
+        tenant: {
+            description: 'The tenant that owns this object.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/TenantEntity'
+                }
+            ]
+        },
+        reference: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Caller-provided reference of the offer, e.g. an order or case id of the\nintegrating system. Stored in plaintext and kept when the session is\nanonymized, so it must not contain personal data.'
+        },
+        authorization_code: {
+            type: 'string'
+        },
+        authorization_code_expires_at: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Expiration timestamp of the authorization code issued by the authorization endpoint.\nNot set for pre-authorized codes.'
+        },
+        dpop_jkt: {
+            type: 'string',
+            description: 'JWK thumbprint of the DPoP key the session\'s tokens are bound to.\nSet from the PAR request (DPoP header or `dpop_jkt`) or at token issuance.'
+        },
+        client_key_jkt: {
+            type: 'string',
+            description: 'JWK thumbprint of the client instance key (client attestation `cnf`)\nthe refresh token is bound to.'
+        },
+        refresh_token: {
+            type: 'string',
+            description: 'SHA-256 hash of the refresh token for the session, which is used to\nobtain a new access token. The token itself is not stored.'
+        },
+        refresh_token_expires_at: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Expiration timestamp for the refresh token.\nUsed to validate refresh_token grant requests.'
+        },
+        request_uri: {
+            type: 'string',
+            description: 'Request URI from the authorization request.'
+        },
+        request_uri_expires_at: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Expiration timestamp of the PAR request_uri. Set to the time of use once\nthe request_uri was redeemed, making it single-use.'
+        },
+        auth_queries: {
+            description: 'Authorization queries associated with the session.\nEncrypted at rest.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/AuthorizeQueries'
+                }
+            ]
+        },
+        offer: {
+            description: 'Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.',
+            type: [
+                'object',
+                'null'
+            ]
+        },
+        offerUrl: {
+            type: 'string',
+            description: 'Offer URL for the credential offer.'
+        },
+        credentialPayload: {
+            description: 'Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/OfferRequestDto'
+                }
+            ]
+        },
+        credentialConfigurationIds: {
+            description: 'Credential configuration ids of the issuance offer. Stored in plaintext\n(unlike {@link credentialPayload}) so the session list can filter by them.',
+            type: [
+                'array',
+                'null'
+            ],
+            items: {
+                type: 'string'
+            }
+        },
+        webhookEndpointId: {
+            type: 'string',
+            description: 'ID of the webhook endpoint to notify about issuance status.'
+        },
+        notifications: {
+            description: 'Notifications associated with the session.',
+            type: 'array',
+            items: {
+                type: 'object'
+            }
+        },
+        requestId: {
+            type: 'string'
+        },
+        requestUrl: {
+            type: 'string',
+            description: 'The URL of the presentation auth request.'
+        },
+        requestObject: {
+            type: 'string',
+            description: 'Signed presentation auth request.'
+        },
+        responseEncryptionPrivateJwk: {
+            type: [
+                'object',
+                'null'
+            ],
+            description: 'Per-authorization-request private encryption key used to decrypt\nwallet responses. Encrypted at rest.'
+        },
+        credentials: {
+            description: 'Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.',
+            type: 'array',
+            items: {
+                type: 'object'
+            }
+        },
+        vp_nonce: {
+            type: 'string',
+            description: 'Nonce from the Verifiable Presentation request.'
+        },
+        clientId: {
+            type: 'string',
+            description: 'Client ID used in the OID4VP authorization request.'
+        },
+        accessKeyChainId: {
+            type: 'string',
+            description: 'Access key chain chosen when the OID4VP request was created. The\nrequest object is signed with this key chain, so it stays the one\n`clientId` was derived from when the tenant\'s default access key chain\nchanges in between.'
+        },
+        walletNonce: {
+            type: 'string',
+            description: 'Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation.'
+        },
+        responseCode: {
+            type: 'string',
+            description: 'Cryptographic random code generated after successful VP Token processing.\nPer OID4VP spec Section 13.3, included in redirect_uri so only the legitimate\nfrontend (which receives the redirect) can confirm the session completed.'
+        },
+        responseUri: {
+            type: 'string',
+            description: 'Response URI used in the OID4VP authorization request.'
+        },
+        redirectUri: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Redirect URI to which the user-agent should be redirected after the presentation is completed.'
+        },
+        parsedWebhook: {
+            description: 'Where to send the claims webhook response.\nThe webhook API key is encrypted at rest.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/WebhookConfig'
+                }
+            ]
+        },
+        transaction_data: {
+            description: 'Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TransactionData'
+            }
+        },
+        skewSeconds: {
+            type: 'number',
+            description: 'Per-session clock skew tolerance for presentation credential JWT time validation.'
+        },
+        externalIssuer: {
+            type: 'string'
+        },
+        authorizationServerId: {
+            type: 'string',
+            description: 'Identifier of the authorization server selected when this issuance session\nwas created. Required for deterministic mapping of external AS access\ntokens back to the correct issuance session.'
+        },
+        externalSubject: {
+            type: 'string',
+            description: 'The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS.'
+        },
+        errorReason: {
+            type: 'string',
+            description: 'Error reason if the session failed.\nStores the error message when status is \'failed\'.'
+        },
+        failureCode: {
+            type: 'string',
+            description: 'Machine-readable failure code when status is \'failed\' (e.g.\n`trust_chain_not_trusted`). Stable across credential and trust-list\nformats; consumers branch on this rather than parsing {@link errorReason}.'
+        },
+        outcome: {
+            type: [
+                'object',
+                'null'
+            ],
+            description: 'Structured verification outcome (success or failure, provenance and\ndiagnostics, per credential). Additive to {@link status} /\n{@link errorReason}; verbose detail stays in the session log only.'
+        },
+        txCodeFailedAttempts: {
+            type: 'number',
+            description: 'Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully.'
+        },
+        consumed: {
+            type: 'boolean',
+            description: 'Flag indicating whether the session offer has been consumed.\nPrevents replay attacks by ensuring each offer can only be used once.\nFor OID4VCI: set after successful token exchange.\nFor OID4VP: set after successful response validation.'
+        },
+        consumedAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Timestamp of the first consumption event for the session offer.\nFor OID4VCI this can be URI resolution or later flow completion.\nNull if no consumption event has happened yet.'
+        }
+    },
+    required: [
+        'status',
+        'id',
+        'createdAt',
+        'updatedAt',
+        'useDcApi',
+        'tenantId',
+        'tenant',
+        'notifications',
+        'txCodeFailedAttempts',
+        'consumed'
+    ]
+} as const;
+
+export const PaginatedSessionResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        items: {
+            description: 'The sessions for the current page.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/Session'
+            }
+        },
+        total: {
+            type: 'number',
+            description: 'Total number of sessions matching the query'
+        },
+        page: {
+            type: 'number',
+            description: 'Current page number (1-based)'
+        },
+        pageSize: {
+            type: 'number',
+            description: 'Number of items per page'
+        },
+        totalPages: {
+            type: 'number',
+            description: 'Total number of pages'
+        }
+    },
+    required: [
+        'items',
+        'total',
+        'page',
+        'pageSize',
+        'totalPages'
+    ]
+} as const;
+
+export const SessionRetentionDtoSchema = {
+    type: 'object',
+    properties: {
+        ttlSeconds: {
+            type: 'number',
+            description: 'Seconds after creation when the maintenance job processes a session'
+        },
+        cleanupMode: {
+            enum: [
+                'full',
+                'anonymize'
+            ],
+            type: 'string',
+            description: 'full: processed sessions are deleted and no longer counted; anonymize: they are kept with their status and still counted'
+        }
+    },
+    required: [
+        'ttlSeconds',
+        'cleanupMode'
+    ]
+} as const;
+
+export const SessionStatusCountsDtoSchema = {
+    type: 'object',
+    properties: {
+        active: {
+            type: 'number',
+            description: 'Sessions waiting for the wallet'
+        },
+        fetched: {
+            type: 'number',
+            description: 'Issuance: first credential issued. Presentation: the wallet fetched the request object.'
+        },
+        completed: {
+            type: 'number',
+            description: 'Issuance: the wallet reported credential_accepted. Presentation: response verified.'
+        },
+        expired: {
+            type: 'number',
+            description: 'Sessions that expired before completion'
+        },
+        failed: {
+            type: 'number',
+            description: 'Issuance: the wallet reported credential_failure or credential_deleted. Presentation: verification failed, or the wallet sent an error.'
+        },
+        cancelled: {
+            type: 'number',
+            description: 'Offers and requests an operator cancelled'
+        }
+    },
+    required: [
+        'active',
+        'fetched',
+        'completed',
+        'expired',
+        'failed',
+        'cancelled'
+    ]
+} as const;
+
+export const SessionFailureCodeCountDtoSchema = {
+    type: 'object',
+    properties: {
+        code: {
+            type: 'string',
+            description: 'Failure code, see the session outcome reference; presentation errors a wallet sent keep their own code'
+        },
+        count: {
+            type: 'number',
+            description: 'Number of failed sessions with this code'
+        }
+    },
+    required: [
+        'code',
+        'count'
+    ]
+} as const;
+
+export const SessionTypeStatsDtoSchema = {
+    type: 'object',
+    properties: {
+        total: {
+            type: 'number',
+            description: 'Number of sessions of this type'
+        },
+        byStatus: {
+            description: 'Number of sessions per status, 0 for a status without any',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SessionStatusCountsDto'
+                }
+            ]
+        },
+        failureCodes: {
+            description: 'Failure codes of the failed sessions, most frequent first, at most 10, cut to 255 characters. Failed sessions without a code are not listed.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SessionFailureCodeCountDto'
+            }
+        },
+        lastCompletedAt: {
+            type: [
+                'string',
+                'null'
+            ],
+            format: 'date-time',
+            description: 'Last update of the most recently updated completed session, or null when none completed'
+        }
+    },
+    required: [
+        'total',
+        'byStatus',
+        'failureCodes',
+        'lastCompletedAt'
+    ]
+} as const;
+
+export const SessionStatsResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        retention: {
+            description: 'Effective session retention of the tenant; tells how far back the counts reach',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SessionRetentionDto'
+                }
+            ]
+        },
+        issuance: {
+            description: 'Issuance sessions; present only when the caller may read them, as in GET /api/session',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SessionTypeStatsDto'
+                }
+            ]
+        },
+        presentation: {
+            description: 'Presentation sessions; present only when the caller may read them, as in GET /api/session',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/SessionTypeStatsDto'
+                }
+            ]
+        }
+    },
+    required: [
+        'retention'
+    ]
+} as const;
+
+export const CancelSessionDtoSchema = {
+    type: 'object',
+    properties: {
+        reason: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 500,
+            description: 'Why the offer was cancelled. Stored in the audit logs and sent to the session webhook.',
+            example: 'sent to wrong recipient'
+        }
+    },
+    default: {},
+    additionalProperties: false
+} as const;
+
+export const SessionLogEntryResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Log entry ID'
+        },
+        sessionId: {
+            type: 'string',
+            description: 'Session ID'
+        },
+        timestamp: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Timestamp of the log entry'
+        },
+        level: {
+            type: 'string',
+            description: 'Log level',
+            enum: [
+                'info',
+                'warn',
+                'error'
+            ]
+        },
+        stage: {
+            type: 'string',
+            description: 'Flow stage'
+        },
+        message: {
+            type: 'string',
+            description: 'Log message'
+        },
+        detail: {
+            type: 'object',
+            additionalProperties: true,
+            description: 'Additional structured detail'
+        }
+    },
+    required: [
+        'id',
+        'sessionId',
+        'timestamp',
+        'level',
+        'message'
+    ]
+} as const;
+
+export const CredentialStatusDtoSchema = {
+    type: 'object',
+    properties: {
+        credentialConfigurationId: {
+            type: 'string',
+            description: 'Credential configuration the credential was issued for.'
+        },
+        statusListId: {
+            type: 'string',
+            description: 'ID of the status list holding the entry.'
+        },
+        index: {
+            type: 'number',
+            description: 'Index of the entry in the status list.'
+        },
+        status: {
+            type: 'number',
+            description: 'Current status: 0 = valid, 1 = revoked, 2 = suspended. Lists with more bits per entry can hold higher values.'
+        },
+        bits: {
+            type: 'number',
+            description: 'Bits per entry of the status list. Suspension (2) needs at least 2.',
+            enum: [
+                1,
+                2,
+                4,
+                8
+            ]
+        }
+    },
+    required: [
+        'credentialConfigurationId',
+        'statusListId',
+        'index',
+        'status',
+        'bits'
+    ]
+} as const;
+
+export const StatusUpdateDtoSchema = {
+    type: 'object',
+    properties: {
+        sessionId: {
+            type: 'string',
+            minLength: 1,
+            description: 'Session identifier used to locate credentials for status updates.'
+        },
+        credentialConfigurationId: {
+            type: 'string',
+            description: 'Optional credential configuration id. If omitted, all credentials linked to the session are updated.',
+            minLength: 1
+        },
+        status: {
+            type: 'integer',
+            minimum: 0,
+            maximum: 2,
+            description: 'New credential status: 0 = valid, 1 = revoked, 2 = suspended. The value must fit every status list the credentials use: suspension needs lists with at least 2 bits per entry, otherwise the request is rejected with 400 and no status is changed.'
+        }
+    },
+    required: [
+        'sessionId',
+        'status'
+    ],
+    additionalProperties: false
+} as const;
+
+export const UpdateSessionConfigDtoSchema = {
+    type: 'object',
+    properties: {
+        ttlSeconds: {
+            description: 'Time-to-live for sessions in seconds. Set to null to use global default.',
+            example: 86400,
+            minimum: 60,
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            type: 'integer',
+                            minimum: 60,
+                            maximum: 9007199254740991
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        cleanupMode: {
+            type: 'string',
+            enum: [
+                'full',
+                'anonymize'
+            ],
+            description: 'Cleanup mode: \'full\' deletes everything, \'anonymize\' keeps metadata but removes PII.',
+            default: 'full'
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const StatusListImportDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the status list'
+        },
+        credentialConfigurationId: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.',
+            example: 'org.iso.18013.5.1.mDL'
+        },
+        keyChainId: {
+            type: 'string',
+            description: 'Key chain ID to use for signing. Leave empty to use the tenant\'s default StatusList key chain.',
+            example: 'my-status-list-keychain'
+        },
+        capacity: {
+            type: 'number',
+            description: 'Capacity of the status list. If not provided, uses tenant or global defaults.',
+            example: 10000,
+            minimum: 100
+        },
+        bits: {
+            description: 'Bits per status value. If not provided, uses tenant or global defaults.',
+            enum: [
+                1,
+                2,
+                4,
+                8
+            ],
+            type: 'number',
+            example: 1
+        }
+    },
+    required: [
+        'id'
+    ]
+} as const;
+
+export const StatusListAggregationDtoSchema = {
+    type: 'object',
+    properties: {
+        status_lists: {
+            description: 'Array of status list token URIs',
+            example: [
+                'https://example.com/tenant-123/status-management/status-list/list-1',
+                'https://example.com/tenant-123/status-management/status-list/list-2'
+            ],
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        }
+    },
+    required: [
+        'status_lists'
+    ]
+} as const;
+
+export const UpdateStatusListConfigDtoSchema = {
+    type: 'object',
+    properties: {
+        capacity: {
+            description: 'The capacity of new status lists. Omit or set to null to follow STATUS_CAPACITY of the instance.',
+            example: 10000,
+            minimum: 100,
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            type: 'integer',
+                            minimum: 100,
+                            maximum: 9007199254740991
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        bits: {
+            description: 'Bits per status entry of new status lists. Omit or set to null to follow STATUS_BITS of the instance.',
+            enum: [
+                1,
+                2,
+                4,
+                8
+            ],
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            anyOf: [
+                                {
+                                    type: 'number',
+                                    const: 1
+                                },
+                                {
+                                    type: 'number',
+                                    const: 2
+                                },
+                                {
+                                    type: 'number',
+                                    const: 4
+                                },
+                                {
+                                    type: 'number',
+                                    const: 8
+                                }
+                            ]
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        ttl: {
+            description: 'TTL in seconds for the status list JWT. Omit or set to null to follow STATUS_TTL of the instance.',
+            example: 3600,
+            minimum: 60,
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            type: 'integer',
+                            minimum: 60,
+                            maximum: 9007199254740991
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        immediateUpdate: {
+            description: 'If true, regenerate JWT on every status change. Omit or set to null to follow STATUS_IMMEDIATE_UPDATE of the instance.',
+            type: [
+                'boolean',
+                'null'
+            ]
+        },
+        enableAggregation: {
+            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. Omit or set to null to follow STATUS_ENABLE_AGGREGATION of the instance.',
+            type: [
+                'boolean',
+                'null'
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const StatusListResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for the status list',
+            example: '550e8400-e29b-41d4-a716-446655440000'
+        },
+        tenantId: {
+            type: 'string',
+            description: 'The tenant ID',
+            example: 'root'
+        },
+        credentialConfigurationId: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Credential configuration ID this list is bound to. Null means shared.',
+            example: 'org.iso.18013.5.1.mDL'
+        },
+        keyChainId: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Key chain ID used for signing. Null means using the tenant\'s default.',
+            example: 'my-status-list-keychain'
+        },
+        bits: {
+            description: 'Bits per status value',
+            enum: [
+                1,
+                2,
+                4,
+                8
+            ],
+            type: 'number',
+            example: 1
+        },
+        capacity: {
+            type: 'number',
+            description: 'Total capacity of the status list',
+            example: 10000
+        },
+        usedEntries: {
+            type: 'number',
+            description: 'Number of entries in use',
+            example: 150
+        },
+        availableEntries: {
+            type: 'number',
+            description: 'Number of available entries',
+            example: 9850
+        },
+        uri: {
+            type: 'string',
+            description: 'The public URI for this status list',
+            example: 'https://example.com/demo/status-management/status-list/550e8400-e29b-41d4-a716-446655440000'
+        },
+        createdAt: {
+            format: 'date-time',
+            type: 'string',
+            description: 'Creation timestamp',
+            example: '2024-01-15T10:30:00.000Z'
+        },
+        expiresAt: {
+            format: 'date-time',
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'JWT expiration timestamp. Null if JWT has not been generated yet.',
+            example: '2024-01-15T11:30:00.000Z'
+        }
+    },
+    required: [
+        'id',
+        'tenantId',
+        'bits',
+        'capacity',
+        'usedEntries',
+        'availableEntries',
+        'uri',
+        'createdAt'
+    ]
+} as const;
+
+export const CreateStatusListDtoSchema = {
+    type: 'object',
+    properties: {
+        credentialConfigurationId: {
+            description: 'Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.',
+            type: 'string',
+            minLength: 1,
+            example: 'org.iso.18013.5.1.mDL'
+        },
+        keyChainId: {
+            description: 'Key chain ID to use for signing. Leave empty to use the tenant\'s default StatusList key chain.',
+            type: 'string',
+            minLength: 1,
+            example: 'my-status-list-keychain'
+        },
+        bits: {
+            description: 'Bits per status value. More bits allow more status states. Defaults to tenant configuration.',
+            anyOf: [
+                {
+                    type: 'number',
+                    const: 1
+                },
+                {
+                    type: 'number',
+                    const: 2
+                },
+                {
+                    type: 'number',
+                    const: 4
+                },
+                {
+                    type: 'number',
+                    const: 8
+                }
+            ],
+            enum: [
+                1,
+                2,
+                4,
+                8
+            ],
+            example: 1
+        },
+        capacity: {
+            description: 'Maximum number of credential status entries. Defaults to tenant configuration.',
+            type: 'number',
+            minimum: 1000,
+            maximum: 9007199254740991,
+            example: 100000
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const UpdateStatusListDtoSchema = {
+    type: 'object',
+    properties: {
+        credentialConfigurationId: {
+            description: 'Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.',
+            example: 'org.iso.18013.5.1.mDL',
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            type: 'string',
+                            minLength: 1
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        keyChainId: {
+            description: 'Key chain ID to use for signing. Set to null to use the tenant\'s default StatusList key chain.',
+            example: 'my-status-list-keychain',
+            anyOf: [
+                {
+                    anyOf: [
+                        {
+                            type: 'string',
+                            minLength: 1
+                        },
+                        {
+                            type: 'null'
+                        }
+                    ]
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    additionalProperties: false
+} as const;
+
+export const CreateWebhookEndpointDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            minLength: 1,
+            description: 'Unique webhook endpoint identifier.'
+        },
+        name: {
+            type: 'string',
+            minLength: 1,
+            description: 'Display name of the webhook endpoint.'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: 'Optional webhook endpoint description.'
+        },
+        url: {
+            type: 'string',
+            format: 'uri',
+            description: 'Destination URL for webhook delivery.'
+        },
+        auth: {
+            oneOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        type: {
+                            type: 'string',
+                            const: 'none',
+                            description: 'Disable webhook authentication.'
+                        }
+                    },
+                    required: [
+                        'type'
+                    ],
+                    description: 'No webhook authentication variant.'
+                },
+                {
+                    type: 'object',
+                    properties: {
+                        type: {
+                            type: 'string',
+                            const: 'apiKey',
+                            description: 'Use API key authentication for webhook requests.'
+                        },
+                        config: {
+                            type: 'object',
+                            properties: {
+                                headerName: {
+                                    type: 'string',
+                                    minLength: 1,
+                                    description: 'HTTP header name for the API key.'
+                                },
+                                value: {
+                                    type: 'string',
+                                    minLength: 1,
+                                    description: 'API key value sent with webhook requests.'
+                                }
+                            },
+                            required: [
+                                'headerName',
+                                'value'
+                            ],
+                            description: 'API key webhook authentication settings.'
+                        }
+                    },
+                    required: [
+                        'type',
+                        'config'
+                    ],
+                    description: 'API key webhook authentication variant.'
+                }
+            ],
+            description: 'Authentication configuration applied to outgoing webhook requests.'
+        }
+    },
+    required: [
+        'id',
+        'name',
+        'url',
+        'auth'
+    ],
+    additionalProperties: false
+} as const;
+
+export const UpdateWebhookEndpointDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            minLength: 1,
+            description: 'Unique webhook endpoint identifier.'
+        },
+        name: {
+            type: 'string',
+            minLength: 1,
+            description: 'Display name of the webhook endpoint.'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: 'Optional webhook endpoint description.'
+        },
+        url: {
+            type: 'string',
+            format: 'uri',
+            description: 'Destination URL for webhook delivery.'
+        },
+        auth: {
+            oneOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        type: {
+                            type: 'string',
+                            const: 'none',
+                            description: 'Disable webhook authentication.'
+                        }
+                    },
+                    required: [
+                        'type'
+                    ],
+                    description: 'No webhook authentication variant.'
+                },
+                {
+                    type: 'object',
+                    properties: {
+                        type: {
+                            type: 'string',
+                            const: 'apiKey',
+                            description: 'Use API key authentication for webhook requests.'
+                        },
+                        config: {
+                            type: 'object',
+                            properties: {
+                                headerName: {
+                                    type: 'string',
+                                    minLength: 1,
+                                    description: 'HTTP header name for the API key.'
+                                },
+                                value: {
+                                    type: 'string',
+                                    minLength: 1,
+                                    description: 'API key value sent with webhook requests.'
+                                }
+                            },
+                            required: [
+                                'headerName',
+                                'value'
+                            ],
+                            description: 'API key webhook authentication settings.'
+                        }
+                    },
+                    required: [
+                        'type',
+                        'config'
+                    ],
+                    description: 'API key webhook authentication variant.'
+                }
+            ],
+            description: 'Authentication configuration applied to outgoing webhook requests.'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const AuthenticationMethodNoneSchema = {
     type: 'object',
     properties: {
@@ -9045,7 +9555,9 @@ export const AuthenticationUrlConfigSchema = {
         webhook: {
             properties: {
                 url: {
-                    type: 'string'
+                    type: 'string',
+                    minLength: 1,
+                    description: 'The URL to which the webhook will send notifications.'
                 },
                 auth: {
                     oneOf: [
@@ -9054,7 +9566,8 @@ export const AuthenticationUrlConfigSchema = {
                             properties: {
                                 type: {
                                     type: 'string',
-                                    const: 'none'
+                                    const: 'none',
+                                    description: 'Disable authentication.'
                                 }
                             },
                             required: [
@@ -9067,23 +9580,29 @@ export const AuthenticationUrlConfigSchema = {
                             properties: {
                                 type: {
                                     type: 'string',
-                                    const: 'apiKey'
+                                    const: 'apiKey',
+                                    description: 'Use API key authentication.'
                                 },
                                 config: {
                                     type: 'object',
                                     properties: {
                                         headerName: {
-                                            type: 'string'
+                                            type: 'string',
+                                            minLength: 1,
+                                            description: 'The header name used to send the API key.'
                                         },
                                         value: {
-                                            type: 'string'
+                                            type: 'string',
+                                            minLength: 1,
+                                            description: 'The API key value.'
                                         }
                                     },
                                     required: [
                                         'headerName',
                                         'value'
                                     ],
-                                    additionalProperties: false
+                                    additionalProperties: false,
+                                    description: 'API key authentication settings.'
                                 }
                             },
                             required: [
@@ -9092,9 +9611,11 @@ export const AuthenticationUrlConfigSchema = {
                             ],
                             additionalProperties: false
                         }
-                    ]
+                    ],
+                    description: 'Webhook authentication strategy.'
                 },
                 includeRawTokensFor: {
+                    description: 'List of credential IDs to include raw tokens for (for example [\'sca_credential\']).',
                     type: 'array',
                     items: {
                         type: 'string'
@@ -9135,7 +9656,9 @@ export const AuthenticationMethodAuthSchema = {
                     type: 'object',
                     properties: {
                         url: {
-                            type: 'string'
+                            type: 'string',
+                            minLength: 1,
+                            description: 'The URL to which the webhook will send notifications.'
                         },
                         auth: {
                             oneOf: [
@@ -9144,7 +9667,8 @@ export const AuthenticationMethodAuthSchema = {
                                     properties: {
                                         type: {
                                             type: 'string',
-                                            const: 'none'
+                                            const: 'none',
+                                            description: 'Disable authentication.'
                                         }
                                     },
                                     required: [
@@ -9157,23 +9681,29 @@ export const AuthenticationMethodAuthSchema = {
                                     properties: {
                                         type: {
                                             type: 'string',
-                                            const: 'apiKey'
+                                            const: 'apiKey',
+                                            description: 'Use API key authentication.'
                                         },
                                         config: {
                                             type: 'object',
                                             properties: {
                                                 headerName: {
-                                                    type: 'string'
+                                                    type: 'string',
+                                                    minLength: 1,
+                                                    description: 'The header name used to send the API key.'
                                                 },
                                                 value: {
-                                                    type: 'string'
+                                                    type: 'string',
+                                                    minLength: 1,
+                                                    description: 'The API key value.'
                                                 }
                                             },
                                             required: [
                                                 'headerName',
                                                 'value'
                                             ],
-                                            additionalProperties: false
+                                            additionalProperties: false,
+                                            description: 'API key authentication settings.'
                                         }
                                     },
                                     required: [
@@ -9182,9 +9712,11 @@ export const AuthenticationMethodAuthSchema = {
                                     ],
                                     additionalProperties: false
                                 }
-                            ]
+                            ],
+                            description: 'Webhook authentication strategy.'
                         },
                         includeRawTokensFor: {
+                            description: 'List of credential IDs to include raw tokens for (for example [\'sca_credential\']).',
                             type: 'array',
                             items: {
                                 type: 'string'
@@ -10240,21 +10772,180 @@ export const UpdateIssuanceDtoSchema = {
     }
 } as const;
 
+export const PublishSchemaMetaConfigSchema = {
+    type: 'object',
+    properties: {
+        schemaURIs: {
+            description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
+            items: {
+                type: 'object',
+                properties: {
+                    credentialConfigId: {
+                        description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
+                        type: 'string'
+                    },
+                    format: {
+                        description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
+                        type: 'string'
+                    },
+                    uri: {
+                        description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
+                        type: 'string'
+                    },
+                    meta: {
+                        description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
+                        type: 'object',
+                        propertyNames: {
+                            type: 'string'
+                        },
+                        additionalProperties: {}
+                    }
+                },
+                additionalProperties: false
+            },
+            type: 'array'
+        },
+        trustedAuthorities: {
+            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
+            items: {
+                type: 'object',
+                properties: {
+                    trustListId: {
+                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
+                        type: 'string'
+                    },
+                    frameworkType: {
+                        description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
+                        type: 'string',
+                        enum: [
+                            'aki',
+                            'etsi_tl',
+                            'openid_federation',
+                            'x509'
+                        ]
+                    },
+                    value: {
+                        description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
+                        type: 'string'
+                    },
+                    verificationMethod: {
+                        description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
+                        anyOf: [
+                            {
+                                type: 'object',
+                                propertyNames: {
+                                    type: 'string'
+                                },
+                                additionalProperties: {}
+                            },
+                            {
+                                type: 'string'
+                            }
+                        ]
+                    }
+                },
+                additionalProperties: false
+            },
+            type: 'array'
+        },
+        id: {
+            type: 'string',
+            description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.'
+        },
+        name: {
+            type: 'string',
+            description: 'Human-readable name. Required when publishing; not needed for a link-only request.'
+        },
+        version: {
+            type: 'string',
+            description: 'Schema version, for example `1.0.0`.'
+        },
+        rulebookURI: {
+            type: 'string',
+            description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.'
+        },
+        attestationLoS: {
+            type: 'string',
+            enum: [
+                'iso_18045_high',
+                'iso_18045_moderate',
+                'iso_18045_enhanced-basic',
+                'iso_18045_basic'
+            ],
+            description: 'Attestation level of security.'
+        },
+        bindingType: {
+            type: 'string',
+            enum: [
+                'claim',
+                'key',
+                'biometric',
+                'none'
+            ],
+            description: 'Cryptographic binding type.'
+        },
+        category: {
+            type: 'string',
+            description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+            enum: [
+                'identity',
+                'health',
+                'finance',
+                'education',
+                'mobility',
+                'employment',
+                'other'
+            ]
+        },
+        tags: {
+            type: 'array',
+            description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+            maxItems: 10,
+            items: {
+                type: 'string',
+                enum: [
+                    'pid',
+                    'eudi',
+                    'kyc',
+                    'aml',
+                    'age-verification',
+                    'residency',
+                    'membership',
+                    'education',
+                    'employment',
+                    'mobility'
+                ]
+            }
+        }
+    },
+    required: [
+        'version',
+        'attestationLoS',
+        'bindingType'
+    ],
+    description: 'Schema metadata values; the registrar builds and signs the result.',
+    additionalProperties: false
+} as const;
+
 export const SignSchemaMetaConfigDtoSchema = {
     type: 'object',
     properties: {
         config: {
             properties: {
                 id: {
+                    description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.',
                     type: 'string'
                 },
                 name: {
+                    description: 'Human-readable name. Required when publishing; not needed for a link-only request.',
                     type: 'string'
                 },
                 version: {
-                    type: 'string'
+                    type: 'string',
+                    description: 'Schema version, for example `1.0.0`.'
                 },
                 rulebookURI: {
+                    description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.',
                     type: 'string'
                 },
                 attestationLoS: {
@@ -10264,7 +10955,8 @@ export const SignSchemaMetaConfigDtoSchema = {
                         'iso_18045_moderate',
                         'iso_18045_enhanced-basic',
                         'iso_18045_basic'
-                    ]
+                    ],
+                    description: 'Attestation level of security.'
                 },
                 bindingType: {
                     type: 'string',
@@ -10273,23 +10965,29 @@ export const SignSchemaMetaConfigDtoSchema = {
                         'key',
                         'biometric',
                         'none'
-                    ]
+                    ],
+                    description: 'Cryptographic binding type.'
                 },
                 schemaURIs: {
+                    description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             credentialConfigId: {
+                                description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
                                 type: 'string'
                             },
                             format: {
+                                description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
                                 type: 'string'
                             },
                             uri: {
+                                description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
                                 type: 'string'
                             },
                             meta: {
+                                description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
                                 type: 'object',
                                 propertyNames: {
                                     type: 'string'
@@ -10301,14 +10999,17 @@ export const SignSchemaMetaConfigDtoSchema = {
                     }
                 },
                 trustedAuthorities: {
+                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             trustListId: {
+                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                                 type: 'string'
                             },
                             frameworkType: {
+                                description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
                                 type: 'string',
                                 enum: [
                                     'aki',
@@ -10318,9 +11019,11 @@ export const SignSchemaMetaConfigDtoSchema = {
                                 ]
                             },
                             value: {
+                                description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                                 type: 'string'
                             },
                             verificationMethod: {
+                                description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
                                 anyOf: [
                                     {
                                         type: 'object',
@@ -10337,28 +11040,61 @@ export const SignSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+                    maxItems: 10,
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },
         credentialConfigId: {
-            type: 'string',
-            description: 'ID of the credential config to link back after submission. When provided, schemaMeta.id on the credential config is updated with the reserved attestation ID.'
+            description: 'Credential configuration to link to the published schema metadata ID.',
+            type: 'string'
         },
         pinMode: {
+            description: 'How to update the schema metadata pin of `credentialConfigId`: `keep_current` (default) keeps a pin to the same ID, `update_to_new_version` updates the pinned version under the same ID, `replace_id` repoints the pin to the new ID. A configuration without a pin is always linked. If it is pinned to another ID, only `replace_id` succeeds; the others answer `400` after the schema metadata was published.',
             type: 'string',
             enum: [
                 'keep_current',
                 'update_to_new_version',
                 'replace_id'
             ],
-            description: 'How to update credential config pinning after publish. keep_current: do not change existing pin (unless empty). update_to_new_version: update pinned version under current id. replace_id: repoint pin to a different schema id.',
             default: 'keep_current'
         }
     },
@@ -10374,15 +11110,19 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
         config: {
             properties: {
                 id: {
+                    description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.',
                     type: 'string'
                 },
                 name: {
+                    description: 'Human-readable name. Required when publishing; not needed for a link-only request.',
                     type: 'string'
                 },
                 version: {
-                    type: 'string'
+                    type: 'string',
+                    description: 'Schema version, for example `1.0.0`.'
                 },
                 rulebookURI: {
+                    description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.',
                     type: 'string'
                 },
                 attestationLoS: {
@@ -10392,7 +11132,8 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                         'iso_18045_moderate',
                         'iso_18045_enhanced-basic',
                         'iso_18045_basic'
-                    ]
+                    ],
+                    description: 'Attestation level of security.'
                 },
                 bindingType: {
                     type: 'string',
@@ -10401,23 +11142,29 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                         'key',
                         'biometric',
                         'none'
-                    ]
+                    ],
+                    description: 'Cryptographic binding type.'
                 },
                 schemaURIs: {
+                    description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             credentialConfigId: {
+                                description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
                                 type: 'string'
                             },
                             format: {
+                                description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
                                 type: 'string'
                             },
                             uri: {
+                                description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
                                 type: 'string'
                             },
                             meta: {
+                                description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
                                 type: 'object',
                                 propertyNames: {
                                     type: 'string'
@@ -10429,14 +11176,17 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                     }
                 },
                 trustedAuthorities: {
+                    description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` whose `x509Certificate` is a single certificate).',
                     type: 'array',
                     items: {
                         type: 'object',
                         properties: {
                             trustListId: {
+                                description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the active certificate of its key chain (the first one of a chain); the other fields are not needed.',
                                 type: 'string'
                             },
                             frameworkType: {
+                                description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
                                 type: 'string',
                                 enum: [
                                     'aki',
@@ -10446,9 +11196,11 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                                 ]
                             },
                             value: {
+                                description: 'Authority value, for example the trust list URL for `etsi_tl`, or for `x509` one root certificate in PEM or base64 DER. Publishing rejects an `x509` value that holds more than one certificate, such as a chain.',
                                 type: 'string'
                             },
                             verificationMethod: {
+                                description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
                                 anyOf: [
                                     {
                                         type: 'object',
@@ -10465,28 +11217,61 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+                    maxItems: 10,
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit as a new version. Must include the existing id.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },
         credentialConfigId: {
-            type: 'string',
-            description: 'Optional credential config to update pinning for after successful version publish.'
+            description: 'Credential configuration to link to the new version.',
+            type: 'string'
         },
         pinMode: {
+            description: 'How to update the schema metadata pin of `credentialConfigId`: `keep_current` (default) keeps a pin to the same ID, `update_to_new_version` updates the pinned version under the same ID, `replace_id` repoints the pin to `config.id`. A configuration without a pin is always linked. If it is pinned to another ID, only `replace_id` succeeds; the others answer `400` after the schema metadata was published.',
             type: 'string',
             enum: [
                 'keep_current',
                 'update_to_new_version',
                 'replace_id'
             ],
-            description: 'How to update credential config pinning after version publish. keep_current: do not change existing pin (unless empty). update_to_new_version: update pinned version under current id. replace_id: repoint pin to config.id.',
             default: 'keep_current'
         }
     },
@@ -10649,188 +11434,6 @@ export const DeprecateSchemaMetadataDtoSchema = {
     required: [
         'deprecated'
     ],
-    additionalProperties: false
-} as const;
-
-export const CreateWebhookEndpointDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            minLength: 1,
-            description: 'Unique webhook endpoint identifier.'
-        },
-        name: {
-            type: 'string',
-            minLength: 1,
-            description: 'Display name of the webhook endpoint.'
-        },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    minLength: 1
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            description: 'Optional webhook endpoint description.'
-        },
-        url: {
-            type: 'string',
-            format: 'uri',
-            description: 'Destination URL for webhook delivery.'
-        },
-        auth: {
-            oneOf: [
-                {
-                    type: 'object',
-                    properties: {
-                        type: {
-                            type: 'string',
-                            const: 'none',
-                            description: 'Disable webhook authentication.'
-                        }
-                    },
-                    required: [
-                        'type'
-                    ],
-                    description: 'No webhook authentication variant.'
-                },
-                {
-                    type: 'object',
-                    properties: {
-                        type: {
-                            type: 'string',
-                            const: 'apiKey',
-                            description: 'Use API key authentication for webhook requests.'
-                        },
-                        config: {
-                            type: 'object',
-                            properties: {
-                                headerName: {
-                                    type: 'string',
-                                    minLength: 1,
-                                    description: 'HTTP header name for the API key.'
-                                },
-                                value: {
-                                    type: 'string',
-                                    minLength: 1,
-                                    description: 'API key value sent with webhook requests.'
-                                }
-                            },
-                            required: [
-                                'headerName',
-                                'value'
-                            ],
-                            description: 'API key webhook authentication settings.'
-                        }
-                    },
-                    required: [
-                        'type',
-                        'config'
-                    ],
-                    description: 'API key webhook authentication variant.'
-                }
-            ],
-            description: 'Authentication configuration applied to outgoing webhook requests.'
-        }
-    },
-    required: [
-        'id',
-        'name',
-        'url',
-        'auth'
-    ],
-    additionalProperties: false
-} as const;
-
-export const UpdateWebhookEndpointDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            minLength: 1,
-            description: 'Unique webhook endpoint identifier.'
-        },
-        name: {
-            type: 'string',
-            minLength: 1,
-            description: 'Display name of the webhook endpoint.'
-        },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    minLength: 1
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            description: 'Optional webhook endpoint description.'
-        },
-        url: {
-            type: 'string',
-            format: 'uri',
-            description: 'Destination URL for webhook delivery.'
-        },
-        auth: {
-            oneOf: [
-                {
-                    type: 'object',
-                    properties: {
-                        type: {
-                            type: 'string',
-                            const: 'none',
-                            description: 'Disable webhook authentication.'
-                        }
-                    },
-                    required: [
-                        'type'
-                    ],
-                    description: 'No webhook authentication variant.'
-                },
-                {
-                    type: 'object',
-                    properties: {
-                        type: {
-                            type: 'string',
-                            const: 'apiKey',
-                            description: 'Use API key authentication for webhook requests.'
-                        },
-                        config: {
-                            type: 'object',
-                            properties: {
-                                headerName: {
-                                    type: 'string',
-                                    minLength: 1,
-                                    description: 'HTTP header name for the API key.'
-                                },
-                                value: {
-                                    type: 'string',
-                                    minLength: 1,
-                                    description: 'API key value sent with webhook requests.'
-                                }
-                            },
-                            required: [
-                                'headerName',
-                                'value'
-                            ],
-                            description: 'API key webhook authentication settings.'
-                        }
-                    },
-                    required: [
-                        'type',
-                        'config'
-                    ],
-                    description: 'API key webhook authentication variant.'
-                }
-            ],
-            description: 'Authentication configuration applied to outgoing webhook requests.'
-        }
-    },
     additionalProperties: false
 } as const;
 
@@ -11390,7 +11993,9 @@ export const PresentationRequestSchema = {
             description: 'Webhook configuration to receive the response.\nIf not provided, the configured webhook from the configuration will be used.',
             properties: {
                 url: {
-                    type: 'string'
+                    type: 'string',
+                    minLength: 1,
+                    description: 'The URL to which the webhook will send notifications.'
                 },
                 auth: {
                     oneOf: [
@@ -11399,7 +12004,8 @@ export const PresentationRequestSchema = {
                             properties: {
                                 type: {
                                     type: 'string',
-                                    const: 'none'
+                                    const: 'none',
+                                    description: 'Disable authentication.'
                                 }
                             },
                             required: [
@@ -11412,23 +12018,29 @@ export const PresentationRequestSchema = {
                             properties: {
                                 type: {
                                     type: 'string',
-                                    const: 'apiKey'
+                                    const: 'apiKey',
+                                    description: 'Use API key authentication.'
                                 },
                                 config: {
                                     type: 'object',
                                     properties: {
                                         headerName: {
-                                            type: 'string'
+                                            type: 'string',
+                                            minLength: 1,
+                                            description: 'The header name used to send the API key.'
                                         },
                                         value: {
-                                            type: 'string'
+                                            type: 'string',
+                                            minLength: 1,
+                                            description: 'The API key value.'
                                         }
                                     },
                                     required: [
                                         'headerName',
                                         'value'
                                     ],
-                                    additionalProperties: false
+                                    additionalProperties: false,
+                                    description: 'API key authentication settings.'
                                 }
                             },
                             required: [
@@ -11437,9 +12049,11 @@ export const PresentationRequestSchema = {
                             ],
                             additionalProperties: false
                         }
-                    ]
+                    ],
+                    description: 'Webhook authentication strategy.'
                 },
                 includeRawTokensFor: {
+                    description: 'List of credential IDs to include raw tokens for (for example [\'sca_credential\']).',
                     type: 'array',
                     items: {
                         type: 'string'
@@ -11688,7 +12302,8 @@ export const ConfigResourceMetadataEntitySchema = {
         ownership: {
             enum: [
                 'unmanaged',
-                'file-managed'
+                'file-managed',
+                'detached'
             ],
             type: 'string'
         },
@@ -11722,6 +12337,62 @@ export const ConfigResourceMetadataEntitySchema = {
         'generation',
         'createdAt',
         'updatedAt'
+    ]
+} as const;
+
+export const ConfigResourceOwnershipDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'Tenant',
+                'Client',
+                'KmsConfig',
+                'KeyChain',
+                'RegistrarConfig',
+                'IssuanceConfig',
+                'CredentialConfig',
+                'PresentationConfig',
+                'AttributeProvider',
+                'WebhookEndpoint',
+                'TrustList',
+                'StatusList'
+            ],
+            type: 'string',
+            description: 'Resource kind, as in the config bundle format'
+        },
+        resourceId: {
+            type: 'string',
+            description: 'Resource ID, or the singleton ID such as `issuance`'
+        },
+        ownership: {
+            enum: [
+                'unmanaged',
+                'file-managed',
+                'detached'
+            ],
+            type: 'string',
+            description: '`file-managed` resources reject API and web client changes with 409 until they are detached.'
+        },
+        generation: {
+            type: 'number',
+            description: 'Generation of the stored definition'
+        },
+        source: {
+            type: 'string',
+            description: 'File or bundle that provisioned the resource. Kept after detaching.'
+        },
+        lastAppliedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last time an import, detach or reattach changed the ownership'
+        }
+    },
+    required: [
+        'kind',
+        'resourceId',
+        'ownership',
+        'generation'
     ]
 } as const;
 

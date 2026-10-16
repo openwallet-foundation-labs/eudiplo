@@ -44,6 +44,8 @@ A webhook endpoint is a reusable, tenant-scoped target, managed under `/api/issu
 
 With `apiKey`, EUDIPLO sends `value` in the header named `headerName`. Webhook requests are not signed, so use HTTPS and check the header. In configuration files, use a `${VAR}` placeholder for `value` ([Configuration as code](../operate/configuration-as-code.md)).
 
+The API never returns `value`: webhook endpoint and attribute provider responses and session details show `<redacted>` instead. Send `<redacted>` back in a `PATCH` to keep the stored key. It is rejected with `400` when no key is stored, and when the same `PATCH` changes `url`: send the key again then, so that it never goes to a new address without you supplying it.
+
 ### Where webhooks are referenced
 
 | Place                                   | Field               | Effect                                                                                                    |
@@ -185,8 +187,10 @@ The response body is ignored.
 
 ## Delivery
 
-- **One attempt.** Each webhook is a single `POST` with a JSON body. EUDIPLO does not retry.
+- **One attempt.** Each webhook starts with a single `POST` with a JSON body. EUDIPLO does not retry.
 - **Synchronous.** The wallet's request waits for your webhook, because a presentation webhook can change the redirect. Answer quickly and do slow work afterwards.
+- **Limits.** A delivery, redirects included, ends after 60 seconds, and EUDIPLO reads at most 5 MiB of the answer. A later or larger answer counts as a failed delivery.
+- **Redirects.** EUDIPLO follows up to 5 redirects. Each target must pass the outbound URL policy below; `307` and `308` repeat the `POST`, other redirects continue with a `GET` without body. The API key header is only sent to the origin of the webhook URL, not to a redirect target on another origin.
 - **Presentation failures are best effort.** The session status is final before the webhook is sent. A failed delivery (connection error, non-2xx status, blocked URL) is logged and changes neither the session nor the wallet's result. Use [polling or the event stream](../presentation/receive-results.md) as a fallback.
 - **Cancellation webhooks are best effort.** The session is cancelled before the webhook is sent; a failed delivery is only logged.
 - **Notification failures are best effort.** EUDIPLO records the event and sets the session status before it sends the webhook. A failed delivery is logged and changes neither the session nor the answer to the wallet. The recorded events stay in `notifications` of the session.

@@ -89,7 +89,12 @@
           mat-button
           (click)="applyImport()"
           [disabled]="
-            busy || !plan?.applicable || !plan?.planFingerprint || !!plan?.operationId || !canApply
+            busy ||
+            !plan?.applicable ||
+            !plan?.planFingerprint ||
+            !!plan?.operationId ||
+            !!reattachTarget ||
+            !canApply
           "
         >
           Apply bundle
@@ -102,14 +107,22 @@
   </div>
 
   @if (plan) {
-    <mat-card>
+    <mat-card id="config-plan">
       <mat-card-header>
         <mat-icon mat-card-avatar>{{ plan.applicable ? 'check_circle' : 'error' }}</mat-icon>
-        <mat-card-title>Import plan</mat-card-title>
+        <mat-card-title>
+          {{
+            reattachTarget
+              ? reappliesFileVersion
+                ? 'Apply ' + resourceKey(reattachTarget) + ' from file'
+                : 'Reset ' + resourceKey(reattachTarget) + ' to file'
+              : 'Import plan'
+          }}
+        </mat-card-title>
         <mat-card-subtitle>
           {{
             plan.operationId
-              ? 'Operation: ' + plan.operationId
+              ? (applied ? 'Applied. Operation: ' : 'Apply failed. Operation: ') + plan.operationId
               : plan.applicable
                 ? 'Ready to apply'
                 : 'Resolve blocking issues before import'
@@ -138,6 +151,9 @@
             <th mat-header-cell *matHeaderCellDef>Action</th>
             <td mat-cell *matCellDef="let item">
               <mat-chip>{{ item.action }}</mat-chip>
+              @if (item.changes?.length) {
+                <div class="muted">{{ changeSummary(item) }}</div>
+              }
             </td>
           </ng-container>
           <ng-container matColumnDef="issues">
@@ -158,6 +174,75 @@
           <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
         </table>
+        @if (reattachTarget && planRegeneratesClientSecret && !plan.operationId) {
+          <p class="issue warning">
+            <strong>New secret</strong>: {{ reattachTarget.resourceId }} gets a new secret, and its
+            current secret stops working. With "secret": "!generate" in the file, the new secret is
+            generated and shown once; otherwise it is the secret from the file.
+          </p>
+        }
+        @for (item of plan.items; track item.kind + item.id) {
+          @if (item.changes?.length) {
+            <h3>
+              Changes to <strong>{{ item.kind }}</strong
+              >/{{ item.id }}
+            </h3>
+            <table mat-table [dataSource]="item.changes" class="changes">
+              <ng-container matColumnDef="path">
+                <th mat-header-cell *matHeaderCellDef>Field</th>
+                <td mat-cell *matCellDef="let change">
+                  <code>{{ change.path }}</code>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="before">
+                <!-- An applied plan keeps its changes; the stored value is then the new one. -->
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ applied ? 'Before' : 'Current' }}
+                </th>
+                <td mat-cell *matCellDef="let change">
+                  @let before = changeSide(change, 'before');
+                  @if (before.kind === 'described') {
+                    <em class="described">{{ before.text }}</em>
+                  } @else {
+                    <code>{{ before.text }}</code>
+                  }
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="after">
+                <th mat-header-cell *matHeaderCellDef>
+                  {{
+                    reattachTarget
+                      ? reappliesFileVersion
+                        ? 'After apply'
+                        : 'After reset'
+                      : 'After import'
+                  }}
+                </th>
+                <td mat-cell *matCellDef="let change">
+                  @let after = changeSide(change, 'after');
+                  @if (after.kind === 'removed') {
+                    <em class="described removed">
+                      <mat-icon aria-hidden="true">remove_circle_outline</mat-icon>
+                      {{ after.text }}
+                    </em>
+                  } @else if (after.kind === 'described') {
+                    <em class="described">{{ after.text }}</em>
+                  } @else {
+                    <code>{{ after.text }}</code>
+                  }
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="changeColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: changeColumns"></tr>
+            </table>
+          }
+        }
+        @if (hasRedactedChanges(plan)) {
+          <p class="muted">
+            Secret values are not shown, nor values that change between an object, a list and a
+            plain value.
+          </p>
+        }
         @if (plan.assets?.length) {
           <h3>Assets</h3>
           @for (asset of plan.assets; track asset.path) {
@@ -167,32 +252,53 @@
           }
         }
       </mat-card-content>
-    </mat-card>
-
-    @if (plan.generatedSecrets?.length) {
-      <mat-card class="generated-secrets">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>key</mat-icon>
-          <mat-card-title>Generated client secrets</mat-card-title>
-          <mat-card-subtitle>
-            These values are shown once. Save them before leaving this page.
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          @for (secret of plan.generatedSecrets; track secret.id) {
-            <div>
-              <strong>{{ secret.id }}</strong> <code>{{ secret.value }}</code>
-            </div>
-          }
-        </mat-card-content>
+      @if (reattachTarget) {
         <mat-card-actions>
-          <button mat-flat-button (click)="downloadImportResult()">
-            <mat-icon>download</mat-icon>
-            Download secrets
+          <button
+            mat-flat-button
+            (click)="applyReattach()"
+            [disabled]="busy || !plan.applicable || !plan.planFingerprint || !!plan.operationId"
+          >
+            <mat-icon>restore</mat-icon>
+            {{ reappliesFileVersion ? 'Apply from file' : 'Reset to file' }}
           </button>
         </mat-card-actions>
-      </mat-card>
-    }
+      }
+    </mat-card>
+  }
+
+  @if (generatedSecrets.length) {
+    <mat-card class="generated-secrets">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>key</mat-icon>
+        <mat-card-title>Generated client secrets</mat-card-title>
+        <mat-card-subtitle>
+          These values are shown once. Save them before leaving this page.
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @for (secret of generatedSecrets; track secret.id) {
+          <div class="generated-secret">
+            <strong>{{ secret.id }}</strong> <code>{{ secret.value }}</code>
+            <button
+              mat-icon-button
+              (click)="copySecret(secret)"
+              matTooltip="Copy secret"
+              [attr.aria-label]="'Copy the secret of ' + secret.id"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        }
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button (click)="downloadImportResult()">
+          <mat-icon>download</mat-icon>
+          Download secrets
+        </button>
+        <button mat-button (click)="dismissGeneratedSecrets()">Done</button>
+      </mat-card-actions>
+    </mat-card>
   }
 
   <mat-card>
@@ -200,7 +306,8 @@
       <mat-icon mat-card-avatar>policy</mat-icon>
       <mat-card-title>Resource ownership</mat-card-title>
       <mat-card-subtitle
-        >File-managed resources are read-only until explicitly detached.</mat-card-subtitle
+        >File-managed resources are read-only until explicitly detached. Startup imports skip
+        detached resources until you reset them to the file version.</mat-card-subtitle
       >
     </mat-card-header>
     <mat-card-content class="table-scroll">
@@ -278,13 +385,30 @@
                   <mat-icon>open_in_new</mat-icon>
                 </button>
               }
-              <button
-                mat-button
-                (click)="detach(item)"
-                [disabled]="busy || !canApply || item.ownership !== 'file-managed'"
-              >
-                Detach
-              </button>
+              @if (item.ownership === 'file-managed') {
+                @if (canApplyFromFile(item)) {
+                  <button
+                    mat-button
+                    (click)="planReattach(item)"
+                    [disabled]="busy || !canApply"
+                    matTooltip='Apply the version from the config folder again. A client with "secret": "!generate" gets a new secret, shown once.'
+                  >
+                    Apply from file
+                  </button>
+                }
+                <button mat-button (click)="detach(item)" [disabled]="busy || !canApply">
+                  Detach
+                </button>
+              } @else if (item.kind !== 'Tenant') {
+                <button
+                  mat-button
+                  (click)="planReattach(item)"
+                  [disabled]="busy || !canApply"
+                  matTooltip="Discard API and UI changes and apply the version from the config folder"
+                >
+                  Reset to file
+                </button>
+              }
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="resourceColumns"></tr>

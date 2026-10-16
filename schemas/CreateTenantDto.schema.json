@@ -19,7 +19,7 @@
       "minLength": 1
     },
     "roles": {
-      "description": "Optional default role assignments for the tenant.",
+      "description": "Roles of the tenant's admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.",
       "type": "array",
       "items": {
         "type": "string",
@@ -32,7 +32,11 @@
           "clients:manage",
           "users:manage",
           "registrar:manage",
-          "tenant:admin"
+          "tenant:admin",
+          "audit:read",
+          "sessions:read",
+          "credentials:status",
+          "keys:manage"
         ]
       }
     },

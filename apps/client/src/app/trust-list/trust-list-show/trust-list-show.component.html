@@ -3,28 +3,41 @@
     <app-config-ownership-notice kind="TrustList" [resourceId]="trustList.id" />
     <!-- Header -->
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Trust List Details</h2>
+      <h2 #pageHeading tabindex="-1">Trust List Details</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+        <button
+          mat-icon-button
+          [routerLink]="['../']"
+          matTooltip="Back to list"
+          aria-label="Back to list"
+        >
           <mat-icon>arrow_back</mat-icon>
         </button>
         <button
           mat-icon-button
           [routerLink]="['edit']"
           matTooltip="Edit list"
+          aria-label="Edit list"
           appConfigManaged
           managedKind="TrustList"
           [managedResourceId]="trustList.id"
         >
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Download backup" (click)="download()">
+        <button
+          mat-icon-button
+          matTooltip="Download configuration"
+          aria-label="Download configuration"
+          (click)="download()"
+        >
           <mat-icon>download</mat-icon>
         </button>
         <button
           mat-icon-button
           (click)="delete()"
           matTooltip="Delete list"
+          aria-label="Delete list"
+          [disabled]="deleting"
           color="warn"
           appConfigManaged
           managedKind="TrustList"
@@ -80,6 +93,7 @@
                 matSuffix
                 mat-icon-button
                 matTooltip="Copy URL"
+                aria-label="Copy URL"
                 (click)="copyToClipboard(publicUrl, 'Trust List URL')"
               >
                 <mat-icon>content_copy</mat-icon>
@@ -111,7 +125,18 @@
         <mat-card-title>Referenced by Credential Configs</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (relatedCredentialConfigs.length) {
+        @if (!canReadCredentialConfigs) {
+          <p class="url-description">
+            You need the <code>issuance:manage</code> role to see which credential configs reference
+            this trust list.
+          </p>
+        } @else if (relatedCredentialConfigsLoading) {
+          <p class="url-description"><output>Loading credential configs…</output></p>
+        } @else if (relatedCredentialConfigsFailed) {
+          <p class="url-description" role="alert">
+            Could not load the credential configs that reference this trust list.
+          </p>
+        } @else if (relatedCredentialConfigs.length) {
           <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
             @for (cc of relatedCredentialConfigs; track cc.id) {
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
@@ -121,6 +146,7 @@
                   mat-icon-button
                   [routerLink]="['/credential-config', cc.id]"
                   matTooltip="Open credential config"
+                  [attr.aria-label]="'Open credential config ' + (cc.description || cc.id)"
                 >
                   <mat-icon>open_in_new</mat-icon>
                 </a>
@@ -129,6 +155,45 @@
           </div>
         } @else {
           <p class="url-description">No credential configs reference this trust list.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Referenced by Presentation Configs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (!canReadPresentationConfigs) {
+          <p class="url-description">
+            You need the <code>presentation:manage</code> or <code>presentation:request</code> role
+            to see which presentation configs reference this trust list.
+          </p>
+        } @else if (relatedPresentationConfigsLoading) {
+          <p class="url-description"><output>Loading presentation configs…</output></p>
+        } @else if (relatedPresentationConfigsFailed) {
+          <p class="url-description" role="alert">
+            Could not load the presentation configs that reference this trust list.
+          </p>
+        } @else if (relatedPresentationConfigs.length) {
+          <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
+            @for (pc of relatedPresentationConfigs; track pc.id) {
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-icon class="label-icon">verified_user</mat-icon>
+                <span class="value">{{ pc.description || pc.id }}</span>
+                <a
+                  mat-icon-button
+                  [routerLink]="['/presentation-config', pc.id]"
+                  matTooltip="Open presentation config"
+                  [attr.aria-label]="'Open presentation config ' + (pc.description || pc.id)"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="url-description">No presentation configs reference this trust list.</p>
         }
       </mat-card-content>
     </mat-card>
@@ -290,4 +355,10 @@
       </mat-card>
     }
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="load()">
+    <a mat-button [routerLink]="['../']">Back to the list</a>
+  </app-load-error>
+} @else {
+  <p><output>Loading trust list…</output></p>
 }

@@ -46,7 +46,7 @@ const TENANT_ADMIN_REQUIRED =
  * - Rotation policy and previous keys (for grace period)
  */
 @ApiTags("Key Chain")
-@Secured([Role.Issuances, Role.Presentations])
+@Secured([Role.Issuances, Role.Presentations, Role.Keys])
 @Controller("key-chain")
 export class KeyChainController {
     constructor(
@@ -261,6 +261,11 @@ export class KeyChainController {
         description: "Key chain imported successfully",
         type: KeyChainIdResponseDto,
     })
+    @ApiResponse({
+        status: 409,
+        description:
+            "The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.",
+    })
     async import(
         @Token() token: TokenPayload,
         @Body() body: KeyChainImportDto,
@@ -278,6 +283,11 @@ export class KeyChainController {
     @Put(":id")
     @ApiOperation({ summary: "Update key chain metadata and rotation policy" })
     @ApiResponse({ status: 204, description: "Key chain updated successfully" })
+    @ApiResponse({
+        status: 400,
+        description:
+            "Invalid request, for example rotation enabled while neither the request nor the key chain has intervalDays",
+    })
     @ApiResponse({ status: 404, description: "Key chain not found" })
     @HttpCode(204)
     async update(

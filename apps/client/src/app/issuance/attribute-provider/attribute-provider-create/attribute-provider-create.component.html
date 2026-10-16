@@ -9,7 +9,12 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <h2>{{ create ? 'Create' : 'Edit' }} Attribute Provider</h2>
     <div fxLayout="row" fxLayoutGap="8px">
-      <button mat-stroked-button (click)="viewAsJson()" matTooltip="View/Edit as JSON">
+      <button
+        mat-stroked-button
+        (click)="viewAsJson()"
+        matTooltip="View/Edit as JSON"
+        [disabled]="loading || !!loadError"
+      >
         <mat-icon>code</mat-icon>
         JSON View
       </button>
@@ -19,107 +24,117 @@
     </div>
   </div>
 
-  <!-- Form -->
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>cloud_download</mat-icon>
-          Provider Details
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <mat-form-field>
-          <mat-label>ID</mat-label>
-          <input matInput formControlName="id" placeholder="unique-provider-id" />
-          <mat-icon matSuffix>fingerprint</mat-icon>
-          @if (form.get('id')?.invalid && form.get('id')?.touched) {
-            <mat-error>ID is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name" placeholder="My Attribute Provider" />
-          <mat-icon matSuffix>label</mat-icon>
-          @if (form.get('name')?.invalid && form.get('name')?.touched) {
-            <mat-error>Name is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Description</mat-label>
-          <input matInput formControlName="description" placeholder="Optional description" />
-          <mat-icon matSuffix>description</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://example.com/attributes" />
-          <mat-icon matSuffix>link</mat-icon>
-          @if (form.get('url')?.invalid && form.get('url')?.touched) {
-            <mat-error>URL is required</mat-error>
-          }
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Authentication Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>security</mat-icon>
-          Authentication
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <mat-form-field>
-          <mat-label>Auth Type</mat-label>
-          <mat-select formControlName="authType">
-            <mat-option value="none">None</mat-option>
-            <mat-option value="apiKey">API Key</mat-option>
-          </mat-select>
-          <mat-icon matSuffix>vpn_key</mat-icon>
-        </mat-form-field>
-
-        @if (form.get('authType')?.value === 'apiKey') {
+  @if (loadError) {
+    <app-load-error
+      [message]="loadError"
+      hint="The attribute provider can only be edited after it has been loaded."
+      (retry)="retryLoad()"
+    >
+      <a mat-button [routerLink]="['../../']">Back to the list</a>
+    </app-load-error>
+  } @else if (loading) {
+    <p><output>Loading attribute provider…</output></p>
+  } @else {
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>cloud_download</mat-icon>
+            Provider Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content fxLayout="column" fxLayoutGap="16px">
           <mat-form-field>
-            <mat-label>Header Name</mat-label>
-            <input matInput formControlName="authHeaderName" placeholder="X-API-Key" />
-            <mat-icon matSuffix>code</mat-icon>
+            <mat-label>ID</mat-label>
+            <input matInput formControlName="id" placeholder="unique-provider-id" />
+            <mat-icon matSuffix>fingerprint</mat-icon>
+            <mat-error>{{ fieldError('id', 'ID is required') }}</mat-error>
           </mat-form-field>
 
           <mat-form-field>
-            <mat-label>Header Value</mat-label>
-            <input
-              matInput
-              formControlName="authHeaderValue"
-              type="password"
-              placeholder="secret-value"
-            />
-            <mat-icon matSuffix>lock</mat-icon>
-            @if (!create) {
-              <mat-hint>Leave empty to keep existing value</mat-hint>
-            }
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="My Attribute Provider" />
+            <mat-icon matSuffix>label</mat-icon>
+            <mat-error>{{ fieldError('name', 'Name is required') }}</mat-error>
           </mat-form-field>
-        }
-      </mat-card-content>
-    </mat-card>
 
-    <!-- Actions -->
-    <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
-      <button mat-stroked-button type="button" [routerLink]="['../']">Cancel</button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        [disabled]="form.invalid"
-        appConfigManaged
-        managedKind="AttributeProvider"
-        [managedResourceId]="create ? '' : form.get('id')?.value || ''"
-      >
-        {{ create ? 'Create' : 'Update' }}
-      </button>
-    </div>
-  </form>
+          <mat-form-field>
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" placeholder="Optional description" />
+            <mat-icon matSuffix>description</mat-icon>
+            <mat-error>{{ fieldError('description') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>URL</mat-label>
+            <input matInput formControlName="url" placeholder="https://example.com/attributes" />
+            <mat-icon matSuffix>link</mat-icon>
+            <mat-error>{{ fieldError('url', 'URL is required') }}</mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Authentication Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>security</mat-icon>
+            Authentication
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content fxLayout="column" fxLayoutGap="16px">
+          <mat-form-field>
+            <mat-label>Auth Type</mat-label>
+            <mat-select formControlName="authType">
+              <mat-option value="none">None</mat-option>
+              <mat-option value="apiKey">API Key</mat-option>
+            </mat-select>
+            <mat-icon matSuffix>vpn_key</mat-icon>
+            <mat-error>{{ fieldError('authType') }}</mat-error>
+          </mat-form-field>
+
+          @if (form.get('authType')?.value === 'apiKey') {
+            <mat-form-field>
+              <mat-label>Header Name</mat-label>
+              <input matInput formControlName="authHeaderName" placeholder="X-API-Key" />
+              <mat-icon matSuffix>code</mat-icon>
+              <mat-error>{{ fieldError('authHeaderName') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Header Value</mat-label>
+              <input
+                matInput
+                formControlName="authHeaderValue"
+                type="password"
+                placeholder="secret-value"
+              />
+              <mat-icon matSuffix>lock</mat-icon>
+              @if (!create) {
+                <mat-hint>Kept unless you enter a new key; enter it again for a new URL.</mat-hint>
+              }
+              <mat-error>{{ fieldError('authHeaderValue') }}</mat-error>
+            </mat-form-field>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Actions -->
+      <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+        <button mat-stroked-button type="button" [routerLink]="['../']">Cancel</button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || saving || loading"
+          appConfigManaged
+          managedKind="AttributeProvider"
+          [managedResourceId]="create ? '' : form.get('id')?.value || ''"
+        >
+          {{ create ? 'Create' : 'Update' }}
+        </button>
+      </div>
+    </form>
+  }
 </div>

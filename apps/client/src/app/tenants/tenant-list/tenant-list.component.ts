@@ -12,6 +12,10 @@ import {
   TenantResponseDto,
 } from '@eudiplo/sdk-core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { LoadErrorComponent } from '../../common/load-error.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-tenant-list',
@@ -24,6 +28,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     FlexLayoutModule,
     MatSlideToggleModule,
     MatSnackBarModule,
+    LoadErrorComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './tenant-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -38,24 +44,42 @@ export class TenantListComponent implements OnInit {
     'actions',
   ];
   tenants: TenantResponseDto[] = [];
+  loading = true;
+  /** Set when the list could not be loaded, so it is not shown as empty. */
+  loadError = '';
 
   constructor(private snackBar: MatSnackBar) {}
 
-  async ngOnInit(): Promise<void> {
-    this.tenants = await tenantControllerGetTenants<true>().then((res) => res.data);
+  ngOnInit(): void {
+    void this.loadTenants();
+  }
+
+  async loadTenants(): Promise<void> {
+    this.loading = true;
+    this.loadError = '';
+    try {
+      this.tenants = await tenantControllerGetTenants<true>().then((res) => res.data);
+    } catch (error) {
+      console.error('Error loading tenants:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load tenants');
+    } finally {
+      this.loading = false;
+    }
   }
 
   deleteTenant(tenant: TenantResponseDto): void {
-    if (
-      !confirm(
-        `Are you sure you want to delete tenant ${tenant.name}? This action cannot be undone.`
-      )
-    ) {
+    if (!confirm(`Delete tenant "${tenant.name}" and all its data? This cannot be undone.`)) {
       return;
     }
-    tenantControllerDeleteTenant({ path: { id: tenant.id } }).then(() => {
-      this.tenants = this.tenants.filter((t) => t.id !== tenant.id);
-      this.snackBar.open('Tenant deleted successfully', 'Close', { duration: 3000 });
-    });
+    tenantControllerDeleteTenant({ path: { id: tenant.id } }).then(
+      () => {
+        this.tenants = this.tenants.filter((t) => t.id !== tenant.id);
+        this.snackBar.open('Tenant deleted successfully', 'Close', { duration: 3000 });
+      },
+      (error) => {
+        console.error('Error deleting tenant:', error);
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete tenant'));
+      }
+    );
   }
 }

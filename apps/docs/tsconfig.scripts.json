@@ -9,6 +9,7 @@
     "scripts/generate-schema-docs.ts",
     "scripts/generate-roles-docs.ts",
     "scripts/schema-docs/**/*.ts",
+    "scripts/roles-docs/**/*.ts",
     "scripts/check-sidebar-orphans.ts"
   ]
 }

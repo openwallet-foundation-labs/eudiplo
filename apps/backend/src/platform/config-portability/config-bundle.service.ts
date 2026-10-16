@@ -19,16 +19,32 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare as compareSecret } from "bcrypt";
-import { Repository } from "typeorm";
+import { Not, Repository } from "typeorm";
+import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
 import { KmsTenantConfigService } from "../../crypto/key/kms/kms-tenant-config.service.js";
 import { withoutRemovedChainedVp } from "../../issuer/configuration/issuance/domain/removed-authorization-servers.js";
+import {
+    type ConfigurationChange,
+    TrustListReferences,
+} from "../../issuer/trust-list/application/trust-list-references.js";
+import {
+    describeTrustListReferences,
+    isTrustListReferenceKind,
+    trustListReferenceId,
+} from "../../issuer/trust-list/domain/trust-list-reference.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
 import { FilesService } from "../../storage/files.service.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
-import { ConfigDocumentValidationService } from "./config-document-validation.service.js";
+import {
+    ConfigDocumentValidationService,
+    UNRESOLVED_PLACEHOLDER,
+} from "./config-document-validation.service.js";
 import { ConfigKmsReferenceService } from "./config-kms-reference.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
-import { ConfigOwnershipService } from "./config-ownership.service.js";
+import {
+    ConfigOwnershipService,
+    sourceInScope,
+} from "./config-ownership.service.js";
 import { ConfigResourceRegistry } from "./config-resource.registry.js";
 import type {
     ConfigBundle,
@@ -38,8 +54,16 @@ import type {
     ConfigImportPlan,
     ConfigImportPlanItem,
     ConfigMigrationIssue,
+    ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { documentAppliedAsIs } from "./config-source-hash.js";
+import {
+    appliedKeyChainType,
+    appliedKmsProvider,
+    appliedRotationPolicy,
+    keyChainSettingsSpec,
+} from "./key-chain-document.js";
 
 const OMITTED_FIELDS = new Set([
     "tenant",
@@ -84,6 +108,19 @@ function pathMatches(pattern: string, path: string): boolean {
     );
 }
 
+/** The action a plan item gets from its state, in order of precedence. */
+function planAction(state: {
+    blocked: boolean;
+    skip: boolean;
+    unchanged: boolean;
+    exists: boolean;
+}): ConfigImportPlanItem["action"] {
+    if (state.blocked) return "blocked";
+    if (state.skip) return "skip";
+    if (state.unchanged) return "unchanged";
+    return state.exists ? "update" : "create";
+}
+
 function placeholder(
     kind: ConfigResourceKind,
     id: string,
@@ -110,6 +147,7 @@ export class ConfigBundleService {
         private readonly documentValidationService: ConfigDocumentValidationService,
         private readonly ownershipService: ConfigOwnershipService,
         private readonly configService: ConfigService,
+        private readonly trustListReferences: TrustListReferences,
     ) {}
 
     private get tenants() {
@@ -160,7 +198,7 @@ export class ConfigBundleService {
             "tenant",
             {
                 name: tenant.name,
-                description: tenant.description,
+                description: tenant.description ?? undefined,
                 sessionConfig: tenant.sessionConfig ?? undefined,
                 statusListConfig: tenant.statusListConfig ?? undefined,
             },
@@ -169,7 +207,7 @@ export class ConfigBundleService {
         for (const client of await this.clients.find({ where: { tenantId } })) {
             const spec: Record<string, unknown> = {
                 clientId: client.clientId,
-                description: client.description,
+                description: client.description ?? undefined,
                 roles: client.roles,
                 allowedPresentationConfigs: client.allowedPresentationConfigs,
                 allowedIssuanceConfigs: client.allowedIssuanceConfigs,
@@ -209,8 +247,9 @@ export class ConfigBundleService {
             );
         }
 
+        // The tenant's encryption key chain is system-owned, not configuration.
         for (const keyChain of await this.keyChains.find({
-            where: { tenantId },
+            where: { tenantId, usage: KeyUsage.Sign },
         })) {
             const publicJwk = this.toPublicJwk(
                 keyChain.hasInternalCa()
@@ -235,7 +274,7 @@ export class ConfigBundleService {
                 : { type: "required", publicJwk };
             const spec: Record<string, unknown> = {
                 id: keyChain.id,
-                description: keyChain.description,
+                ...keyChainSettingsSpec(keyChain),
                 usageType: keyChain.usageType,
                 kmsProvider: keyChain.kmsProvider,
                 keySource,
@@ -245,11 +284,6 @@ export class ConfigBundleService {
                 activeCertificate: keyChain.hasInternalCa()
                     ? keyChain.activeCertificate
                     : undefined,
-                rotationPolicy: {
-                    enabled: keyChain.rotationEnabled,
-                    intervalDays: keyChain.rotationIntervalDays,
-                    certValidityDays: keyChain.certValidityDays,
-                },
             };
             if (!keyChain.externalKeyId) {
                 requirements.push({
@@ -332,13 +366,7 @@ export class ConfigBundleService {
                 tenantId,
                 "TrustList",
                 trustList.id,
-                {
-                    id: trustList.id,
-                    description: trustList.description,
-                    keyChainId: trustList.keyChainId,
-                    entities: trustList.entityConfig ?? [],
-                    data: trustList.data,
-                },
+                this.trustListSpec(trustList),
             );
         }
 
@@ -351,13 +379,7 @@ export class ConfigBundleService {
                 tenantId,
                 "StatusList",
                 status.id,
-                {
-                    id: status.id,
-                    credentialConfigurationId: status.credentialConfigurationId,
-                    keyChainId: status.keyChainId,
-                    capacity: status.elements.length,
-                    bits: status.bits,
-                },
+                this.statusListSpec(status),
             );
         }
 
@@ -413,6 +435,7 @@ export class ConfigBundleService {
         bundle: ConfigBundle,
         mode: ConfigImportMode,
         ownershipSource = `bundle:${bundle.manifest.tenant}`,
+        options: ConfigPlanOptions = {},
     ): Promise<ConfigImportPlan> {
         try {
             this.assertBundle(bundle);
@@ -426,6 +449,8 @@ export class ConfigBundleService {
         const items: ConfigImportPlanItem[] = [];
         const issues: ConfigMigrationIssue[] = [];
         const upgradedDocuments: ConfigDocument[] = [];
+        const systemOwnedKeyChains =
+            await this.systemOwnedKeyChainIds(tenantId);
         for (const file of bundle.documents) {
             const input = this.migrationService.normalize(file);
             const sourceVersion = input.$schema!;
@@ -441,24 +466,71 @@ export class ConfigBundleService {
                 result.document.kind,
                 resourceId(result.document),
             );
+            const reference = {
+                kind: result.document.kind,
+                id: resourceId(result.document),
+            };
+            // Key chains EUDIPLO manages itself, such as the tenant's
+            // encryption key chain, are not configuration. Exports of earlier
+            // versions contain the encryption key chain; skip it instead of
+            // asking for its private key.
+            const skipReserved =
+                exists &&
+                reference.kind === "KeyChain" &&
+                systemOwnedKeyChains.has(reference.id);
             const itemIssues = [...result.issues];
             itemIssues.push(
                 ...this.documentValidationService.validate(result.document),
             );
-            this.collectUnresolvedRequirements(result.document, itemIssues);
+            if (skipReserved) {
+                itemIssues.push({
+                    severity: "warning",
+                    code: "KEY_CHAIN_ID_RESERVED",
+                    path: "/spec/id",
+                    message:
+                        "This ID belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain. It is skipped.",
+                    resource: reference,
+                });
+            } else {
+                this.collectUnresolvedRequirements(result.document, itemIssues);
+            }
+            // A startup folder import must not fail the whole tenant because
+            // one resource diverged; it skips that resource and says how to recover.
+            const startupFolder = ownershipSource.startsWith("folder:");
+            let skipDiverged = false;
             if (
                 exists &&
+                !skipReserved &&
+                !options.reattach &&
+                metadata.ownership === "detached" &&
+                sourceInScope(metadata.source, ownershipSource)
+            ) {
+                skipDiverged = true;
+                itemIssues.push({
+                    severity: "warning",
+                    code: "RESOURCE_DETACHED",
+                    path: "/metadata",
+                    message:
+                        "Resource was detached from this source and is skipped. Reattach it to apply the file version.",
+                    resource: reference,
+                });
+            } else if (
+                exists &&
+                !skipReserved &&
+                !options.reattach &&
                 (result.document.metadata.generation ?? 1) < metadata.generation
             ) {
+                skipDiverged = startupFolder;
                 itemIssues.push({
-                    severity: "error",
+                    severity: startupFolder ? "warning" : "error",
                     code: "STALE_GENERATION",
                     path: "/metadata/generation",
-                    message: `Generation ${result.document.metadata.generation ?? 1} is older than stored generation ${metadata.generation}.`,
-                    resource: {
-                        kind: result.document.kind,
-                        id: resourceId(result.document),
-                    },
+                    message: `Generation ${result.document.metadata.generation ?? 1} is older than stored generation ${metadata.generation}.${
+                        startupFolder
+                            ? " The resource was changed through the API or UI and is skipped. Reattach it to apply the file version, or raise metadata.generation in the file."
+                            : ""
+                    }`,
+                    resource: reference,
                 });
             }
             if (
@@ -489,7 +561,27 @@ export class ConfigBundleService {
                         });
                 }
             }
-            const skipExisting = exists && mode === "create";
+            if (
+                !exists &&
+                result.document.kind === "Client" &&
+                (await this.clients.countBy({
+                    clientId: resourceId(result.document),
+                })) > 0
+            ) {
+                itemIssues.push({
+                    severity: "error",
+                    code: "CLIENT_ID_TAKEN",
+                    path: "/spec/clientId",
+                    message:
+                        "Client IDs are unique across tenants, and another tenant or the root client already uses this one.",
+                    resource: {
+                        kind: "Client",
+                        id: resourceId(result.document),
+                    },
+                });
+            }
+            const skipExisting =
+                exists && mode === "create" && !skipDiverged && !skipReserved;
             if (skipExisting) {
                 itemIssues.push({
                     severity: "warning",
@@ -508,29 +600,56 @@ export class ConfigBundleService {
                     issue.severity === "error" ||
                     issue.severity === "required-input",
             );
-            const comparison =
-                exists && mode !== "create" && !blocked
-                    ? await this.compareDocument(tenantId, result.document)
-                    : undefined;
+            let comparison:
+                | { unchanged: boolean; changes: ConfigChange[] }
+                | undefined;
+            if (
+                exists &&
+                mode !== "create" &&
+                !blocked &&
+                !skipDiverged &&
+                !skipReserved
+            ) {
+                // Reattach restores the folder version, so it always compares.
+                comparison =
+                    !options.reattach &&
+                    this.skipsComparison(
+                        result.document,
+                        metadata,
+                        ownershipSource,
+                    )
+                        ? { unchanged: true, changes: [] }
+                        : await this.compareDocument(tenantId, result.document);
+            }
             const metadataChanged =
                 metadata.ownership !== "file-managed" ||
                 metadata.source !== ownershipSource ||
                 metadata.generation !==
                     (result.document.metadata.generation ?? 1);
+            let action = planAction({
+                blocked,
+                skip: skipExisting || skipDiverged || skipReserved,
+                unchanged: comparison?.unchanged ?? false,
+                exists,
+            });
+            // Only a document apply writes is checked, as saving checks it.
+            if (action === "create" || action === "update") {
+                const certificateIssues =
+                    this.documentValidationService.validateRegistrationCertificate(
+                        result.document,
+                        tenantId,
+                    );
+                if (certificateIssues.length > 0) {
+                    itemIssues.push(...certificateIssues);
+                    action = "blocked";
+                }
+            }
             items.push({
                 changes: comparison?.changes,
                 metadataChanged,
                 kind: result.document.kind,
                 id: resourceId(result.document),
-                action: blocked
-                    ? "blocked"
-                    : skipExisting
-                      ? "skip"
-                      : comparison?.unchanged
-                        ? "unchanged"
-                        : exists
-                          ? "update"
-                          : "create",
+                action,
                 sourceVersion,
                 targetVersion: result.document.$schema!,
                 migrations: result.migrations,
@@ -570,7 +689,9 @@ export class ConfigBundleService {
             for (const metadata of managed) {
                 if (
                     metadata.kind === "Tenant" ||
-                    included.has(`${metadata.kind}/${metadata.resourceId}`)
+                    included.has(`${metadata.kind}/${metadata.resourceId}`) ||
+                    (metadata.kind === "KeyChain" &&
+                        systemOwnedKeyChains.has(metadata.resourceId))
                 ) {
                     continue;
                 }
@@ -584,6 +705,13 @@ export class ConfigBundleService {
                     issues: [],
                 });
             }
+            issues.push(
+                ...(await this.blockDeletingTrustListsInUse(
+                    tenantId,
+                    upgradedDocuments,
+                    items,
+                )),
+            );
         }
         if (revision !== (await this.configurationRevision(tenantId)))
             throw new ConflictException(
@@ -598,6 +726,7 @@ export class ConfigBundleService {
                     tenantId,
                     mode,
                     ownershipSource,
+                    ...(options.reattach ? { reattach: true } : {}),
                     bundle,
                     revision,
                     assets,
@@ -612,6 +741,81 @@ export class ConfigBundleService {
             items,
             issues,
         };
+    }
+
+    /**
+     * Blocks deleting a trust list that a configuration surviving the import
+     * still references: a stored configuration the plan neither deletes nor
+     * rewrites, or a document of the bundle with its new content.
+     */
+    private async blockDeletingTrustListsInUse(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+    ): Promise<ConfigMigrationIssue[]> {
+        const deletedLists = items.filter(
+            (item) => item.action === "delete" && item.kind === "TrustList",
+        );
+        if (deletedLists.length === 0) return [];
+        const actions = new Map(
+            items.map((item) => [`${item.kind}/${item.id}`, item.action]),
+        );
+        const change: ConfigurationChange = { written: [], removed: [] };
+        for (const document of documents) {
+            const { kind, spec } = document;
+            const id = resourceId(document);
+            // A skipped document leaves the stored configuration in place.
+            if (
+                !isTrustListReferenceKind(kind) ||
+                actions.get(`${kind}/${id}`) === "skip"
+            )
+                continue;
+            change.written.push({
+                kind,
+                id: trustListReferenceId(kind, id),
+                content: spec,
+            });
+        }
+        for (const item of items) {
+            if (item.action === "delete" && isTrustListReferenceKind(item.kind))
+                change.removed.push({
+                    kind: item.kind,
+                    id: trustListReferenceId(item.kind, item.id),
+                });
+        }
+        const issues: ConfigMigrationIssue[] = [];
+        for (const item of deletedLists) {
+            const references = await this.trustListReferences.findAfter(
+                { tenantId, id: item.id },
+                change,
+            );
+            if (references.length === 0) continue;
+            const issue: ConfigMigrationIssue = {
+                severity: "error",
+                code: "TRUST_LIST_IN_USE",
+                path: "/metadata/id",
+                message: `Trust list ${JSON.stringify(item.id)} is left out of this import, so replace mode deletes it, but it is still referenced by ${describeTrustListReferences(references)}. Keep the trust list in the bundle or folder, or remove these references.`,
+                resource: { kind: "TrustList", id: item.id },
+            };
+            item.issues.push(issue);
+            item.action = "blocked";
+            issues.push(issue);
+        }
+        return issues;
+    }
+
+    /**
+     * IDs of the key chains EUDIPLO manages itself, such as the tenant's
+     * encryption key chain. Imports neither change nor delete them.
+     */
+    private async systemOwnedKeyChainIds(
+        tenantId: string,
+    ): Promise<Set<string>> {
+        const keyChains = await this.keyChains.find({
+            where: { tenantId, usage: Not(KeyUsage.Sign) },
+            select: { id: true },
+        });
+        return new Set(keyChains.map((keyChain) => keyChain.id));
     }
 
     /** Hash configuration only; live status values and allocation stacks are not configuration. */
@@ -921,11 +1125,12 @@ export class ConfigBundleService {
                     registrarUrl: entity.registrarUrl,
                     oidcUrl: entity.oidcUrl,
                     clientId: entity.clientId,
-                    clientSecret: entity.clientSecret,
+                    // Unset columns are null; the schema has them optional.
+                    clientSecret: entity.clientSecret ?? undefined,
                     username: entity.username,
                     password: entity.password,
                     registrationCertificateDefaults:
-                        entity.registrationCertificateDefaults,
+                        entity.registrationCertificateDefaults ?? undefined,
                 };
             case "IssuanceConfig":
                 return {
@@ -942,9 +1147,11 @@ export class ConfigBundleService {
                         ? withoutRemovedChainedVp(entity.authorizationServers)
                               .servers
                         : entity.authorizationServers,
+                    // The schema accepts null for these, and applying null clears them.
                     federation: entity.federation,
                     registrationCertificate: entity.registrationCertificate,
-                    display: entity.display,
+                    // An unset display column is null; the schema has it optional.
+                    display: entity.display ?? undefined,
                     notificationEndpointEnabled:
                         entity.notificationEndpointEnabled,
                     credentialResponseEncryption:
@@ -1005,6 +1212,31 @@ export class ConfigBundleService {
         }
     }
 
+    private trustListSpec(
+        trustList: Record<string, any>,
+    ): Record<string, unknown> {
+        return {
+            id: trustList.id,
+            description: trustList.description ?? undefined,
+            keyChainId: trustList.keyChainId,
+            entities: trustList.entityConfig ?? [],
+            data: trustList.data,
+        };
+    }
+
+    private statusListSpec(
+        statusList: Record<string, any>,
+    ): Record<string, unknown> {
+        return {
+            id: statusList.id,
+            credentialConfigurationId: statusList.credentialConfigurationId,
+            // A list without its own key chain has null; the schema has it optional.
+            keyChainId: statusList.keyChainId ?? undefined,
+            capacity: statusList.elements.length,
+            bits: statusList.bits,
+        };
+    }
+
     private async addDocument(
         documents: ConfigDocument[],
         requirements: ConfigBundleRequirement[],
@@ -1028,7 +1260,11 @@ export class ConfigBundleService {
             kind,
             metadata: {
                 generation: metadata.generation,
-                ownership: metadata.ownership,
+                // Detachment is local instance state, not part of the bundle format.
+                ownership:
+                    metadata.ownership === "detached"
+                        ? "unmanaged"
+                        : metadata.ownership,
             },
             spec: spec as Record<string, unknown>,
         });
@@ -1118,6 +1354,16 @@ export class ConfigBundleService {
         tenantId: string,
         documents: ConfigDocument[],
     ): Promise<void> {
+        const rewrite = await this.assetReferenceRewriter(tenantId);
+        for (const document of documents) {
+            document.spec = rewrite(document.spec) as Record<string, unknown>;
+        }
+    }
+
+    /** Maps public storage URLs of tenant files back to their bundle filenames. */
+    private async assetReferenceRewriter(
+        tenantId: string,
+    ): Promise<(value: unknown) => unknown> {
         const byId = new Map(
             (await this.files.find({ where: { tenantId } })).map((file) => [
                 file.id,
@@ -1130,16 +1376,20 @@ export class ConfigBundleService {
                 return match && byId.has(match[1]) ? byId.get(match[1]) : value;
             }
             if (Array.isArray(value)) return value.map(rewrite);
-            if (!value || typeof value !== "object") return value;
+            // Leave non-plain values (dates, buffers) of stored entities intact.
+            if (
+                !value ||
+                typeof value !== "object" ||
+                Object.getPrototypeOf(value) !== Object.prototype
+            )
+                return value;
             return Object.fromEntries(
                 Object.entries(value as Record<string, unknown>).map(
                     ([key, item]) => [key, rewrite(item)],
                 ),
             );
         };
-        for (const document of documents) {
-            document.spec = rewrite(document.spec) as Record<string, unknown>;
-        }
+        return rewrite;
     }
 
     private assertBundle(bundle: ConfigBundle): void {
@@ -1154,7 +1404,7 @@ export class ConfigBundleService {
             if (
                 typeof value === "string" &&
                 value !== "!generate" &&
-                /^\$\{[A-Z0-9_]+(?::[^}]*)?\}$/.test(value)
+                UNRESOLVED_PLACEHOLDER.test(value)
             ) {
                 issues.push({
                     severity: "required-input",
@@ -1197,19 +1447,50 @@ export class ConfigBundleService {
         }
     }
 
+    /**
+     * Whether a document this source applied as it is plans `unchanged`
+     * without comparing it. With Keycloak, clients are applied again to undo
+     * changes made there; apply keeps the secret of a client applied as it is.
+     */
+    private skipsComparison(
+        document: ConfigDocument,
+        metadata: Parameters<typeof documentAppliedAsIs>[1],
+        source: string,
+    ): boolean {
+        if (document.kind === "Client" && this.configService.get("OIDC"))
+            return false;
+        return documentAppliedAsIs(document, metadata, source);
+    }
+
     /** Compare the fields this import would write with current persisted configuration. */
     async compareDocument(
         tenantId: string,
         document: ConfigDocument,
     ): Promise<{ unchanged: boolean; changes: ConfigChange[] }> {
-        const current = await this.currentSpec(tenantId, document);
-        if (!current) return { unchanged: false, changes: [] };
+        const stored = await this.currentSpec(tenantId, document);
+        if (!stored) return { unchanged: false, changes: [] };
+        // Stored image references are storage URLs; bundles name the file.
+        const current = (await this.assetReferenceRewriter(tenantId))(
+            stored,
+        ) as Record<string, any>;
         let desired = structuredClone(document.spec) as Record<string, any>;
         // Importers derive the identifier from metadata when it is omitted.
         if (document.kind === "Client")
             desired.clientId ??= resourceId(document);
         else if (!this.registry.get(document.kind).singletonId)
             desired.id ??= resourceId(document);
+        // No defaults are stored as null, and 9.x exports wrote that null.
+        if (
+            document.kind === "RegistrarConfig" &&
+            desired.registrationCertificateDefaults === null
+        )
+            delete desired.registrationCertificateDefaults;
+        // Compare with the settings the importers store for the document.
+        if (document.kind === "KeyChain") {
+            desired.rotationPolicy = appliedRotationPolicy(desired);
+            desired.kmsProvider = appliedKmsProvider(desired);
+            desired.type = appliedKeyChainType(desired);
+        }
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&
@@ -1228,7 +1509,9 @@ export class ConfigBundleService {
             spec: current,
         });
         const replacesSpec =
-            document.kind === "KmsConfig" || document.kind === "KeyChain";
+            document.kind === "KmsConfig" ||
+            document.kind === "KeyChain" ||
+            document.kind === "RegistrarConfig";
         const after = this.documentValidationService.normalizeForComparison({
             ...document,
             spec: replacesSpec ? desired : { ...current, ...desired },
@@ -1335,7 +1618,7 @@ export class ConfigBundleService {
                       };
                 return {
                     id,
-                    description: entity.description,
+                    ...keyChainSettingsSpec(entity),
                     usageType: entity.usageType,
                     keySource,
                     crt: [
@@ -1347,11 +1630,6 @@ export class ConfigBundleService {
                         ? entity.activeCertificate
                         : undefined,
                     kmsProvider: entity.kmsProvider,
-                    rotationPolicy: {
-                        enabled: entity.rotationEnabled,
-                        intervalDays: entity.rotationIntervalDays ?? undefined,
-                        certValidityDays: entity.certValidityDays ?? undefined,
-                    },
                 };
             }
             case "RegistrarConfig":
@@ -1387,26 +1665,13 @@ export class ConfigBundleService {
             case "TrustList": {
                 entity = await this.trustLists.findOneBy({ tenantId, id });
                 return entity
-                    ? {
-                          id,
-                          description: entity.description,
-                          keyChainId: entity.keyChainId,
-                          entities: entity.entityConfig ?? [],
-                          data: entity.data,
-                      }
+                    ? { ...this.trustListSpec(entity), id }
                     : undefined;
             }
             case "StatusList": {
                 entity = await this.statusLists.findOneBy({ tenantId, id });
                 return entity
-                    ? {
-                          id,
-                          credentialConfigurationId:
-                              entity.credentialConfigurationId,
-                          keyChainId: entity.keyChainId,
-                          capacity: entity.elements.length,
-                          bits: entity.bits,
-                      }
+                    ? { ...this.statusListSpec(entity), id }
                     : undefined;
             }
         }

@@ -14,6 +14,8 @@
   <div class="loading-container" fxLayout="row" fxLayoutAlign="center center">
     <mat-spinner></mat-spinner>
   </div>
+} @else if (loadError) {
+  <app-load-error [message]="loadError" (retry)="refresh()" />
 } @else if (dataSource.data.length === 0) {
   <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
     <mat-icon class="empty-icon">list_alt</mat-icon>
@@ -126,6 +128,7 @@
           matIconButton
           (click)="navigateToEdit(list)"
           matTooltip="Edit"
+          aria-label="Edit"
           appConfigManaged
           managedKind="StatusList"
           [managedResourceId]="list.id"
@@ -137,6 +140,7 @@
           (click)="deleteList(list)"
           [disabled]="list.usedEntries > 0"
           [matTooltip]="list.usedEntries > 0 ? 'Cannot delete: entries in use' : 'Delete'"
+          aria-label="Delete"
           appConfigManaged
           managedKind="StatusList"
           [managedResourceId]="list.id"

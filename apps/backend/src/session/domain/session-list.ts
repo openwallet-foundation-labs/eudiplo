@@ -3,6 +3,16 @@ import type { SessionStatus } from "./session-state.js";
 /** Presentation sessions have a `requestId`; issuance sessions have none. */
 export type SessionType = "issuance" | "presentation";
 
+/**
+ * The {@link SessionType} of a session, from its `requestId`, as the session
+ * store scopes them (`requestId IS NULL` for issuance).
+ */
+export function typeOfSession(session: {
+    requestId?: string | null;
+}): SessionType {
+    return session.requestId == null ? "issuance" : "presentation";
+}
+
 export const SESSION_SORT_FIELDS = [
     "id",
     "status",
@@ -30,6 +40,11 @@ export interface SessionListQuery {
     id?: string;
     /** Free-text search, see {@link SessionSearch}. */
     q?: string;
+    /**
+     * Leaves out the sessions of these types that are open for a wallet
+     * (`isOpenForWallet`), for callers that may only read them.
+     */
+    hideOpen?: readonly SessionType[];
     sortBy?: (typeof SESSION_SORT_FIELDS)[number];
     sortOrder?: "asc" | "desc";
 }

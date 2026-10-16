@@ -3,6 +3,7 @@ import {
   configPortabilityControllerExport,
   configPortabilityControllerImport,
   configPortabilityControllerImportArchive,
+  configPortabilityControllerOperations,
   configPortabilityControllerPlan,
   configPortabilityControllerPlanArchive,
 } from '@eudiplo/sdk-core';
@@ -47,7 +48,19 @@ interface ConfigPlanIssue {
   message: string;
 }
 
-interface ConfigPlanItem {
+/**
+ * One field the plan changes. A missing `before` is a value the import adds, a missing `after`
+ * one it removes. With `redacted`, a secret reads `[redacted]` and an object or list whose
+ * content is not shown reads `[changed]`.
+ */
+export interface ConfigPlanChange {
+  path: string;
+  before?: unknown;
+  after?: unknown;
+  redacted?: boolean;
+}
+
+export interface ConfigPlanItem {
   kind: string;
   id: string;
   action: 'create' | 'update' | 'unchanged' | 'skip' | 'delete' | 'blocked';
@@ -55,6 +68,7 @@ interface ConfigPlanItem {
   targetVersion: string;
   migrations: string[];
   issues: ConfigPlanIssue[];
+  changes?: ConfigPlanChange[];
 }
 
 export interface ConfigImportPlan {
@@ -152,18 +166,27 @@ export class ConfigPortabilityService {
   }
 
   async listOperations(): Promise<ConfigOperation[]> {
-    const result = await this.api.client.get({
-      url: '/api/config-bundles/operations',
-      throwOnError: true,
-    });
-    return result.data as ConfigOperation[];
+    const result = await configPortabilityControllerOperations<true>({ client: this.api.client });
+    return result.data as unknown as ConfigOperation[];
   }
 
   listResources(): Promise<ConfigResourceMetadata[]> {
-    return this.ownership.list(true);
+    return this.ownership.list();
   }
 
   detach(kind: string, id: string): Promise<ConfigResourceMetadata> {
     return this.ownership.detach(kind as ConfigResourceKind, id);
+  }
+
+  async planReattach(kind: string, id: string): Promise<ConfigImportPlan> {
+    return (await this.ownership.planReattach(kind as ConfigResourceKind, id)) as ConfigImportPlan;
+  }
+
+  async reattach(kind: string, id: string, planFingerprint: string): Promise<ConfigImportPlan> {
+    return (await this.ownership.reattach(
+      kind as ConfigResourceKind,
+      id,
+      planFingerprint
+    )) as ConfigImportPlan;
   }
 }

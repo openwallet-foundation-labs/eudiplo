@@ -2,8 +2,22 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import type { ConfigImportMode } from "../config-portability/config-resource.types.js";
+import type {
+    ConfigImportMode,
+    ConfigMigrationIssue,
+} from "../config-portability/config-resource.types.js";
 import { ConfigImportModeService } from "./config-import-mode.service.js";
+
+/**
+ * Formats a blocking plan issue for the startup log, naming the resource it
+ * belongs to so operators can find the file to fix.
+ */
+export function formatBlockingIssue(issue: ConfigMigrationIssue): string {
+    const where = issue.resource
+        ? `${issue.resource.kind}/${issue.resource.id}`
+        : "bundle";
+    return `${issue.code} in ${where} at ${issue.path}: ${issue.message}`;
+}
 
 /**
  * Import phase definitions with their order.
@@ -243,11 +257,11 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                     : "";
                 const issues = Array.isArray(planIssues)
                     ? `; blocking issues: ${planIssues
-                          .filter((issue: any) => issue.severity !== "warning")
-                          .map(
-                              (issue: any) =>
-                                  `${issue.code} at ${issue.path}: ${issue.message}`,
+                          .filter(
+                              (issue: ConfigMigrationIssue) =>
+                                  issue.severity !== "warning",
                           )
+                          .map(formatBlockingIssue)
                           .join(" | ")}`
                     : "";
                 this.logger.error(

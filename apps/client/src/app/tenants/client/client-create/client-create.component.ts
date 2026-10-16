@@ -17,7 +17,9 @@ import {
   type UpdateClientDto,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../../core';
-import { JwtService, roles } from '../../../services/jwt.service';
+import { JwtService } from '../../../services/jwt.service';
+import { type RoleOption, roleChoices } from '../../../services/role-grants';
+import { getApiErrorMessage } from '../../../utils/error-message';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -25,6 +27,8 @@ import { PresentationManagementService } from '../../../presentation/presentatio
 import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { RoleLockNoticeComponent } from '../../../common/role-lock-notice.component';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
 
 @Component({
   selector: 'app-client-create',
@@ -42,6 +46,7 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
     MatDialogModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    RoleLockNoticeComponent,
   ],
   templateUrl: './client-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -52,8 +57,16 @@ export class ClientCreateComponent implements OnInit {
   isSubmitting = false;
   hasPermission = false;
 
-  /** Roles available for selection - filtered based on current user's permissions */
-  availableRoles = roles;
+  /**
+   * Roles available for selection: the roles the signed-in caller may grant,
+   * plus the other roles of the edited client, which stay selected and cannot
+   * be changed.
+   */
+  roleOptions: RoleOption[] = [];
+  /** Explains which roles the caller can grant */
+  grantHint = '';
+  /** Roles of the edited client that the caller neither holds nor may grant */
+  unmanageableRoles: string[] = [];
   loaded = false;
   id?: string | null;
 
@@ -79,10 +92,8 @@ export class ClientCreateComponent implements OnInit {
       allowedIssuanceConfigs: [[]],
     });
 
-    // Only global tenant managers can grant global or tenant administrator roles.
-    if (!this.jwtService.hasRole('tenants:manage')) {
-      this.availableRoles = roles.filter((r) => r !== 'tenants:manage' && r !== 'tenant:admin');
-    }
+    this.roleOptions = roleChoices(this.jwtService.getRoles()).options;
+    this.grantHint = this.jwtService.grantHint();
   }
   ngOnInit(): void {
     // Load available configs for the dropdowns
@@ -108,6 +119,12 @@ export class ClientCreateComponent implements OnInit {
           allowedIssuanceConfigs: clientData.allowedIssuanceConfigs ?? [],
         });
         this.clientForm.get('clientId')?.disable();
+        const choices = roleChoices(this.jwtService.getRoles(), clientData.roles ?? []);
+        this.roleOptions = choices.options;
+        this.unmanageableRoles = choices.unmanageable;
+        if (this.unmanageableRoles.length > 0) {
+          this.clientForm.disable();
+        }
       });
     }
   }
@@ -244,12 +261,9 @@ export class ClientCreateComponent implements OnInit {
         }
       }
     } catch (error) {
-      this.snackBar.open(
-        error instanceof Error
-          ? error.message
-          : `Failed to ${this.loaded ? 'update' : 'create'} client`,
-        'Close',
-        { duration: 5000 }
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, `Failed to ${this.loaded ? 'update' : 'create'} client`)
       );
     } finally {
       this.isSubmitting = false;

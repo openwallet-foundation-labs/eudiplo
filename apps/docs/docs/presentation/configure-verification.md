@@ -8,6 +8,7 @@ A presentation configuration is the reusable definition of a verification: which
 
 - A tenant client or user with the `presentation:manage` role.
 - An access key chain with an active certificate. EUDIPLO signs every request with it. See [Keys and Certificates](../trust/keys-and-certificates.md).
+- A [trust list](../trust/trust-lists.md) or an [OpenID Federation](../trust/federation.md) trust anchor for the issuers you accept. Every credential query must reference one.
 - Optional: a webhook endpoint that receives the results (see [below](#send-results-to-your-backend)).
 
 ## In the Web Client
@@ -25,7 +26,7 @@ Open **Credential Verification → Verification Configs → Create**. The guided
 
 For SD-JWT VC, enter the credential type (VCT) and one field per claim path; use dots for nested paths such as `address.locality`, or paste a list of paths. For mDOC, enter the document type, namespace and element names. Type and paths must match the credential in the wallet, so importing them from the issuer avoids typos.
 
-Each claim has optional settings for its ID, accepted values and (mDOC) intent to retain. **Issuer trust** selects a managed trust list, an external trust list or an OpenID Federation trust anchor ([Trust Lists](../trust/trust-lists.md)). **Accepted credential combinations** defaults to requiring every credential; add alternatives to let the wallet choose (`credential_sets`).
+Each claim has optional settings for its ID, accepted values and (mDOC) intent to retain. **Issuer trust** selects a managed trust list, an external trust list or an OpenID Federation trust anchor ([Trust Lists](../trust/trust-lists.md)); every credential needs at least one. **Accepted credential combinations** defaults to requiring every credential; add alternatives to let the wallet choose (`credential_sets`).
 
 **Edit DCQL JSON** opens the raw query for rules the builder does not cover, such as claim sets. A query that uses such rules stays in JSON mode so they are preserved. See [DCQL](dcql.md) for the query language.
 
@@ -43,7 +44,8 @@ Create the configuration with `POST /api/verifier/config`. This example requests
                 "id": "membership",
                 "format": "dc+sd-jwt",
                 "meta": { "vct_values": ["urn:example:membership:1"] },
-                "claims": [{ "path": ["name"] }, { "path": ["member_id"] }]
+                "claims": [{ "path": ["name"] }, { "path": ["member_id"] }],
+                "trusted_authorities": [{ "type": "etsi_tl", "values": [{ "trustListId": "membership-issuers" }] }]
             }
         ]
     },
@@ -104,11 +106,11 @@ If the wallet ecosystem requires a registration certificate, set `registration_c
 }
 ```
 
-EUDIPLO only attaches it when the tenant has a registrar configuration. Resolution, caching and the overasking check are described in [Registration Certificates](../trust/registration-certificates.md).
+An imported `jwt` is used without a registrar call, after the time and overasking checks. For `id` and `body`, EUDIPLO needs a registrar configuration for the tenant and attaches no certificate without one. Resolution, caching and the overasking check are described in [Registration Certificates](../trust/registration-certificates.md).
 
 ## Reader authentication (ISO 18013-7)
 
-Set `readerAuth: true` to sign the `DeviceRequest` of [ISO 18013-7 requests](requests.md#iso-18013-7-annex-c) with the access key chain (`accessKeyChainId`, or the tenant's access key chain). The wallet then validates the reader certificate chain before it releases data. The setting has no effect on OpenID4VP requests, which are always signed.
+Set `readerAuth: true` to sign the `DeviceRequest` of [ISO 18013-7 requests](requests.md#iso-18013-7-annex-c) with the access key chain (`accessKeyChainId`, or the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain)). The wallet then validates the reader certificate chain before it releases data. The setting has no effect on OpenID4VP requests, which are always signed.
 
 Reader authentication signs with the stored private key, so it needs an access key chain on the `db` [KMS provider](../operate/kms.md). Access keys in an external KMS cannot be used for it.
 

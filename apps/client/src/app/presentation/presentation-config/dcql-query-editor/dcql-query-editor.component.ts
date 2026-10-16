@@ -23,6 +23,7 @@ import {
   trustError,
   trustSummary,
 } from './simple-dcql';
+import { asSentence, getApiErrorMessage } from '../../../utils/error-message';
 
 @Component({
   selector: 'app-dcql-query-editor',
@@ -243,9 +244,8 @@ export class DcqlQueryEditorComponent implements OnInit, OnDestroy {
       const response = await trustListControllerGetAllTrustLists();
       this.trustLists = response.data ?? [];
       this.trustListsLoaded = true;
-    } catch {
-      this.trustListsError =
-        'Could not load managed trust lists. Existing references are preserved. Retry or add an external reference.';
+    } catch (error) {
+      this.trustListsError = `${asSentence(getApiErrorMessage(error, 'Could not load managed trust lists'))} Existing references are preserved. Retry or add an external reference.`;
     } finally {
       this.loadingTrustLists = false;
     }

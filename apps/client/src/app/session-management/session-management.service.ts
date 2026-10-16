@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import type { CredentialStatusValue } from './credential-status/credential-status';
+import { hasHttpStatus } from '../utils/error-message';
 import {
   client,
   CredentialStatusDto,
@@ -31,9 +32,16 @@ export function isCancellable(session: Pick<Session, 'status' | 'consumed'>): bo
   return (session.status === 'active' || session.status === 'fetched') && !session.consumed;
 }
 
+/** Presentation sessions carry their presentation config ID; issuance sessions have none. */
+export function isPresentationSession(
+  session: Pick<Session, 'requestId'> | null | undefined
+): boolean {
+  return !!session?.requestId;
+}
+
 /** Whether a cancellation was rejected because the session is no longer pending (HTTP 409). */
 export function isCancelConflict(error: unknown): boolean {
-  return (error as { statusCode?: number } | null)?.statusCode === 409;
+  return hasHttpStatus(error, 409);
 }
 
 @Injectable({
@@ -46,13 +54,8 @@ export class SessionManagementService {
    * Get sessions with pagination and optional filters
    */
   async getAllSessions(params: SessionQueryParams = {}): Promise<PaginatedSessionResponseDto> {
-    try {
-      const response = await sessionControllerGetAllSessions({ query: params });
-      return response.data as PaginatedSessionResponseDto;
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-      throw new Error('Failed to load sessions', { cause: error });
-    }
+    const response = await sessionControllerGetAllSessions({ query: params });
+    return response.data as PaginatedSessionResponseDto;
   }
 
   /**
@@ -97,14 +100,9 @@ export class SessionManagementService {
    * status; use {@link updateCredentialStatus} to revoke them.
    */
   async deleteSession(sessionId: string): Promise<void> {
-    try {
-      await sessionControllerDeleteSession({
-        path: { id: sessionId },
-      });
-    } catch (error) {
-      console.error('Error deleting session:', error);
-      throw new Error(`Failed to delete session ${sessionId}`, { cause: error });
-    }
+    await sessionControllerDeleteSession({
+      path: { id: sessionId },
+    });
   }
 
   /**

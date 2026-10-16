@@ -29,6 +29,18 @@ export const OPEN_SESSION_STATUSES: readonly SessionStatus[] = Object.values(
     SessionStatus,
 ).filter((status) => !isTerminalStatus(status));
 
+/**
+ * Whether a wallet can still redeem the offer or answer the request: an open
+ * status and not consumed yet. The session ID alone is enough to do so, since
+ * wallet-facing URLs and `issuer_state` carry it.
+ */
+export function isOpenForWallet(session: {
+    status: SessionStatus;
+    consumed?: boolean;
+}): boolean {
+    return !session.consumed && !isTerminalStatus(session.status);
+}
+
 /** Only the identity and classification needed for lifecycle operations. */
 export interface SessionLifecycleContext {
     id: string;

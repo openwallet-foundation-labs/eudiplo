@@ -4,8 +4,7 @@ import { DataSource } from "typeorm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ClientEntity } from "../../src/auth/client/entities/client.entity.js";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
-import { DataEncryptionService } from "../../src/platform/data-encryption/data-encryption.service.js";
-import { initializeEncryptionTransformer } from "../../src/platform/data-encryption/encrypted-column.transformer.js";
+import { hashAuthorizationCode } from "../../src/issuer/issuance/oid4vci/authorization/domain/token-grant-rules.js";
 import { TypeOrmSessionRepository } from "../../src/session/adapters/typeorm-session.repository.js";
 import { TypeOrmSessionRetentionPolicies } from "../../src/session/adapters/typeorm-session-retention-policies.js";
 import type { SessionListQuery } from "../../src/session/domain/session-list.js";
@@ -14,6 +13,7 @@ import {
     SessionStatus,
     stateUpdate,
 } from "../../src/session/domain/session-state.js";
+import { MAX_FAILURE_CODE_LENGTH } from "../../src/session/domain/session-stats.js";
 import { Session } from "../../src/session/entities/session.entity.js";
 
 export const sessionEntities = [Session, TenantEntity, ClientEntity];
@@ -22,14 +22,7 @@ const offer: CredentialOfferObject = {
     credential_configuration_ids: ["pid"],
 };
 
-export async function initializeTestEncryption() {
-    const encryption = new DataEncryptionService({
-        name: "contract-test",
-        getKey: async () => Buffer.alloc(32, 7),
-    });
-    await encryption.initialize();
-    initializeEncryptionTransformer(encryption);
-}
+export { initializeTestEncryption } from "../persistence/test-encryption.js";
 
 /** The same observable contract runs against real SQLite and PostgreSQL adapters. */
 export function sessionRepositoryContract(getDataSource: () => DataSource) {
@@ -339,7 +332,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             ).resolves.toBe(false);
         });
 
-        it("preserves wallet nonce precedence, legacy ID fallback, and ISO protocol restriction", async () => {
+        it("finds wallet requests only by wallet nonce, and ISO sessions only by protocol", async () => {
             const nonceMatch = randomUUID();
             await adapter.create({
                 id: nonceMatch,
@@ -350,9 +343,19 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 { id: nonceMatch },
             );
             await adapter.deleteForTenant("tenant-b", nonceMatch);
-            expect(await adapter.findForWalletRequest(sessionId)).toMatchObject(
-                { id: sessionId },
-            );
+            // The session ID finds nothing, whatever the session's type.
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                requestId: "age-check",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: "iso-18013-7",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                dcApiProtocol: null,
+            });
             expect(await adapter.findForWalletRequest(randomUUID())).toBeNull();
             expect(await adapter.findIso18013Session(sessionId)).toBeNull();
             await adapter.updateForTenant("tenant-a", sessionId, {
@@ -484,6 +487,75 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                         .findOneByOrFail({ id: sessionId })
                 ).txCodeFailedAttempts,
             ).toBe(8);
+        });
+
+        it("leaves out the sessions still open for a wallet of the hidden types", async () => {
+            const repository = getDataSource().getRepository(Session);
+            await repository.delete({ id: sessionId });
+            const tenantId = "tenant-a";
+            const [
+                openIssuance,
+                fetchedIssuance,
+                redeemedIssuance,
+                doneIssuance,
+            ] = [randomUUID(), randomUUID(), randomUUID(), randomUUID()];
+            const [openPresentation, donePresentation] = [
+                randomUUID(),
+                randomUUID(),
+            ];
+            await repository.save([
+                { id: openIssuance, tenantId },
+                {
+                    id: fetchedIssuance,
+                    tenantId,
+                    status: SessionStatus.Fetched,
+                },
+                { id: redeemedIssuance, tenantId, consumed: true },
+                {
+                    id: doneIssuance,
+                    tenantId,
+                    status: SessionStatus.Cancelled,
+                },
+                { id: openPresentation, tenantId, requestId: "age-check" },
+                {
+                    id: donePresentation,
+                    tenantId,
+                    requestId: "age-check",
+                    status: SessionStatus.Completed,
+                },
+            ]);
+            const listed = async (hideOpen: ("issuance" | "presentation")[]) =>
+                (
+                    await adapter.listForTenant(tenantId, {
+                        page: 1,
+                        pageSize: 10,
+                        hideOpen,
+                    })
+                ).items
+                    .map((item) => item.id)
+                    .sort();
+
+            expect(await listed([])).toEqual(
+                [
+                    openIssuance,
+                    fetchedIssuance,
+                    redeemedIssuance,
+                    doneIssuance,
+                    openPresentation,
+                    donePresentation,
+                ].sort(),
+            );
+            expect(await listed(["issuance"])).toEqual(
+                [
+                    redeemedIssuance,
+                    doneIssuance,
+                    openPresentation,
+                    donePresentation,
+                ].sort(),
+            );
+            expect(await listed(["issuance", "presentation"])).toEqual(
+                [redeemedIssuance, doneIssuance, donePresentation].sort(),
+            );
         });
 
         it("lists only tenant summaries with filters, ordering and pagination", async () => {
@@ -623,7 +695,8 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                         createdAt: new Date("2026-10-02T08:00:00Z"),
                         updatedAt: new Date("2026-10-02T08:05:00Z"),
                         credentialConfigurationIds: ["pid", "pid-mdoc"],
-                        authorization_code: "pre-auth-code",
+                        authorization_code:
+                            hashAuthorizationCode("pre-auth-code"),
                         reference: "order-4711",
                     },
                     {
@@ -658,7 +731,8 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                         tenantId: "tenant-b",
                         createdAt: new Date("2026-10-02T08:00:00Z"),
                         credentialConfigurationIds: ["pid"],
-                        authorization_code: "pre-auth-code",
+                        authorization_code:
+                            hashAuthorizationCode("pre-auth-code"),
                         reference: "order-4711",
                         requestId: "age-check",
                         failureCode: "trust_chain_not_trusted",
@@ -805,6 +879,203 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                     expect((await list(query)).ids).not.toContain(
                         ids.otherTenant,
                     );
+            });
+
+            it("counts the tenant's sessions per type and status", async () => {
+                const counts = await adapter.countForTenant("tenant-a", {});
+                expect(counts).toHaveLength(4);
+                expect(counts).toEqual(
+                    expect.arrayContaining([
+                        {
+                            type: "issuance",
+                            status: SessionStatus.Active,
+                            count: 1,
+                        },
+                        {
+                            type: "issuance",
+                            status: SessionStatus.Fetched,
+                            count: 1,
+                        },
+                        {
+                            type: "presentation",
+                            status: SessionStatus.Failed,
+                            count: 1,
+                        },
+                        {
+                            type: "presentation",
+                            status: SessionStatus.Active,
+                            count: 1,
+                        },
+                    ]),
+                );
+                const presentations = await adapter.countForTenant("tenant-a", {
+                    type: "presentation",
+                });
+                expect(presentations.map((count) => count.type)).toEqual([
+                    "presentation",
+                    "presentation",
+                ]);
+                await expect(
+                    adapter.countForTenant("tenant-unknown", {}),
+                ).resolves.toEqual([]);
+            });
+
+            it("counts only sessions created in the time range, bounds included", async () => {
+                const counts = await adapter.countForTenant("tenant-a", {
+                    createdFrom: new Date("2026-10-02T09:00:00Z"),
+                    createdTo: new Date("2026-10-02T10:00:00Z"),
+                });
+
+                expect(counts).toHaveLength(2);
+                expect(counts).toEqual(
+                    expect.arrayContaining([
+                        {
+                            type: "issuance",
+                            status: SessionStatus.Fetched,
+                            count: 1,
+                        },
+                        {
+                            type: "presentation",
+                            status: SessionStatus.Failed,
+                            count: 1,
+                        },
+                    ]),
+                );
+            });
+
+            it("returns the most frequent failure codes of one type, within the tenant", async () => {
+                const failed = (
+                    tenantId: string,
+                    requestId: string | null,
+                    failureCode: string | null,
+                ) => ({
+                    id: randomUUID(),
+                    tenantId,
+                    requestId: requestId ?? undefined,
+                    status: SessionStatus.Failed,
+                    failureCode: failureCode ?? undefined,
+                    createdAt: new Date("2026-10-04T08:00:00Z"),
+                });
+                await getDataSource()
+                    .getRepository(Session)
+                    .save([
+                        failed("tenant-a", "age-check", "invalid_proof"),
+                        failed("tenant-a", "age-check", "invalid_proof"),
+                        failed("tenant-a", "age-check", "access_denied"),
+                        failed("tenant-a", null, "credential_failure"),
+                        failed("tenant-a", "age-check", null),
+                        failed("tenant-b", "age-check", "invalid_proof"),
+                        // Only failed sessions count, even if another one has a code.
+                        {
+                            ...failed("tenant-a", "age-check", "invalid_proof"),
+                            status: SessionStatus.Cancelled,
+                        },
+                    ]);
+                const top = (
+                    type: "issuance" | "presentation",
+                    limit = 10,
+                    createdFrom?: Date,
+                ) =>
+                    adapter.topFailureCodesForTenant(
+                        "tenant-a",
+                        { type, createdFrom },
+                        limit,
+                    );
+
+                // The list fixture adds one trust_chain_not_trusted failure of 2026-10-02.
+                await expect(top("presentation")).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                    { code: "access_denied", count: 1 },
+                    { code: "trust_chain_not_trusted", count: 1 },
+                ]);
+                await expect(top("presentation", 1)).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                ]);
+                await expect(top("issuance")).resolves.toEqual([
+                    { code: "credential_failure", count: 1 },
+                ]);
+                await expect(
+                    top("presentation", 10, new Date("2026-10-03T00:00:00Z")),
+                ).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                    { code: "access_denied", count: 1 },
+                ]);
+            });
+
+            it("cuts long failure codes, so a wallet cannot blow up the result", async () => {
+                const long = "x".repeat(MAX_FAILURE_CODE_LENGTH + 100);
+                // Two codes that differ only after the cut count as one.
+                await getDataSource()
+                    .getRepository(Session)
+                    .save(
+                        [`${long}a`, `${long}b`].map((failureCode) => ({
+                            id: randomUUID(),
+                            tenantId: "tenant-a",
+                            requestId: "age-check",
+                            status: SessionStatus.Failed,
+                            failureCode,
+                        })),
+                    );
+
+                const codes = await adapter.topFailureCodesForTenant(
+                    "tenant-a",
+                    { type: "presentation" },
+                    10,
+                );
+
+                expect(codes).toContainEqual({
+                    code: long.slice(0, MAX_FAILURE_CODE_LENGTH),
+                    count: 2,
+                });
+                expect(
+                    codes.every(
+                        ({ code }) => code.length <= MAX_FAILURE_CODE_LENGTH,
+                    ),
+                ).toBe(true);
+            });
+
+            it("returns the last update per type and status, within the tenant", async () => {
+                await getDataSource()
+                    .getRepository(Session)
+                    .save(
+                        [
+                            ["tenant-a", "2026-10-03T09:00:00Z"],
+                            ["tenant-a", "2026-10-03T10:00:00Z"],
+                            ["tenant-b", "2026-10-04T10:00:00Z"],
+                        ].map(([tenantId, updatedAt]) => ({
+                            id: randomUUID(),
+                            tenantId,
+                            requestId: "age-check",
+                            status: SessionStatus.Completed,
+                            createdAt: new Date("2026-10-03T08:00:00Z"),
+                            updatedAt: new Date(updatedAt),
+                        })),
+                    );
+                const last = (
+                    type: "issuance" | "presentation",
+                    status: SessionStatus,
+                    range: { createdFrom?: Date; createdTo?: Date } = {},
+                ) =>
+                    adapter.lastUpdatedForTenant("tenant-a", {
+                        ...range,
+                        type,
+                        status,
+                    });
+
+                await expect(
+                    last("presentation", SessionStatus.Completed),
+                ).resolves.toEqual(new Date("2026-10-03T10:00:00Z"));
+                await expect(
+                    last("issuance", SessionStatus.Fetched),
+                ).resolves.toEqual(new Date("2026-10-02T09:00:00Z"));
+                await expect(
+                    last("issuance", SessionStatus.Completed),
+                ).resolves.toBeNull();
+                await expect(
+                    last("presentation", SessionStatus.Completed, {
+                        createdTo: new Date("2026-10-03T07:00:00Z"),
+                    }),
+                ).resolves.toBeNull();
             });
 
             it("sorts by update time and returns the summary fields", async () => {
@@ -1040,6 +1311,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 id: sessionId,
                 tenantId: "tenant-a",
                 createdAt: new Date("2025-01-01T12:00:00Z"),
+                updatedAt: new Date("2025-01-01T13:00:00Z"),
                 credentials: [],
                 credentialPayload: { credentialConfigurationIds: ["pid"] },
                 auth_queries: {},
@@ -1073,6 +1345,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 status: SessionStatus.Completed,
                 requestId: "presentation",
                 errorReason: "preserved",
+                updatedAt: new Date("2025-01-01T13:00:00Z"),
             });
             const fields = [
                 "credentials",

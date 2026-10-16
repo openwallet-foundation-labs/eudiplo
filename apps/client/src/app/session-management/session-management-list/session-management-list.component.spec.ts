@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
+import { JwtService } from '../../services/jwt.service';
 import { SessionManagementService } from '../session-management.service';
 import { SessionManagementListComponent } from './session-management-list.component';
 
@@ -16,8 +17,14 @@ describe('SessionManagementListComponent', () => {
   let fixture: ComponentFixture<SessionManagementListComponent>;
   let getAllSessions: ReturnType<typeof vi.fn>;
   let cancelSession: ReturnType<typeof vi.fn>;
+  let roles: string[];
+  let deleteSession: ReturnType<typeof vi.fn>;
 
-  async function setup(queryParams: Record<string, string | string[]> = {}) {
+  async function setup(
+    queryParams: Record<string, string | string[]> = {},
+    granted = ['issuance:offer', 'presentation:request']
+  ) {
+    roles = granted;
     vi.useFakeTimers();
     getAllSessions = vi.fn().mockResolvedValue({
       items: [],
@@ -27,10 +34,17 @@ describe('SessionManagementListComponent', () => {
       totalPages: 0,
     });
     cancelSession = vi.fn().mockResolvedValue(undefined);
+    deleteSession = vi.fn().mockResolvedValue(undefined);
     await TestBed.configureTestingModule({
       imports: [SessionManagementListComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: JwtService,
+          useValue: {
+            hasRole: (role: string | string[]) => [role].flat().some((r) => roles.includes(r)),
+          },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -39,7 +53,12 @@ describe('SessionManagementListComponent', () => {
         },
         {
           provide: SessionManagementService,
-          useValue: { getAllSessions, cancelSession, getStatusDisplay: (status: string) => status },
+          useValue: {
+            getAllSessions,
+            cancelSession,
+            deleteSession,
+            getStatusDisplay: (status: string) => status,
+          },
         },
         {
           provide: CredentialConfigService,
@@ -64,6 +83,7 @@ describe('SessionManagementListComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('loads the first page without filters', async () => {
@@ -240,9 +260,57 @@ describe('SessionManagementListComponent', () => {
     await component.cancelSelectedSessions();
 
     expect(snackBar).toHaveBeenCalledWith(
-      'Cancelled 1 of 3 sessions; 1 no longer pending; 1 failed',
+      'Cancelled 1 of 3 sessions; 1 no longer pending; ' +
+        '1 failed: the backend could not be reached. Check the connection and try again.',
       'Close',
       expect.anything()
+    );
+  });
+
+  it('offers sessions:read no selection to cancel or delete', async () => {
+    await setup({}, ['sessions:read']);
+
+    expect(component.displayedColumns).not.toContain('select');
+    expect(component.canChange({ id: 's-1' } as Session)).toBe(false);
+    const buttons = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].map(
+      (button) => button.textContent!.trim()
+    );
+    expect(buttons.some((text) => text.includes('Issuance Offer'))).toBe(false);
+    expect(buttons.some((text) => text.includes('Presentation Request'))).toBe(false);
+  });
+
+  it('counts the manage roles toward a side, like the backend', async () => {
+    await setup({}, ['presentation:request', 'issuance:manage']);
+
+    expect(component.canChange({ id: 's-1', status: 'active' } as Session)).toBe(true);
+    expect(
+      component.canChange({ id: 's-2', status: 'active', requestId: 'age-check' } as Session)
+    ).toBe(true);
+  });
+
+  it('offers no select-all on a page without sessions the caller may change', async () => {
+    await setup({}, ['issuance:offer', 'sessions:read']);
+    component.dataSource.data = [
+      { id: 's-2', status: 'active', requestId: 'age-check' } as Session,
+    ];
+
+    expect(component.hasChangeableRows).toBe(false);
+    expect(component.isAllSelected()).toBe(false);
+  });
+
+  it('selects only the sessions of the side the caller may change', async () => {
+    await setup({}, ['issuance:offer', 'sessions:read']);
+    const issuance = { id: 's-1', status: 'active' } as Session;
+    const presentation = { id: 's-2', status: 'active', requestId: 'age-check' } as Session;
+    component.dataSource.data = [issuance, presentation];
+
+    expect(component.displayedColumns).toContain('select');
+    component.masterToggle();
+
+    expect(component.selection.selected).toEqual([issuance]);
+    expect(component.isAllSelected()).toBe(true);
+    expect(component.checkboxLabel(presentation)).toBe(
+      'row s-2: Your roles let you read this session but not cancel or delete it'
     );
   });
 
@@ -256,5 +324,66 @@ describe('SessionManagementListComponent', () => {
     await component.cancelSelectedSessions();
 
     expect(cancelSession).not.toHaveBeenCalled();
+  });
+
+  it('shows why loading failed and a retry instead of "No sessions found"', async () => {
+    await setup();
+    component.selection.select({ id: 's-1', status: 'active' } as Session);
+    getAllSessions.mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' });
+
+    component.refreshSessions();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Failed to load sessions: Forbidden resource'
+    );
+    expect(element.textContent).not.toContain('No sessions found');
+    // Bulk actions must not act on sessions that are no longer shown.
+    expect(component.selection.selected).toEqual([]);
+  });
+
+  it('deletes selected sessions only after confirmation and reports the ones that failed', async () => {
+    await setup();
+    const confirm = vi.fn<(message?: string) => boolean>(() => false);
+    vi.stubGlobal('confirm', confirm);
+    const snackBar = vi.spyOn(TestBed.inject(MatSnackBar), 'open');
+    deleteSession
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' });
+    component.selection.select(
+      { id: 's-1', status: 'completed' } as Session,
+      { id: 's-2', status: 'completed' } as Session
+    );
+
+    await component.deleteSelectedSessions();
+    expect(confirm.mock.calls[0][0]).toContain('Delete 2 sessions?');
+    expect(deleteSession).not.toHaveBeenCalled();
+
+    confirm.mockReturnValue(true);
+    await component.deleteSelectedSessions();
+
+    expect(deleteSession).toHaveBeenCalledTimes(2);
+    expect(snackBar).toHaveBeenCalledWith(
+      'Deleted 1 of 2 sessions; 1 failed: Forbidden resource',
+      'Close',
+      expect.anything()
+    );
+    expect(component.selection.selected).toEqual([]);
+  });
+
+  it('reports when every selected session was deleted', async () => {
+    await setup();
+    vi.stubGlobal('confirm', () => true);
+    const snackBar = vi.spyOn(TestBed.inject(MatSnackBar), 'open');
+    component.selection.select(
+      { id: 's-1', status: 'completed' } as Session,
+      { id: 's-2', status: 'completed' } as Session
+    );
+
+    await component.deleteSelectedSessions();
+
+    expect(snackBar).toHaveBeenCalledWith('Deleted 2 sessions', 'Close', expect.anything());
   });
 });

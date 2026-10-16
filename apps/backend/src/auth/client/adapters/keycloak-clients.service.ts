@@ -5,6 +5,7 @@ import {
     ConflictException,
     Injectable,
     Logger,
+    NotFoundException,
     OnModuleInit,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -12,9 +13,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../../../platform/config-import/config-import.service.js";
+import { keycloakAuthorizationRoles } from "../../keycloak-authorization-roles.js";
+import { syncEudiploRealmRoles } from "../../keycloak-realm-roles.js";
 import { allRoles, Role } from "../../roles/role.enum.js";
 import { ClientsProvider } from "../client.provider.js";
-import type { ClientData, CreatedClient } from "../domain/client-data.js";
+import {
+    type ClientData,
+    ClientIdTaken,
+    type CreatedClient,
+} from "../domain/client-data.js";
 import { CreateClientDto } from "../dto/create-client.dto.js";
 import { UpdateClientDto } from "../dto/update-client.dto.js";
 import { ClientEntity } from "../entities/client.entity.js";
@@ -297,6 +304,42 @@ export class KeycloakClientsProvider
     }
 
     /**
+     * Roles of the local mirror plus the roles of the client's service account
+     * in Keycloak, which an operator may have changed there. Only clients of
+     * the tenant's mirror count, so a tenant cannot reach a Keycloak client
+     * without a tenant, such as the bootstrap client.
+     */
+    async getClientRoles(
+        tenantId: string,
+        clientId: string,
+    ): Promise<string[] | undefined> {
+        const client = await this.clientRepo.findOneBy({
+            clientId,
+            tenant: { id: tenantId },
+        });
+        if (!client) {
+            return undefined;
+        }
+        const kcClient = (await this.kc.clients.find({ clientId }))[0];
+        if (!kcClient?.id) {
+            return client.roles;
+        }
+        this.ensureTenantOwnership(tenantId, kcClient, "managed");
+        const svcUser = await this.kc.clients.getServiceAccountUser({
+            id: kcClient.id,
+        });
+        if (!svcUser?.id) {
+            return client.roles;
+        }
+        return [
+            ...new Set([
+                ...client.roles,
+                ...(await keycloakAuthorizationRoles(this.kc, svcUser.id)),
+            ]),
+        ];
+    }
+
+    /**
      * Get a client by its clientId only (without tenant context).
      * Used for JWT validation to fetch client restrictions.
      */
@@ -317,7 +360,7 @@ export class KeycloakClientsProvider
     ): Promise<string> {
         const kcClient = (await this.kc.clients.find({ clientId }))[0];
         if (!kcClient?.id) {
-            throw new Error(`Client ${clientId} not found in Keycloak`);
+            throw new NotFoundException(`Client '${clientId}' not found`);
         }
 
         if (tenantId) {
@@ -347,6 +390,14 @@ export class KeycloakClientsProvider
         tenantId: string,
         dto: CreateClientDto,
     ): Promise<CreatedClient> {
+        // The mirror's primary key is the client ID, so saving the mirror row
+        // below would move a client of another tenant.
+        const mirrored = await this.clientRepo.findOneBy({
+            clientId: dto.clientId,
+        });
+        if (mirrored && mirrored.tenantId !== tenantId) {
+            throw new ClientIdTaken(dto.clientId);
+        }
         const clientPayload = {
             clientId: dto.clientId,
             description: dto.description,
@@ -418,7 +469,12 @@ export class KeycloakClientsProvider
             if (!existingClient?.id) {
                 throw error;
             }
-            this.ensureTenantOwnership(tenantId, existingClient, "updated");
+            // Adopt only a Keycloak client of this tenant, never one without a
+            // tenant such as the bootstrap client or the backend's own admin
+            // client.
+            if (this.getTenantOwnerFromKcClient(existingClient) !== tenantId) {
+                throw new ClientIdTaken(dto.clientId);
+            }
             id = existingClient.id;
 
             await this.kc.clients.update(
@@ -525,43 +581,18 @@ export class KeycloakClientsProvider
             });
         }
         this.ensureTenantOwnership(tenantId, kcClient, "updated");
-        const svcUser = await this.kc.clients.getServiceAccountUser({
-            id: kcClient.id,
-        });
 
-        // Get all realm roles
-        const allRealmRoles = await this.kc.roles.find();
-
-        // Roles to assign
-        const newRoles = updateClientDto.roles || [];
-        const toAssign = newRoles
-            .map((r) => allRealmRoles.find((ar) => ar.name === r))
-            .filter(Boolean) as { id?: string; name?: string }[];
-
-        // Get currently assigned roles
-        const currentRoles = await this.kc.users.listRealmRoleMappings({
-            id: svcUser.id!,
-        });
-
-        // Roles to remove
-        const toRemove = currentRoles
-            .filter((cr) => !newRoles.includes(cr.name as Role))
-            .map((r) => ({ id: r.id!, name: r.name! }));
-
-        // Remove roles no longer assigned
-        if (toRemove.length) {
-            await this.kc.users.delRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toRemove,
+        // Without roles the update keeps the client's roles, as the internal
+        // adapter does.
+        if (updateClientDto.roles) {
+            const svcUser = await this.kc.clients.getServiceAccountUser({
+                id: kcClient.id,
             });
-        }
-
-        // Add new roles
-        if (toAssign.length) {
-            await this.kc.users.addRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toAssign.map((r) => ({ id: r.id!, name: r.name! })),
-            });
+            await syncEudiploRealmRoles(
+                this.kc,
+                svcUser.id!,
+                updateClientDto.roles,
+            );
         }
 
         // Update client in Keycloak

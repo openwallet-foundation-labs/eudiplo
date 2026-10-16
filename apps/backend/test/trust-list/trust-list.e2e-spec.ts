@@ -19,6 +19,8 @@ interface TestContext {
     app: INestApplication<App>;
     authToken: string;
     configFolder: string;
+    clientId: string;
+    clientSecret: string;
 }
 
 describe("Trust List e2e Tests", () => {
@@ -79,7 +81,7 @@ describe("Trust List e2e Tests", () => {
             .send(statusListKeyChain)
             .expect(201);
 
-        ctx = { app, authToken, configFolder };
+        ctx = { app, authToken, configFolder, clientId, clientSecret };
     });
 
     afterAll(async () => {
@@ -168,7 +170,7 @@ describe("Trust List e2e Tests", () => {
             expect(response.body.sequenceNumber).toBe(2);
         });
 
-        test("should export a trust list in LoTE format", async () => {
+        test("should export a trust list in the create format", async () => {
             const response = await request(ctx.app.getHttpServer())
                 .get(`/trust-list/${testTrustListId}/export`)
                 .set("Authorization", `Bearer ${ctx.authToken}`)
@@ -177,6 +179,49 @@ describe("Trust List e2e Tests", () => {
             expect(response.body.id).toBe(testTrustListId);
             expect(response.body.entities).toBeDefined();
             expect(response.body.data).toBeDefined();
+        });
+
+        test("should re-import the export of a trust list created without a description", async () => {
+            const id = "no-description-trust-list";
+            await request(ctx.app.getHttpServer())
+                .post("/trust-list")
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .send({
+                    id,
+                    keyChainId: "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
+                    entities: [
+                        {
+                            type: "internal",
+                            issuerKeyChainId:
+                                "c3f24b6e-9b71-4b62-8d37-5f1a2c9e47ad",
+                            revocationKeyChainId:
+                                "1f8c6b29-a4d3-4e7f-b2a0-9c5d13e8f746",
+                            info: { name: "Test Provider" },
+                        },
+                    ],
+                } satisfies TrustListCreateDto)
+                .expect(201);
+
+            const exported = await request(ctx.app.getHttpServer())
+                .get(`/trust-list/${id}/export`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(200);
+
+            // POST /trust-list drops a null optional field itself; the config
+            // folder import validates strictly, so the export must leave it out.
+            expect(exported.body).not.toHaveProperty("description");
+
+            await request(ctx.app.getHttpServer())
+                .delete(`/trust-list/${id}`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(204);
+            const reimported = await request(ctx.app.getHttpServer())
+                .post("/trust-list")
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .send(exported.body)
+                .expect(201);
+
+            expect(reimported.body.id).toBe(id);
         });
 
         test("should get version history for a trust list", async () => {
@@ -201,6 +246,339 @@ describe("Trust List e2e Tests", () => {
                 .get(`/trust-list/${testTrustListId}`)
                 .set("Authorization", `Bearer ${ctx.authToken}`)
                 .expect(409);
+        });
+    });
+
+    describe("Deleting a referenced trust list", () => {
+        const listId = "referenced-trust-list";
+        const credentialConfigId = "references-trust-list";
+
+        const presentationConfig = (id: string, ref: object) => ({
+            id,
+            description: `References ${listId}`,
+            dcql_query: {
+                credentials: [
+                    {
+                        id: "pid",
+                        format: "dc+sd-jwt",
+                        meta: { vct_values: ["urn:eudi:pid:de:1"] },
+                        claims: [{ path: ["given_name"] }],
+                        trusted_authorities: [
+                            { type: "etsi_tl", values: [ref] },
+                        ],
+                    },
+                ],
+            },
+        });
+
+        beforeAll(async () => {
+            const server = ctx.app.getHttpServer();
+            const auth = `Bearer ${ctx.authToken}`;
+            await request(server)
+                .post("/trust-list")
+                .set("Authorization", auth)
+                .send({
+                    id: listId,
+                    keyChainId: "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
+                    entities: [
+                        {
+                            type: "internal",
+                            issuerKeyChainId:
+                                "c3f24b6e-9b71-4b62-8d37-5f1a2c9e47ad",
+                            revocationKeyChainId:
+                                "1f8c6b29-a4d3-4e7f-b2a0-9c5d13e8f746",
+                            info: { name: "Referenced Provider" },
+                        },
+                    ],
+                } satisfies TrustListCreateDto)
+                .expect(201);
+            await request(server)
+                .post("/verifier/config")
+                .set("Authorization", auth)
+                .send(presentationConfig("by-id", { trustListId: listId }))
+                .expect(201);
+            await request(server)
+                .post("/verifier/config")
+                .set("Authorization", auth)
+                .send(
+                    presentationConfig("by-url", {
+                        url: `<TENANT_URL>/trust-list/${listId}`,
+                    }),
+                )
+                .expect(201);
+            // A list whose ID only starts with the ID is another list.
+            await request(server)
+                .post("/verifier/config")
+                .set("Authorization", auth)
+                .send(
+                    presentationConfig("other-list", {
+                        trustListId: `${listId}-old`,
+                    }),
+                )
+                .expect(201);
+            const credentialConfig = readConfig<Record<string, unknown>>(
+                join(
+                    ctx.configFolder,
+                    "haip/issuance/credentials/pid-no-key.json",
+                ),
+            );
+            await request(server)
+                .post("/issuer/credentials")
+                .set("Authorization", auth)
+                .send({
+                    ...credentialConfig,
+                    id: credentialConfigId,
+                    schemaMeta: {
+                        version: "1.0.0",
+                        attestationLoS: "iso_18045_high",
+                        bindingType: "key",
+                        trustedAuthorities: [
+                            {
+                                frameworkType: "etsi_tl",
+                                value: `http://localhost:3000/issuers/root/trust-list/${listId}`,
+                            },
+                        ],
+                    },
+                })
+                .expect(201);
+            await request(server)
+                .post("/issuer/config")
+                .set("Authorization", auth)
+                .send({
+                    authorizationServers: [
+                        { id: "issuer-built-in", type: "built-in" },
+                    ],
+                    walletProviderTrustLists: [{ trustListId: listId }],
+                })
+                .expect(201);
+        });
+
+        test("refuses with 409 and names the configurations", async () => {
+            const response = await request(ctx.app.getHttpServer())
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(409);
+
+            expect(response.body.code).toBe("TRUST_LIST_IN_USE");
+            expect(response.body.message).toBe(
+                `Trust list "${listId}" is still referenced by 2 presentation configs ("by-id" and "by-url"), 1 credential config ("${credentialConfigId}") and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.`,
+            );
+            expect(response.body.references).toHaveLength(4);
+            expect(response.body.references).toEqual(
+                expect.arrayContaining([
+                    {
+                        kind: "PresentationConfig",
+                        id: "by-id",
+                        description: `References ${listId}`,
+                    },
+                    {
+                        kind: "PresentationConfig",
+                        id: "by-url",
+                        description: `References ${listId}`,
+                    },
+                    {
+                        kind: "CredentialConfig",
+                        id: credentialConfigId,
+                        description: "Personal ID",
+                    },
+                    { kind: "IssuanceConfig" },
+                ]),
+            );
+
+            await request(ctx.app.getHttpServer())
+                .get(`/trust-list/${listId}`)
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .expect(200);
+        });
+
+        /** Token of a new client of the root tenant with only `roles`. */
+        async function clientToken(clientId: string, roles: string[]) {
+            const server = ctx.app.getHttpServer();
+            const created = await request(server)
+                .post("/client")
+                .set("Authorization", `Bearer ${ctx.authToken}`)
+                .send({ clientId, roles })
+                .expect(201);
+            const token = await request(server)
+                .post("/api/oauth2/token")
+                .send({
+                    grant_type: "client_credentials",
+                    client_id: clientId,
+                    client_secret: created.body.clientSecret,
+                })
+                .expect(201);
+            return token.body.access_token as string;
+        }
+
+        test("names presentation configs for presentation:request", async () => {
+            const token = await clientToken("trust-list-issuer-requester", [
+                "issuance:manage",
+                "presentation:request",
+            ]);
+
+            const response = await request(ctx.app.getHttpServer())
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", `Bearer ${token}`)
+                .expect(409);
+
+            expect(response.body.message).toContain(
+                '2 presentation configs ("by-id" and "by-url")',
+            );
+        });
+
+        test("hides presentation configs from a caller with only issuance:manage", async () => {
+            const token = await clientToken("trust-list-issuer-admin", [
+                "issuance:manage",
+            ]);
+
+            const response = await request(ctx.app.getHttpServer())
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", `Bearer ${token}`)
+                .expect(409);
+
+            expect(response.body.message).toBe(
+                `Trust list "${listId}" is still referenced by 2 presentation configs (presentation:manage or presentation:request shows which), 1 credential config ("${credentialConfigId}") and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.`,
+            );
+            expect(JSON.stringify(response.body)).not.toContain('"by-id"');
+            expect(JSON.stringify(response.body)).not.toContain('"by-url"');
+        });
+
+        test("counts, but does not name, configurations the caller may not read", async () => {
+            const server = ctx.app.getHttpServer();
+            const token = await clientToken("trust-list-verifier-admin", [
+                "presentation:manage",
+            ]);
+
+            const response = await request(server)
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", `Bearer ${token}`)
+                .expect(409);
+
+            expect(response.body.message).toBe(
+                `Trust list "${listId}" is still referenced by 2 presentation configs ("by-id" and "by-url"), 1 credential config (issuance:manage shows which) and the issuance configuration (wallet provider trust lists). Remove these references before deleting the trust list.`,
+            );
+            expect(response.body.references).toEqual(
+                expect.arrayContaining([
+                    { kind: "CredentialConfig" },
+                    { kind: "IssuanceConfig" },
+                ]),
+            );
+            expect(JSON.stringify(response.body)).not.toContain(
+                credentialConfigId,
+            );
+        });
+
+        test("keeps refusing while one reference is left", async () => {
+            const server = ctx.app.getHttpServer();
+            const auth = `Bearer ${ctx.authToken}`;
+            for (const id of ["by-id", "by-url"]) {
+                await request(server)
+                    .delete(`/verifier/config/${id}`)
+                    .set("Authorization", auth)
+                    .expect(204);
+            }
+            await request(server)
+                .delete(`/issuer/credentials/${credentialConfigId}`)
+                .set("Authorization", auth)
+                .expect(204);
+
+            const response = await request(server)
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", auth)
+                .expect(409);
+
+            expect(response.body.references).toEqual([
+                { kind: "IssuanceConfig" },
+            ]);
+        });
+
+        test("deletes the list once no configuration of its tenant references it", async () => {
+            const server = ctx.app.getHttpServer();
+            const auth = `Bearer ${ctx.authToken}`;
+            // A config of another tenant naming the same ID is about that tenant's list.
+            const otherTenantToken = await getToken(
+                ctx.app,
+                ctx.clientId,
+                ctx.clientSecret,
+                "trust-list-other-tenant",
+            );
+            const otherAuth = `Bearer ${otherTenantToken}`;
+            await request(server)
+                .post("/verifier/config")
+                .set("Authorization", otherAuth)
+                .send(presentationConfig("by-id", { trustListId: listId }))
+                .expect(201);
+            const { keyChainId: _rootKey, ...credentialConfig } = readConfig<
+                Record<string, unknown>
+            >(
+                join(
+                    ctx.configFolder,
+                    "haip/issuance/credentials/pid-no-key.json",
+                ),
+            );
+            await request(server)
+                .post("/issuer/credentials")
+                .set("Authorization", otherAuth)
+                .send({
+                    ...credentialConfig,
+                    id: credentialConfigId,
+                    schemaMeta: {
+                        version: "1.0.0",
+                        attestationLoS: "iso_18045_high",
+                        bindingType: "key",
+                        trustedAuthorities: [{ trustListId: listId }],
+                    },
+                })
+                .expect(201);
+            await request(server)
+                .post("/issuer/config")
+                .set("Authorization", otherAuth)
+                .send({
+                    authorizationServers: [
+                        { id: "issuer-built-in", type: "built-in" },
+                    ],
+                    walletProviderTrustLists: [{ trustListId: listId }],
+                })
+                .expect(201);
+            await request(server)
+                .post("/issuer/config")
+                .set("Authorization", auth)
+                .send({
+                    authorizationServers: [
+                        { id: "issuer-built-in", type: "built-in" },
+                    ],
+                    walletProviderTrustLists: [],
+                })
+                .expect(201);
+
+            await request(server)
+                .delete(`/trust-list/${listId}`)
+                .set("Authorization", auth)
+                .expect(204);
+            await request(server)
+                .get(`/trust-list/${listId}`)
+                .set("Authorization", auth)
+                .expect(409);
+        });
+
+        test("answers 204 for an unknown trust list, even one a config names", async () => {
+            const server = ctx.app.getHttpServer();
+            const auth = `Bearer ${ctx.authToken}`;
+            await request(server)
+                .post("/verifier/config")
+                .set("Authorization", auth)
+                .send(
+                    presentationConfig("names-unknown-list", {
+                        trustListId: "never-created",
+                    }),
+                )
+                .expect(201);
+
+            const response = await request(server)
+                .delete("/trust-list/never-created")
+                .set("Authorization", auth);
+
+            expect(response.status).toBe(204);
         });
     });
 

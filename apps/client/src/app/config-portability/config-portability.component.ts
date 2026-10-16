@@ -13,16 +13,43 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { getApiErrorMessage } from '../utils/error-message';
+import {
+  LabelledFailure,
+  apiErrorDetail,
+  getApiErrorMessage,
+  groupUnreachable,
+  joinFailures,
+} from '../utils/error-message';
 import { JwtService } from '../services/jwt.service';
 import {
   ConfigBundle,
   ConfigOperation,
   ConfigImportMode,
   ConfigImportPlan,
+  ConfigPlanChange,
+  ConfigPlanItem,
   ConfigPortabilityService,
   ConfigResourceMetadata,
 } from './config-portability.service';
+import { openErrorSnackBar } from '../utils/error-snackbar';
+import { offersApplyFromFile } from './config-ownership.service';
+
+/**
+ * How one side of a field change reads in the plan: a value, a word naming what is not shown,
+ * or the removal of the stored value.
+ */
+export interface ChangeSide {
+  text: string;
+  kind: 'value' | 'described' | 'removed';
+}
+
+/**
+ * A change whose `after` is missing removes the stored value. A `null` is a value: in a DCQL
+ * claims path, for example, it selects all array elements.
+ */
+const removesValue = (change: ConfigPlanChange) => change.after === undefined;
+
+const fieldCount = (count: number) => `${count} ${count === 1 ? 'field' : 'fields'}`;
 
 @Component({
   selector: 'app-config-portability',
@@ -49,22 +76,35 @@ import {
 })
 export class ConfigPortabilityComponent implements OnInit {
   readonly planColumns = ['resource', 'version', 'action', 'issues'];
+  readonly changeColumns = ['path', 'before', 'after'];
   readonly resourceColumns = ['select', 'resource', 'ownership', 'generation', 'source', 'actions'];
   mode: ConfigImportMode = 'upsert';
   bundle?: ConfigBundle;
   bundleArchive?: File;
   bundleFileName = '';
   plan?: ConfigImportPlan;
+  /** Set while the shown plan resets one resource to its file version. */
+  reattachTarget?: ConfigResourceMetadata;
   resources: ConfigResourceMetadata[] = [];
   operations: ConfigOperation[] = [];
   selected = new Set<string>();
   busy = false;
+  /**
+   * Secrets that applies on this page generated. They stay until dismissed, so
+   * planning the next import or reset cannot discard a value shown only once.
+   */
+  generatedSecrets: NonNullable<ConfigImportPlan['generatedSecrets']> = [];
 
   constructor(
     private readonly portability: ConfigPortabilityService,
     private readonly snackBar: MatSnackBar,
     private readonly jwt: JwtService
   ) {}
+
+  /** The shown plan has been applied. A refused apply keeps its operation ID but is not applicable. */
+  get applied(): boolean {
+    return !!this.plan?.operationId && this.plan.applicable;
+  }
 
   get canApply(): boolean {
     return this.jwt.hasRole('tenants:manage') || this.jwt.hasRole('tenant:admin');
@@ -121,13 +161,12 @@ export class ConfigPortabilityComponent implements OnInit {
       }
       this.bundleFileName = file.name;
       this.plan = undefined;
+      this.reattachTarget = undefined;
     } catch (error) {
       this.bundle = undefined;
       this.bundleArchive = undefined;
       this.bundleFileName = '';
-      this.snackBar.open(getApiErrorMessage(error, 'Could not read bundle'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Could not read bundle'));
     } finally {
       input.value = '';
     }
@@ -135,6 +174,7 @@ export class ConfigPortabilityComponent implements OnInit {
 
   async planImport(): Promise<void> {
     if (!this.bundle && !this.bundleArchive) return;
+    this.reattachTarget = undefined;
     await this.run(async () => {
       this.plan = this.bundleArchive
         ? await this.portability.planArchive(this.bundleArchive, this.mode)
@@ -147,25 +187,24 @@ export class ConfigPortabilityComponent implements OnInit {
       (!this.bundle && !this.bundleArchive) ||
       !this.plan?.applicable ||
       !this.plan.planFingerprint ||
-      this.plan.operationId
+      this.plan.operationId ||
+      this.reattachTarget
     )
       return;
-    const confirmed =
-      this.mode !== 'replace' ||
-      globalThis.confirm(
-        'Replace mode deletes file-managed resources from this bundle source that are not in the bundle. Continue?'
-      );
-    if (!confirmed) return;
+    const question = this.applyQuestion(this.plan);
+    if (question && !globalThis.confirm(question)) return;
+    const confirmReplace = this.mode === 'replace';
     const fingerprint = this.plan.planFingerprint;
     await this.run(async () => {
       this.plan = this.bundleArchive
         ? await this.portability.importArchive(
             this.bundleArchive,
             this.mode,
-            confirmed,
+            confirmReplace,
             fingerprint
           )
-        : await this.portability.import(this.bundle!, this.mode, confirmed, fingerprint);
+        : await this.portability.import(this.bundle!, this.mode, confirmReplace, fingerprint);
+      this.keepGeneratedSecrets(this.plan.generatedSecrets);
       await this.refreshResources();
       this.snackBar.open('Configuration bundle imported', 'Close', { duration: 3000 });
     }, 'Configuration import failed');
@@ -184,6 +223,101 @@ export class ConfigPortabilityComponent implements OnInit {
       this.selected.delete(this.resourceKey(resource));
       await this.refreshResources();
     }, 'Could not detach resource');
+  }
+
+  async planReattach(resource: ConfigResourceMetadata): Promise<void> {
+    await this.run(
+      async () => {
+        this.plan = await this.portability.planReattach(resource.kind, resource.resourceId);
+        this.reattachTarget = resource;
+        // The plan renders above the ownership table, out of view of the clicked row.
+        setTimeout(() =>
+          document.getElementById('config-plan')?.scrollIntoView({ behavior: 'smooth' })
+        );
+      },
+      resource.ownership === 'file-managed'
+        ? 'Could not plan applying the file version'
+        : 'Could not plan the reset to the file version'
+    );
+  }
+
+  async applyReattach(): Promise<void> {
+    const target = this.reattachTarget;
+    if (!target || !this.plan?.applicable || !this.plan.planFingerprint || this.plan.operationId)
+      return;
+    const key = this.resourceKey(target);
+    const reapply = this.reappliesFileVersion;
+    const question = reapply
+      ? `Apply ${key} from the config folder again?`
+      : `Reset ${key} to the file version? Changes made through the API or UI are discarded.`;
+    const secretNotice = this.planRegeneratesClientSecret
+      ? ` ${target.resourceId} gets a new secret, and its current secret stops working immediately.`
+      : '';
+    if (!globalThis.confirm(question + secretNotice)) {
+      return;
+    }
+    const fingerprint = this.plan.planFingerprint;
+    await this.run(
+      async () => {
+        this.plan = await this.portability.reattach(target.kind, target.resourceId, fingerprint);
+        this.keepGeneratedSecrets(this.plan.generatedSecrets);
+        await this.refreshResources();
+        this.snackBar.open(
+          reapply ? `${key} was applied from the file` : `${key} is file-managed again`,
+          'Close',
+          { duration: 3000 }
+        );
+      },
+      reapply
+        ? 'Could not apply the file version'
+        : 'Could not reset the resource to the file version'
+    );
+  }
+
+  canApplyFromFile(resource: ConfigResourceMetadata): boolean {
+    return offersApplyFromFile(resource.kind, resource);
+  }
+
+  /**
+   * The plan lists `/spec/secret` when applying it replaces the secret of an
+   * existing client: with a new generated one for "secret": "!generate", or
+   * with the one in the file.
+   */
+  get planRegeneratesClientSecret(): boolean {
+    return !!this.plan?.items.some(
+      (item) =>
+        item.kind === 'Client' &&
+        item.action === 'update' &&
+        item.changes?.some((change) => change.path === '/spec/secret')
+    );
+  }
+
+  /** True while the shown plan applies the file version of a resource that is still file-managed. */
+  get reappliesFileVersion(): boolean {
+    return this.reattachTarget?.ownership === 'file-managed';
+  }
+
+  /** The field changes of an item at a glance, for example "3 fields, 1 removed". */
+  changeSummary(item: ConfigPlanItem): string {
+    const changes = item.changes ?? [];
+    const removed = changes.filter(removesValue).length;
+    return removed
+      ? `${fieldCount(changes.length)}, ${removed} removed`
+      : fieldCount(changes.length);
+  }
+
+  changeSide(change: ConfigPlanChange, side: 'before' | 'after'): ChangeSide {
+    const value = change[side];
+    if (side === 'after' && removesValue(change)) return { text: 'removed', kind: 'removed' };
+    if (value === undefined) return { text: 'not set', kind: 'described' };
+    // Markers of configChanges in packages/eudiplo-config-format/src/config-values.ts.
+    if (change.redacted && value === '[redacted]') return { text: 'secret', kind: 'described' };
+    if (change.redacted && value === '[changed]') return { text: 'changed', kind: 'described' };
+    return { text: JSON.stringify(value), kind: 'value' };
+  }
+
+  hasRedactedChanges(plan: ConfigImportPlan): boolean {
+    return plan.items.some((item) => item.changes?.some((change) => change.redacted));
   }
 
   resourceKey(resource: ConfigResourceMetadata): string {
@@ -258,22 +392,29 @@ export class ConfigPortabilityComponent implements OnInit {
     }
     this.busy = true;
     try {
-      const failures: string[] = [];
+      const failures: LabelledFailure[] = [];
       for (const resource of targets) {
         try {
           await this.portability.detach(resource.kind, resource.resourceId);
           this.selected.delete(this.resourceKey(resource));
         } catch (error) {
-          failures.push(`${this.resourceKey(resource)}: ${getApiErrorMessage(error, 'failed')}`);
+          failures.push({ label: this.resourceKey(resource), error });
         }
       }
       await this.refreshResources();
       const succeeded = targets.length - failures.length;
       if (failures.length) {
-        this.snackBar.open(
-          `Detached ${succeeded} of ${targets.length} resource(s). Failed: ${failures.join('; ')}`,
-          'Close',
-          { duration: 8000 }
+        const summary = `Detached ${succeeded} of ${targets.length} resource(s)`;
+        // The backend answered none of them: the failed resources stay selected, so the reason is enough.
+        const { unreachable, other } = groupUnreachable(failures, () => summary);
+        const reasons = joinFailures(
+          failures,
+          ({ label, error }) => `${label}: ${apiErrorDetail(error) ?? 'failed'}`,
+          (labels) => labels
+        );
+        openErrorSnackBar(
+          this.snackBar,
+          unreachable && other.length === 0 ? unreachable : `${summary}. Failed: ${reasons}`
         );
       } else {
         this.snackBar.open(`Detached ${succeeded} resource(s)`, 'Close', { duration: 3000 });
@@ -285,25 +426,56 @@ export class ConfigPortabilityComponent implements OnInit {
 
   onModeChange(): void {
     this.plan = undefined;
+    this.reattachTarget = undefined;
   }
 
   downloadImportResult(): void {
-    if (!this.plan?.generatedSecrets?.length) return;
+    if (!this.generatedSecrets.length) return;
     this.download(
-      new Blob([JSON.stringify({ generatedSecrets: this.plan.generatedSecrets }, null, 2)], {
+      new Blob([JSON.stringify({ generatedSecrets: this.generatedSecrets }, null, 2)], {
         type: 'application/json',
       }),
       'eudiplo-import-secrets.json'
     );
   }
 
+  async copySecret(secret: { id: string; value: string }): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(secret.value);
+      this.snackBar.open(`Secret of ${secret.id} copied to clipboard`, 'Close', { duration: 2000 });
+    } catch {
+      openErrorSnackBar(this.snackBar, 'Could not copy the secret. Select it and copy it by hand.');
+    }
+  }
+
+  dismissGeneratedSecrets(): void {
+    if (
+      !globalThis.confirm(
+        'Remove the generated secrets from this page? They cannot be shown again; download or copy them first.'
+      )
+    )
+      return;
+    this.generatedSecrets = [];
+  }
+
+  /** A later secret of the same client replaces the earlier one, which no longer works. */
+  private keepGeneratedSecrets(secrets: ConfigImportPlan['generatedSecrets']): void {
+    if (!secrets?.length) return;
+    const ids = new Set(secrets.map((secret) => secret.id));
+    this.generatedSecrets = [
+      ...this.generatedSecrets.filter((secret) => !ids.has(secret.id)),
+      ...secrets,
+    ];
+  }
+
   async refreshOperations(): Promise<void> {
     try {
       this.operations = await this.portability.listOperations();
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Could not load operation history'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Could not load operation history')
+      );
     }
   }
 
@@ -315,10 +487,35 @@ export class ConfigPortabilityComponent implements OnInit {
         if (!validKeys.has(key)) this.selected.delete(key);
       }
     } catch (error) {
-      this.snackBar.open(getApiErrorMessage(error, 'Could not load resource ownership'), 'Close', {
-        duration: 5000,
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Could not load resource ownership')
+      );
     }
+  }
+
+  /** What to confirm before the plan is applied, or undefined when it needs no confirmation. */
+  private applyQuestion(plan: ConfigImportPlan): string | undefined {
+    const parts: string[] = [];
+    const deletions = plan.items
+      .filter((item) => item.action === 'delete')
+      .map((item) => `${item.kind}/${item.id}`);
+    if (this.mode === 'replace')
+      parts.push(
+        deletions.length
+          ? `Replace mode deletes file-managed resources from this bundle source that are not in the bundle: ${deletions.join(', ')}.`
+          : 'This replace import deletes no resources.'
+      );
+    const removals = plan.items.flatMap((item) => {
+      const count = item.changes?.filter(removesValue).length ?? 0;
+      return count ? [`${item.kind}/${item.id} (${fieldCount(count)})`] : [];
+    });
+    if (removals.length)
+      parts.push(
+        `The import removes stored values that the bundle leaves out, marked as removed in the plan: ${removals.join(', ')}.`
+      );
+    if (deletions.length || removals.length) parts.push('This cannot be undone.');
+    return parts.length ? `${parts.join(' ')} Continue?` : undefined;
   }
 
   private async run(operation: () => Promise<void>, fallback: string): Promise<void> {
@@ -337,7 +534,8 @@ export class ConfigPortabilityComponent implements OnInit {
           operationId: report.operationId,
           generatedSecrets: report.generatedSecrets,
         };
-      this.snackBar.open(getApiErrorMessage(error, fallback), 'Close', { duration: 6000 });
+      this.keepGeneratedSecrets(report?.generatedSecrets);
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, fallback));
     } finally {
       this.busy = false;
       if (this.canApply) await this.refreshOperations();

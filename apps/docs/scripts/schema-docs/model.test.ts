@@ -55,11 +55,11 @@ test("extracted webhook schema keeps both auth branches and strict validation", 
     assert.equal(PresentationRequestSchema.safeParse({
         ...base, webhook: { url: "https://example.com", auth: { type: "none", extra: true } },
     }).success, false);
-    // The DTO's existing schema accepted empty strings; the separate webhook config
-    // schema has stronger min(1) rules and must not silently replace it here.
+    // Inline webhooks use the published WebhookConfig schema, which rejects
+    // an empty URL, header name or API key.
     assert.equal(PresentationRequestSchema.safeParse({
         ...base, webhook: { url: "", auth: { type: "apiKey", config: { headerName: "", value: "" } } },
-    }).success, true);
+    }).success, false);
 });
 
 test("nullable fields keep their type and are marked nullable", () => {
@@ -85,4 +85,31 @@ test("description overrides replace the description and reject unknown paths", (
     const model = overrideDescriptions(buildSchemaModel(schema), { "items.url": "Posted to as is." });
     assert.equal(model.properties?.items.items?.properties?.url.description, "Posted to as is.");
     assert.throws(() => overrideDescriptions(buildSchemaModel(schema), { "items.uri": "x" }), /unknown field "items.uri"/);
+});
+
+test("description overrides reach fields of union variants", () => {
+    const schema = z.object({
+        entities: z.array(
+            z.discriminatedUnion("type", [
+                z.object({ type: z.literal("internal"), keyChainId: z.string() }),
+                z.object({ type: z.literal("external"), certPem: z.string().describe("PEM.") }),
+            ]),
+        ),
+    });
+    const model = overrideDescriptions(buildSchemaModel(schema), { "entities.certPem": "PEM or Base64 DER." });
+    const variants = model.properties?.entities.items?.variants ?? [];
+    assert.equal(variants.find((variant) => variant.properties?.certPem)?.properties?.certPem.description, "PEM or Base64 DER.");
+    assert.throws(() => overrideDescriptions(buildSchemaModel(schema), { "entities.cert": "x" }), /unknown field "entities.cert"/);
+});
+
+test("description overrides change a field in every variant that has it", () => {
+    const schema = z.discriminatedUnion("type", [
+        z.object({ type: z.literal("a"), info: z.string().describe("A.") }),
+        z.object({ type: z.literal("b"), info: z.string().describe("B.") }),
+    ]);
+    const model = overrideDescriptions(buildSchemaModel(schema), { info: "Shared." });
+    assert.deepEqual(
+        model.variants?.map((variant) => variant.properties?.info.description),
+        ["Shared.", "Shared."],
+    );
 });

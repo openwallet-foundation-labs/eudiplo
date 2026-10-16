@@ -4,7 +4,7 @@ import { InternalClientsProvider } from "./client/adapters/internal-clients.serv
 import { CLIENTS_PROVIDER } from "./client/client.provider.js";
 import { OidcDiscoveryDto } from "./dto/oidc-discovery.dto.js";
 import { TokenResponse } from "./dto/token-response.dto.js";
-import { JwtService } from "./jwt.service.js";
+import { ACCESS_TOKEN_LIFETIME_SECONDS, JwtService } from "./jwt.service.js";
 import { InternalTokenPayload } from "./token.decorator.js";
 
 /**
@@ -90,27 +90,24 @@ export class AuthService {
         const payload: InternalTokenPayload = {
             roles: client.roles,
             tenant_id: client.tenantId!,
+            ...(client.tokensValidAfter && {
+                credentials_at: client.tokensValidAfter.getTime(),
+            }),
         };
 
-        //TODO: make expiresIn configurable?
         const access_token = await this.jwtService.generateToken(payload, {
-            expiresIn: "24h",
+            expiresInSeconds: ACCESS_TOKEN_LIFETIME_SECONDS,
             audience: "eudiplo-service",
             //TODO: check if the clientId should be saved here or somewhere else like in client_id
             subject: clientId,
         });
 
-        const refresh_token = await this.jwtService.generateToken(payload, {
-            expiresIn: "30d",
-            audience: "eudiplo-service",
-            subject: clientId,
-        });
-
+        // No refresh token: the client credentials grant gets a new access
+        // token with the credentials (RFC 6749, section 4.4.3).
         return {
             access_token,
-            refresh_token,
             token_type: "Bearer",
-            expires_in: 86400, // 24 hours in seconds
+            expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
             state: body.state,
         };
     }

@@ -30,11 +30,11 @@ A failed presentation, for example because the user declined, sends `"status": "
 
 - **Raw tokens:** list credential query IDs in `includeRawTokensFor` of an inline request `webhook` to also receive the presented token (for example the SD-JWT) as `rawToken`. Webhook endpoints have no such option.
 - **Redirect override:** answer with `{ "redirectUri": "https://shop.example.com/done" }` to send the user there instead of the configured `redirectUri`. This works for completed and, for OpenID4VP, failed presentations.
-- **Delivery:** EUDIPLO sends one request and does not retry. A failed delivery is logged and does not change the session, so reconcile missed results by [polling](#polling). Webhook URLs must pass the [outbound URL policy](../reference/webhooks.md).
+- **Delivery:** EUDIPLO makes one delivery attempt (following [redirects](../reference/webhooks.md#delivery)) and does not retry. A failed delivery is logged and does not change the session, so reconcile missed results by [polling](#polling). Webhook URLs must pass the [outbound URL policy](../reference/webhooks.md).
 
 ## Server-Sent Events
 
-Subscribe from your backend to `GET /api/session/{id}/events` with the access token in the `Authorization` header. The stream is authorized like `GET /api/session/{id}`, so presentation sessions need `presentation:request`. Tokens in the URL are not accepted, which keeps management tokens out of access logs. The browser's `EventSource` cannot send headers: read the stream in your backend and pass the status on to your page, and never hand the management token to the browser.
+Subscribe from your backend to `GET /api/session/{id}/events` with the access token in the `Authorization` header. The stream is authorized like `GET /api/session/{id}`, so presentation sessions need `presentation:request` (or `sessions:read`, which reads sessions without creating requests). Tokens in the URL are not accepted, which keeps management tokens out of access logs. The browser's `EventSource` cannot send headers: read the stream in your backend and pass the status on to your page, and never hand the management token to the browser.
 
 ```bash
 curl -N "$EUDIPLO/api/session/$SESSION/events" -H "Authorization: Bearer $TOKEN"
@@ -59,7 +59,7 @@ const subscription = await client.subscribeToSession(sessionId, {
 
 ## Polling
 
-Read the session with `GET /api/session/{id}`. The caller needs the `presentation:request` role; a client with only issuance roles gets `404` for presentation sessions. Poll every one or two seconds until `status` is `completed`, `failed` or `expired`:
+Read the session with `GET /api/session/{id}`. The caller needs the `presentation:request` role, or `sessions:read` to read results without creating requests; a client with only issuance roles gets `404` for presentation sessions. With `sessions:read` but without `presentation:request`, the session answers `404` until the wallet answered and then comes without `responseCode`, so polling and the [same-device check](#same-device-redirect) need `presentation:request`. Poll every one or two seconds until `status` is `completed`, `failed` or `expired`:
 
 ```json
 {

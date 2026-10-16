@@ -110,6 +110,27 @@ describe("OpenAPI contract", () => {
         ]);
     });
 
+    test("documents registrar category and tags only on schema metadata publish requests", () => {
+        const schemas = document.components?.schemas ?? {};
+        const publishConfig = schemas.PublishSchemaMetaConfig as any;
+
+        expect(publishConfig.properties.category.enum).toContain("identity");
+        expect(publishConfig.properties.tags.items.enum).toContain("pid");
+        for (const body of [
+            "SignSchemaMetaConfigDto",
+            "SignVersionSchemaMetaConfigDto",
+        ]) {
+            expect((schemas[body] as any).properties.config.allOf).toEqual([
+                { $ref: "#/components/schemas/PublishSchemaMetaConfig" },
+            ]);
+        }
+        // SchemaMetaConfig is also the schemaMeta of credential configs,
+        // whose endpoints and config files reject these fields.
+        const schemaMetaConfig = schemas.SchemaMetaConfig as any;
+        expect(schemaMetaConfig.properties).not.toHaveProperty("category");
+        expect(schemaMetaConfig.properties).not.toHaveProperty("tags");
+    });
+
     test("documents tenant description clearing without create-only PATCH fields", () => {
         const createTenantSchema = document.components?.schemas
             ?.CreateTenantDto as any;
@@ -134,6 +155,82 @@ describe("OpenAPI contract", () => {
         expect(tenantResponseSchema.properties.description.type).toEqual(
             expect.arrayContaining(["null"]),
         );
+    });
+
+    test("documents the roles the RolesGuard accepts as security", () => {
+        // Requirement objects are alternatives; the scopes inside one are all required.
+        // Two handlers of one controller: the second must not repeat the first's.
+        for (const path of ["/api/session", "/api/session/stats"]) {
+            expect(getOperation(document, path, "get").security).toEqual([
+                { oauth2: ["issuance:offer"] },
+                { oauth2: ["presentation:request"] },
+                { oauth2: ["sessions:read"] },
+            ]);
+        }
+        // A handler's roles replace the controller's instead of adding to them.
+        expect(
+            getOperation(document, "/api/session/{id}/credential-status", "get")
+                .security,
+        ).toEqual([
+            { oauth2: ["issuance:offer"] },
+            { oauth2: ["issuance:manage"] },
+            { oauth2: ["credentials:status"] },
+            { oauth2: ["sessions:read"] },
+        ]);
+        expect(
+            getOperation(document, "/api/session/revoke", "post").security,
+        ).toEqual([
+            { oauth2: ["credentials:status"] },
+            { oauth2: ["issuance:manage"] },
+        ]);
+        expect(
+            getOperation(document, "/api/session/{id}", "delete").security,
+        ).toEqual([
+            { oauth2: ["issuance:offer"] },
+            { oauth2: ["presentation:request"] },
+        ]);
+        // match "all": one requirement object with every role.
+        for (const path of [
+            "/api/schema-metadata/publish",
+            "/api/schema-metadata/publish-version",
+        ]) {
+            expect(getOperation(document, path, "post").security).toEqual([
+                { oauth2: ["issuance:manage", "registrar:manage"] },
+            ]);
+        }
+        expect(
+            getOperation(document, "/api/schema-metadata/vocabularies", "get")
+                .security,
+        ).toEqual([{ oauth2: ["registrar:manage"] }]);
+    });
+
+    test("documents every field of the access certificate response", () => {
+        const operation = getOperation(
+            document,
+            "/api/registrar/access-certificate",
+            "post",
+        );
+        const schema = operation.responses["201"].content?.["application/json"]
+            .schema as { properties?: object; required?: string[] };
+
+        expect(Object.keys(schema.properties ?? {}).sort()).toEqual([
+            "certId",
+            "crt",
+            "id",
+        ]);
+        expect(schema.required?.sort()).toEqual(["certId", "crt", "id"]);
+    });
+
+    test("marks the required schema metadata values as required", () => {
+        const schema = document.components?.schemas?.SchemaMetaConfig as {
+            required?: string[];
+        };
+
+        expect(schema.required?.sort()).toEqual([
+            "attestationLoS",
+            "bindingType",
+            "version",
+        ]);
     });
 
     test("documents key JSON, form, binary, SSE, and no-content responses", () => {

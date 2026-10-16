@@ -22,6 +22,7 @@ import {
   keyChainControllerUpdateTenantKmsConfig,
 } from '@eudiplo/sdk-core';
 import type { Role } from '../services/jwt.service';
+import { hasHttpStatus } from '../utils/error-message';
 
 /**
  * Roles allowed to export key material and to manage the tenant KMS provider
@@ -30,13 +31,16 @@ import type { Role } from '../services/jwt.service';
  */
 export const KEY_ADMIN_ROLES: Role[] = ['tenant:admin', 'tenants:manage'];
 
+/** Roles that list, create, rotate and delete key chains and read the KMS providers. */
+export const KEY_CHAIN_ROLES: Role[] = ['issuance:manage', 'presentation:manage', 'keys:manage'];
+
 /** Message shown when the backend rejects a key administration request. */
 export const KEY_ADMIN_FORBIDDEN_MESSAGE =
   'This action requires the tenant:admin or tenants:manage role';
 
 /** True when the SDK error is the backend's 403 response. */
 export function isForbidden(error: unknown): boolean {
-  return (error as { statusCode?: number } | undefined)?.statusCode === 403;
+  return hasHttpStatus(error, 403);
 }
 
 /**

@@ -18,6 +18,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
+import { JwtService } from '../../../services/jwt.service';
+import { canManageRoles } from '../../../services/role-grants';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { clientDeleteConfirmation } from '../client-delete-confirmation';
+import { clientRotateConfirmation } from '../client-rotate-confirmation';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-client-list',
@@ -32,6 +39,7 @@ import { ConfigOwnershipDirective } from '../../../config-portability/config-own
     MatTooltipModule,
     MatDialogModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
   ],
   templateUrl: './client-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -42,6 +50,8 @@ export class ClientListComponent implements OnInit {
 
   clients: ClientEntity[] = [];
   loading = false;
+  /** Set when the list could not be loaded, so it is not shown as empty. */
+  loadError = '';
   hasPermission = false;
 
   displayedColumns: (keyof ClientEntity | 'actions')[] = [
@@ -51,27 +61,40 @@ export class ClientListComponent implements OnInit {
     'actions',
   ];
 
+  readonly manageDeniedHint = 'This client has roles you neither hold nor may grant';
+  /** Roles of the signed-in caller, read once instead of per row */
+  private readonly callerRoles: string[];
+
   constructor(
     private readonly snackBar: MatSnackBar,
     private readonly apiService: ApiService,
     private readonly router: Router,
-    private readonly dialog: MatDialog
-  ) {}
+    private readonly dialog: MatDialog,
+    jwtService: JwtService
+  ) {
+    this.callerRoles = jwtService.getRoles();
+  }
+
+  /** Whether the signed-in caller may edit, delete or rotate the secret of the client. */
+  canManage(client: ClientEntity): boolean {
+    return canManageRoles(this.callerRoles, client.roles ?? []);
+  }
   ngOnInit(): void {
     if (this.loadedClients) {
       this.clients = this.loadedClients;
     } else {
-      this.loadClients();
+      void this.loadClients();
     }
   }
 
   async loadClients(): Promise<void> {
     this.loading = true;
+    this.loadError = '';
     try {
       this.clients = await clientControllerGetClients<true>().then((res) => res.data);
     } catch (error) {
       console.error('Error loading clients:', error);
-      this.snackBar.open('Failed to load clients', 'Close', { duration: 3000 });
+      this.loadError = getApiErrorMessage(error, 'Failed to load clients');
     } finally {
       this.loading = false;
     }
@@ -80,19 +103,28 @@ export class ClientListComponent implements OnInit {
   async deleteClient(client: ClientEntity): Promise<void> {
     if (
       !client.clientId ||
-      !confirm(`Are you sure you want to delete client "${client.clientId}"?`)
+      !confirm(clientDeleteConfirmation(client.clientId, this.apiService.getClientId()))
     ) {
       return;
     }
 
     try {
       await clientControllerDeleteClient({ path: { id: client.clientId } });
-      await this.loadClients(); // Reload the list
-      this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting client:', error);
-      this.snackBar.open('Failed to delete client', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete client'));
+      return;
     }
+
+    if (client.clientId === this.apiService.getClientId()) {
+      // The deleted client can no longer renew this session.
+      this.apiService.logout();
+      this.snackBar.open('Client deleted. You have been signed out.', 'Close', { duration: 5000 });
+      await this.router.navigate(['/login']);
+      return;
+    }
+    await this.loadClients(); // Reload the list
+    this.snackBar.open('Client deleted successfully', 'Close', { duration: 3000 });
   }
 
   /**
@@ -100,11 +132,7 @@ export class ClientListComponent implements OnInit {
    * Shows the new secret in a dialog for one-time viewing.
    */
   async rotateSecret(client: ClientEntity): Promise<void> {
-    if (
-      !confirm(
-        `Are you sure you want to rotate the secret for "${client.clientId}"?\n\nThe current secret will be invalidated immediately. Make sure to save the new secret - you won't be able to see it again!`
-      )
-    ) {
+    if (!confirm(clientRotateConfirmation(client.clientId, this.apiService.getClientId()))) {
       return;
     }
 
@@ -123,10 +151,26 @@ export class ClientListComponent implements OnInit {
           width: '500px',
           disableClose: true,
         });
+        if (client.clientId === this.apiService.getClientId()) {
+          await this.continueWithSecret(result.data.secret);
+        }
       }
     } catch (error) {
       console.error('Error rotating secret:', error);
-      this.snackBar.open('Failed to rotate client secret', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to rotate client secret'));
+    }
+  }
+
+  /** The backend refuses the old secret's tokens, so the own session moves to the new secret. */
+  private async continueWithSecret(secret: string): Promise<void> {
+    try {
+      await this.apiService.useRotatedSecret(secret);
+    } catch (error) {
+      console.error('Error continuing the session with the new secret:', error);
+      openErrorSnackBar(
+        this.snackBar,
+        'Your session could not continue with the new secret. Save it, then log in again with it.'
+      );
     }
   }
 }

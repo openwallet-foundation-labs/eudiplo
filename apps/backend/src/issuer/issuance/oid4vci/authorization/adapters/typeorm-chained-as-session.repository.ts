@@ -45,18 +45,20 @@ export class TypeOrmChainedAsSessionRepository
         });
     }
 
-    findAuthorizedByCode(tenantId: string, authorizationCode: string) {
+    findAuthorizedByCode(tenantId: string, authorizationCodeHash: string) {
         return this.sessions.findOne({
             where: {
                 tenantId,
-                authorizationCode,
+                authorizationCode: authorizationCodeHash,
                 status: ChainedAsSessionStatus.AUTHORIZED,
             },
         });
     }
 
-    findByRefreshToken(tenantId: string, refreshToken: string) {
-        return this.sessions.findOne({ where: { tenantId, refreshToken } });
+    findByRefreshToken(tenantId: string, refreshTokenHash: string) {
+        return this.sessions.findOne({
+            where: { tenantId, refreshToken: refreshTokenHash },
+        });
     }
 
     findByIssuerState(tenantId: string, issuerState: string) {

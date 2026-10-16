@@ -2,22 +2,31 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import {
+    normalizeDocument,
     resourceId,
     schemaUrl,
     serializeDocument,
 } from "@eudiplo/config-format/config-format.js";
-import { Injectable, Logger } from "@nestjs/common";
+import {
+    ConflictException,
+    Injectable,
+    Logger,
+    NotFoundException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ConfigImportService } from "../config-import/config-import.service.js";
 import { ConfigImportOrchestratorService } from "../config-import/config-import-orchestrator.service.js";
+import { ConfigBundleService } from "./config-bundle.service.js";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
 import { ConfigResourceRegistry } from "./config-resource.registry.js";
+import { generatedSecretsOf } from "./generated-secrets.js";
 import type {
     ConfigBundle,
     ConfigBundleAsset,
     ConfigDocument,
     ConfigImportMode,
+    ConfigImportPlan,
     ConfigMigrationIssue,
     ConfigResourceKind,
 } from "./config-resource.types.js";
@@ -62,6 +71,7 @@ export class ConfigFolderBundleService {
         private readonly resourceRegistry: ConfigResourceRegistry,
         private readonly applyService: ConfigBundleApplyService,
         orchestrator: ConfigImportOrchestratorService,
+        private readonly bundleService: ConfigBundleService,
     ) {
         orchestrator.registerPortableRunner(
             "versioned folder plan/apply",
@@ -78,13 +88,34 @@ export class ConfigFolderBundleService {
         );
         const tenantRoot = join(configRoot, tenantId);
         const bundle = this.buildBundle(tenantId, tenantRoot);
-        const source = `folder:${tenantRoot}`;
-        const plan = await this.applyService.apply(
-            tenantId,
-            bundle,
-            mode,
-            source,
-        );
+        const source = folderSource(tenantRoot);
+        let plan: ConfigImportPlan;
+        try {
+            plan = await this.applyService.apply(
+                tenantId,
+                bundle,
+                mode,
+                source,
+            );
+        } catch (error) {
+            this.warnGeneratedSecrets(tenantId, generatedSecretsOf(error));
+            throw error;
+        }
+        this.warnGeneratedSecrets(tenantId, plan.generatedSecrets);
+        for (const item of plan.items) {
+            if (item.action !== "skip") continue;
+            for (const issue of item.issues) {
+                if (
+                    issue.code === "RESOURCE_DETACHED" ||
+                    issue.code === "STALE_GENERATION" ||
+                    issue.code === "KEY_CHAIN_ID_RESERVED"
+                ) {
+                    this.logger.warn(
+                        `[${tenantId}] Skipped ${item.kind} '${item.id}' (${issue.code}): ${issue.message}`,
+                    );
+                }
+            }
+        }
         const counts = plan.items.reduce<Record<string, number>>(
             (result, item) => {
                 result[item.action] = (result[item.action] ?? 0) + 1;
@@ -99,6 +130,108 @@ export class ConfigFolderBundleService {
                     .join(", ") || "no resources"
             }`,
         );
+    }
+
+    /**
+     * A startup import has no caller to return generated secrets to. Name each
+     * client, never its secret, and say how to get a secret that can be read.
+     */
+    private warnGeneratedSecrets(
+        tenantId: string,
+        generatedSecrets: ConfigImportPlan["generatedSecrets"],
+    ): void {
+        for (const { id } of generatedSecrets ?? []) {
+            this.logger.warn(
+                `[${tenantId}] Client '${id}' got a generated secret ("secret": "!generate"), which a startup import does not show. To get a new secret, reattach the client: POST /api/config-bundles/resources/Client/${id}/reattach/plan, then /reattach with the plan's fingerprint, or "Apply from file" under Settings > Config Portability.`,
+            );
+        }
+    }
+
+    /** Plans resetting one resource to its version in the startup config folder. */
+    async planReattach(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+    ): Promise<ConfigImportPlan> {
+        const { bundle, source } = this.resourceBundle(tenantId, kind, id);
+        return this.bundleService.plan(tenantId, bundle, "upsert", source, {
+            reattach: true,
+        });
+    }
+
+    /**
+     * Applies the folder version of one resource and makes it file-managed
+     * again, discarding changes made through the API or UI.
+     */
+    async reattach(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+        planFingerprint: string,
+        callerRoles?: readonly string[],
+    ): Promise<ConfigImportPlan> {
+        const { bundle, source } = this.resourceBundle(tenantId, kind, id);
+        return this.applyService.apply(
+            tenantId,
+            bundle,
+            "upsert",
+            source,
+            planFingerprint,
+            { reattach: true, callerRoles },
+        );
+    }
+
+    private resourceBundle(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+    ): { bundle: ConfigBundle; source: string } {
+        const configFolder = this.configService.get<string>("CONFIG_FOLDER");
+        if (!configFolder) {
+            throw new ConflictException(
+                "No CONFIG_FOLDER is configured, so there is no file version to reattach to.",
+            );
+        }
+        const tenantRoot = join(resolve(configFolder), tenantId);
+        const full = this.buildBundle(tenantId, tenantRoot);
+        const index = full.documents.findIndex(
+            (document) =>
+                normalizeDocument(document).kind === kind &&
+                resourceId(document) === id,
+        );
+        if (index === -1) {
+            throw new NotFoundException(
+                `${kind} '${id}' is not defined in the config folder for tenant '${tenantId}'.`,
+            );
+        }
+        const document = full.documents[index];
+        // Only carry the images this document references, so other assets keep their current content.
+        const referenced = new Set<string>();
+        const collect = (value: unknown): void => {
+            if (typeof value === "string") referenced.add(value);
+            else if (Array.isArray(value)) value.forEach(collect);
+            else if (value && typeof value === "object")
+                Object.values(value).forEach(collect);
+        };
+        collect(document.spec);
+        const assets = full.assets.filter((asset) =>
+            referenced.has(asset.path.replace(/^images\//, "")),
+        );
+        const paths = new Set(assets.map((asset) => asset.path));
+        return {
+            source: folderSource(tenantRoot),
+            bundle: {
+                manifest: {
+                    ...full.manifest,
+                    resources: [full.manifest.resources[index]],
+                    assets: full.manifest.assets.filter((asset) =>
+                        paths.has(asset.path),
+                    ),
+                },
+                documents: [document],
+                assets,
+            },
+        };
     }
 
     buildBundle(tenantId: string, tenantRoot: string): ConfigBundle {
@@ -249,6 +382,10 @@ export class ConfigFolderBundleService {
         }
         return `${definition.directory}/${resourceId(document)}.json`;
     }
+}
+
+function folderSource(tenantRoot: string): string {
+    return `folder:${tenantRoot}`;
 }
 
 function sha256(value: string | Buffer): string {

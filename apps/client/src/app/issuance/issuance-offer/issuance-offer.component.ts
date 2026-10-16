@@ -1,4 +1,5 @@
 import {
+  inject,
   ChangeDetectorRef,
   Component,
   ViewChild,
@@ -15,8 +16,11 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { distinctUntilChanged, skip, startWith } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -37,6 +41,7 @@ import { IssuanceConfigService } from '../issuance-config/issuance-config.servic
 import { AttributeProviderService } from '../attribute-provider/attribute-provider.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
+import { JwtService } from '../../services/jwt.service';
 import { FormlyFieldConfig, FormlyFieldProps, FormlyModule } from '@ngx-formly/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -46,6 +51,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { CommonModule } from '@angular/common';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 /**
  * Custom validator to check that array has at least one element
@@ -69,6 +75,8 @@ function arrayNotEmpty(control: AbstractControl): ValidationErrors | null {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatAutocompleteModule,
+    MatChipsModule,
     MatCardModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
@@ -114,6 +122,8 @@ export class IssuanceOfferComponent implements OnInit {
     claimSource: string; // 'form' or 'attributeProvider'
   }[] = [];
   credentialConfigs: CredentialConfig[] = [];
+  /** Text typed into the credential configuration picker to narrow the suggestions. */
+  credentialConfigFilter = '';
   issuanceConfig?: IssuanceConfig;
   availableAuthServers: string[] = [];
   availableManagedAuthorizationServers: { value: string; label: string }[] = [];
@@ -169,7 +179,7 @@ export class IssuanceOfferComponent implements OnInit {
    * Returns credentials with IAE configured
    */
   get configsWithIae(): string[] {
-    const selectedIds = this.credentialStepForm.get('credentialConfigurationIds')?.value || [];
+    const selectedIds = this.selectedCredentialConfigIds;
     return selectedIds.filter((id: string) => this.selectedConfigsIaeStatus.get(id) === true);
   }
 
@@ -186,6 +196,52 @@ export class IssuanceOfferComponent implements OnInit {
     }
     // For pre-auth and external AS flows, only show configs WITHOUT IAE
     return this.credentialConfigs.filter((config) => !config.iaeActions?.length);
+  }
+
+  get selectedCredentialConfigIds(): string[] {
+    return this.credentialStepForm.get('credentialConfigurationIds')?.value || [];
+  }
+
+  /**
+   * Suggestions for the credential configuration picker: the configs available for the
+   * selected flow that are not selected yet and whose ID or description contains the filter.
+   */
+  get filteredCredentialConfigs(): CredentialConfig[] {
+    const selected = new Set(this.selectedCredentialConfigIds);
+    const term = this.credentialConfigFilter.trim().toLowerCase();
+    return this.availableCredentialConfigs.filter(
+      (config) =>
+        !selected.has(config.id) &&
+        (!term ||
+          config.id.toLowerCase().includes(term) ||
+          !!config.description?.toLowerCase().includes(term))
+    );
+  }
+
+  selectCredentialConfig(id: string, input: HTMLInputElement): void {
+    const control = this.credentialStepForm.get('credentialConfigurationIds');
+    if (!this.selectedCredentialConfigIds.includes(id)) {
+      control?.setValue([...this.selectedCredentialConfigIds, id]);
+      control?.markAsDirty();
+    }
+    this.clearCredentialConfigFilter(input);
+  }
+
+  /** Drops text that was typed into the picker but not turned into a selection. */
+  clearCredentialConfigFilter(input: HTMLInputElement): void {
+    input.value = '';
+    this.credentialConfigFilter = '';
+  }
+
+  hasIae(id: string): boolean {
+    return !!this.credentialConfigs.find((config) => config.id === id)?.iaeActions?.length;
+  }
+
+  removeCredentialConfig(id: string): void {
+    const control = this.credentialStepForm.get('credentialConfigurationIds');
+    control?.setValue(this.selectedCredentialConfigIds.filter((selected) => selected !== id));
+    control?.markAsDirty();
+    control?.markAsTouched();
   }
 
   /**
@@ -206,11 +262,18 @@ export class IssuanceOfferComponent implements OnInit {
    * Returns true if all attribute providers for external AS flow are configured
    */
   get allExternalAsWebhooksValid(): boolean {
-    const selectedIds = this.credentialStepForm.get('credentialConfigurationIds')?.value || [];
+    const selectedIds = this.selectedCredentialConfigIds;
     return selectedIds.every((id: string) => {
       const apForm = this.externalAsWebhooks.get(id);
       return apForm?.get('attributeProviderId')?.value; // Attribute provider must be set
     });
+  }
+
+  private readonly jwtService = inject(JwtService);
+
+  /** Creating credential configurations needs `issuance:manage`. */
+  get canManageCredentialConfigs(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
   }
 
   constructor(
@@ -289,10 +352,19 @@ export class IssuanceOfferComponent implements OnInit {
       }
     }
 
-    // Listen for credential config selection changes
-    this.credentialStepForm
-      .get('credentialConfigurationIds')
-      ?.valueChanges.subscribe((ids) => this.setClaimFormFields(ids));
+    // Listen for credential config selection changes. The chip grid re-emits the same
+    // selection on every blur, which would reset the claim step, so only react to changes.
+    // Seed with the current value, as it may already be preselected or prefilled.
+    const selectedIdsControl = this.credentialStepForm.get('credentialConfigurationIds')!;
+    const selectedIds$ = selectedIdsControl.valueChanges.pipe(
+      startWith(selectedIdsControl.value as string[]),
+      distinctUntilChanged(
+        (previous: string[], current: string[]) =>
+          previous.length === current.length && previous.every((id, i) => id === current[i])
+      ),
+      skip(1)
+    );
+    selectedIds$.subscribe((ids) => this.setClaimFormFields(ids));
 
     // Reset configuration step when flow changes
     this.flowStepForm.get('flow')?.valueChanges.subscribe((flow) => {
@@ -300,6 +372,7 @@ export class IssuanceOfferComponent implements OnInit {
       this.credentialStepForm.patchValue({
         credentialConfigurationIds: [],
       });
+      this.credentialConfigFilter = '';
       this.selectedConfigsIaeStatus.clear();
       this.externalAsWebhooks.clear();
       this.configStepForm.patchValue({
@@ -309,7 +382,7 @@ export class IssuanceOfferComponent implements OnInit {
       this.syncAuthorizationServerControl(flow);
     });
 
-    this.credentialStepForm.get('credentialConfigurationIds')?.valueChanges.subscribe(() => {
+    selectedIds$.subscribe(() => {
       this.syncAuthorizationServerControl(this.selectedFlow);
     });
 
@@ -387,7 +460,9 @@ export class IssuanceOfferComponent implements OnInit {
 
       // Generate form fields from schema (only needed for pre-auth flow)
       if (schemaForForm) {
-        const baseConfig = this.formlyJsonschema.toFieldConfig(schemaForForm as any);
+        const baseConfig = this.formlyJsonschema.toFieldConfig(schemaForForm as any, {
+          map: (field) => this.addClaimNameLabel(field),
+        });
         this.fields.push(this.addGroupHeaders(baseConfig));
       } else {
         this.fields.push({} as any); // Empty field config as fallback
@@ -586,6 +661,21 @@ export class IssuanceOfferComponent implements OnInit {
       .replaceAll('>', '&gt;')
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#039;');
+  }
+
+  /**
+   * The derived schema only has a title for claims with display labels. Fall back
+   * to the claim name so every input has a visible label and an accessible name.
+   * Objects and arrays get their header from addGroupHeaders instead.
+   */
+  private addClaimNameLabel(field: FormlyFieldConfig): FormlyFieldConfig {
+    const isLeaf = !field.fieldGroup && !field.fieldArray;
+    const key = Array.isArray(field.key) ? field.key.at(-1) : field.key;
+    if (isLeaf && key != null && !field.props?.label) {
+      field.props ??= {};
+      field.props.label = String(key);
+    }
+    return field;
   }
 
   private addGroupHeaders(field: FormlyFieldConfig, level = 0): FormlyFieldConfig {
@@ -804,10 +894,12 @@ export class IssuanceOfferComponent implements OnInit {
       // Redirect to session details page with QR code and polling enabled
       this.router.navigate(['/session-management', offerResult!.session]);
     } catch (error: unknown) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to generate offer'), 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to generate offer'),
+        'Close',
+        { panelClass: ['error-snackbar'] }
+      );
     } finally {
       this.generatingOffer = false;
     }

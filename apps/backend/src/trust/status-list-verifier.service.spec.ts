@@ -17,7 +17,10 @@ import {
 } from "vitest";
 import { mdocContext } from "../verifier/presentations/mdoc-context.js";
 import { OutboundUrlPolicyService } from "../webhook/outbound-url-policy.service.js";
-import { StatusListVerifierService } from "./status-list-verifier.service.js";
+import {
+    InvalidStatusListTokenError,
+    StatusListVerifierService,
+} from "./status-list-verifier.service.js";
 import { TrustFetchService } from "./trust-fetch.service.js";
 
 const minute = 60_000;
@@ -97,7 +100,7 @@ describe("StatusListVerifierService cache", () => {
 
     /** Status list JWT; the service does not verify its signature. */
     function jwt(
-        claims: { ttl?: number; exp?: number },
+        claims: { ttl?: number; exp?: number; sub?: string },
         lst = deflateSync(new Uint8Array(1)),
     ): string {
         const encode = (value: unknown) =>
@@ -141,13 +144,6 @@ describe("StatusListVerifierService cache", () => {
     }
 
     const caches = [
-        {
-            name: "parsed status lists",
-            token: (claims: { ttl?: number; exp?: number }) =>
-                Promise.resolve(jwt(claims)),
-            get: (statusLists: StatusListVerifierService, uri: string) =>
-                statusLists.getStatusList(uri),
-        },
         {
             name: "status list JWTs",
             token: (claims: { ttl?: number; exp?: number }) =>
@@ -234,28 +230,31 @@ describe("StatusListVerifierService cache", () => {
         expect(requests).toEqual(["/list/1000", "/list/1"]);
     }, 30_000);
 
-    it("bounds parsed status lists by their number of statuses", async () => {
-        // A few hundred bytes of token, three million statuses (~24 MB) each:
-        // the 64 MiB budget holds two of them.
-        const lst = deflateSync(new Uint8Array(375_000));
-        for (const path of ["/big/1", "/big/2", "/big/3"]) {
-            tokens.set(path, jwt({ ttl: 600 }, lst));
-        }
+    it("bounds decompressed status lists by their size", async () => {
+        // A few kilobytes of token, 16 MiB decompressed each: the 64 MiB
+        // budget holds three of them.
+        const lst = deflateSync(Buffer.alloc(16 * 1024 * 1024));
         const statusLists = service();
 
-        for (const path of ["/big/1", "/big/2", "/big/3"]) {
-            await statusLists.getStatusList(`${origin}${path}`);
+        for (const uri of ["/big/1", "/big/2", "/big/3", "/big/4"]) {
+            statusLists.getStatusFromStatusListJwt(
+                jwt({ ttl: 600, sub: uri }, lst),
+                { uri, idx: 0 },
+            );
         }
 
         expect(statusLists.getCacheStats()).toMatchObject({
-            size: 2,
-            uris: [`${origin}/big/2`, `${origin}/big/3`],
+            size: 3,
+            uris: ["/big/2", "/big/3", "/big/4"],
         });
     }, 30_000);
 
     it("clears one or all status lists", async () => {
         const statusLists = service();
-        await statusLists.getStatusList(`${origin}/a`);
+        statusLists.getStatusFromStatusListJwt(jwt({ sub: `${origin}/a` }), {
+            uri: `${origin}/a`,
+            idx: 0,
+        });
         await statusLists.getStatusListJwt(`${origin}/a`);
         await statusLists.getStatusListJwt(`${origin}/b`);
         tokens.set("/c", await cwt({}));
@@ -274,5 +273,197 @@ describe("StatusListVerifierService cache", () => {
             jwtCacheSize: 0,
             uris: [],
         });
+    });
+});
+
+describe("StatusListVerifierService.getStatusFromStatusListJwt", () => {
+    const uri = "https://wallet-provider.example/status/1";
+    const list = new StatusList([0, 1, 2, 0, 0, 0, 0, 3], 2);
+    const lst = base64url.encode(list.compressStatusListToBytes());
+    const now = () => Math.floor(Date.now() / 1000);
+
+    function token(
+        payload: Record<string, unknown> = {},
+        header: Record<string, unknown> = { typ: "statuslist+jwt" },
+    ): string {
+        return [
+            base64url.encode(JSON.stringify({ alg: "ES256", ...header })),
+            base64url.encode(
+                JSON.stringify({
+                    sub: uri,
+                    iat: now(),
+                    exp: now() + 3600,
+                    status_list: { bits: 2, lst },
+                    ...payload,
+                }),
+            ),
+            "c2ln",
+        ].join(".");
+    }
+
+    let statusLists: StatusListVerifierService;
+    beforeEach(() => {
+        statusLists = new StatusListVerifierService({} as TrustFetchService);
+    });
+
+    it.each([
+        { idx: 0, status: 0, isValid: true, description: "Valid" },
+        { idx: 1, status: 1, isValid: false, description: "Invalid/Revoked" },
+        { idx: 2, status: 2, isValid: false, description: "Suspended" },
+        {
+            idx: 7,
+            status: 3,
+            isValid: false,
+            description: "Unknown status (3)",
+        },
+    ])("reads status $status at index $idx", ({ idx, ...expected }) => {
+        expect(
+            statusLists.getStatusFromStatusListJwt(token(), { uri, idx }),
+        ).toEqual(expected);
+    });
+
+    it("reads every status of a one-bit list like the library", () => {
+        const statuses = Array.from({ length: 64 }, (_, i) =>
+            i % 3 === 0 ? 1 : 0,
+        );
+        const jwt = token({
+            status_list: {
+                bits: 1,
+                lst: base64url.encode(
+                    new StatusList(statuses, 1).compressStatusListToBytes(),
+                ),
+            },
+        });
+        expect(
+            statuses.map(
+                (_, idx) =>
+                    statusLists.getStatusFromStatusListJwt(jwt, { uri, idx })
+                        .status,
+            ),
+        ).toEqual(statuses);
+    });
+
+    it.each([
+        { name: "an index outside the list", jwt: () => token(), idx: 8 },
+        { name: "a negative index", jwt: () => token(), idx: -1 },
+        { name: "a fractional index", jwt: () => token(), idx: 1.5 },
+        {
+            name: "another list's sub",
+            jwt: () => token({ sub: `${uri}-other` }),
+            idx: 0,
+        },
+        { name: "no sub", jwt: () => token({ sub: undefined }), idx: 0 },
+        { name: "no iat", jwt: () => token({ iat: undefined }), idx: 0 },
+        {
+            name: "an exp in the past",
+            jwt: () => token({ exp: now() - 1 }),
+            idx: 0,
+        },
+        {
+            name: "a typ other than statuslist+jwt",
+            jwt: () => token({}, { typ: "JWT" }),
+            idx: 0,
+        },
+        { name: "no typ", jwt: () => token({}, {}), idx: 0 },
+        { name: "an undecodable token", jwt: () => "not-a-jwt", idx: 0 },
+        {
+            name: "an exp that is not a number",
+            jwt: () => token({ exp: "tomorrow" }),
+            idx: 0,
+        },
+        {
+            name: "an exp of now",
+            jwt: () => token({ exp: now() }),
+            idx: 0,
+        },
+        {
+            name: "no lst",
+            jwt: () => token({ status_list: { bits: 1 } }),
+            idx: 0,
+        },
+        {
+            name: "invalid bits",
+            jwt: () => token({ status_list: { bits: 3, lst } }),
+            idx: 0,
+        },
+        {
+            name: "an lst that is not DEFLATE",
+            jwt: () =>
+                token({ status_list: { bits: 1, lst: base64url.encode("x") } }),
+            idx: 0,
+        },
+    ])("rejects a token with $name", ({ jwt, idx }) => {
+        expect(() =>
+            statusLists.getStatusFromStatusListJwt(jwt(), { uri, idx }),
+        ).toThrow(InvalidStatusListTokenError);
+    });
+
+    it("accepts an exp within the clock tolerance", () => {
+        expect(
+            statusLists.getStatusFromStatusListJwt(
+                token({ exp: now() - 5 }),
+                { uri, idx: 0 },
+                30,
+            ).isValid,
+        ).toBe(true);
+    });
+
+    it.each(["application/statuslist+jwt", "Statuslist+JWT"])(
+        "accepts %s as typ",
+        (typ) => {
+            expect(
+                statusLists.getStatusFromStatusListJwt(token({}, { typ }), {
+                    uri,
+                    idx: 0,
+                }).isValid,
+            ).toBe(true);
+        },
+    );
+
+    it("rejects a list that decompresses to more than 16 MiB", () => {
+        const bomb = deflateSync(Buffer.alloc(16 * 1024 * 1024 + 1));
+        expect(() =>
+            statusLists.getStatusFromStatusListJwt(
+                token({
+                    status_list: { bits: 1, lst: base64url.encode(bomb) },
+                }),
+                { uri, idx: 0 },
+            ),
+        ).toThrow(/decompressed/);
+    });
+
+    it("decompresses a token once while it is served for the URI", () => {
+        const cache = (
+            statusLists as unknown as {
+                inflatedLists: {
+                    get: (k: string) => { jwt: string; bytes: Uint8Array };
+                };
+            }
+        ).inflatedLists;
+        const jwt = token();
+        statusLists.getStatusFromStatusListJwt(jwt, { uri, idx: 0 });
+        const first = cache.get(uri)?.bytes;
+        statusLists.getStatusFromStatusListJwt(jwt, { uri, idx: 1 });
+        expect(first).toBeDefined();
+        expect(cache.get(uri)?.bytes).toBe(first);
+
+        statusLists.clearCache(uri);
+        statusLists.getStatusFromStatusListJwt(jwt, { uri, idx: 0 });
+        expect(cache.get(uri)?.bytes).not.toBe(first);
+
+        // Another token for the same URI replaces the cached list.
+        const revoked = token({
+            status_list: {
+                bits: 2,
+                lst: base64url.encode(
+                    new StatusList([1, 1, 1, 1], 2).compressStatusListToBytes(),
+                ),
+            },
+        });
+        expect(
+            statusLists.getStatusFromStatusListJwt(revoked, { uri, idx: 0 })
+                .status,
+        ).toBe(1);
+        expect(cache.get(uri)?.jwt).toBe(revoked);
     });
 });

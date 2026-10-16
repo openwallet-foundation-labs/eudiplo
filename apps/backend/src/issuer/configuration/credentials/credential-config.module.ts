@@ -3,6 +3,9 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import type { Repository } from "typeorm";
 import { AuditLogModule } from "../../../audit-log/audit-log.module.js";
 import { PresentationsModule } from "../../../verifier/presentations/presentations.module.js";
+import { provideTrustListReferenceSource } from "../../trust-list/trust-list-reference-source.provider.js";
+import { TrustListModule } from "../../trust-list/trustlist.module.js";
+import { TypeOrmCredentialConfigTrustListReferences } from "./adapters/typeorm-credential-config-trust-list-references.js";
 import { TypeOrmCredentialConfigurationRepository } from "./adapters/typeorm-credential-configuration.repository.js";
 import { CredentialConfigService } from "./credential-config/credential-config.service.js";
 import { CredentialConfigController } from "./credential-config.controller.js";
@@ -18,6 +21,7 @@ import { CREDENTIAL_CONFIGURATION_REPOSITORY } from "./ports/credential-configur
         TypeOrmModule.forFeature([CredentialConfig]),
         AuditLogModule,
         PresentationsModule,
+        TrustListModule,
     ],
     controllers: [CredentialConfigController],
     providers: [
@@ -28,6 +32,10 @@ import { CREDENTIAL_CONFIGURATION_REPOSITORY } from "./ports/credential-configur
             useFactory: (repository: Repository<CredentialConfig>) =>
                 new TypeOrmCredentialConfigurationRepository(repository),
         },
+        provideTrustListReferenceSource(
+            TypeOrmCredentialConfigTrustListReferences,
+            CredentialConfig,
+        ),
     ],
     exports: [CredentialConfigService, CREDENTIAL_CONFIGURATION_REPOSITORY],
 })

@@ -3,7 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { SessionStorageConfig } from "../auth/tenant/entities/session-storage-config.js";
 import { TenantEntity } from "../auth/tenant/entities/tenant.entity.js";
-import { SessionCleanupMode } from "./domain/session-retention.js";
+import {
+    retentionForTenant,
+    SessionCleanupMode,
+    type SessionRetentionSettings,
+} from "./domain/session-retention.js";
 import { UpdateSessionConfigDto } from "./dto/update-session-config.dto.js";
 import { SESSION_SETTINGS, type SessionSettings } from "./session-settings.js";
 
@@ -51,12 +55,18 @@ export class SessionConfigService {
      * @param tenantId The tenant ID
      * @returns The effective session storage configuration with defaults applied
      */
-    async getEffectiveConfig(tenantId: string): Promise<SessionStorageConfig> {
+    async getEffectiveConfig(
+        tenantId: string,
+    ): Promise<SessionRetentionSettings> {
         const config = await this.getConfig(tenantId);
-        return {
-            ttlSeconds: config?.ttlSeconds ?? this.getDefaultTtlSeconds(),
-            cleanupMode: config?.cleanupMode ?? this.getDefaultCleanupMode(),
-        };
+        // The rule of the cleanup job, so callers see what it will do.
+        return retentionForTenant(
+            { tenantId, ...config },
+            {
+                ttlSeconds: this.getDefaultTtlSeconds(),
+                cleanupMode: this.getDefaultCleanupMode(),
+            },
+        );
     }
 
     /**

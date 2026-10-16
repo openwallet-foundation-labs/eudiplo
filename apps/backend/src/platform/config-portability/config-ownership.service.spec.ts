@@ -74,6 +74,71 @@ describe("ConfigOwnershipService", () => {
         ).resolves.toMatchObject([{ resourceId: "included" }]);
     });
 
+    it("lists one kind of a tenant without the source hash or null fields", async () => {
+        const lastAppliedAt = new Date("2026-10-01T00:00:00Z");
+        const repository = {
+            find: vi.fn().mockResolvedValue([
+                {
+                    tenantId: "tenant-a",
+                    kind: "CredentialConfig",
+                    resourceId: "pid",
+                    ownership: "file-managed",
+                    generation: 2,
+                    source: "folder:/config/tenant-a",
+                    sourceHash: "abc",
+                    lastAppliedAt,
+                    createdAt: lastAppliedAt,
+                    updatedAt: lastAppliedAt,
+                },
+                {
+                    tenantId: "tenant-a",
+                    kind: "CredentialConfig",
+                    resourceId: "manual",
+                    ownership: "unmanaged",
+                    generation: 3,
+                    source: null,
+                    sourceHash: null,
+                    lastAppliedAt: null,
+                    createdAt: lastAppliedAt,
+                    updatedAt: lastAppliedAt,
+                },
+            ]),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        const entries = await service.listKind("tenant-a", "CredentialConfig");
+
+        expect(entries).toStrictEqual([
+            {
+                kind: "CredentialConfig",
+                resourceId: "pid",
+                ownership: "file-managed",
+                generation: 2,
+                source: "folder:/config/tenant-a",
+                lastAppliedAt,
+            },
+            {
+                kind: "CredentialConfig",
+                resourceId: "manual",
+                ownership: "unmanaged",
+                generation: 3,
+                source: undefined,
+                lastAppliedAt: undefined,
+            },
+        ]);
+        // JSON leaves the null fields out instead of sending null.
+        expect(JSON.parse(JSON.stringify(entries[1]))).toEqual({
+            kind: "CredentialConfig",
+            resourceId: "manual",
+            ownership: "unmanaged",
+            generation: 3,
+        });
+        expect(repository.find).toHaveBeenCalledWith({
+            where: { tenantId: "tenant-a", kind: "CredentialConfig" },
+            order: { resourceId: "ASC" },
+        });
+    });
+
     it("rejects a stale file generation", async () => {
         const repository = {
             findOneBy: vi.fn().mockResolvedValue({
@@ -125,5 +190,102 @@ describe("ConfigOwnershipService", () => {
             ownership: "unmanaged",
             generation: 3,
         });
+    });
+
+    it("keeps the former source when detaching", async () => {
+        const repository = {
+            findOneBy: vi.fn().mockResolvedValue({
+                tenantId: "tenant-a",
+                kind: "RegistrarConfig",
+                resourceId: "registrar",
+                ownership: "file-managed",
+                generation: 5,
+                source: "folder:/config/tenant-a",
+                sourceHash: "abc",
+            }),
+            save: vi.fn(async (value) => value),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        await expect(
+            service.detach("tenant-a", "RegistrarConfig", "registrar"),
+        ).resolves.toMatchObject({
+            ownership: "detached",
+            source: "folder:/config/tenant-a",
+            sourceHash: undefined,
+            generation: 5,
+        });
+    });
+
+    it("rejects detaching a resource that is not file-managed", async () => {
+        const repository = {
+            findOneBy: vi.fn().mockResolvedValue(null),
+            create: vi.fn((value) => value),
+            save: vi.fn(),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        await expect(
+            service.detach("tenant-a", "Client", "automation"),
+        ).rejects.toThrow("is not file-managed");
+        expect(repository.save).not.toHaveBeenCalled();
+    });
+
+    it("keeps a detached resource detached when it is changed through the API", async () => {
+        const repository = {
+            findOneBy: vi.fn().mockResolvedValue({
+                tenantId: "tenant-a",
+                kind: "IssuanceConfig",
+                resourceId: "issuance",
+                ownership: "detached",
+                generation: 5,
+                source: "folder:/config/tenant-a",
+            }),
+            save: vi.fn(async (value) => value),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        await expect(
+            service.recordApiMutation(
+                "tenant-a",
+                "IssuanceConfig",
+                "issuance",
+                false,
+            ),
+        ).resolves.toMatchObject({
+            ownership: "detached",
+            source: "folder:/config/tenant-a",
+            generation: 6,
+        });
+    });
+
+    it("resets the generation when reattaching", async () => {
+        const repository = {
+            findOneBy: vi.fn().mockResolvedValue({
+                tenantId: "tenant-a",
+                kind: "IssuanceConfig",
+                resourceId: "issuance",
+                ownership: "detached",
+                generation: 10,
+                source: "folder:/config/tenant-a",
+            }),
+            save: vi.fn(async (value) => value),
+        };
+        const service = new ConfigOwnershipService(repository as any);
+
+        await expect(
+            service.markApplied(
+                {
+                    tenantId: "tenant-a",
+                    kind: "IssuanceConfig",
+                    resourceId: "issuance",
+                    ownership: "file-managed",
+                    generation: 6,
+                    source: "folder:/config/tenant-a",
+                },
+                undefined,
+                true,
+            ),
+        ).resolves.toMatchObject({ ownership: "file-managed", generation: 6 });
     });
 });

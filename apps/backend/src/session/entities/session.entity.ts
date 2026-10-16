@@ -14,7 +14,10 @@ import {
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
 import { AuthorizeQueries } from "../../issuer/issuance/oid4vci/authorization/authorize/dto/authorize-request.dto.js";
 import { OfferRequestDto } from "../../issuer/issuance/oid4vci/dto/offer-request.dto.js";
-import { EncryptedJsonTransformer } from "../../platform/data-encryption/index.js";
+import {
+    EncryptedJsonTransformer,
+    encryptedJsonPaths,
+} from "../../platform/data-encryption/index.js";
 import { TransactionData } from "../../verifier/presentations/entities/presentation-config.entity.js";
 import { WebhookConfig } from "../../webhook/webhook.dto.js";
 import type { Notification } from "../domain/session-data.js";
@@ -112,7 +115,8 @@ export class Session {
 
     // issuance specific fields
     /**
-     * Authorization code for the session.
+     * SHA-256 hash of the authorization or pre-authorized code of the
+     * session, see `hashAuthorizationCode`. The code itself is not stored.
      */
     @Column("varchar", { nullable: true })
     authorization_code?: string;
@@ -135,7 +139,8 @@ export class Session {
     @Column("varchar", { nullable: true })
     client_key_jkt?: string;
     /**
-     * Refresh token for the session - used to obtain a new access token.
+     * SHA-256 hash of the refresh token for the session, which is used to
+     * obtain a new access token. The token itself is not stored.
      */
     @Column("varchar", { nullable: true })
     refresh_token?: string;
@@ -246,6 +251,15 @@ export class Session {
     clientId?: string;
 
     /**
+     * Access key chain chosen when the OID4VP request was created. The
+     * request object is signed with this key chain, so it stays the one
+     * `clientId` was derived from when the tenant's default access key chain
+     * changes in between.
+     */
+    @Column("varchar", { nullable: true })
+    accessKeyChainId?: string;
+
+    /**
      * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
      * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
      * from the frontend-facing session ID (transaction-id) to prevent session fixation.
@@ -275,8 +289,12 @@ export class Session {
 
     /**
      * Where to send the claims webhook response.
+     * The webhook API key is encrypted at rest.
      */
-    @Column("json", { nullable: true })
+    @Column("json", {
+        nullable: true,
+        transformer: encryptedJsonPaths("auth.config.value"),
+    })
     parsedWebhook?: WebhookConfig;
 
     /**

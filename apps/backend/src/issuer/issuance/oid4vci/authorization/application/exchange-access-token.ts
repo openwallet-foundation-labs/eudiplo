@@ -33,6 +33,8 @@ import {
     DEFAULT_TX_CODE_MAX_ATTEMPTS,
     enforcedRefreshTokenExpiry,
     findBuiltInAuthorizationServer,
+    hashAuthorizationCode,
+    hashRefreshToken,
     isTxCodeLocked,
     preAuthorizedCodeExpiresAt,
     refreshTokenExpiresAt,
@@ -81,6 +83,20 @@ export interface AccessTokenRequest {
  * `tx_code` lockout, and refresh_token. Every rejection is an
  * {@link OAuthError}.
  */
+/**
+ * The code the grant must carry: only the hash of a code is stored, so the
+ * presented code is expected when its hash is the stored one.
+ */
+function storedCode(presented: string, storedHash: string | undefined): string {
+    if (!storedHash || hashAuthorizationCode(presented) !== storedHash) {
+        throw new OAuthError(
+            "invalid_grant",
+            "The provided authorization code is invalid or expired",
+        );
+    }
+    return presented;
+}
+
 export class ExchangeAccessToken {
     constructor(
         private readonly servers: OAuthAuthorizationServerFactory,
@@ -270,7 +286,11 @@ export class ExchangeAccessToken {
                         ...dpopProofChecks,
                     },
                     authorizationServerMetadata,
-                    expectedPreAuthorizedCode: session.authorization_code!,
+                    expectedPreAuthorizedCode: storedCode(
+                        (parsed.grant as PreAuthorizedCodeGrant)
+                            .preAuthorizedCode,
+                        session.authorization_code,
+                    ),
                     expectedTxCode: session.credentialPayload?.tx_code,
                     preAuthorizedCodeExpiresAt: preAuthorizedCodeExpiresAt(
                         session.createdAt,
@@ -293,7 +313,10 @@ export class ExchangeAccessToken {
                 .verifyAuthorizationCodeAccessTokenRequest({
                     grant: parsed.grant as AuthorizationCodeGrant,
                     accessTokenRequest: parsed.accessTokenRequest,
-                    expectedCode: session.authorization_code as string,
+                    expectedCode: storedCode(
+                        (parsed.grant as AuthorizationCodeGrant).code,
+                        session.authorization_code,
+                    ),
                     codeExpiresAt: session.authorization_code_expires_at,
                     request,
                     dpop: {
@@ -322,7 +345,10 @@ export class ExchangeAccessToken {
                 .verifyRefreshTokenAccessTokenRequest({
                     grant: parsed.grant as RefreshTokenGrant,
                     accessTokenRequest: parsed.accessTokenRequest,
-                    expectedRefreshToken: session.refresh_token!,
+                    // The session was found by the hash of this token, and
+                    // only the hash is stored.
+                    expectedRefreshToken: (parsed.grant as RefreshTokenGrant)
+                        .refreshToken,
                     request,
                     // RFC 9449 Section 5: refresh tokens of public clients stay bound to the DPoP key;
                     // attested clients are bound via client authentication and may use a new key.
@@ -413,7 +439,9 @@ export class ExchangeAccessToken {
                     client_key_jkt: clientKeyJkt,
                     ...(tokenResponse.refresh_token
                         ? {
-                              refresh_token: tokenResponse.refresh_token,
+                              refresh_token: hashRefreshToken(
+                                  tokenResponse.refresh_token,
+                              ),
                               refresh_token_expires_at: refreshTokenExpiry,
                           }
                         : {}),
@@ -436,7 +464,10 @@ export class ExchangeAccessToken {
     ): Promise<SessionData> {
         if (parsed.grant.grantType === refreshTokenGrantIdentifier) {
             return this.sessions
-                .getByRefreshToken(tenantId, parsed.grant.refreshToken)
+                .getByRefreshToken(
+                    tenantId,
+                    hashRefreshToken(parsed.grant.refreshToken),
+                )
                 .catch(() => {
                     throw new OAuthError(
                         "invalid_grant",
@@ -448,7 +479,10 @@ export class ExchangeAccessToken {
         const code = (parsed.accessTokenRequest["pre-authorized_code"] ??
             parsed.accessTokenRequest.code) as string | undefined;
         return this.sessions
-            .getByAuthorizationCode(tenantId, code)
+            .getByAuthorizationCode(
+                tenantId,
+                code && hashAuthorizationCode(code),
+            )
             .catch(() => {
                 throw new OAuthError(
                     "invalid_grant",

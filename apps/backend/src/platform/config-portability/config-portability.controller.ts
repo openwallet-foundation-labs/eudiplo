@@ -14,7 +14,14 @@ import {
     UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiConsumes, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+    ApiConsumes,
+    ApiOperation,
+    ApiParam,
+    ApiQuery,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { AuditLogService } from "../../audit-log/audit-log.service.js";
 import {
@@ -28,6 +35,7 @@ import { Token, TokenPayload } from "../../auth/token.decorator.js";
 import { ConfigBundleService } from "./config-bundle.service.js";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
 import { ConfigBundleArchiveService } from "./config-bundle-archive.service.js";
+import { ConfigFolderBundleService } from "./config-folder-bundle.service.js";
 import { ConfigImportJournalService } from "./config-import-journal.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
 import { ConfigOwnershipService } from "./config-ownership.service.js";
@@ -35,9 +43,12 @@ import type {
     ConfigBundle,
     ConfigFile,
     ConfigImportMode,
+    ConfigImportPlan,
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import { CONFIG_RESOURCE_KINDS } from "./config-resource.types.js";
+import { mayReadConfigOwnership } from "./config-resource-access.js";
+import { ConfigResourceOwnershipDto } from "./dto/config-resource-ownership.dto.js";
 
 @ApiTags("Configuration portability")
 @Secured([Role.Tenants, Role.TenantAdmin])
@@ -51,6 +62,7 @@ export class ConfigPortabilityController {
         private readonly ownershipService: ConfigOwnershipService,
         private readonly auditLogService: AuditLogService,
         private readonly journal: ConfigImportJournalService,
+        private readonly folderBundleService: ConfigFolderBundleService,
     ) {}
 
     @Get("export")
@@ -98,12 +110,7 @@ export class ConfigPortabilityController {
         @Query("mode") mode: ConfigImportMode = "upsert",
     ) {
         this.assertMode(mode);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
-        return this.bundleService.plan(
-            requireTenantContext(token),
-            bundle,
-            mode,
-        );
+        return this.authorizedPlan(token, bundle, mode);
     }
 
     @Post("plan/archive")
@@ -121,12 +128,7 @@ export class ConfigPortabilityController {
         if (!file?.buffer)
             throw new BadRequestException("bundle file is required");
         const bundle = this.archiveService.decode(file.buffer);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
-        return this.bundleService.plan(
-            requireTenantContext(token),
-            bundle,
-            mode,
-        );
+        return this.authorizedPlan(token, bundle, mode);
     }
 
     @ApiQuery({
@@ -178,7 +180,6 @@ export class ConfigPortabilityController {
         if (!file?.buffer)
             throw new BadRequestException("bundle file is required");
         const bundle = this.archiveService.decode(file.buffer);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
         return this.applyAndAudit(
             token,
             request,
@@ -189,29 +190,28 @@ export class ConfigPortabilityController {
         );
     }
 
-    private assertBundlePrivilegedRoleAuthorization(
+    /**
+     * Plans an import and applies the client API's role rules to it, so the
+     * plan already reports what the import would refuse.
+     */
+    private async authorizedPlan(
         token: TokenPayload,
         bundle: ConfigBundle,
+        mode: ConfigImportMode,
     ) {
-        if (token.roles.includes(Role.Tenants)) return;
-
-        const privilegedRoles = new Set([Role.Tenants, Role.TenantAdmin]);
-        for (const document of bundle.documents ?? []) {
-            const roles = Array.isArray(document?.spec?.roles)
-                ? document.spec.roles
-                : [];
-            if (
-                roles.some(
-                    (role) =>
-                        typeof role === "string" &&
-                        privilegedRoles.has(role as Role),
-                )
-            ) {
-                throw new ForbiddenException(
-                    "Cannot assign tenant:manage role without having tenant:manage privileges",
-                );
-            }
-        }
+        const tenantId = requireTenantContext(token);
+        await this.applyService.assertCallerMayAssignRoles(
+            tenantId,
+            bundle,
+            token.roles,
+        );
+        const plan = await this.bundleService.plan(tenantId, bundle, mode);
+        await this.applyService.assertCallerMayChangeClients(
+            tenantId,
+            plan,
+            token.roles,
+        );
+        return plan;
     }
 
     private async applyAndAudit(
@@ -223,7 +223,6 @@ export class ConfigPortabilityController {
         planFingerprint?: string,
     ) {
         this.assertMode(mode);
-        this.assertBundlePrivilegedRoleAuthorization(token, bundle);
         if (mode === "replace" && confirmReplace !== "true") {
             throw new BadRequestException(
                 "replace mode requires confirmReplace=true",
@@ -240,6 +239,7 @@ export class ConfigPortabilityController {
             mode,
             undefined,
             planFingerprint,
+            { callerRoles: token.roles },
         );
         await this.auditLogService.record({
             tenantId,
@@ -255,18 +255,7 @@ export class ConfigPortabilityController {
             },
             requestMeta: extractRequestMeta(request),
         });
-        if (plan.generatedSecrets?.length) {
-            await this.auditLogService.record({
-                tenantId,
-                actionType: "config_client_secret_generated",
-                actor: resolveAuditActor(token),
-                after: {
-                    clients: plan.generatedSecrets.map(({ id }) => id),
-                    count: plan.generatedSecrets.length,
-                },
-                requestMeta: extractRequestMeta(request),
-            });
-        }
+        await this.recordGeneratedSecrets(tenantId, token, request, plan);
         return plan;
     }
 
@@ -315,6 +304,45 @@ export class ConfigPortabilityController {
         return this.ownershipService.list(requireTenantContext(token));
     }
 
+    @Get("resources/:kind")
+    // A literal list for the roles reference; config-resource-access.spec.ts
+    // keeps it equal to the roles mayReadConfigOwnership admits.
+    @Secured([
+        Role.Tenants,
+        Role.TenantAdmin,
+        Role.Issuances,
+        Role.Presentations,
+        Role.Clients,
+        Role.Registrar,
+        Role.Keys,
+    ])
+    @ApiOperation({
+        summary: "List the configuration ownership of one resource kind",
+        description:
+            "Lets screens lock file-managed resources before a change fails with 409. Besides `tenant:admin` and `tenants:manage`, it accepts the roles that change the kind through the management API, for example `issuance:manage` for `CredentialConfig` or `presentation:manage` for `PresentationConfig`.",
+    })
+    @ApiParam({ name: "kind", enum: CONFIG_RESOURCE_KINDS })
+    @ApiResponse({ status: 200, type: [ConfigResourceOwnershipDto] })
+    @ApiResponse({ status: 400, description: "Unknown resource kind." })
+    @ApiResponse({
+        status: 403,
+        description:
+            "The token has no tenant or no role that manages this kind.",
+    })
+    resourcesOfKind(
+        @Token() token: TokenPayload,
+        @Param("kind") rawKind: string,
+    ): Promise<ConfigResourceOwnershipDto[]> {
+        const tenantId = requireTenantContext(token);
+        const kind = this.assertKind(rawKind);
+        if (!mayReadConfigOwnership(token.roles, kind)) {
+            throw new ForbiddenException(
+                `Reading the ownership of ${kind} resources needs a role that manages them.`,
+            );
+        }
+        return this.ownershipService.listKind(tenantId, kind);
+    }
+
     @Post("resources/:kind/:id/detach")
     @ApiOperation({ summary: "Detach a resource from file provisioning" })
     async detach(
@@ -323,12 +351,7 @@ export class ConfigPortabilityController {
         @Param("kind") rawKind: string,
         @Param("id") id: string,
     ) {
-        if (!CONFIG_RESOURCE_KINDS.includes(rawKind as ConfigResourceKind)) {
-            throw new BadRequestException(
-                `Unsupported resource kind: ${rawKind}`,
-            );
-        }
-        const kind = rawKind as ConfigResourceKind;
+        const kind = this.assertKind(rawKind);
         const tenantId = requireTenantContext(token);
         const metadata = await this.journal.run(tenantId, "detach", async () =>
             this.ownershipService.detach(tenantId, kind, id),
@@ -341,6 +364,97 @@ export class ConfigPortabilityController {
             requestMeta: extractRequestMeta(request),
         });
         return metadata;
+    }
+
+    @Post("resources/:kind/:id/reattach/plan")
+    @ApiOperation({
+        summary:
+            "Plan resetting a resource to its version in the config folder",
+    })
+    planReattach(
+        @Token() token: TokenPayload,
+        @Param("kind") rawKind: string,
+        @Param("id") id: string,
+    ) {
+        return this.folderBundleService.planReattach(
+            requireTenantContext(token),
+            this.assertKind(rawKind),
+            id,
+        );
+    }
+
+    @ApiQuery({
+        name: "planFingerprint",
+        required: true,
+        type: String,
+        description: "Fingerprint from the reviewed reattach plan",
+    })
+    @Post("resources/:kind/:id/reattach")
+    @ApiOperation({
+        summary:
+            "Reset a resource to its version in the config folder and make it file-managed again",
+    })
+    async reattach(
+        @Token() token: TokenPayload,
+        @Req() request: Request,
+        @Param("kind") rawKind: string,
+        @Param("id") id: string,
+        @Query("planFingerprint") planFingerprint?: string,
+    ) {
+        const kind = this.assertKind(rawKind);
+        if (!planFingerprint || !/^[a-f0-9]{64}$/.test(planFingerprint))
+            throw new BadRequestException(
+                "A planFingerprint from a reviewed plan is required",
+            );
+        const tenantId = requireTenantContext(token);
+        const plan = await this.folderBundleService.reattach(
+            tenantId,
+            kind,
+            id,
+            planFingerprint,
+            token.roles,
+        );
+        await this.auditLogService.record({
+            tenantId,
+            actionType: "config_resource_reattached",
+            actor: resolveAuditActor(token),
+            after: {
+                kind,
+                id,
+                action: plan.items[0]?.action,
+                operationId: plan.operationId,
+            },
+            requestMeta: extractRequestMeta(request),
+        });
+        await this.recordGeneratedSecrets(tenantId, token, request, plan);
+        return plan;
+    }
+
+    /** Records which clients got a generated secret, never the secret. */
+    private async recordGeneratedSecrets(
+        tenantId: string,
+        token: TokenPayload,
+        request: Request,
+        plan: ConfigImportPlan,
+    ): Promise<void> {
+        if (!plan.generatedSecrets?.length) return;
+        await this.auditLogService.record({
+            tenantId,
+            actionType: "config_client_secret_generated",
+            actor: resolveAuditActor(token),
+            after: {
+                clients: plan.generatedSecrets.map(({ id }) => id),
+                count: plan.generatedSecrets.length,
+            },
+            requestMeta: extractRequestMeta(request),
+        });
+    }
+
+    private assertKind(kind: string): ConfigResourceKind {
+        if (!CONFIG_RESOURCE_KINDS.includes(kind as ConfigResourceKind)) {
+            throw new BadRequestException(`Unsupported resource kind: ${kind}`);
+        }
+        return kind as ConfigResourceKind;
     }
 
     private assertMode(mode: string): asserts mode is ConfigImportMode {

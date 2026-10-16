@@ -1,9 +1,17 @@
 import type { SessionData, SessionUpdate } from "../domain/session-data.js";
-import type {
-    SessionListQuery,
-    SessionPage,
-    SessionType,
+import {
+    type SessionListQuery,
+    type SessionPage,
+    type SessionType,
+    typeOfSession,
 } from "../domain/session-list.js";
+import { isOpenForWallet, SessionStatus } from "../domain/session-state.js";
+import {
+    MAX_FAILURE_CODES,
+    type SessionStats,
+    type SessionStatsFilter,
+    sessionTypeStats,
+} from "../domain/session-stats.js";
 import type {
     SessionCredentialOffer,
     SessionRepository,
@@ -28,6 +36,9 @@ type SessionStoreRepository = Pick<
     | "updateUnconsumedForTenant"
     | "consumeRequestUri"
     | "listForTenant"
+    | "countForTenant"
+    | "topFailureCodesForTenant"
+    | "lastUpdatedForTenant"
     | "deleteForTenant"
     | "findCredentialOffer"
     | "consumeCredentialOffer"
@@ -59,17 +70,40 @@ export class SessionStore {
         );
     }
 
+    /**
+     * A session for a management read: within `scope`, and missing when it is
+     * of a type in `hideOpen` and still open for a wallet, like the list with
+     * the same `hideOpen`.
+     */
+    async getForReader(
+        tenantId: string,
+        sessionId: string,
+        scope?: SessionType,
+        hideOpen: readonly SessionType[] = [],
+    ): Promise<SessionData> {
+        const session = await this.getForTenant(tenantId, sessionId, scope);
+        if (
+            hideOpen.includes(typeOfSession(session)) &&
+            isOpenForWallet(session)
+        )
+            throw new SessionNotFound();
+        return session;
+    }
+
     getByAuthorizationCode(
         tenantId: string,
-        code: string | undefined,
+        codeHash: string | undefined,
     ): Promise<SessionData> {
-        return this.lookup(code, (value) =>
+        return this.lookup(codeHash, (value) =>
             this.sessions.findByAuthorizationCode(tenantId, value),
         );
     }
 
-    getByRefreshToken(tenantId: string, token: string): Promise<SessionData> {
-        return this.lookup(token, (value) =>
+    getByRefreshToken(
+        tenantId: string,
+        refreshTokenHash: string,
+    ): Promise<SessionData> {
+        return this.lookup(refreshTokenHash, (value) =>
             this.sessions.findByRefreshToken(tenantId, value),
         );
     }
@@ -80,7 +114,7 @@ export class SessionStore {
         );
     }
 
-    /** Wallet nonce first, then the legacy session-ID fallback. */
+    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
     getForWalletRequest(nonce: string): Promise<SessionData> {
         return this.lookup(nonce, (value) =>
             this.sessions.findForWalletRequest(value),
@@ -157,6 +191,50 @@ export class SessionStore {
             pageSize: query.pageSize,
             totalPages: Math.ceil(total / query.pageSize),
         };
+    }
+
+    /** Session counts per type, status and failure code, for the types in `scope` only. */
+    async statsForTenant(
+        tenantId: string,
+        scope?: SessionType,
+        filter: SessionStatsFilter = {},
+    ): Promise<SessionStats> {
+        const types: SessionType[] = scope
+            ? [scope]
+            : ["issuance", "presentation"];
+        const [counts, perType] = await Promise.all([
+            this.sessions.countForTenant(tenantId, { ...filter, type: scope }),
+            Promise.all(
+                types.map((type) =>
+                    Promise.all([
+                        this.sessions.topFailureCodesForTenant(
+                            tenantId,
+                            { ...filter, type },
+                            MAX_FAILURE_CODES,
+                        ),
+                        this.sessions.lastUpdatedForTenant(tenantId, {
+                            ...filter,
+                            type,
+                            status: SessionStatus.Completed,
+                        }),
+                    ]),
+                ),
+            ),
+        ]);
+        return Object.fromEntries(
+            types.map((type, index) => {
+                const [failureCodes, lastCompletedAt] = perType[index];
+                return [
+                    type,
+                    sessionTypeStats(
+                        type,
+                        counts,
+                        failureCodes,
+                        lastCompletedAt,
+                    ),
+                ];
+            }),
+        );
     }
 
     /** Missing sessions, other tenants' sessions and sessions outside `scope` are no-ops. */

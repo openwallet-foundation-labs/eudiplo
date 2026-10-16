@@ -12,14 +12,14 @@ Every new `membership` credential gets an entry in a Token Status List that EUDI
 ```mermaid
 flowchart LR
     I[Issue with status entry] --> V1[Verify: completed]
-    V1 --> R["POST /api/session/revoke"]
+    V1 --> R[Revoke the issuance session]
     R --> V2[Verify: failed]
 ```
 
 ## Before you start
 
 - **Starts from:** [Issue and verify](index.md): tenant `membership-demo`, credential configuration `membership`, presentation configuration `membership-check` (with the default **Strict** status check), the tunnel and the wallet.
-- `curl` and `jq`, and the secret of `membership-demo-admin`. The revocation calls have no Web Client button. Get a token:
+- `curl` and `jq`, and the secret of `membership-demo-admin`. You change the status in the Web Client, but clearing the verifier's status-list cache and some checkpoints need the API. Get a token:
 
 ```bash
 export EUDIPLO=http://localhost:3000
@@ -33,21 +33,21 @@ ADMIN_TOKEN=$(curl -s -X POST "$EUDIPLO/api/oauth2/token" \
 
 Open **Credential Issuance → Status Lists** and choose the gear button (**Configure default settings**). Set:
 
-| Field            | Value                                          | Why                                                                           |
-| ---------------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| Bits per status  | **2 bits** (Valid/Revoked/Suspended)           | The default of 1 bit can only express valid and revoked                       |
-| TTL (seconds)    | `60`                                           | Verifiers cache a status list until it expires; the default is one hour       |
-| Immediate Update | on                                             | EUDIPLO re-signs the list right after a status change                         |
+| Field             | Value                                | Why                                                                     |
+| ----------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| Bits per status   | **2 bits** (Valid/Revoked/Suspended) | The default of 1 bit can only express valid and revoked                 |
+| TTL (seconds)     | `60`                                 | Verifiers cache a status list until it expires; the default is one hour |
+| Regeneration mode | **Immediate**                        | EUDIPLO re-signs the list right after a status change                   |
 
-Choose **Save Configuration**. Capacity and bits only apply to lists created afterwards, so set them before the first credential with status is issued. In production, choose the TTL from how fast a revocation must take effect. The API equivalent is `PUT /api/status-list-config` with `{"bits": 2, "ttl": 60, "immediateUpdate": true}`.
+Fields you leave at **Global default** follow the instance's `STATUS_*` environment variables and are not stored for the tenant. Choose **Save Configuration**. Capacity and bits only apply to lists created afterwards, so set them before the first credential with status is issued. In production, choose the TTL from how fast a revocation must take effect. The API equivalent is `PUT /api/status-list-config` with `{"bits": 2, "ttl": 60, "immediateUpdate": true}`.
 
 **Checkpoint:** the page shows the saved values after a reload.
 
-## Step 2: Create a status list signing key
+## Step 2: Check the status list signing key
 
-Open **Cryptographic Assets → Keys**, choose **Create Key**, select **Status List Signing**, enter the description `Membership status list signing` and choose **Create Key Chain**. Without such a key, EUDIPLO signs status lists with the credential signing key.
+Open **Cryptographic Assets → Keys** and check that the key chain `Membership status list signing` with usage **Status List Signing** exists; [chapter 3](first-presentation.md) created it for the trust list. EUDIPLO signs status lists with it. Without such a key, EUDIPLO signs status lists with the credential signing key.
 
-**Checkpoint:** the new key chain appears under **Keys**.
+**Checkpoint:** `Membership status list signing` appears under **Keys**.
 
 ## Step 3: Turn on status management
 
@@ -59,10 +59,10 @@ Open **Credential Issuance → Credential Types → membership** and choose **Ed
 
 The credential from chapter 2 has no status entry and cannot be revoked. Issue a new one:
 
-1. Open **Credential Issuance → New Issuance**, choose **Pre-Authorized Code**, select `membership`, choose **Use Pre-configured Default Values** and **Generate Offer**.
+1. Open **Credential Issuance → New Issuance**, choose **Pre-Authorized Code**, check that `membership` is selected (it is preselected), choose **Use Pre-configured Default Values** and **Generate Offer**.
 2. Scan the QR code with the wallet and accept the credential.
 3. Delete the chapter 2 credential from the wallet, so that the wallet cannot pick it in the next steps.
-4. Open **Sessions → All Sessions**, open this issuance session and copy its ID:
+4. Open **Sessions → All Sessions**, open this issuance session and copy its ID for the API calls:
 
 ```bash
 export SESSION=<issuance session ID>
@@ -87,6 +87,8 @@ Open `membership-check`, choose **Create offer**, then **Generate Request**, and
 
 ## Step 6: Revoke the credential
 
+Open **Sessions → All Sessions** and open the issuance session from step 4. The **Credential Status** card shows `membership` with **1 valid**. Choose **Revoke** and confirm with **Revoke**. `membership-demo-admin` has the roles for the session page and the card; which roles they need is listed under [Revocation](../issuance/revocation.md#2-revoke-or-suspend). The API equivalent:
+
 ```bash
 curl -s -X POST "$EUDIPLO/api/session/revoke" \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
@@ -94,13 +96,13 @@ curl -s -X POST "$EUDIPLO/api/session/revoke" \
   -w '%{http_code}\n'
 ```
 
-`status` is `0` for valid, `1` for revoked and `2` for suspended. Without `credentialConfigurationId`, every credential of the session changes. The call needs the role `issuance:offer` or `issuance:manage` and returns `204`. Then clear the cached status lists of the verifier, so you do not have to wait for the TTL:
+`status` is `0` for valid, `1` for revoked and `2` for suspended. Without `credentialConfigurationId`, every credential of the session changes. The call needs the role `credentials:status` or `issuance:manage` and returns `204`. Then clear the cached status lists of the verifier, so you do not have to wait for the TTL. The Web Client has no button for this:
 
 ```bash
 curl -s -X DELETE "$EUDIPLO/api/cache/status-list" -H "Authorization: Bearer $ADMIN_TOKEN" -w '%{http_code}\n'
 ```
 
-**Checkpoint:** both calls print `204`.
+**Checkpoint:** the **Credential Status** card shows **1 revoked**, and the cache call prints `204`.
 
 ## Step 7: Watch the verification fail
 
@@ -117,7 +119,7 @@ curl -s "$EUDIPLO/api/session/<presentation session ID>" -H "Authorization: Bear
 
 ## Step 8: Suspend and reinstate
 
-Revocation is final: setting `0` or `2` on the credential you revoked in step 6 returns `409`. To try suspension, issue another credential as in step 4, delete the revoked one from the wallet, and set `SESSION` to the new issuance session. Then suspend it:
+Revocation is final: the card offers neither **Suspend** nor **Reinstate** for the credential you revoked in step 6, and the API answers `409` to `0` or `2`. To try suspension, issue another credential as in step 4, delete the revoked one from the wallet, open the new issuance session and set `SESSION` to its ID. On its **Credential Status** card, choose **Suspend** and confirm. The API equivalent:
 
 ```bash
 curl -s -X POST "$EUDIPLO/api/session/revoke" \
@@ -126,9 +128,9 @@ curl -s -X POST "$EUDIPLO/api/session/revoke" \
   -w '%{http_code}\n'
 ```
 
-Clear the cache and verify: a suspended credential fails like a revoked one. Repeat the call with `"status": 0` to lift the suspension, clear the cache and verify again. Status management in detail: [Revocation](../issuance/revocation.md).
+Clear the cache and verify: a suspended credential fails like a revoked one. Choose **Reinstate** on the card, or repeat the call with `"status": 0`, to lift the suspension, then clear the cache and verify again. Status management in detail: [Revocation](../issuance/revocation.md).
 
-**Checkpoint:** verification fails while the credential is suspended and passes after you set `0`.
+**Checkpoint:** verification fails while the credential is suspended and passes after you reinstate it.
 
 ## Variant: one active credential per person
 
@@ -146,10 +148,10 @@ EUDIPLO recognizes "the same person" by the issuer and subject that an **externa
 
 | Symptom                                               | Cause                                                                  | Fix                                                                                               |
 | ----------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Revoke returns `409` "No status mapping found"        | The session's credential was issued without status management          | Issue a new credential after step 3 and use its session ID.                                       |
+| The session page shows no **Credential Status** card, or revoke returns `409` "No status mapping found" | The session's credential was issued without status management | Issue a new credential after step 3 and use its session.                                          |
 | Verification still passes after revoking              | The wallet presented an older credential, or a cached status list was used | Delete old credentials from the wallet; clear the status-list cache; check the TTL.          |
-| Suspend returns `400` "requires a status list with at least 2 bits" | The list was created with 1 bit per status | Set **Bits per status** to 2 (step 1), then issue a new credential; existing lists keep their bits. |
-| Suspend or reinstate returns `409` "revocation is final" | The credential is revoked | Revocation cannot be undone; issue a new credential. |
+| The card shows **valid** but offers no **Suspend**, or suspend returns `400` "requires a status list with at least 2 bits" | The list was created with 1 bit per status | Set **Bits per status** to 2 (step 1), then issue a new credential; existing lists keep their bits. |
+| The card shows **revoked** and offers no **Suspend** or **Reinstate**, or suspend or reinstate returns `409` "revocation is final" | The credential is revoked | Revocation cannot be undone; issue a new credential. |
 | `403` on `/api/cache/status-list`                     | The token lacks `issuance:manage` or `presentation:manage`             | Use the `membership-demo-admin` token.                                                            |
 
 General problems are covered in [Troubleshooting](../troubleshooting.md).

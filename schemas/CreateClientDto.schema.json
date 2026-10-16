@@ -32,7 +32,11 @@
           "users:manage",
           "tenants:manage",
           "tenant:admin",
-          "registrar:manage"
+          "registrar:manage",
+          "audit:read",
+          "sessions:read",
+          "credentials:status",
+          "keys:manage"
         ]
       },
       "description": "Roles assigned to the client. At least one role is required."

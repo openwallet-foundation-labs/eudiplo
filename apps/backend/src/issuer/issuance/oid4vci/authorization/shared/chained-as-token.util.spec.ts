@@ -4,7 +4,11 @@ import {
     type ChainedAsSession,
     ChainedAsSessionStatus,
 } from "../domain/chained-as-session.js";
-import { refreshTokenPolicy } from "../domain/token-grant-rules.js";
+import {
+    hashAuthorizationCode,
+    hashRefreshToken,
+    refreshTokenPolicy,
+} from "../domain/token-grant-rules.js";
 import {
     issueRefreshTokenIfEnabled,
     resolveSessionForTokenRequest,
@@ -52,7 +56,7 @@ describe("issueRefreshTokenIfEnabled", () => {
         );
 
         expect(refreshToken).toBeDefined();
-        expect(session.refreshToken).toBe(refreshToken);
+        expect(session.refreshToken).toBe(hashRefreshToken(refreshToken!));
         expect(session.refreshTokenExpiresAt).toEqual(
             new Date(NOW.getTime() + 30 * DAY_MS),
         );
@@ -110,6 +114,32 @@ describe("issueRefreshTokenIfEnabled", () => {
 
         expect(session.refreshTokenExpiresAt).toEqual(
             new Date(session.createdAt.getTime() + 30 * DAY_MS),
+        );
+    });
+});
+
+describe("resolveSessionForTokenRequest with authorization_code", () => {
+    it("looks the session up by the hash of the code", async () => {
+        const session = chainedSession();
+        const repository = {
+            findByRefreshToken: vi.fn(),
+            findAuthorizedByCode: vi.fn().mockResolvedValue(session),
+        };
+
+        await expect(
+            resolveSessionForTokenRequest(
+                repository,
+                "tenant-1",
+                {
+                    grant_type: "authorization_code",
+                    code: "wallet-code",
+                } as ChainedAsTokenRequestDto,
+                refreshTokenPolicy(undefined),
+            ),
+        ).resolves.toBe(session);
+        expect(repository.findAuthorizedByCode).toHaveBeenCalledWith(
+            "tenant-1",
+            hashAuthorizationCode("wallet-code"),
         );
     });
 });

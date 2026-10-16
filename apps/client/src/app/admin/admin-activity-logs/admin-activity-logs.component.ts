@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuditLogResponseDto, auditLogControllerGetAuditLogs } from '@eudiplo/sdk-core';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-admin-activity-logs',
@@ -67,7 +68,7 @@ export class AdminActivityLogsComponent implements OnInit {
       this.updateVisibleLogs();
     } catch (error) {
       this.activityError = getApiErrorMessage(error, 'Failed to load activity logs');
-      this.snackBar.open('Failed to load activity logs', 'Close', { duration: 5000 });
+      openErrorSnackBar(this.snackBar, this.activityError);
     } finally {
       this.activityLoading = false;
     }

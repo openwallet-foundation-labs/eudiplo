@@ -3,8 +3,11 @@ import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import type { Repository } from "typeorm";
 import { AuditLogModule } from "../../../audit-log/audit-log.module.js";
 import { RegistrarModule } from "../../../registrar/registrar.module.js";
+import { provideTrustListReferenceSource } from "../../trust-list/trust-list-reference-source.provider.js";
+import { TrustListModule } from "../../trust-list/trustlist.module.js";
 import { CredentialConfigModule } from "../credentials/credential-config.module.js";
 import { TypeOrmIssuanceConfigRepository } from "./adapters/typeorm-issuance-config.repository.js";
+import { TypeOrmIssuanceConfigTrustListReferences } from "./adapters/typeorm-issuance-config-trust-list-references.js";
 import { IssuanceConfig } from "./entities/issuance-config.entity.js";
 import { IssuanceService } from "./issuance.service.js";
 import { IssuanceConfigController } from "./issuance-config.controller.js";
@@ -16,6 +19,7 @@ import { ISSUANCE_CONFIG_REPOSITORY } from "./ports/issuance-config.repository.j
         AuditLogModule,
         CredentialConfigModule,
         RegistrarModule,
+        TrustListModule,
     ],
     controllers: [IssuanceConfigController],
     providers: [
@@ -26,6 +30,10 @@ import { ISSUANCE_CONFIG_REPOSITORY } from "./ports/issuance-config.repository.j
             useFactory: (repository: Repository<IssuanceConfig>) =>
                 new TypeOrmIssuanceConfigRepository(repository),
         },
+        provideTrustListReferenceSource(
+            TypeOrmIssuanceConfigTrustListReferences,
+            IssuanceConfig,
+        ),
     ],
     exports: [IssuanceService],
 })

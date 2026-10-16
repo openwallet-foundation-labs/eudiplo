@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
+@use 'styles/a11y';
 
 :root {
   --eudiplo-info: #1976d2;
@@ -74,4 +75,32 @@ app-root {
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
+}
+
+// Actions locked by appConfigManaged stay hoverable so their tooltip can say
+// why. Hide the press ripple, as Material does for a disabled button.
+.config-managed-action .mat-mdc-button-ripple {
+  display: none;
+}
+
+// Content for screen readers only, such as a label without a visible counterpart
+.visually-hidden {
+  @include a11y.visually-hidden;
+}
+
+/* Loading and empty state of a list page, in place of its table. */
+.list-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
 }

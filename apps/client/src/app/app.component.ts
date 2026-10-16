@@ -1,5 +1,12 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, type OnDestroy, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  type OnDestroy,
+  type OnInit,
+  ChangeDetectionStrategy,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -17,7 +24,12 @@ import { filter } from 'rxjs/operators';
 import { JwtService, Role } from './services/jwt.service';
 import { ThemeService } from './services/theme.service';
 import { VersionService } from './services/version.service';
+import { RoleChangeService } from './services/role-change.service';
+import { TokenExpiryService } from './services/token-expiry.service';
+import { NavSectionsService } from './services/nav-sections.service';
+import { NavSectionComponent } from './common/nav-section/nav-section.component';
 import { ApiService } from './core';
+import { KEY_CHAIN_ROLES } from './key-management/key-chain.service';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +47,7 @@ import { ApiService } from './core';
     MatListModule,
     MatDividerModule,
     RouterModule,
+    NavSectionComponent,
   ],
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -48,6 +61,7 @@ export class AppComponent implements OnInit, OnDestroy {
   shouldShowToolbar = true;
   sidenavOpened = false;
   sidenavMode: 'over' | 'side' = 'side';
+  @ViewChild('mainContent', { read: ElementRef }) private mainContent?: ElementRef<HTMLElement>;
   private routerSubscription?: Subscription;
   private breakpointSubscription?: Subscription;
 
@@ -57,7 +71,10 @@ export class AppComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     public jwtService: JwtService,
     public themeService: ThemeService,
-    public versionService: VersionService
+    public versionService: VersionService,
+    private readonly tokenExpiry: TokenExpiryService,
+    private readonly roleChange: RoleChangeService,
+    private navSections: NavSectionsService
   ) {}
 
   ngOnInit(): void {
@@ -67,11 +84,16 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((event: NavigationEnd) => {
         // Hide toolbar on login page, show on all other pages
         this.shouldShowToolbar = !event.url.includes('/login');
+        this.navSections.navigatedTo(event.urlAfterRedirects);
         this.checkBackendVersion();
       });
 
     // Initial check for current route
     this.shouldShowToolbar = !this.router.url.includes('/login');
+
+    // Warn about an expiring session on every page
+    this.tokenExpiry.start();
+    this.roleChange.start();
 
     // Set up responsive behavior for sidenav
     this.breakpointSubscription = this.breakpointObserver
@@ -90,6 +112,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.tokenExpiry.stop();
+    this.roleChange.stop();
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
@@ -105,6 +129,15 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.shouldShowToolbar && this.apiService.getAuthenticationStatus()) {
       this.versionService.check(this.apiService.getBaseUrl());
     }
+  }
+
+  /**
+   * Move focus to the main content. The link's own fragment would resolve against
+   * `<base href="/">` and leave the current page, so it is not followed.
+   */
+  skipToMainContent(event: Event): void {
+    event.preventDefault();
+    this.mainContent?.nativeElement.focus();
   }
 
   toggleSidenav(): void {
@@ -127,6 +160,8 @@ export class AppComponent implements OnInit, OnDestroy {
   navigateToClientManagement(): void {
     this.router.navigate(['/clients']);
   }
+
+  readonly keyChainRoles = KEY_CHAIN_ROLES;
 
   /**
    * Check if user has permission to manage Keycloak clients

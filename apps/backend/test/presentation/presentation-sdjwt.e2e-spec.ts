@@ -6,8 +6,10 @@ import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
+import { StatusList } from "@owf/token-status-list";
 import * as x509Lib from "@peculiar/x509";
-import { CryptoKey, generateKeyPair } from "jose";
+import { CryptoKey, decodeJwt, generateKeyPair } from "jose";
+import nock from "nock";
 import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
@@ -23,9 +25,11 @@ import {
     createPresentationRequest,
     createTestFetch,
     encryptVpToken,
+    FIXTURE_TRUSTED_AUTHORITIES,
     PresentationTestContext,
     preparePresentation,
     setupPresentationTestApp,
+    walletNonceOf,
 } from "../utils.js";
 
 describe("Presentation - SD-JWT Credential", () => {
@@ -215,6 +219,7 @@ describe("Presentation - SD-JWT Credential", () => {
                                 ["postal_code"],
                                 ["birthdate", "locality"],
                             ],
+                            trusted_authorities: FIXTURE_TRUSTED_AUTHORITIES,
                         },
                     ],
                 },
@@ -425,6 +430,132 @@ describe("Presentation - SD-JWT Credential", () => {
         }
     });
 
+    test("should reject a revoked sd jwt credential whose status list payload was swapped", async () => {
+        const configService = app.get(ConfigService);
+        const immediateUpdate = configService.get("STATUS_IMMEDIATE_UPDATE");
+        configService.set("STATUS_IMMEDIATE_UPDATE", true);
+
+        try {
+            const res = await createPresentationRequest(app, authToken, {
+                response_type: ResponseType.URI,
+                requestId: "pid-no-hook",
+            });
+            const sessionId = res.body.session;
+
+            const authRequest = client.parseOpenid4vpAuthorizationRequest({
+                authorizationRequest: res.body.uri,
+            });
+
+            const resolved = await client.resolveOpenId4vpAuthorizationRequest({
+                authorizationRequestPayload: authRequest.params,
+                responseMode: { type: "direct_post" },
+            });
+
+            const credentialSessionId = randomUUID();
+            const vp_token = await preparePresentation(
+                {
+                    iat: Math.floor(Date.now() / 1000),
+                    aud: resolved.authorizationRequestPayload
+                        .client_id as string,
+                    nonce: resolved.authorizationRequestPayload.nonce,
+                },
+                privateIssuerKey,
+                issuerCertChain,
+                statusListService,
+                credentialConfigId,
+                credentialSessionId,
+            );
+
+            await statusListService.updateStatus(
+                { sessionId: credentialSessionId, status: 1 },
+                "root",
+            );
+            app.get(StatusListVerifierService).clearCache();
+
+            // Take the signed list that marks the credential revoked, swap
+            // in an all-valid list and keep the original signature.
+            const { status } = decodeJwt(vp_token.split("~")[0]) as {
+                status: { status_list: { uri: string; idx: number } };
+            };
+            const statusListUri = new URL(status.status_list.uri);
+            const signedRes = await request(app.getHttpServer())
+                .get(statusListUri.pathname)
+                .trustLocalhost()
+                .expect(200);
+            const [header, payloadB64, signature] = signedRes.text
+                .trim()
+                .split(".");
+            const payload = JSON.parse(
+                Buffer.from(payloadB64, "base64url").toString("utf8"),
+            );
+            const { bits, lst } = payload.status_list;
+            const signedList = StatusList.decompressStatusListFromBytes(
+                Buffer.from(lst, "base64url"),
+                bits,
+            );
+            expect(signedList.getStatus(status.status_list.idx)).toBe(1);
+            payload.status_list.lst = Buffer.from(
+                new StatusList(
+                    new Array(signedList.statusList.length).fill(0),
+                    bits,
+                ).compressStatusListToBytes(),
+            ).toString("base64url");
+            const forgedPayloadB64 = Buffer.from(
+                JSON.stringify(payload),
+            ).toString("base64url");
+
+            const statusListNock = nock(statusListUri.origin, {
+                allowUnmocked: true,
+            })
+                .get(statusListUri.pathname)
+                .reply(200, `${header}.${forgedPayloadB64}.${signature}`, {
+                    "Content-Type": "application/statuslist+jwt",
+                });
+
+            const jwt = await encryptVpToken(vp_token, "pid", resolved);
+
+            const authorizationResponse =
+                await client.createOpenid4vpAuthorizationResponse({
+                    authorizationRequestPayload: authRequest.params,
+                    authorizationResponsePayload: {
+                        response: jwt,
+                    },
+                    ...callbacks,
+                });
+
+            const submitRes = await client.submitOpenid4vpAuthorizationResponse(
+                {
+                    authorizationResponsePayload:
+                        authorizationResponse.authorizationResponsePayload,
+                    authorizationRequestPayload:
+                        resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+                },
+            );
+
+            expect(statusListNock.isDone()).toBe(true);
+            expect(submitRes.response.status).toBe(400);
+
+            const sessionRes = await request(app.getHttpServer())
+                .get(`/session/${sessionId}`)
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+
+            expect(sessionRes.body.status).toBe("failed");
+            expect(sessionRes.body.errorReason).toContain(
+                "Status List JWT verification failed",
+            );
+        } finally {
+            nock.cleanAll();
+            // The verifier cached the forged list under the real URI.
+            app.get(StatusListVerifierService).clearCache();
+            configService.set(
+                "STATUS_IMMEDIATE_UPDATE",
+                immediateUpdate ?? false,
+            );
+        }
+    });
+
     test("handle wallet error response (user_cancelled)", async () => {
         // Create a presentation request to get a session ID
         const requestBody: PresentationRequest = {
@@ -443,12 +574,12 @@ describe("Presentation - SD-JWT Credential", () => {
         // Simulate wallet sending an error response instead of a VP token
         // Per OID4VP spec section 6.2, wallets can return OAuth 2.0 error responses
         const errorResponse = await request(app.getHttpServer())
-            .post(`/presentations/${sessionId}/oid4vp`)
+            .post(`/presentations/${walletNonceOf(res.body.uri)}/oid4vp`)
             .trustLocalhost()
             .send({
                 error: "access_denied",
                 error_description: "User cancelled the presentation request",
-                state: sessionId,
+                state: walletNonceOf(res.body.uri),
             })
             .expect(200); // OID4VP 1.0 §8.2: processed error responses get 200
 

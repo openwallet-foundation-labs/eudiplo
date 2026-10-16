@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { inject, Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -23,6 +23,9 @@ import { PresentationManagementService } from '../presentation-config/presentati
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { EditorComponent, extractSchema } from '../../utils/editor/editor.component';
 import { transactionDataArraySchema } from '../../utils/schemas';
+import { asSentence, getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { JwtService } from '../../services/jwt.service';
 
 type PresentationRequestWithClientIdScheme = PresentationRequest & {
   clientIdScheme?: 'x509_hash' | 'x509_san_dns';
@@ -64,6 +67,18 @@ export class PresentationRequestComponent implements OnInit {
   qrCodeDataUrl: string | null = null;
   showTransactionDataOverride = false;
   transactionDataArraySchema = transactionDataArraySchema;
+
+  private readonly jwtService = inject(JwtService);
+
+  /** Presentation configurations can be created with `presentation:manage`. */
+  get canManagePresentationConfigs(): boolean {
+    return this.jwtService.hasRole('presentation:manage');
+  }
+
+  /** Webhook endpoints can be opened with `issuance:manage` or `presentation:manage`. */
+  get canManageWebhookEndpoints(): boolean {
+    return this.jwtService.hasRole(['issuance:manage', 'presentation:manage']);
+  }
 
   constructor(
     private presentationManagementService: PresentationManagementService,
@@ -109,10 +124,12 @@ export class PresentationRequestComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error loading configurations:', error);
-      this.snackBar.open('Failed to load presentation configurations', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to load presentation configurations'),
+        'Close',
+        { panelClass: ['error-snackbar'] }
+      );
     } finally {
       this.loading = false;
     }
@@ -143,7 +160,9 @@ export class PresentationRequestComponent implements OnInit {
     } catch (error) {
       console.error('Error checking presentation readiness:', error);
       this.isReadyToGenerate = false;
-      this.readinessError = 'Failed to validate presentation readiness.';
+      this.readinessError = asSentence(
+        getApiErrorMessage(error, 'Failed to validate presentation readiness')
+      );
     } finally {
       this.checkingReadiness = false;
     }
@@ -209,10 +228,9 @@ export class PresentationRequestComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error generating presentation request:', error);
-      this.snackBar.open('Failed to generate presentation request', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
+      // The backend names a missing access certificate here.
+      const message = getApiErrorMessage(error, 'Failed to generate presentation request');
+      openErrorSnackBar(this.snackBar, message, 'Close', { panelClass: ['error-snackbar'] });
     } finally {
       this.generatingOffer = false;
     }

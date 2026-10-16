@@ -1,4 +1,5 @@
 // App component styles
+@use '../styles/a11y';
 
 // Ensure app component takes full height and provides flex layout
 :host {
@@ -6,6 +7,30 @@
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
+}
+
+// Skip link: hidden until it receives keyboard focus, then shown above the toolbar
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 1001; // Above the toolbar
+  padding: 12px 16px;
+  border-radius: var(--mat-sys-corner-small);
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font: var(--mat-sys-label-large);
+  text-decoration: underline;
+  box-shadow: var(--mat-sys-level3);
+
+  &:focus {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+
+  &:not(:focus) {
+    @include a11y.visually-hidden;
+  }
 }
 
 // App toolbar
@@ -48,6 +73,11 @@
   overflow-y: auto; // Allow scrolling if content overflows
   height: calc(100vh - 104px); // Account for toolbar height
   background-color: var(--mat-sys-background);
+
+  // Target of the skip link; the region is not a control, so it shows no focus ring
+  &:focus {
+    outline: none;
+  }
 }
 
 // Shown when client and backend come from different builds
@@ -79,21 +109,6 @@
 
   mat-icon {
     color: var(--mat-sys-on-primary-container);
-  }
-}
-
-// Subheader with icon styling
-[mat-subheader] {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-
-  .subheader-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    opacity: 0.7;
   }
 }
 

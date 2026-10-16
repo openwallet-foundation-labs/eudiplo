@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    Logger,
+    NotFoundException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
@@ -11,6 +16,7 @@ import {
     CertificateBuilderService,
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
+import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
 import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto.js";
 import { KeyChainExportDto } from "./dto/key-chain-export.dto.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
@@ -31,6 +37,21 @@ import type {
 } from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
 import { KeyUsageType } from "./types/key-usage-type.js";
+
+/**
+ * JWK members of {@link PublicKeyInfoDto}: identification plus the public
+ * key parameters of EC (x, y), OKP (x) and RSA (n, e) keys.
+ */
+const PUBLIC_JWK_MEMBERS = [
+    "kty",
+    "alg",
+    "kid",
+    "crv",
+    "x",
+    "y",
+    "n",
+    "e",
+] as const;
 
 /**
  * KeyChainService manages the unified key chain model.
@@ -288,27 +309,28 @@ export class KeyChainService {
     }
 
     async getById(tenantId: string, id: string): Promise<KeyChainResponseDto> {
-        const keyChain = await this.keyChainRepository.findOne({
-            where: { tenantId, id },
-        });
-
-        if (!keyChain) {
-            throw new NotFoundException(`Key chain ${id} not found`);
-        }
-
-        return this.toResponseDto(keyChain);
+        // Public key and certificate details only, so this also answers for
+        // the tenant's encryption key chain.
+        return this.toResponseDto(await this.getEntity(tenantId, id));
     }
 
     async export(tenantId: string, id: string): Promise<KeyChainExportDto> {
-        const keyChain = await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
         const storedKey = keyChain.hasInternalCa()
             ? keyChain.rootJwk!
             : keyChain.activeJwk;
 
+        // Nullable columns come back as null; the import schema only accepts
+        // an absent field, so leave them out to keep the export importable.
         const exportDto: KeyChainExportDto = {
             id: keyChain.id,
-            description: keyChain.description,
+            description: keyChain.description ?? undefined,
             usageType: keyChain.usageType,
+            // Without it, an import treats the root key as a CA key only
+            // with rotation enabled.
+            type: keyChain.hasInternalCa()
+                ? KeyChainType.InternalChain
+                : KeyChainType.Standalone,
             // Private key material is only exported for database-held keys.
             // For external KMS providers the entity stores the public JWK;
             // strip private components defensively so a key that belongs
@@ -336,17 +358,42 @@ export class KeyChainService {
         if (keyChain.rotationEnabled) {
             exportDto.rotationPolicy = {
                 enabled: true,
-                intervalDays: keyChain.rotationIntervalDays,
-                certValidityDays: keyChain.certValidityDays,
+                intervalDays: keyChain.rotationIntervalDays ?? undefined,
+                certValidityDays: keyChain.certValidityDays ?? undefined,
             };
         }
 
         return exportDto;
     }
 
+    /**
+     * Any key chain of the tenant, including the system-owned encryption key
+     * chain. For internal lookups; management operations use
+     * {@link getManageable}.
+     */
     async getEntity(tenantId: string, id: string): Promise<KeyChainEntity> {
         const keyChain = await this.keyChainRepository.findOne({
             where: { tenantId, id },
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(`Key chain ${id} not found`);
+        }
+
+        return keyChain;
+    }
+
+    /**
+     * A key chain that the management API may change or export. Like
+     * {@link getAll}, it only finds signing key chains: the tenant's
+     * encryption key chain is system-owned and is reported as not found.
+     */
+    private async getManageable(
+        tenantId: string,
+        id: string,
+    ): Promise<KeyChainEntity> {
+        const keyChain = await this.keyChainRepository.findOne({
+            where: { tenantId, id, usage: KeyUsage.Sign },
         });
 
         if (!keyChain) {
@@ -371,9 +418,7 @@ export class KeyChainService {
             whereClause.id = keyId;
         }
 
-        let keyChain = await this.keyChainRepository.findOne({
-            where: whereClause,
-        });
+        let keyChain = await this.findOneByUsageType(whereClause);
 
         if (!keyChain && fallbackUsageType) {
             const fallbackWhere: Record<string, unknown> = {
@@ -383,9 +428,7 @@ export class KeyChainService {
             if (keyId) {
                 fallbackWhere.id = keyId;
             }
-            keyChain = await this.keyChainRepository.findOne({
-                where: fallbackWhere,
-            });
+            keyChain = await this.findOneByUsageType(fallbackWhere);
         }
 
         if (!keyChain) {
@@ -400,12 +443,73 @@ export class KeyChainService {
         return keyChain;
     }
 
+    /**
+     * Without an id, usage type `access` gives the default access key chain
+     * of {@link findDefaultAccessKeyChain}.
+     *
+     * For usage type `encrypt`, prefers the tenant's encryption key chain
+     * over signing key chains created with that usage type. Before imports
+     * checked the stored usage, an import with usage type `encrypt` could
+     * turn the encryption key chain into a signing key chain. Without an
+     * encryption key chain, the lookup stays as before, so such a tenant
+     * keeps decrypting with the same key.
+     */
+    private async findOneByUsageType(
+        where: Record<string, unknown>,
+    ): Promise<KeyChainEntity | null> {
+        if (where.usageType === KeyUsageType.Access && where.id === undefined) {
+            return this.findDefaultAccessKeyChain(where.tenantId as string);
+        }
+        if (where.usageType !== KeyUsageType.Encrypt) {
+            return this.keyChainRepository.findOne({ where });
+        }
+        return (
+            (await this.keyChainRepository.findOne({
+                where: { ...where, usage: KeyUsage.Encrypt },
+            })) ?? this.keyChainRepository.findOne({ where })
+        );
+    }
+
+    /**
+     * The access key chain used where none is named, chosen by
+     * {@link pickDefaultAccessKeyChain}. Only the columns the rule reads are
+     * loaded for every candidate, so no key material is decrypted for them.
+     */
+    private async findDefaultAccessKeyChain(
+        tenantId: string,
+    ): Promise<KeyChainEntity | null> {
+        const candidates = await this.keyChainRepository.find({
+            where: { tenantId, usageType: KeyUsageType.Access },
+            select: {
+                id: true,
+                createdAt: true,
+                activeCertificate: true,
+                rootCertificate: true,
+            },
+        });
+        const chosen = pickDefaultAccessKeyChain(candidates);
+        if (!chosen) return null;
+        return this.keyChainRepository.findOne({
+            where: { tenantId, id: chosen.id },
+        });
+    }
+
     async update(
         tenantId: string,
         id: string,
         dto: KeyChainUpdateDto,
     ): Promise<void> {
-        await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
+
+        // Without an interval the rotation job never rotates the key chain.
+        if (
+            dto.rotationPolicy?.enabled &&
+            !(dto.rotationPolicy.intervalDays ?? keyChain.rotationIntervalDays)
+        ) {
+            throw new BadRequestException(
+                "rotationPolicy.intervalDays is required when rotation is enabled and the key chain has no rotation interval.",
+            );
+        }
 
         const updates: Partial<KeyChainEntity> = {};
 
@@ -434,12 +538,7 @@ export class KeyChainService {
     }
 
     async delete(tenantId: string, id: string): Promise<void> {
-        const keyChain = await this.keyChainRepository.findOne({
-            where: { tenantId, id },
-        });
-        if (!keyChain) {
-            throw new NotFoundException(`Key chain ${id} not found`);
-        }
+        const keyChain = await this.getManageable(tenantId, id);
 
         await this.deleteExternalKeyMaterial(keyChain);
 
@@ -476,7 +575,7 @@ export class KeyChainService {
     }
 
     async rotate(tenantId: string, id: string): Promise<void> {
-        const keyChain = await this.getEntity(tenantId, id);
+        const keyChain = await this.getManageable(tenantId, id);
         const hostname = this.getHostname();
         const tenant = await this.tenantRepository.findOneByOrFail({
             id: tenantId,
@@ -763,16 +862,24 @@ export class KeyChainService {
         return response;
     }
 
+    /**
+     * The public key as a usable JWK. Unlike {@link getPublicJwk}, which keeps
+     * every member except the private ones so exports round-trip, this copies
+     * only the members {@link PublicKeyInfoDto} documents, so private members
+     * (`d`, RSA primes, `k`) can never reach a response.
+     */
     private toPublicKeyInfo(jwk: JWK): PublicKeyInfoDto {
-        const publicJwk = this.getPublicJwk(jwk);
-        return {
-            kty: publicJwk.kty as string,
-            alg: publicJwk.alg as string | undefined,
-            kid: publicJwk.kid as string | undefined,
-            crv: (publicJwk as Record<string, unknown>).crv as
-                | string
-                | undefined,
-        };
+        const source = jwk as Record<string, unknown>;
+        const info: Partial<
+            Record<(typeof PUBLIC_JWK_MEMBERS)[number], string>
+        > = {};
+        for (const member of PUBLIC_JWK_MEMBERS) {
+            const value = source[member];
+            if (typeof value === "string") {
+                info[member] = value;
+            }
+        }
+        return info as PublicKeyInfoDto;
     }
 
     private toCertificateInfo(pem: string): CertificateInfoDto {

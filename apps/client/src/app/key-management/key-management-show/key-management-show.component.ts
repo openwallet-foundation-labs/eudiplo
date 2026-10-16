@@ -21,7 +21,11 @@ import { Subscription } from 'rxjs';
 import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { LoadErrorComponent } from '../../common/load-error.component';
 import { JwtService } from '../../services/jwt.service';
+import { RegistrarService, accessCertificateRefusal } from '../../registrar/registrar.service';
+import { getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-key-management-show',
@@ -37,6 +41,7 @@ import { JwtService } from '../../services/jwt.service';
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './key-management-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -44,8 +49,23 @@ import { JwtService } from '../../services/jwt.service';
 })
 export class KeyManagementShowComponent implements OnInit, OnDestroy {
   keyChain?: KeyChainResponseDto;
+  /** Set when the key chain could not be loaded, instead of loading forever. */
+  loadError = '';
+  private requestedId = '';
 
   private routeSubscription?: Subscription;
+
+  /**
+   * Whether a registrar configuration exists. `unknown` when it could not be
+   * read, which does not mean that it is missing.
+   */
+  registrarConfig: 'checking' | 'unknown' | 'configured' | 'missing' = 'checking';
+  /** The key chain whose enrollment is running, so another key's page is not held up. */
+  private enrollingKeyId?: string;
+
+  get isEnrolling(): boolean {
+    return !!this.enrollingKeyId && this.enrollingKeyId === this.keyChain?.id;
+  }
 
   constructor(
     private readonly keyChainService: KeyChainService,
@@ -53,10 +73,12 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
     private readonly dialog: MatDialog,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly registrarService: RegistrarService
   ) {}
 
   ngOnInit(): void {
+    if (this.canUseRegistrar) void this.checkRegistrarConfig();
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const keyId = params.get('id');
       if (keyId) {
@@ -70,14 +92,36 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
   }
 
   private async loadKey(id: string): Promise<void> {
+    this.requestedId = id;
     this.keyChain = undefined;
+    this.loadError = '';
 
     try {
       this.keyChain = await this.keyChainService.getById(id);
     } catch (error) {
-      this.snackBar.open('Failed to load key chain', 'Close', { duration: 3000 });
       console.error('Load error:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load key chain');
     }
+  }
+
+  /**
+   * Loads the key chain again while its page stays shown, so the focused
+   * action keeps its focus. A failed load keeps the shown state, and so does
+   * a load of a key the user has meanwhile navigated away from.
+   */
+  private async refreshKey(id: string): Promise<void> {
+    if (id !== this.requestedId) return;
+    try {
+      const keyChain = await this.keyChainService.getById(id);
+      if (id === this.requestedId) this.keyChain = keyChain;
+    } catch (error) {
+      console.error('Reload error:', error);
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to reload key chain'));
+    }
+  }
+
+  retryLoad(): void {
+    void this.loadKey(this.requestedId);
   }
 
   get keyId(): string {
@@ -113,7 +157,16 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     if (this.keyChain.type === 'internalChain') {
       return 'This key chain has an embedded Root CA that signs the active key certificate.';
     }
-    return 'This is a self-signed standalone key.';
+    if (!this.keyChain.activeCertificate) return 'This is a standalone key.';
+    return this.isSelfSigned()
+      ? 'This is a self-signed standalone key.'
+      : 'This is a standalone key; its Active Certificate was issued by the Issuer shown there.';
+  }
+
+  /** A certificate whose issuer is its subject signed itself. */
+  private isSelfSigned(): boolean {
+    const certificate = this.keyChain?.activeCertificate;
+    return !!certificate && certificate.issuer === certificate.subject;
   }
 
   hasRootCa(): boolean {
@@ -168,7 +221,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
       this.snackBar.open('Key chain deleted successfully', 'Close', { duration: 3000 });
       this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
-      this.snackBar.open('Failed to delete key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete key chain'));
       console.error('Delete error:', error);
     }
   }
@@ -185,8 +238,104 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
       this.snackBar.open('Key chain rotated successfully', 'Close', { duration: 3000 });
       await this.loadKey(this.keyChain.id);
     } catch (error) {
-      this.snackBar.open('Failed to rotate key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to rotate key chain'));
       console.error('Rotate error:', error);
+    }
+  }
+
+  /** Reading the registrar configuration and enrolling through it need registrar:manage. */
+  private get canUseRegistrar(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
+  }
+
+  /**
+   * Only a standalone access key chain can be enrolled with the registrar,
+   * and only when a registrar configuration exists. One that could not be
+   * read keeps the action; the enrollment then says what failed.
+   */
+  get canEnrollWithRegistrar(): boolean {
+    return (
+      this.isEnrollableKey &&
+      (this.registrarConfig === 'configured' || this.registrarConfig === 'unknown')
+    );
+  }
+
+  /** The enrollment would be offered once a registrar configuration exists. */
+  get needsRegistrarConfig(): boolean {
+    return this.isEnrollableKey && this.registrarConfig === 'missing';
+  }
+
+  private get isEnrollableKey(): boolean {
+    return (
+      this.canUseRegistrar &&
+      this.keyChain?.type === 'standalone' &&
+      this.keyChain.usageType === 'access'
+    );
+  }
+
+  private async checkRegistrarConfig(): Promise<void> {
+    try {
+      const config = await this.registrarService.getConfig();
+      this.registrarConfig = config ? 'configured' : 'missing';
+    } catch (error) {
+      console.error('Registrar configuration check failed:', error);
+      this.registrarConfig = 'unknown';
+    }
+  }
+
+  /**
+   * What to confirm before an enrollment: replacing a certificate issued by
+   * someone else, and enrolling a rotating key, whose next rotation replaces
+   * the registrar certificate with a self-signed one. Undefined when nothing.
+   */
+  private enrollmentQuestion(): string | undefined {
+    const certificate = this.keyChain?.activeCertificate;
+    const parts: string[] = [];
+    if (certificate && !this.isSelfSigned()) {
+      parts.push(
+        `This replaces the active certificate issued by "${certificate.issuer}" with a new certificate from the registrar. The key stays the same, but the current certificate is no longer used. This cannot be undone.`
+      );
+    }
+    if (this.keyChain?.rotationPolicy?.enabled) {
+      parts.push(
+        'This key rotates automatically: its next rotation replaces the registrar certificate with a self-signed one for a new key. Turn rotation off by editing the key chain to keep the registrar certificate.'
+      );
+    }
+    return parts.length ? `${parts.join('\n\n')}\n\nEnroll with the registrar?` : undefined;
+  }
+
+  /**
+   * Requests a certificate for the key from the registrar, which replaces its
+   * active certificate. A certificate issued by someone else, such as an
+   * earlier registrar certificate, is only replaced after confirmation.
+   */
+  async enrollWithRegistrar(): Promise<void> {
+    if (!this.keyChain || this.enrollingKeyId === this.keyChain.id) return;
+    const question = this.enrollmentQuestion();
+    if (question && !confirm(question)) return;
+
+    const keyId = this.keyChain.id;
+    this.enrollingKeyId = keyId;
+    try {
+      await this.registrarService.createAccessCertificate(keyId);
+      this.snackBar.open('Access certificate enrolled via registrar', 'Close', { duration: 3000 });
+      await this.refreshKey(keyId);
+    } catch (error) {
+      console.error('Enroll error:', error);
+      // Names an unreachable backend separately from a registrar failure.
+      const message = getHttpErrorMessage(error, 'Failed to enroll certificate from registrar');
+      const refusal = accessCertificateRefusal(error);
+      if (refusal === 'role') {
+        openErrorSnackBar(this.snackBar, message);
+      } else {
+        openErrorSnackBar(this.snackBar, message, 'Go to Registrar')
+          .onAction()
+          .subscribe(() => this.router.navigate(['/registrar']));
+      }
+      // Without a refusal the certificate may have been stored; show what the key holds now.
+      if (!refusal) await this.refreshKey(keyId);
+    } finally {
+      if (this.enrollingKeyId === keyId) this.enrollingKeyId = undefined;
     }
   }
 
@@ -245,7 +394,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
         this.showExportForbidden();
         return;
       }
-      this.snackBar.open('Failed to export key chain', 'Close', { duration: 3000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to export key chain'));
       console.error('Export error:', error);
     }
   }
