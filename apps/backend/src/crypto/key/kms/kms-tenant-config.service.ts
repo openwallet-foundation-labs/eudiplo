@@ -7,12 +7,12 @@ import {
     NotFoundException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { ConfigMigrationService } from "../../../platform/config-portability/config-migration.service.js";
 import {
     type KmsConfig,
     parseRawKmsConfig,
 } from "../schemas/kms-config.schema.js";
 import { KmsConfigService } from "./kms-config.service.js";
+import { kmsConfigFileSpec } from "./kms-config-file.js";
 import {
     KmsSecretDestinationChangedError,
     KmsSecretNotStoredError,
@@ -27,7 +27,6 @@ export class KmsTenantConfigService {
         private readonly configService: ConfigService,
         private readonly kmsConfigService: KmsConfigService,
         private readonly kmsProviderRegistry: KmsProviderRegistry,
-        private readonly configMigrationService: ConfigMigrationService,
     ) {}
 
     getTenantConfig(tenantId: string): KmsConfig | null {
@@ -35,31 +34,10 @@ export class KmsTenantConfigService {
         if (!path || !existsSync(path)) {
             return null;
         }
-        const payload = JSON.parse(readFileSync(path, "utf8"));
-        const document = this.configMigrationService.isDocument(payload)
-            ? payload
-            : this.configMigrationService.wrapLegacy(
-                  "KmsConfig",
-                  payload,
-                  "kms",
-              );
-        if (
-            this.configMigrationService.normalize(document).kind !== "KmsConfig"
-        ) {
-            throw new Error(`Expected KmsConfig in ${path}`);
-        }
-        const upgraded = this.configMigrationService.upgrade(document);
-        const blocking = upgraded.issues.filter(
-            (issue) => issue.severity !== "warning",
-        );
-        if (blocking.length) {
-            throw new Error(blocking.map((issue) => issue.message).join("; "));
-        }
+        const source = `tenant '${tenantId}' kms.json`;
         return parseRawKmsConfig(
-            this.configMigrationService.unwrapForLegacyImporter(
-                upgraded.document,
-            ),
-            `tenant '${tenantId}' kms.json`,
+            kmsConfigFileSpec(JSON.parse(readFileSync(path, "utf8")), source),
+            source,
         );
     }
 
