@@ -143,12 +143,14 @@ describe("ConfigBundleService secret handling", () => {
                 username: "user",
                 password: "registrar-password",
                 registrationCertificateDefaults: null,
+                relyingPartyContact: null,
             }),
         );
 
         const { spec } = documents[0];
         expect(spec).not.toHaveProperty("clientSecret");
         expect(spec).not.toHaveProperty("registrationCertificateDefaults");
+        expect(spec).not.toHaveProperty("relyingPartyContact");
         expect(spec.password).toBe("${REGISTRARCONFIG_REGISTRAR_PASSWORD}");
         expect(requirements).toMatchObject([
             { code: "SECRET_REQUIRED", path: "/spec/password" },
@@ -159,6 +161,29 @@ describe("ConfigBundleService secret handling", () => {
                 password: "supplied",
             }).success,
         ).toBe(true);
+    });
+
+    it("exports the relying party contact of a registrar configuration", () => {
+        const canonicalEntitySpec = Reflect.get(
+            service,
+            "canonicalEntitySpec",
+        ) as (
+            kind: ConfigResourceKind,
+            entity: Record<string, unknown>,
+        ) => Record<string, unknown>;
+        const contact = { email: "support@verifier.example" };
+
+        const spec = canonicalEntitySpec.call(service, "RegistrarConfig", {
+            registrarUrl: "https://registrar.example/api",
+            oidcUrl: "https://auth.example/realms/registrar",
+            clientId: "client",
+            username: "user",
+            password: "registrar-password",
+            relyingPartyContact: contact,
+        });
+
+        expect(spec.relyingPartyContact).toEqual(contact);
+        expect(CreateRegistrarConfigSchema.safeParse(spec).success).toBe(true);
     });
 
     it("removes private parameters from exported public JWKs", () => {

@@ -8,7 +8,15 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
@@ -21,7 +29,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
+import {
+  RegistrarConfig,
+  RegistrarConfigRequest,
+  RegistrarService,
+  RelyingPartyContact,
+} from './registrar.service';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
 import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
@@ -50,6 +63,9 @@ interface RegistrarPreset {
  */
 const FORM_DEFAULTS = ['privacy_policy', 'support_uri', 'intermediary'] as const;
 
+/** Fields of the relying party contact, as the registrar names them. */
+const CONTACT_FIELDS = ['supportUri', 'email', 'phone'] as const;
+
 /** Labels of the form fields that match a field of the request body. */
 const FIELD_LABELS: Record<string, string> = {
   registrarUrl: 'Registrar URL',
@@ -58,6 +74,48 @@ const FIELD_LABELS: Record<string, string> = {
   clientSecret: 'Client Secret',
   username: 'Username',
   password: 'Password',
+  'relyingPartyContact.supportUri': 'Contact Support URL',
+  'relyingPartyContact.email': 'Email',
+  'relyingPartyContact.phone': 'Phone',
+};
+
+/** An absolute https URL, as the backend's `z.url({ protocol: /^https$/ })` checks it. */
+function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The registrar's rules for contact values, which the backend repeats. The
+ * registrar only accepts https support URLs.
+ */
+const CONTACT_RULES: Record<(typeof CONTACT_FIELDS)[number], (value: string) => boolean> = {
+  supportUri: isHttpsUrl,
+  email: (value) => /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(value),
+  phone: (value) => /^[+0-9()\-\s]{5,40}$/.test(value),
+};
+
+/**
+ * Checks a contact value against its rule. Surrounding whitespace is ignored,
+ * as the value is sent trimmed; an empty value passes. The error key is
+ * `pattern`.
+ */
+function contactValidator(rule: (value: string) => boolean): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = `${control.value ?? ''}`.trim();
+    return !value || rule(value) ? null : { pattern: true };
+  };
+}
+
+/** Message under a contact field whose value breaks its rule. */
+const CONTACT_PATTERN_MESSAGES: Record<string, string> = {
+  'relyingPartyContact.supportUri':
+    'Enter an https URL, for example https://verifier.example/support',
+  'relyingPartyContact.email': 'Enter an email address, for example support@verifier.example',
+  'relyingPartyContact.phone': 'Use 5 to 40 digits, spaces, +, -, ( or )',
 };
 
 /** URL fields, which also follow the registrar base URL rule. */
@@ -181,6 +239,11 @@ export class RegistrarComponent implements OnInit {
         support_uri: [''],
         intermediary: [''],
       }),
+      relyingPartyContact: this.fb.group(
+        Object.fromEntries(
+          CONTACT_FIELDS.map((field) => [field, ['', contactValidator(CONTACT_RULES[field])]])
+        )
+      ),
     });
     for (const url of URL_FIELDS) {
       this.configForm.get(url)?.valueChanges.subscribe(() => this.updateCredentialValidators());
@@ -200,6 +263,7 @@ export class RegistrarComponent implements OnInit {
 
       if (this.config) {
         const defaults = this.config.registrationCertificateDefaults ?? {};
+        const contact = this.config.relyingPartyContact ?? {};
         this.configForm.patchValue({
           registrarUrl: this.config.registrarUrl,
           oidcUrl: this.config.oidcUrl,
@@ -213,11 +277,17 @@ export class RegistrarComponent implements OnInit {
               typeof defaults[key] === 'string' ? defaults[key] : '',
             ])
           ),
+          relyingPartyContact: Object.fromEntries(
+            CONTACT_FIELDS.map((field) => [field, contact[field] ?? ''])
+          ),
         });
         this.updateCredentialValidators();
-        // A URL stored before the base URL rule shows its error right away.
-        for (const field of URL_FIELDS) {
-          const control = this.configForm.get(field);
+        // A URL stored before the base URL rule, or a contact value the
+        // client rule rejects, shows its error right away.
+        for (const control of [
+          ...URL_FIELDS.map((field) => this.configForm.get(field)),
+          ...CONTACT_FIELDS.map((field) => this.configForm.get(['relyingPartyContact', field])),
+        ]) {
           if (control?.invalid) control.markAsTouched();
         }
       }
@@ -269,9 +339,17 @@ export class RegistrarComponent implements OnInit {
    * outbound URL policy, so saving again is allowed and checks anew.
    */
   get hasInvalidInput(): boolean {
-    return Object.values(this.configForm.controls).some((control) =>
+    return this.fieldControls().some((control) =>
       Object.keys(control.errors ?? {}).some((key) => key !== 'server')
     );
+  }
+
+  /** The controls with own validation: top-level fields and contact fields. */
+  private fieldControls(): AbstractControl[] {
+    return [
+      ...Object.values(this.configForm.controls),
+      ...CONTACT_FIELDS.map((field) => this.configForm.get(['relyingPartyContact', field])!),
+    ];
   }
 
   async saveConfig(): Promise<void> {
@@ -281,7 +359,7 @@ export class RegistrarComponent implements OnInit {
       return;
     }
     // Drop the previous backend rejections; the backend checks again.
-    for (const control of Object.values(this.configForm.controls)) {
+    for (const control of this.fieldControls()) {
       if (control.hasError('server')) control.updateValueAndValidity({ emitEvent: false });
     }
 
@@ -305,6 +383,7 @@ export class RegistrarComponent implements OnInit {
         registrationCertificateDefaults: this.mergeCertificateDefaults(
           formValue.registrationCertificateDefaults ?? {}
         ),
+        relyingPartyContact: this.contactFromForm(formValue.relyingPartyContact ?? {}),
       };
 
       // Only include password if user entered one (for updates) or always for new config
@@ -389,9 +468,25 @@ export class RegistrarComponent implements OnInit {
     if (control?.hasError('url')) return `Enter a full URL, for example ${URL_EXAMPLES[name]}`;
     if (control?.hasError('registrarBaseUrl'))
       return 'Enter an http(s) URL without query, fragment or credentials';
+    if (control?.hasError('pattern')) return CONTACT_PATTERN_MESSAGES[name];
     if (name === 'password' && this.urlsChanged)
       return 'The URL changed. Enter the password again.';
     return `${FIELD_LABELS[name]} is required`;
+  }
+
+  /**
+   * The contact to send: the filled fields, or null when all are empty, which
+   * removes the stored contact. PATCH and POST replace it as a whole.
+   */
+  private contactFromForm(
+    fields: Partial<Record<(typeof CONTACT_FIELDS)[number], string | null>>
+  ): RelyingPartyContact | null {
+    const contact: RelyingPartyContact = {};
+    for (const field of CONTACT_FIELDS) {
+      const value = fields[field]?.trim();
+      if (value) contact[field] = value;
+    }
+    return Object.keys(contact).length ? contact : null;
   }
 
   /**
@@ -476,8 +571,8 @@ export class RegistrarComponent implements OnInit {
         ? `A startup import from ${ownership.source || 'its configuration folder'} can restore it.`
         : 'This cannot be undone.';
     return (
-      `Delete the registrar configuration? Its URLs, account, stored ${secrets} and ` +
-      'registration certificate defaults are removed. Until the registrar is configured again, ' +
+      `Delete the registrar configuration? Its URLs, account, stored ${secrets}, ` +
+      'relying party contact and registration certificate defaults are removed. Until the registrar is configured again, ' +
       'presentation requests are sent without registration certificates, and no access or ' +
       `registration certificates can be requested. ${restore}`
     );

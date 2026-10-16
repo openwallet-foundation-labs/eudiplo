@@ -306,6 +306,51 @@ describe("config upgrade", () => {
         );
         expect(result.spec).toEqual(spec);
     });
+    it.each([
+        ["a v1 registrar configuration file", 1],
+        ["a bare registrar configuration file with a contact", undefined],
+    ])("upgrades %s to v2 with the spec unchanged", async (_name, version) => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "registrar-folder");
+        await mkdir(source, { recursive: true });
+        await writeFile(
+            join(source, "info.json"),
+            JSON.stringify({
+                $schema: schemaUrl("Tenant"),
+                metadata: { generation: 1 },
+                spec: { name: "Example" },
+            }),
+        );
+        const spec: Record<string, unknown> = {
+            registrarUrl: "https://registrar.example/api",
+            oidcUrl: "https://auth.example/realms/registrar",
+            clientId: "registrar-client",
+            username: "verifier",
+            password: "secret",
+        };
+        if (version === undefined)
+            spec.relyingPartyContact = { email: "support@verifier.example" };
+        await writeFile(
+            join(source, "registrar.json"),
+            JSON.stringify(
+                version === undefined
+                    ? spec
+                    : { $schema: schemaUrl("RegistrarConfig", version), spec },
+            ),
+        );
+
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(
+                join(`${source}.upgraded`, "registrar.json"),
+                "utf8",
+            ),
+        );
+        expect(result.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/RegistrarConfigFile.schema.json",
+        );
+        expect(result.spec).toEqual(spec);
+    });
     it("validates the entire folder before writing any output", async () => {
         const { cwd, context } = await setup();
         const source = join(cwd, "folder");

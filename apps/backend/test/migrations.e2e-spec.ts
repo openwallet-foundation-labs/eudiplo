@@ -18,6 +18,7 @@ import { ChangeSessionOauthBindingsToTimestamp1784400000000 } from "../src/datab
 import { AddAccessKeyChainIdToSession1784900000000 } from "../src/database/migrations/1784900000000-AddAccessKeyChainIdToSession.js";
 import { AddWalletAttestationStatusCheckMode1785000000000 } from "../src/database/migrations/1785000000000-AddWalletAttestationStatusCheckMode.js";
 import { AddCancelReasonToSession1785100000000 } from "../src/database/migrations/1785100000000-AddCancelReasonToSession.js";
+import { AddRelyingPartyContactToRegistrarConfig1785200000000 } from "../src/database/migrations/1785200000000-AddRelyingPartyContactToRegistrarConfig.js";
 import { describeWithContainers } from "./container-runtime.js";
 import {
     addTokensValidAfterContract,
@@ -1295,6 +1296,157 @@ describe("Migration tests", () => {
                 ).start();
                 ({ dataSource, driftAfterSynchronize } =
                     await issuanceSchemaBefore({
+                        type: "postgres",
+                        url: postgresContainer.getConnectionUri(),
+                    }));
+            }, 60_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                await postgresContainer?.stop();
+            });
+
+            test("adds a nullable column, keeps the rows, is idempotent and reversible", async () => {
+                await expectAddedAndReversible(
+                    dataSource,
+                    driftAfterSynchronize,
+                );
+            });
+        });
+    });
+
+    describe("AddRelyingPartyContactToRegistrarConfig1785200000000", () => {
+        const migration =
+            new AddRelyingPartyContactToRegistrarConfig1785200000000();
+        const table = "registrar_config_entity";
+        const column = "relyingPartyContact";
+
+        /** Registrar config schema from the entities, then the column removed again. */
+        async function registrarSchemaBefore(
+            options:
+                | { type: "better-sqlite3"; database: string }
+                | { type: "postgres"; url: string },
+        ): Promise<{
+            dataSource: DataSource;
+            driftAfterSynchronize: string[];
+        }> {
+            const [
+                { Session },
+                { SessionLogEntry },
+                { TenantEntity },
+                { ClientEntity },
+                { RegistrarConfigEntity },
+            ] = await Promise.all([
+                import("../src/session/entities/session.entity.js"),
+                import("../src/session/entities/session-log-entry.entity.js"),
+                import("../src/auth/tenant/entities/tenant.entity.js"),
+                import("../src/auth/client/entities/client.entity.js"),
+                import("../src/registrar/entities/registrar-config.entity.js"),
+            ]);
+            const dataSource = new DataSource({
+                ...options,
+                entities: [
+                    Session,
+                    SessionLogEntry,
+                    TenantEntity,
+                    ClientEntity,
+                    RegistrarConfigEntity,
+                ],
+                synchronize: true,
+                logging: false,
+            });
+            await dataSource.initialize();
+            const driftAfterSynchronize = await drift(dataSource);
+
+            const queryRunner = dataSource.createQueryRunner();
+            await migration.down(queryRunner);
+            await queryRunner.release();
+            await dataSource.query(
+                `INSERT INTO "tenant_entity" ("id", "name") VALUES ('t', 't')`,
+            );
+            await dataSource.query(
+                `INSERT INTO "${table}" ("tenantId", "registrarUrl", "oidcUrl", "clientId", "username", "password") VALUES ('t', 'https://registrar.example', 'https://auth.example', 'c', 'u', 'p')`,
+            );
+            return { dataSource, driftAfterSynchronize };
+        }
+
+        const drift = async (dataSource: DataSource) =>
+            (await dataSource.driver.createSchemaBuilder().log()).upQueries
+                .map((query) => query.query)
+                .sort();
+
+        async function expectAddedAndReversible(
+            dataSource: DataSource,
+            driftAfterSynchronize: string[],
+        ) {
+            const queryRunner = dataSource.createQueryRunner();
+            expect(
+                (await queryRunner.getTable(table))?.findColumnByName(column),
+            ).toBeUndefined();
+
+            await migration.up(queryRunner);
+            await migration.up(queryRunner);
+
+            const added = (await queryRunner.getTable(table))?.findColumnByName(
+                column,
+            );
+            expect(added?.isNullable).toBe(true);
+            await expect(
+                dataSource.query(
+                    `SELECT "${column}" FROM "${table}" WHERE "tenantId" = 't'`,
+                ),
+            ).resolves.toEqual([{ [column]: null }]);
+            // SQLite always rebuilds the table here; only the column order
+            // differs, so the drift check is for PostgreSQL.
+            if (dataSource.options.type === "postgres") {
+                expect(await drift(dataSource)).toEqual(driftAfterSynchronize);
+            }
+
+            await migration.down(queryRunner);
+            expect(
+                (await queryRunner.getTable(table))?.findColumnByName(column),
+            ).toBeUndefined();
+            await queryRunner.release();
+        }
+
+        describe("SQLite", () => {
+            let dataSource: DataSource;
+            let driftAfterSynchronize: string[];
+            let tmpDir: string;
+
+            beforeAll(async () => {
+                tmpDir = mkdtempSync(join(tmpdir(), "eudiplo-migration-test-"));
+                ({ dataSource, driftAfterSynchronize } =
+                    await registrarSchemaBefore({
+                        type: "better-sqlite3",
+                        database: join(tmpDir, "test.db"),
+                    }));
+            }, 30_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                if (tmpDir) rmSync(tmpDir, { recursive: true, force: true });
+            });
+
+            test("adds a nullable column, keeps the rows, is idempotent and reversible", async () => {
+                await expectAddedAndReversible(
+                    dataSource,
+                    driftAfterSynchronize,
+                );
+            });
+        });
+
+        describeWithContainers("PostgreSQL", () => {
+            let dataSource: DataSource;
+            let driftAfterSynchronize: string[];
+            let postgresContainer: StartedPostgreSqlContainer;
+
+            beforeAll(async () => {
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                ).start();
+                ({ dataSource, driftAfterSynchronize } =
+                    await registrarSchemaBefore({
                         type: "postgres",
                         url: postgresContainer.getConnectionUri(),
                     }));

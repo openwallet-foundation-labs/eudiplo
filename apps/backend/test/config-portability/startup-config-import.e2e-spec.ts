@@ -919,6 +919,7 @@ describe("startup configuration reconciliation", () => {
             password: "password",
         };
         const defaults = { privacy_policy: "https://rp.example/privacy" };
+        const contact = { email: "support@rp.example" };
         const registrarItem = (plan: ConfigImportPlan) =>
             plan.items.find((item) => item.kind === "RegistrarConfig");
 
@@ -927,6 +928,7 @@ describe("startup configuration reconciliation", () => {
                 ...spec,
                 clientSecret: "client-secret",
                 registrationCertificateDefaults: defaults,
+                relyingPartyContact: contact,
             });
             expect(
                 registrarItem(await service.plan("demo", full, "upsert"))
@@ -939,6 +941,7 @@ describe("startup configuration reconciliation", () => {
                 registrarUrl: spec.registrarUrl,
                 clientSecret: "client-secret",
                 registrationCertificateDefaults: defaults,
+                relyingPartyContact: contact,
             });
             expect(
                 registrarItem(await service.plan("demo", full, "upsert"))
@@ -953,6 +956,7 @@ describe("startup configuration reconciliation", () => {
             expect(replacement?.changes?.map((change) => change.path)).toEqual([
                 "/spec/clientSecret",
                 "/spec/registrationCertificateDefaults/privacy_policy",
+                "/spec/relyingPartyContact/email",
             ]);
             await apply.apply("demo", minimal, "upsert");
             expect(
@@ -960,6 +964,7 @@ describe("startup configuration reconciliation", () => {
             ).toMatchObject({
                 clientSecret: null,
                 registrationCertificateDefaults: null,
+                relyingPartyContact: null,
             });
             expect(
                 registrarItem(await service.plan("demo", minimal, "upsert"))

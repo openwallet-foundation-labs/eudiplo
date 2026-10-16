@@ -492,6 +492,21 @@ export type RegistrationCertificateDefaults = {
     support_uri?: string;
 };
 
+export type RelyingPartyContact = {
+    /**
+     * https URL where the relying party can be contacted.
+     */
+    supportUri?: string;
+    /**
+     * Email address of the relying party.
+     */
+    email?: string;
+    /**
+     * Phone number of the relying party.
+     */
+    phone?: string;
+};
+
 export type RegistrarConfigResponseDto = {
     /**
      * The base URL of the registrar API
@@ -513,6 +528,10 @@ export type RegistrarConfigResponseDto = {
      * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
      */
     registrationCertificateDefaults?: RegistrationCertificateDefaults | null;
+    /**
+     * Contact sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one value to issue access certificates. A relying party that is already registered keeps its contact.
+     */
+    relyingPartyContact?: RelyingPartyContact | null;
     /**
      * Indicates whether a password is configured (actual password is never returned)
      */
@@ -554,6 +573,23 @@ export type CreateRegistrarConfigDto = {
     registrationCertificateDefaults?: {
         [key: string]: unknown;
     } | null;
+    /**
+     * Contact of the relying party, sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one contact value to issue access certificates. A relying party that is already registered keeps its contact.
+     */
+    relyingPartyContact?: {
+        /**
+         * https URL where the relying party can be contacted.
+         */
+        supportUri?: string;
+        /**
+         * Email address of the relying party.
+         */
+        email?: string;
+        /**
+         * Phone number of the relying party.
+         */
+        phone?: string;
+    } | null;
 };
 
 export type UpdateRegistrarConfigDto = {
@@ -586,6 +622,23 @@ export type UpdateRegistrarConfigDto = {
      */
     registrationCertificateDefaults?: {
         [key: string]: unknown;
+    } | null;
+    /**
+     * Contact of the relying party, sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one contact value to issue access certificates. A relying party that is already registered keeps its contact.
+     */
+    relyingPartyContact?: {
+        /**
+         * https URL where the relying party can be contacted.
+         */
+        supportUri?: string;
+        /**
+         * Email address of the relying party.
+         */
+        email?: string;
+        /**
+         * Phone number of the relying party.
+         */
+        phone?: string;
     } | null;
 };
 

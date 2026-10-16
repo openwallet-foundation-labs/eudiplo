@@ -79,8 +79,9 @@ export class RegistrarController {
 
     /**
      * Create or replace the registrar configuration for the tenant.
-     * Credentials are validated before saving. A `clientSecret` or
-     * `registrationCertificateDefaults` the request leaves out is removed.
+     * Credentials are validated before saving. A `clientSecret`,
+     * `registrationCertificateDefaults` or `relyingPartyContact` the request
+     * leaves out is removed.
      * @param token - The token payload from the auth context
      * @param dto - The configuration data
      * @returns The saved configuration

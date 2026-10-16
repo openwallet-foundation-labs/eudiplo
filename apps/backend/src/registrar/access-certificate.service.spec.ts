@@ -411,6 +411,28 @@ describe("AccessCertificateService.createAccessCertificate", () => {
         ).rejects.toBe(failure);
     });
 
+    it("passes on the registrar's reason when it refuses the certificate", async () => {
+        vi.mocked(accessCertificateControllerRegister).mockResolvedValue({
+            error: {
+                statusCode: 400,
+                error: "Bad Request",
+                message:
+                    "At least one registered contact value (support URI, email, or phone) is required.",
+            },
+        } as any);
+        vi.mocked(
+            accessCertificateControllerAccessCertificates,
+        ).mockResolvedValue({ data: [] } as any);
+
+        await expect(
+            service.createAccessCertificate("tenant", { keyId: "access" }),
+        ).rejects.toThrow(
+            new BadRequestException(
+                "Failed to create access certificate: At least one registered contact value (support URI, email, or phone) is required.",
+            ),
+        );
+    });
+
     it("does not store a revoked certificate the registrar lists for the key", async () => {
         vi.mocked(accessCertificateControllerRegister).mockResolvedValue({
             error: { status: 400 },
