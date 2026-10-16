@@ -2,11 +2,11 @@ import type { Session, SessionOutcomeCredentialDto } from '@eudiplo/sdk-core';
 import { isPresentationSession } from './session-management.service';
 
 /** Statuses after which a session no longer changes. */
-const FINISHED_STATUSES = ['completed', 'expired', 'failed', 'cancelled'];
+const FINISHED_STATUSES = new Set(['completed', 'expired', 'failed', 'cancelled']);
 
 /** Whether a session has ended, so it shows a result and no longer needs polling. */
 export function isFinishedSession(status: string | null | undefined): boolean {
-  return !!status && FINISHED_STATUSES.includes(status);
+  return !!status && FINISHED_STATUSES.has(status);
 }
 
 /** What the session details page says about how a session ended. */

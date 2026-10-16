@@ -152,6 +152,7 @@ describe("Presentation - Webhook Integration", () => {
                 expect(body.status).toBe("completed");
                 expect(body.outcome).toEqual({
                     result: "success",
+                    source: "verifier",
                     credentials: [{ id: "pid", verified: true }],
                 });
                 expect(body.credentials).toBeDefined();
@@ -269,8 +270,10 @@ describe("Presentation - Webhook Integration", () => {
             status: "failed",
             outcome: {
                 result: "failed",
+                source: "wallet",
                 error: "access_denied",
                 message: "Wallet error: access_denied: User declined",
+                description: "User declined",
             },
             session: sessionId,
             transaction_data: null,
@@ -305,7 +308,7 @@ describe("Presentation - Webhook Integration", () => {
         expect(nock.isDone()).toBe(true);
         expect(received).toMatchObject({
             status: "failed",
-            outcome: { result: "failed" },
+            outcome: { result: "failed", source: "verifier" },
             session: res.body.session,
         });
         expect(received?.outcome.message).toEqual(expect.any(String));

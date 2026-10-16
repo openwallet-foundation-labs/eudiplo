@@ -47,26 +47,42 @@ function formatBytes(length: number): string {
     : `Binary data, ${length} bytes`;
 }
 
-function flatten(value: unknown, path: string, out: PresentedClaim[]): void {
-  if (isRecord(value) || Array.isArray(value)) {
-    const bytes = byteLength(value);
-    if (bytes !== null) {
-      out.push({ path, value: formatBytes(bytes) });
-      return;
-    }
-    const entries = Array.isArray(value)
-      ? value.map((item, index) => [String(index), item] as const)
-      : Object.entries(value);
-    if (entries.length === 0) {
-      out.push({ path, value: Array.isArray(value) ? '[]' : '{}' });
-    }
-    for (const [key, item] of entries) {
-      if (key.startsWith('_sd')) continue;
-      flatten(item, path ? `${path}.${key}` : key, out);
-    }
+function formatValue(value: unknown): string {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value);
+  }
+  return JSON.stringify(value) ?? '—';
+}
+
+function flattenContainer(
+  value: Record<string, unknown> | unknown[],
+  path: string,
+  out: PresentedClaim[]
+): void {
+  const bytes = byteLength(value);
+  if (bytes !== null) {
+    out.push({ path, value: formatBytes(bytes) });
     return;
   }
-  out.push({ path, value: value === null || value === undefined ? '—' : String(value) });
+  const entries = Array.isArray(value)
+    ? value.map((item, index) => [String(index), item] as const)
+    : Object.entries(value);
+  if (entries.length === 0) {
+    out.push({ path, value: Array.isArray(value) ? '[]' : '{}' });
+  }
+  for (const [key, item] of entries) {
+    if (!key.startsWith('_sd')) flatten(item, path ? `${path}.${key}` : key, out);
+  }
+}
+
+function flatten(value: unknown, path: string, out: PresentedClaim[]): void {
+  if (isRecord(value) || Array.isArray(value)) {
+    flattenContainer(value, path, out);
+  } else {
+    out.push({ path, value: formatValue(value) });
+  }
 }
 
 function claimsOf(record: Record<string, unknown>): PresentedClaim[] {
