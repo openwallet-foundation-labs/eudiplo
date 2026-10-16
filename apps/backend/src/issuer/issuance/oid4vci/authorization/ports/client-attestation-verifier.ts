@@ -1,4 +1,7 @@
-import type { TrustListRef } from "../../../../../trust/types.js";
+import type {
+    RevocationCheckMode,
+    TrustListRef,
+} from "../../../../../trust/types.js";
 
 export interface ClientAttestation {
     clientAttestationJwt: string;
@@ -18,6 +21,7 @@ export interface ClientAttestationVerifier {
         expectedAudience: string,
         required: boolean,
         trustLists: TrustListRef[],
+        statusCheckMode: RevocationCheckMode,
     ): Promise<void>;
 }
 

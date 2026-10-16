@@ -208,3 +208,32 @@ describe("ChainedAsService metadata", () => {
         });
     });
 });
+
+describe("ChainedAsService wallet attestation settings", () => {
+    it("keeps the chained server's status check mode", async () => {
+        const service = Object.assign(
+            Object.create(ChainedAsService.prototype) as ChainedAsService,
+            {
+                issuanceService: {
+                    getIssuanceConfiguration: vi.fn().mockResolvedValue({
+                        walletAttestationStatusCheckMode: "best_effort",
+                        authorizationServers: [
+                            {
+                                type: "chained",
+                                id: "chained",
+                                upstream: {
+                                    issuer: "https://upstream.example.org",
+                                },
+                                walletAttestationStatusCheckMode: "strict",
+                            },
+                        ],
+                    }),
+                },
+            },
+        );
+
+        const config = await service.getChainedAsConfig("tenant-1");
+
+        expect(config.walletAttestationStatusCheckMode).toBe("strict");
+    });
+});

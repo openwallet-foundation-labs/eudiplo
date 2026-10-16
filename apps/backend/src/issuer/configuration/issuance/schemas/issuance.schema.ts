@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RevocationCheckMode } from "../../../../trust/types.js";
 import { REMOVED_CHAINED_VP_MESSAGE } from "../domain/removed-authorization-servers.js";
 
 const ChainedAsTokenConfigSchema = z
@@ -102,6 +103,12 @@ const WalletAttestationAuthorizationServerSchema = {
         .optional()
         .describe(
             "Optional wallet provider trust list references for this authorization server.",
+        ),
+    walletAttestationStatusCheckMode: z
+        .enum(RevocationCheckMode)
+        .optional()
+        .describe(
+            "Status check mode for wallet attestations at this authorization server. Omit to inherit the issuance default.",
         ),
 };
 
@@ -409,6 +416,13 @@ export const IssuanceConfigSchema = z
             .optional()
             .describe(
                 "Shared wallet provider trust lists for key attestations and default authorization server wallet authentication.",
+            ),
+        walletAttestationStatusCheckMode: z
+            .enum(RevocationCheckMode)
+            .nullable()
+            .optional()
+            .describe(
+                "Default status check mode for wallet attestations at managed authorization servers: strict, best_effort (default) or disabled.",
             ),
         signingKeyId: z
             .string()

@@ -2441,158 +2441,254 @@ describe("Issuance - Wallet Attestation", () => {
         ).rejects.toThrow();
     });
 
-    test("should succeed but log warning when status list fetch fails", async () => {
-        // Configure issuance with wallet attestation required
-        const trustListUrl =
-            "http://localhost:8787/wallet-providers-status-fail";
-        const statusListUrl = "http://localhost:8787/status-list-fail";
+    type StatusCheckModeCase = {
+        name: string;
+        issuerMode?: "strict" | "best_effort" | "disabled";
+        serverMode?: "strict" | "best_effort" | "disabled";
+        statusList: "unavailable" | "out-of-range" | "revoked";
+        accepted: boolean;
+    };
 
-        // First get current config to preserve other settings
-        const currentConfig = await request(app.getHttpServer())
-            .get("/issuer/config")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .expect(200);
+    test.each<StatusCheckModeCase>([
+        {
+            name: "accepts when the status list cannot be fetched and no mode is set (best_effort)",
+            statusList: "unavailable",
+            accepted: true,
+        },
+        {
+            name: "rejects when the status list cannot be fetched in strict mode",
+            issuerMode: "strict",
+            statusList: "unavailable",
+            accepted: false,
+        },
+        {
+            name: "rejects in strict mode set on the authorization server over a best_effort issuer default",
+            issuerMode: "best_effort",
+            serverMode: "strict",
+            statusList: "unavailable",
+            accepted: false,
+        },
+        {
+            name: "rejects an index outside the status list in best_effort mode",
+            issuerMode: "best_effort",
+            statusList: "out-of-range",
+            accepted: false,
+        },
+        {
+            name: "accepts a revoked attestation when the status check is disabled",
+            issuerMode: "disabled",
+            statusList: "revoked",
+            accepted: true,
+        },
+        {
+            name: "accepts a revoked attestation when the authorization server disables the check over a strict issuer default",
+            issuerMode: "strict",
+            serverMode: "disabled",
+            statusList: "revoked",
+            accepted: true,
+        },
+    ])(
+        "status check mode: $name",
+        async ({ issuerMode, serverMode, statusList, accepted }) => {
+            const trustListUrl =
+                "http://localhost:8787/wallet-providers-status-mode";
+            const statusListUrl = "http://localhost:8787/status-list-mode";
+            const trustListRef = {
+                url: trustListUrl,
+                verifierX509Der:
+                    trustListSigningCert.certificate.toString("base64"),
+            };
 
-        await request(app.getHttpServer())
-            .post("/issuer/config")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                ...currentConfig.body,
-                walletAttestationRequired: true,
-                walletProviderTrustLists: [
-                    {
-                        url: trustListUrl,
-                        verifierX509Der:
-                            trustListSigningCert.certificate.toString("base64"),
-                    },
-                ],
-                authorizationServers:
-                    currentConfig.body.authorizationServers.map(
-                        (server: { type: string }) => ({
-                            ...server,
-                            ...(server.type === "built-in"
-                                ? {
-                                      walletAttestationRequired: true,
-                                      walletProviderTrustLists: [
-                                          {
-                                              url: trustListUrl,
-                                              verifierX509Der:
-                                                  trustListSigningCert.certificate.toString(
-                                                      "base64",
-                                                  ),
-                                          },
-                                      ],
-                                  }
-                                : {}),
-                        }),
-                    ),
-            } as IssuanceDto)
-            .expect(201);
+            // First get current config to preserve other settings
+            const currentConfig = await request(app.getHttpServer())
+                .get("/issuer/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
 
-        // Mock the trust list endpoint with revocation cert
-        const trustListJwt = await createMockTrustListJwt(
-            trustListSigningCert,
-            walletProviderCert.certificate,
-            "http://uri.etsi.org/19602/SvcType/WalletSolution",
-            revocationCert.certificate,
-        );
+            /** Writes the config with the given modes; undefined leaves a mode unset. */
+            const saveConfig = (
+                issuer: StatusCheckModeCase["issuerMode"],
+                server: StatusCheckModeCase["serverMode"],
+            ) =>
+                request(app.getHttpServer())
+                    .post("/issuer/config")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        ...currentConfig.body,
+                        walletAttestationRequired: true,
+                        walletProviderTrustLists: [trustListRef],
+                        walletAttestationStatusCheckMode: issuer ?? null,
+                        authorizationServers:
+                            currentConfig.body.authorizationServers.map(
+                                ({
+                                    walletAttestationStatusCheckMode: _mode,
+                                    ...rest
+                                }: {
+                                    type: string;
+                                    walletAttestationStatusCheckMode?: string;
+                                }) => ({
+                                    ...rest,
+                                    ...(rest.type === "built-in"
+                                        ? {
+                                              walletAttestationRequired: true,
+                                              walletProviderTrustLists: [
+                                                  trustListRef,
+                                              ],
+                                              ...(server && {
+                                                  walletAttestationStatusCheckMode:
+                                                      server,
+                                              }),
+                                          }
+                                        : {}),
+                                }),
+                            ),
+                    } as IssuanceDto)
+                    .expect(201);
 
-        nock("http://localhost:8787")
-            .get("/wallet-providers-status-fail")
-            .reply(200, trustListJwt, {
-                "Content-Type": "application/jwt",
-            });
+            await saveConfig(issuerMode, serverMode);
 
-        // Mock the status list endpoint to fail (network error)
-        nock("http://localhost:8787")
-            .get("/status-list-fail")
-            .reply(500, "Service Unavailable");
+            try {
+                const trustListJwt = await createMockTrustListJwt(
+                    trustListSigningCert,
+                    walletProviderCert.certificate,
+                    "http://uri.etsi.org/19602/SvcType/WalletSolution",
+                    revocationCert.certificate,
+                );
+                nock("http://localhost:8787")
+                    .get("/wallet-providers-status-mode")
+                    .reply(200, trustListJwt, {
+                        "Content-Type": "application/jwt",
+                    });
 
-        // Create offer
-        const offerResponse = await request(app.getHttpServer())
-            .post("/issuer/offer")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                response_type: "uri",
-                credentialConfigurationIds: ["pid-no-key"],
-                flow: "pre_authorized_code",
-            })
-            .expect(201);
+                // Index 5 is revoked; the list has 128 entries.
+                const statusListNock =
+                    statusList === "unavailable"
+                        ? nock("http://localhost:8787")
+                              .get("/status-list-mode")
+                              .reply(500, "Service Unavailable")
+                        : nock("http://localhost:8787")
+                              .get("/status-list-mode")
+                              .reply(
+                                  200,
+                                  await createStatusListJwt(
+                                      revocationCert,
+                                      statusListUrl,
+                                      new Map([[5, 1]]),
+                                  ),
+                                  {
+                                      "Content-Type":
+                                          "application/statuslist+jwt",
+                                  },
+                              );
 
-        // Generate holder keys
-        const holderKeyPair = await generateKeyPair("ES256", {
-            extractable: true,
-        });
-        const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
-        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
-        holderPublicKeyJwk.alg = "ES256";
-        holderPublicKeyJwk.use = "sig";
+                const offerResponse = await request(app.getHttpServer())
+                    .post("/issuer/offer")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        response_type: "uri",
+                        credentialConfigurationIds: ["pid-no-key"],
+                        flow: "pre_authorized_code",
+                    })
+                    .expect(201);
 
-        const credentialOffer = await new Openid4vciClient({
-            callbacks: {
-                ...callbacks,
-                clientAuthentication: clientAuthenticationAnonymous(),
-                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
-            },
-        }).resolveCredentialOffer(offerResponse.body.uri);
+                const holderKeyPair = await generateKeyPair("ES256", {
+                    extractable: true,
+                });
+                const holderPrivateKeyJwk = await exportJWK(
+                    holderKeyPair.privateKey,
+                );
+                const holderPublicKeyJwk = await exportJWK(
+                    holderKeyPair.publicKey,
+                );
+                holderPublicKeyJwk.alg = "ES256";
+                holderPublicKeyJwk.use = "sig";
 
-        const issuerMetadata = await new Openid4vciClient({
-            callbacks: {
-                ...callbacks,
-                clientAuthentication: clientAuthenticationAnonymous(),
-                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
-            },
-        }).resolveIssuerMetadata(credentialOffer.credential_issuer);
-
-        const authServerUrl =
-            issuerMetadata.authorizationServers?.[0]?.issuer ||
-            credentialOffer.credential_issuer;
-
-        // Create wallet attestation with status claim pointing to failing URL
-        const clientAttestationJwt = await createWalletAttestationJwt({
-            walletProviderCert: walletProviderCert.certificate,
-            walletProviderKey: walletProviderCert.privateKey,
-            holderPublicKey: holderPublicKeyJwk as Jwk,
-            authorizationServer: authServerUrl,
-            status: {
-                status_list: {
-                    idx: 0,
-                    uri: statusListUrl,
-                },
-            },
-        });
-
-        const clientWithAttestation = new Openid4vciClient({
-            callbacks: {
-                ...callbacks,
-                clientAuthentication: clientAuthenticationClientAttestationJwt({
-                    clientAttestationJwt,
+                const client = new Openid4vciClient({
                     callbacks: {
+                        ...callbacks,
+                        clientAuthentication: clientAuthenticationAnonymous(),
                         signJwt: getSignJwtCallback([
                             holderPrivateKeyJwk as Jwk,
                         ]),
-                        generateRandom: callbacks.generateRandom,
                     },
-                }),
-                signJwt: getSignJwtCallback([holderPrivateKeyJwk as Jwk]),
-            },
-        });
+                });
+                const credentialOffer = await client.resolveCredentialOffer(
+                    offerResponse.body.uri,
+                );
+                const issuerMetadata = await client.resolveIssuerMetadata(
+                    credentialOffer.credential_issuer,
+                );
+                const authServerUrl =
+                    issuerMetadata.authorizationServers?.[0]?.issuer ||
+                    credentialOffer.credential_issuer;
 
-        // Should succeed - status list fetch failure is not a hard failure per spec
-        // The service logs a warning but doesn't block the request
-        const tokenResult =
-            await clientWithAttestation.retrievePreAuthorizedCodeAccessTokenFromOffer(
-                {
-                    credentialOffer,
-                    issuerMetadata,
-                },
-            );
+                const clientAttestationJwt = await createWalletAttestationJwt({
+                    walletProviderCert: walletProviderCert.certificate,
+                    walletProviderKey: walletProviderCert.privateKey,
+                    holderPublicKey: holderPublicKeyJwk as Jwk,
+                    authorizationServer: authServerUrl,
+                    status: {
+                        status_list: {
+                            idx: statusList === "out-of-range" ? 500 : 5,
+                            uri: statusListUrl,
+                        },
+                    },
+                });
 
-        expect(tokenResult.accessTokenResponse.access_token).toBeDefined();
-    }, 30000);
+                const clientWithAttestation = new Openid4vciClient({
+                    callbacks: {
+                        ...callbacks,
+                        clientAuthentication:
+                            clientAuthenticationClientAttestationJwt({
+                                clientAttestationJwt,
+                                callbacks: {
+                                    signJwt: getSignJwtCallback([
+                                        holderPrivateKeyJwk as Jwk,
+                                    ]),
+                                    generateRandom: callbacks.generateRandom,
+                                },
+                            }),
+                        signJwt: getSignJwtCallback([
+                            holderPrivateKeyJwk as Jwk,
+                        ]),
+                    },
+                });
+
+                const tokenRequest =
+                    clientWithAttestation.retrievePreAuthorizedCodeAccessTokenFromOffer(
+                        { credentialOffer, issuerMetadata },
+                    );
+
+                if (accepted) {
+                    const tokenResult = await tokenRequest;
+                    expect(
+                        tokenResult.accessTokenResponse.access_token,
+                    ).toBeDefined();
+                } else {
+                    await expect(tokenRequest).rejects.toMatchObject({
+                        // Fetch failures get the generic message, lists
+                        // that cannot be used name the reason.
+                        errorResponse: {
+                            error_description: expect.stringMatching(
+                                /^Wallet attestation status (check failed$|list rejected: )/,
+                            ),
+                        },
+                    });
+                }
+                // Disabled never fetches the status list.
+                expect(statusListNock.isDone()).toBe(
+                    issuerMode !== "disabled" && serverMode !== "disabled",
+                );
+            } finally {
+                // Later tests copy the current config; leave no mode behind.
+                await saveConfig(undefined, undefined);
+            }
+        },
+        30000,
+    );
 
     test("should fail when wallet attestation PoP JWT has wrong audience", async () => {
         // Configure issuance with wallet attestation required

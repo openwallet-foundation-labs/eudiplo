@@ -47,7 +47,7 @@ Entries of the types `built-in`, `chained` and `oid4vp` accept:
 | `token.refreshTokenEnabled` | `true` | See [Refresh tokens](#refresh-tokens). |
 | `token.refreshTokenExpiresInSeconds` | `2592000` (30 days) | Minimum 60. |
 | `requireDPoP` | `false` | See [DPoP](#dpop). |
-| `walletAttestationRequired`, `walletProviderTrustLists` | Issuance configuration values | Wallet attestation at PAR and token endpoints; see [Wallet and key attestation](../trust/attestation.md). |
+| `walletAttestationRequired`, `walletProviderTrustLists`, `walletAttestationStatusCheckMode` | Issuance configuration values | Wallet attestation at PAR and token endpoints; see [Wallet and key attestation](../trust/attestation.md). |
 
 ## Built-in
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { RevocationCheckMode } from "../../../../../trust/types.js";
 import { resolveWalletAttestationPolicy } from "./wallet-attestation-policy.js";
 
 describe("resolveWalletAttestationPolicy", () => {
@@ -20,6 +21,7 @@ describe("resolveWalletAttestationPolicy", () => {
         ).toEqual({
             walletAttestationRequired: true,
             walletProviderTrustLists: authServerTrustList,
+            walletAttestationStatusCheckMode: RevocationCheckMode.BestEffort,
         });
     });
 
@@ -34,6 +36,7 @@ describe("resolveWalletAttestationPolicy", () => {
         ).toEqual({
             walletAttestationRequired: true,
             walletProviderTrustLists: issuerTrustList,
+            walletAttestationStatusCheckMode: RevocationCheckMode.BestEffort,
         });
     });
 
@@ -41,6 +44,7 @@ describe("resolveWalletAttestationPolicy", () => {
         expect(resolveWalletAttestationPolicy({})).toEqual({
             walletAttestationRequired: false,
             walletProviderTrustLists: [],
+            walletAttestationStatusCheckMode: RevocationCheckMode.BestEffort,
         });
     });
 
@@ -61,6 +65,7 @@ describe("resolveWalletAttestationPolicy", () => {
         ).toEqual({
             walletAttestationRequired: false,
             walletProviderTrustLists: [],
+            walletAttestationStatusCheckMode: RevocationCheckMode.BestEffort,
         });
     });
 
@@ -76,6 +81,31 @@ describe("resolveWalletAttestationPolicy", () => {
         ).toEqual({
             walletAttestationRequired: false,
             walletProviderTrustLists,
+            walletAttestationStatusCheckMode: RevocationCheckMode.BestEffort,
         });
+    });
+
+    it("resolves the status check mode from the AS, then the issuance config", () => {
+        expect(
+            resolveWalletAttestationPolicy(
+                {
+                    walletAttestationStatusCheckMode:
+                        RevocationCheckMode.Strict,
+                },
+                {
+                    walletAttestationStatusCheckMode:
+                        RevocationCheckMode.Disabled,
+                },
+            ).walletAttestationStatusCheckMode,
+        ).toBe(RevocationCheckMode.Disabled);
+        expect(
+            resolveWalletAttestationPolicy(
+                {
+                    walletAttestationStatusCheckMode:
+                        RevocationCheckMode.Strict,
+                },
+                { walletAttestationStatusCheckMode: null },
+            ).walletAttestationStatusCheckMode,
+        ).toBe(RevocationCheckMode.Strict);
     });
 });

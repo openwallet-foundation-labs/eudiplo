@@ -1,6 +1,8 @@
 import { ES256 } from "@owf/crypto";
 import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
+import { RevocationListUnavailableError } from "./revocation-policy.util.js";
+import { RevocationCheckMode } from "./types.js";
 import { WalletAttestationService } from "./wallet-attestation.service.js";
 import {
     MatchedTrustedEntity,
@@ -26,6 +28,7 @@ describe("WalletAttestationService trust requirements", () => {
                 "https://as.example",
                 false,
                 [],
+                RevocationCheckMode.Strict,
             ),
         ).resolves.toBeUndefined();
     });
@@ -38,6 +41,7 @@ describe("WalletAttestationService trust requirements", () => {
                 "https://as.example",
                 true,
                 [],
+                RevocationCheckMode.Strict,
             ),
         ).rejects.toThrow("required but not provided");
     });
@@ -55,6 +59,7 @@ describe("WalletAttestationService trust requirements", () => {
                     "https://as.example",
                     required,
                     [],
+                    RevocationCheckMode.Strict,
                 ),
             ).rejects.toThrow("No wallet provider trust lists configured");
         },
@@ -269,5 +274,148 @@ describe("WalletAttestationService status list signer without revocation certifi
                 otherCa.cert,
             ),
         ).resolves.toBe(false);
+    });
+});
+
+describe("WalletAttestationService status check mode", () => {
+    const statusEntry = { uri: "https://wp.example/status", idx: 3 };
+
+    /** Service whose status list fetch fails with `fetchError`, or returns a list read with `readStatus`. */
+    function createService(options: {
+        fetchError?: Error;
+        readStatus?: () => { isValid: boolean; description: string };
+    }) {
+        const statusListVerifierService = {
+            getStatusEntryFromJwt: vi.fn(() => statusEntry),
+            getStatusListJwt: vi.fn(async () => {
+                if (options.fetchError) throw options.fetchError;
+                return "status-list-jwt";
+            }),
+            getStatusFromStatusListJwt: vi.fn(
+                options.readStatus ??
+                    (() => ({ isValid: true, description: "VALID" })),
+            ),
+        };
+        const service = Object.assign(
+            Object.create(WalletAttestationService.prototype),
+            {
+                logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
+                statusListVerifierService,
+                settings: { cryptoToleranceSeconds: 0 },
+                verifyStatusListSignature: vi.fn(async () => true),
+            },
+        );
+        return { service, statusListVerifierService };
+    }
+
+    const check = (
+        service: unknown,
+        mode: RevocationCheckMode,
+    ): Promise<void> =>
+        (
+            service as {
+                validateWalletAttestationStatus(
+                    jwt: string,
+                    entity: null,
+                    store: null,
+                    mode: RevocationCheckMode,
+                ): Promise<void>;
+            }
+        ).validateWalletAttestationStatus("attestation", null, null, mode);
+
+    const unavailable = () =>
+        new RevocationListUnavailableError(
+            "Failed to fetch status list from https://wp.example/status: timeout",
+        );
+    const outOfRange = () => {
+        throw new Error("Index 3 out of bounds");
+    };
+
+    it("strict rejects a status list that cannot be fetched", async () => {
+        const { service } = createService({ fetchError: unavailable() });
+
+        await expect(
+            check(service, RevocationCheckMode.Strict),
+        ).rejects.toThrow("Wallet attestation status check failed");
+    });
+
+    it("best_effort accepts a status list that cannot be fetched", async () => {
+        const { service } = createService({ fetchError: unavailable() });
+
+        await expect(
+            check(service, RevocationCheckMode.BestEffort),
+        ).resolves.toBeUndefined();
+    });
+
+    it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
+        "%s rejects an unreadable status list",
+        async (mode) => {
+            const { service } = createService({
+                fetchError: new TypeError("Expected a status list JWT"),
+            });
+
+            await expect(check(service, mode)).rejects.toThrow(
+                "Wallet attestation status check failed",
+            );
+        },
+    );
+
+    it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
+        "%s rejects an index outside the status list",
+        async (mode) => {
+            const { service } = createService({ readStatus: outOfRange });
+
+            await expect(check(service, mode)).rejects.toThrow(
+                "Wallet attestation status list rejected: Index 3 out of bounds",
+            );
+        },
+    );
+
+    it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
+        "%s rejects a revoked attestation",
+        async (mode) => {
+            const { service } = createService({
+                readStatus: () => ({ isValid: false, description: "INVALID" }),
+            });
+
+            await expect(check(service, mode)).rejects.toThrow(
+                "Wallet attestation is not valid: INVALID",
+            );
+        },
+    );
+
+    it("does not return the failure reason to the wallet", async () => {
+        const { service } = createService({ fetchError: unavailable() });
+
+        await expect(
+            check(service, RevocationCheckMode.Strict),
+        ).rejects.toThrow(/^Wallet attestation status check failed$/);
+    });
+
+    it.each([RevocationCheckMode.Strict, RevocationCheckMode.BestEffort])(
+        "%s rejects when the signature check throws",
+        async (mode) => {
+            const { service } = createService({});
+            service.verifyStatusListSignature = vi.fn(async () => {
+                throw new Error("unsupported key");
+            });
+
+            await expect(check(service, mode)).rejects.toThrow(
+                "Wallet attestation status check failed",
+            );
+        },
+    );
+
+    it("disabled skips the status check", async () => {
+        const { service, statusListVerifierService } = createService({
+            readStatus: () => ({ isValid: false, description: "INVALID" }),
+        });
+
+        await expect(
+            check(service, RevocationCheckMode.Disabled),
+        ).resolves.toBeUndefined();
+        expect(
+            statusListVerifierService.getStatusListJwt,
+        ).not.toHaveBeenCalled();
     });
 });

@@ -35,6 +35,9 @@ import {
 import {
   defaultAccessTokenLifetimeSeconds,
   IssuanceConfigService,
+  statusCheckModeLabel,
+  statusCheckModeOverride,
+  type WalletAttestationStatusCheckMode,
 } from '../issuance-config.service';
 import { issuanceConfigSchema } from '../../../utils/schemas';
 import { JsonViewDialogComponent } from '../../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -209,6 +212,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
     inherit.valueChanges.subscribe(updateTrustListValidation);
     return {
       walletAttestationRequired: new FormControl(value?.walletAttestationRequired ?? 'inherit'),
+      walletAttestationStatusCheckMode: new FormControl<
+        WalletAttestationStatusCheckMode | 'inherit'
+      >(value?.walletAttestationStatusCheckMode ?? 'inherit'),
       inheritWalletProviderTrustLists: inherit,
       walletProviderTrustLists: trustLists,
     };
@@ -284,6 +290,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
           : [
               'txCodeMaxAttempts',
               'walletAttestationRequired',
+              'walletAttestationStatusCheckMode',
               'walletProviderTrustLists',
               'federation',
               'registrationCertificate',
@@ -369,13 +376,18 @@ export class IssuanceConfigCreateComponent implements OnInit {
     this.submitSettings();
   }
 
+  /** The issuer default an authorization server inherits, for the "Use issuer default" option. */
+  get issuerStatusCheckModeLabel(): string {
+    return statusCheckModeLabel(this.form.get('walletAttestationStatusCheckMode')?.value);
+  }
+
   get behaviorSummary(): string {
     const value = this.form.value;
     return `Batch size: ${value.batchSize} · DPoP: ${value.dPopRequired ? 'Required' : 'Optional'} · Request encryption: ${value.credentialRequestEncryption ? 'Required' : 'Off'} · Response encryption: ${value.credentialResponseEncryption ? 'Advertised' : 'Off'} · Notifications: ${value.notificationEndpointEnabled ? 'On' : 'Off'}`;
   }
 
   get trustSummary(): string {
-    return `Wallet attestation default: ${this.form.get('walletAttestationRequired')?.value ? 'Required' : 'Optional'} · Wallet provider trust lists: ${this.walletProviderTrustLists.length} · Federation: ${this.federationEnabled ? 'On' : 'Off'} · Registration certificate: ${this.registrationCertificateEnabled ? this.registrationCertificateMode : 'Off'} · PIN attempt limit: ${this.form.get('txCodeMaxAttempts')?.value ?? 5}`;
+    return `Wallet attestation default: ${this.form.get('walletAttestationRequired')?.value ? 'Required' : 'Optional'} · Wallet attestation status check: ${this.issuerStatusCheckModeLabel}${this.form.get('walletAttestationStatusCheckMode')?.value === 'disabled' ? ' (revoked attestations accepted)' : ''} · Wallet provider trust lists: ${this.walletProviderTrustLists.length} · Federation: ${this.federationEnabled ? 'On' : 'Off'} · Registration certificate: ${this.registrationCertificateEnabled ? this.registrationCertificateMode : 'Off'} · PIN attempt limit: ${this.form.get('txCodeMaxAttempts')?.value ?? 5}`;
   }
 
   public form: FormGroup;
@@ -414,6 +426,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
       credentialRequestEncryption: new FormControl(false),
       notificationEndpointEnabled: new FormControl(true),
       walletAttestationRequired: new FormControl(false),
+      walletAttestationStatusCheckMode: new FormControl<WalletAttestationStatusCheckMode | null>(
+        null
+      ),
       walletProviderTrustLists: this.fb.array([]),
       federation: this.fb.group({
         enabled: [false],
@@ -599,6 +614,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
               enabled: server.enabled ?? true,
               requireDPoP: server.requireDPoP ?? false,
               walletAttestationRequired: server.walletAttestationRequired ?? 'inherit',
+              walletAttestationStatusCheckMode:
+                server.walletAttestationStatusCheckMode ?? 'inherit',
               walletProviderTrustLists: server.walletProviderTrustLists,
               oid4vp: {
                 presentationConfigId:
@@ -630,6 +647,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
               enabled: server.enabled ?? true,
               requireDPoP: server.requireDPoP ?? false,
               walletAttestationRequired: server.walletAttestationRequired ?? 'inherit',
+              walletAttestationStatusCheckMode:
+                server.walletAttestationStatusCheckMode ?? 'inherit',
               walletProviderTrustLists: server.walletProviderTrustLists,
               token: {
                 lifetimeSeconds:
@@ -671,6 +690,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       notificationEndpointEnabled:
         (config as { notificationEndpointEnabled?: boolean }).notificationEndpointEnabled ?? true,
       walletAttestationRequired: config.walletAttestationRequired ?? false,
+      walletAttestationStatusCheckMode: config.walletAttestationStatusCheckMode ?? null,
       txCodeMaxAttempts: config.txCodeMaxAttempts ?? null,
       registrationCertificate: {
         enabled: registrationCertificate?.enabled ?? false,
@@ -790,6 +810,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
                   typeof server.walletAttestationRequired === 'boolean'
                     ? server.walletAttestationRequired
                     : undefined,
+                walletAttestationStatusCheckMode: statusCheckModeOverride(
+                  server.walletAttestationStatusCheckMode
+                ),
                 walletProviderTrustLists,
                 token: {
                   lifetimeSeconds:
@@ -816,6 +839,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
                 typeof server.walletAttestationRequired === 'boolean'
                   ? server.walletAttestationRequired
                   : undefined,
+              walletAttestationStatusCheckMode: statusCheckModeOverride(
+                server.walletAttestationStatusCheckMode
+              ),
               walletProviderTrustLists,
               token: {
                 lifetimeSeconds:
@@ -896,6 +922,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       authorizationServers:
         unifiedAuthorizationServers.length > 0 ? unifiedAuthorizationServers : [],
       walletAttestationRequired: formValue.walletAttestationRequired,
+      walletAttestationStatusCheckMode: formValue.walletAttestationStatusCheckMode ?? null,
       walletProviderTrustLists: this.buildWalletProviderTrustLists(
         formValue.walletProviderTrustLists
       ),

@@ -52,6 +52,22 @@
         "additionalProperties": false
       }
     },
+    "walletAttestationStatusCheckMode": {
+      "description": "Default status check mode for wallet attestations at managed authorization servers: strict, best_effort (default) or disabled.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "strict",
+            "best_effort",
+            "disabled"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "signingKeyId": {
       "description": "Default signing key chain id for credential issuance.",
       "type": "string",
@@ -209,6 +225,15 @@
                   "additionalProperties": false
                 }
               },
+              "walletAttestationStatusCheckMode": {
+                "description": "Status check mode for wallet attestations at this authorization server. Omit to inherit the issuance default.",
+                "type": "string",
+                "enum": [
+                  "strict",
+                  "best_effort",
+                  "disabled"
+                ]
+              },
               "label": {
                 "description": "Optional display label for UI selection.",
                 "type": "string"
@@ -342,6 +367,15 @@
                   "additionalProperties": false
                 }
               },
+              "walletAttestationStatusCheckMode": {
+                "description": "Status check mode for wallet attestations at this authorization server. Omit to inherit the issuance default.",
+                "type": "string",
+                "enum": [
+                  "strict",
+                  "best_effort",
+                  "disabled"
+                ]
+              },
               "label": {
                 "description": "Optional display label for UI selection.",
                 "type": "string"
@@ -440,6 +474,15 @@
                   },
                   "additionalProperties": false
                 }
+              },
+              "walletAttestationStatusCheckMode": {
+                "description": "Status check mode for wallet attestations at this authorization server. Omit to inherit the issuance default.",
+                "type": "string",
+                "enum": [
+                  "strict",
+                  "best_effort",
+                  "disabled"
+                ]
               },
               "label": {
                 "description": "Optional display label for UI selection.",

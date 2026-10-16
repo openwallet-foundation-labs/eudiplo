@@ -33,6 +33,22 @@ describe('IssuanceConfigShowComponent', () => {
       300, 3600, 900,
     ]);
   });
+
+  it('shows the status check mode that applies per authorization server', () => {
+    component.config = {
+      walletAttestationStatusCheckMode: 'strict',
+      authorizationServers: [
+        { type: 'built-in', id: 'issuer-built-in' },
+        { type: 'chained', id: 'chained', walletAttestationStatusCheckMode: 'disabled' },
+        { type: 'external', id: 'ext', issuer: 'https://as.example' },
+      ],
+    } as any;
+    expect(component.authorizationServerRows.map((row) => row.statusCheck)).toEqual([
+      'Issuer default: Strict',
+      'Disabled',
+      '-',
+    ]);
+  });
 });
 
 describe('IssuanceConfigShowComponent loading', () => {

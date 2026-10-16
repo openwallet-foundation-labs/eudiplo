@@ -4724,6 +4724,10 @@ export type Oid4VpAuthorizationServerConfig = {
         verifierKeyPem?: string;
         verifierX509Der?: string;
     }>;
+    /**
+     * Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled';
     label?: string;
     enabled?: boolean;
 };
@@ -4794,6 +4798,10 @@ export type ChainedAuthorizationServerConfig = {
         verifierKeyPem?: string;
         verifierX509Der?: string;
     }>;
+    /**
+     * Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled';
     label?: string;
     enabled?: boolean;
 };
@@ -4836,6 +4844,10 @@ export type BuiltInAuthorizationServerConfig = {
         verifierKeyPem?: string;
         verifierX509Der?: string;
     }>;
+    /**
+     * Status check mode for presented wallet attestations at this authorization server: strict, best_effort or disabled. Omit to inherit the issuance default.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled';
     label?: string;
     enabled?: boolean;
 };
@@ -4946,6 +4958,10 @@ export type IssuanceConfig = {
      */
     walletProviderTrustLists?: Array<WalletProviderTrustListRefDto>;
     /**
+     * Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled' | null;
+    /**
      * Key ID for signing access tokens. If unset, the default signing key is used.
      */
     signingKeyId?: string;
@@ -5024,6 +5040,10 @@ export type UpdateIssuanceDto = {
      * Each entry MUST include `verifierKey`, `verifierKeyPem` or `verifierX509Der`.
      */
     walletProviderTrustLists?: Array<WalletProviderTrustListRefDto>;
+    /**
+     * Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled' | null;
     /**
      * Key ID for signing access tokens. If unset, the default signing key is used.
      */
@@ -6045,6 +6065,10 @@ export type IssuanceConfigWritable = {
      */
     walletProviderTrustLists?: Array<WalletProviderTrustListRefDto>;
     /**
+     * Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled' | null;
+    /**
      * Key ID for signing access tokens. If unset, the default signing key is used.
      */
     signingKeyId?: string;
@@ -6119,6 +6143,10 @@ export type UpdateIssuanceDtoWritable = {
      * Each entry MUST include `verifierKey`, `verifierKeyPem` or `verifierX509Der`.
      */
     walletProviderTrustLists?: Array<WalletProviderTrustListRefDto>;
+    /**
+     * Default status check mode for presented wallet attestations at managed authorization servers. strict rejects when the status list cannot be fetched or read; best_effort (used when unset) accepts when the list cannot be fetched but rejects an unreadable list or an index outside it; disabled skips the status check. A revoked or suspended attestation is rejected unless the check is disabled.
+     */
+    walletAttestationStatusCheckMode?: 'strict' | 'best_effort' | 'disabled' | null;
     /**
      * Key ID for signing access tokens. If unset, the default signing key is used.
      */

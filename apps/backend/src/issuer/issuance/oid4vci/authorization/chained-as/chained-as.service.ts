@@ -200,6 +200,9 @@ export class ChainedAsService {
                 ChainedAsConfig["walletAttestationRequired"]
             >;
             walletProviderTrustLists?: TrustListRef[];
+            walletAttestationStatusCheckMode?: NonNullable<
+                ChainedAsConfig["walletAttestationStatusCheckMode"]
+            >;
         };
 
         const chainedServer = (issuanceConfig.authorizationServers ?? []).find(
@@ -225,6 +228,8 @@ export class ChainedAsService {
                     chainedServer.walletAttestationRequired,
                 walletProviderTrustLists:
                     chainedServer.walletProviderTrustLists,
+                walletAttestationStatusCheckMode:
+                    chainedServer.walletAttestationStatusCheckMode,
             } as ChainedAsConfig;
         }
 
@@ -400,6 +405,7 @@ export class ChainedAsService {
             chainedAsUrl,
             walletAttestationPolicy.walletAttestationRequired,
             walletAttestationPolicy.walletProviderTrustLists,
+            walletAttestationPolicy.walletAttestationStatusCheckMode,
         );
 
         // Find the session for the issuer_state (if provided)
@@ -776,6 +782,7 @@ export class ChainedAsService {
             chainedAsUrl,
             walletAttestationPolicy.walletAttestationRequired,
             walletAttestationPolicy.walletProviderTrustLists,
+            walletAttestationPolicy.walletAttestationStatusCheckMode,
         );
 
         const session = await resolveSessionForTokenRequest(

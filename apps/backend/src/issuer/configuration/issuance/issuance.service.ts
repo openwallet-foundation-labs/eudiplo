@@ -498,6 +498,8 @@ export class IssuanceService {
             dPopRequired: config.dPopRequired,
             walletAttestationRequired: config.walletAttestationRequired,
             walletProviderTrustLists,
+            walletAttestationStatusCheckMode:
+                config.walletAttestationStatusCheckMode,
             signingKeyId: config.signingKeyId,
             authorizationServers,
             federation: config.federation,

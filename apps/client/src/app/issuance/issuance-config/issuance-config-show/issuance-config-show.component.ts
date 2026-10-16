@@ -20,6 +20,7 @@ import { downloadJsonFile } from '../../../common/download-json.util';
 import {
   defaultAccessTokenLifetimeSeconds,
   IssuanceConfigService,
+  statusCheckModeLabel,
 } from '../issuance-config.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
@@ -49,6 +50,7 @@ interface AuthorizationServerRow {
   preferred: boolean;
   enabled: boolean;
   dpop: string;
+  statusCheck: string;
   tokenLifetime: number;
   refresh: string;
   details: string;
@@ -91,6 +93,7 @@ export class IssuanceConfigShowComponent implements OnInit {
     'preferred',
     'enabled',
     'dpop',
+    'statusCheck',
     'token',
     'refresh',
     'details',
@@ -244,6 +247,7 @@ export class IssuanceConfigShowComponent implements OnInit {
             preferred: false,
             enabled: server.enabled !== false,
             dpop: '-',
+            statusCheck: '-',
             tokenLifetime: 0,
             refresh: '-',
             details: server.issuer,
@@ -261,6 +265,9 @@ export class IssuanceConfigShowComponent implements OnInit {
           preferred: false,
           enabled: server.enabled !== false,
           dpop: server.requireDPoP ? 'required' : 'optional',
+          statusCheck: server.walletAttestationStatusCheckMode
+            ? statusCheckModeLabel(server.walletAttestationStatusCheckMode)
+            : `Issuer default: ${statusCheckModeLabel(this.config?.walletAttestationStatusCheckMode)}`,
           tokenLifetime:
             server?.token?.lifetimeSeconds || defaultAccessTokenLifetimeSeconds(server?.type),
           refresh: refreshEnabled ? `${refreshLifetime}s` : 'disabled',
@@ -279,6 +286,8 @@ export class IssuanceConfigShowComponent implements OnInit {
 
     return rows;
   }
+
+  readonly statusCheckModeLabel = statusCheckModeLabel;
 
   copyToClipboard(value: string, label: string): void {
     this.clipboard.copy(value);

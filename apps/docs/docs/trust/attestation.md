@@ -38,16 +38,25 @@ When wallet attestation is used, the wallet sends two headers to the PAR and tok
 - `OAuth-Client-Attestation`: the attestation JWT signed by the wallet provider, with its certificate chain in `x5c` and the wallet instance key in `cnf`,
 - `OAuth-Client-Attestation-PoP`: a proof of possession signed with that instance key.
 
-EUDIPLO verifies both signatures, builds a certificate path from `x5c` to a wallet provider in the trust lists and, if the attestation has a `status` claim, rejects revoked or suspended attestations. The status list must be signed under the provider's revocation certificate (its `WalletSolution/Revocation` service, or else an `EAA/Revocation` service), or under the certificate that signs its attestations if the provider lists neither. It must also be typed `statuslist+jwt`, carry the attestation's status list URI as `sub`, have an `iat`, not be past its `exp` (allowing `CRYPTO_TOLERANCE` seconds of clock skew) and contain the attestation's index ([Token Status List, Section 8.3](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list#section-8.3)); otherwise the attestation is rejected. A list that decompresses to more than 16 MiB is rejected. If the status list cannot be fetched, the error is logged and the attestation is accepted.
+EUDIPLO verifies both signatures, builds a certificate path from `x5c` to a wallet provider in the trust lists and, if the attestation has a `status` claim, checks its entry in the status list. The status list must be signed under the provider's revocation certificate (its `WalletSolution/Revocation` service, or else an `EAA/Revocation` service), or under the certificate that signs its attestations if the provider lists neither. It must also be typed `statuslist+jwt`, carry the attestation's status list URI as `sub`, have an `iat`, not be past its `exp` (allowing `CRYPTO_TOLERANCE` seconds of clock skew) and contain the attestation's index ([Token Status List, Section 8.3](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list#section-8.3)). A list that decompresses to more than 16 MiB is rejected. `walletAttestationStatusCheckMode` decides what happens when the check fails or cannot be completed:
 
-Each EUDIPLO-managed authorization server resolves two settings independently:
+| Mode                    | Revoked or suspended | Status list cannot be fetched (network error, timeout, non-2xx, blocked URL) | Status list unreadable, not the named list, expired, index outside the list |
+| ----------------------- | -------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------- |
+| `strict`                | Rejected             | Rejected                                                                     | Rejected                                       |
+| `best_effort` (default) | Rejected             | Accepted, with a warning in the log                                          | Rejected                                       |
+| `disabled`              | Accepted             | Accepted, the list is not fetched                                            | Accepted                                       |
 
-| Setting                     | Value used                                                                           |
-| --------------------------- | ------------------------------------------------------------------------------------ |
-| `walletAttestationRequired` | The authorization server's value, else the issuance configuration's, else `false`    |
-| `walletProviderTrustLists`  | The authorization server's list, else the issuance configuration's, else none        |
+A status list signed by another key is rejected unless the mode is `disabled`. An attestation without a `status` claim is accepted in every mode.
 
-With `true`, requests without attestation are rejected; with `false`, a wallet may omit it, but an attestation it sends must still be valid and trusted. An empty list on the authorization server disables inheritance and rejects every presented attestation. The authorization server metadata advertises `attest_jwt_client_auth` only when attestation is required. In the Web Client, the authorization server settings offer **Use issuer default** and **Use shared wallet provider trust lists**. An external authorization server checks wallets according to its own configuration.
+Each EUDIPLO-managed authorization server resolves three settings independently:
+
+| Setting                            | Value used                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------ |
+| `walletAttestationRequired`        | The authorization server's value, else the issuance configuration's, else `false`    |
+| `walletProviderTrustLists`         | The authorization server's list, else the issuance configuration's, else none        |
+| `walletAttestationStatusCheckMode` | The authorization server's value, else the issuance configuration's, else `best_effort` |
+
+With `true`, requests without attestation are rejected; with `false`, a wallet may omit it, but an attestation it sends must still be valid and trusted. An empty list on the authorization server disables inheritance and rejects every presented attestation. The authorization server metadata advertises `attest_jwt_client_auth` only when attestation is required. In the Web Client, the authorization server settings offer **Use issuer default** (for **Wallet Attestation** and **Wallet Attestation Status Check**) and **Use shared wallet provider trust lists**. An external authorization server checks wallets according to its own configuration.
 
 ## 3. Require key attestation
 
@@ -90,5 +99,8 @@ Every presented key attestation must be signed by a wallet provider in the issua
 | `The credential configuration requires a key attestation ...`  | The wallet sent a `jwt` proof without `key_attestation`. Use a wallet that sends key attestations, or remove `keyAttestationsRequired`. |
 | `The key attestation does not state an accepted key_storage value ...` (or `user_authentication`) | The attested level is not in the configured list. Add the level your wallets attest, if it meets your requirements. |
 | `The proof contains a key that is not listed in attested_keys ...` | The `jwt` proof is signed with a key the attestation does not cover.                                          |
+| `Wallet attestation status check failed` | The status list could not be fetched (`strict` only), is not a status list JWT, or its signature could not be checked. The server log names the list and the reason. Check that the wallet provider serves the list at the `status.status_list.uri` of the attestation. To accept attestations while the list is unreachable, set `walletAttestationStatusCheckMode: "best_effort"`. |
+| `Wallet attestation is not valid: ...` | The wallet provider has revoked or suspended this wallet instance. |
 | `Status list JWT signature verification failed ...` or `Wallet attestation status list rejected: ...` | The attestation's status list has no `x5c` header or is signed under another certificate than the provider's revocation or attestation certificate, or it is not the list the attestation names (`sub`), has expired, is not typed `statuslist+jwt` or does not contain the index. Add the provider's status list signing certificate to the trust list as a `WalletSolution/Revocation` service, or ask the provider to fix the list. |
+| `Client attestation validation failed` | Answer of the built-in authorization server's PAR endpoint for every rejected wallet attestation. The server log has the reason, for example one of the messages above. |
 | `Wallet attestation verification failed: ...` or `Attestation proof x5c chain could not be validated` | Often a trust list problem: the list cannot be fetched or its signature does not match `verifierX509Der`, `verifierKey` or `verifierKeyPem`. Check the server log for the reason. |
