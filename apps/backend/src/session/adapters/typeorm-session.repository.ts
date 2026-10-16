@@ -17,6 +17,7 @@ import type {
     ExternalSessionBinding,
     NewSession,
     SessionData,
+    SessionResultUpdate,
     SessionUpdate,
 } from "../domain/session-data.js";
 import type {
@@ -581,12 +582,12 @@ export class TypeOrmSessionRepository implements SessionRepository {
         tenantId: string,
         sessionId: string,
         from: readonly SessionStatus[],
-        update: SessionStateUpdate,
+        update: SessionStateUpdate & SessionResultUpdate,
     ): Promise<boolean> {
         if (from.length === 0) return false;
         const result = await this.sessions.update(
             { id: sessionId, tenantId, status: In([...from]) },
-            update,
+            update as QueryDeepPartialEntity<Session>,
         );
         return (result.affected ?? 0) > 0;
     }

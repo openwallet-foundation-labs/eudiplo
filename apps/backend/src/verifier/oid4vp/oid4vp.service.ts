@@ -651,6 +651,8 @@ export class Oid4vpService {
             requestId: session.requestId,
             message: reason,
             code: walletError.error,
+            source: "wallet",
+            description: walletError.error_description,
             publish: webhook ? { webhook, session } : undefined,
         });
         if (!failure.failed) {
@@ -935,6 +937,7 @@ export class Oid4vpService {
                 requestId: session.requestId,
                 message: errorMessage,
                 code,
+                source: "verifier",
                 credentials: structured ? [structured.credential] : undefined,
                 publish: webhook ? { webhook, session } : undefined,
             });

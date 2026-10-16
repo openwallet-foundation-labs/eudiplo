@@ -51,6 +51,7 @@ describe("FailPresentationResponse", () => {
                     requestId: "presentation",
                     message: "failed",
                     code,
+                    source: "verifier",
                 }),
             ).resolves.toEqual({ failed: true, publicationFailed: false });
             expect(f.announce).toHaveBeenCalledExactlyOnceWith(
@@ -71,6 +72,7 @@ describe("FailPresentationResponse", () => {
                     ...(code ? { failureCode: code } : {}),
                     outcome: {
                         result: "failed",
+                        source: "verifier",
                         message: "failed",
                         ...(code ? { error: code } : {}),
                     },
@@ -87,6 +89,7 @@ describe("FailPresentationResponse", () => {
                 tenantId: "tenant",
                 sessionId: "gone",
                 message: "failed",
+                source: "verifier",
                 publish: { webhook, session },
             }),
         ).resolves.toEqual({ failed: false, publicationFailed: false });
@@ -110,12 +113,14 @@ describe("FailPresentationResponse", () => {
             sessionId: "session",
             message: "The credential issuer is not in the trusted list.",
             code: "trust_chain_not_trusted",
+            source: "verifier",
             credentials: [credential],
             publish: { webhook, session },
         });
 
         const outcome = {
             result: "failed",
+            source: "verifier",
             error: "trust_chain_not_trusted",
             message: "The credential issuer is not in the trusted list.",
             credentials: [credential],
@@ -146,6 +151,7 @@ describe("FailPresentationResponse", () => {
                 sessionId: "session",
                 message: "Wallet error: access_denied",
                 code: "access_denied",
+                source: "wallet",
                 publish: { webhook, session },
             }),
         ).resolves.toEqual({ failed: false, publicationFailed: false });

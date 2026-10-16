@@ -20,10 +20,10 @@ A session is EUDIPLO's record of one issuance or presentation flow. It ties the 
 
 The flow diagrams are on [Issuance under the hood](issuance.md#session-states) and [Presentation under the hood](presentation.md#session-states).
 
-- **Terminal states are final.** `completed`, `failed`, `expired` and `cancelled` never change again. Redeeming the offer of a finished session, or answering its presentation request, is rejected and does not overwrite the result.
+- **Terminal states are final.** `completed`, `failed`, `expired` and `cancelled` never change again. Redeeming the offer of a finished session, or answering its presentation request, is rejected and does not overwrite the result. This includes [OpenID4VCI notifications](../reference/session-outcome.md#issuance-notifications): the first event finishes the issuance session, later events are only recorded and forwarded.
 - **Expiry is checked when the wallet arrives.** A presentation request expires after the configuration's `lifeTime` (default 300 seconds). An offer expires after `offerLifetimeSeconds` of the offer or the issuance configuration, and never if neither is set. The wallet-facing endpoints that redeem an offer (offer retrieval, PAR, authorization, token) or serve and answer a presentation request compare `expiresAt` with the current time, so an overdue session is rejected immediately (`invalid_grant` at the token endpoint, HTTP 400 or 404 elsewhere). The maintenance job only records the `expired` status afterwards.
 - **Redeemed offers do not expire.** Once the token exchange succeeded, the wallet can keep requesting credentials with its tokens; `expiresAt` only limits redemption.
-- **Results are structured.** A failed presentation stores a machine-readable failure code and an `outcome` with per-credential details ([Session outcome](../reference/session-outcome.md)).
+- **Results are structured.** A finished presentation stores an `outcome` with per-credential details, and a classified failure also a machine-readable failure code. An issuance session gets both from the wallet's [notification](../reference/session-outcome.md#issuance-notifications) ([Session outcome](../reference/session-outcome.md)).
 - **Changes are observable.** Each status change is published on the event stream `GET /api/session/{id}/events`, which starts with the current status and ends after a terminal one, and in the `sessions` metric ([Receive results](../presentation/receive-results.md), [Monitoring](../operate/monitoring.md)).
 
 ## Single use
@@ -75,7 +75,7 @@ The body is optional.
 - A wallet can no longer use the offer or request to start a flow: offer retrieval, PAR, authorization and the token endpoint, as well as fetching or answering the presentation request, are rejected like for a finished session.
 - Once a wallet exchanged the offer for tokens, the offer is redeemed and can no longer be cancelled (`409`); the wallet finishes its flow. Credentials that were already issued stay valid; revoke them with `POST /api/session/revoke` or on the session page of the web client ([Revocation](../issuance/revocation.md)).
 - A session that is already `completed`, `failed`, `expired` or `cancelled` answers `409` and does not change. Cancellation, the token exchange and the presentation response use the same conditional update, so when they race exactly one wins.
-- The optional `reason` (up to 500 characters) and the client that cancelled the session are recorded in the tenant [audit log](../operate/logging.md#audit-log), and in the session log when session logging is enabled. The status change is published on the event stream, and the session's webhook receives a [cancellation webhook](../reference/webhooks.md#cancellation-webhook).
+- The optional `reason` (up to 500 characters) is stored as `cancelReason` on the session, shown on the session page of the Web Client, and recorded with the client that cancelled the session in the tenant [audit log](../operate/logging.md#audit-log), and in the session log when session logging is enabled. Sessions cancelled before 10.0 have no `cancelReason`. Like `reference`, it is stored in plaintext and stays when sessions are anonymized: never put personal data into it. The status change is published on the event stream, and the session's webhook receives a [cancellation webhook](../reference/webhooks.md#cancellation-webhook).
 
 The web client offers the same action on the session page and as a bulk action in the session list.
 
@@ -130,7 +130,7 @@ Once a wallet request has resolved its session (by offer ID, `walletNonce`, `iss
 `GET /api/session/stats` counts the tenant's sessions over all pages, with the same role scope as the list. `createdFrom` and `createdTo` limit it to sessions created in a time range, with the same format and checks as in the list. The response has one entry per session type the client may read, `issuance` and `presentation`, each with:
 
 - `total` and a count for every state in `byStatus` (`0` when there is none),
-- `failureCodes`, the [failure codes](../reference/session-outcome.md#failure-codes) of the failed sessions, most frequent first, at most 10 and cut to 255 characters; failed sessions without a code are not listed, and only presentations record codes, so `issuance` lists none,
+- `failureCodes`, the [failure codes](../reference/session-outcome.md#failure-codes) of the failed sessions, most frequent first, at most 10 and cut to 255 characters; failed sessions without a code are not listed; issuance sessions record `credential_failure` and `credential_deleted` from [wallet notifications](../reference/session-outcome.md#issuance-notifications),
 - `lastCompletedAt`, the last update of the most recently updated completed session (`null` when none completed).
 
 Only stored sessions count: in the default `full` [cleanup](#session-cleanup) mode, sessions older than the TTL are deleted and drop out. `retention` reports the tenant's effective `ttlSeconds` and `cleanupMode`, so a client can tell how far back the counts reach.
@@ -159,6 +159,6 @@ Sessions contain personal data: claims, offers, authorization requests and prese
 
 - A maintenance job runs every `SESSION_TIDY_UP_INTERVAL` seconds (default one hour). It marks overdue sessions as `expired`, then processes every session older than the tenant's TTL, counted from creation (default `SESSION_TTL`, 24 hours).
 - In `full` mode (default) the session is deleted.
-- In `anonymize` mode the session keeps its status, timestamps and protocol metadata, but `credentials`, `credentialPayload`, `auth_queries`, `offer`, `requestObject` and `responseEncryptionPrivateJwk` are cleared. The plaintext `reference` and `credentialConfigurationIds` are kept.
+- In `anonymize` mode the session keeps its status, timestamps and protocol metadata, but `credentials`, `credentialPayload`, `auth_queries`, `offer`, `requestObject` and `responseEncryptionPrivateJwk` are cleared. The plaintext `reference`, `cancelReason` and `credentialConfigurationIds` are kept.
 
 The TTL also limits how long a pre-authorized code is valid. The global defaults are `SESSION_TTL` and `SESSION_CLEANUP_MODE` ([environment variables](../reference/environment-variables.md#session)); a tenant can override both through `/api/session-config`. Session log entries are stored separately and controlled by `LOG_SESSION_STORE` ([Logging](../operate/logging.md)).

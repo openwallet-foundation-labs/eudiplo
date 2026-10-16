@@ -122,4 +122,29 @@ describe("ChangeSessionState", () => {
         );
         expect(events.publishStatusChanged).not.toHaveBeenCalled();
     });
+
+    it("writes the result in the same compare-and-set as the status", async () => {
+        const { repository, useCase } = setup();
+        const result = {
+            outcome: { result: "success" as const, source: "wallet" as const },
+            failureCode: null,
+            errorReason: null,
+        };
+        await useCase.executeFrom(
+            session,
+            [SessionStatus.Fetched],
+            SessionStatus.Completed,
+            result,
+        );
+        expect(repository.changeStateFrom).toHaveBeenCalledExactlyOnceWith(
+            "tenant",
+            "id",
+            [SessionStatus.Fetched],
+            {
+                status: SessionStatus.Completed,
+                responseEncryptionPrivateJwk: null,
+                ...result,
+            },
+        );
+    });
 });

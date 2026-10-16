@@ -50,6 +50,7 @@ describe("CancelSession", () => {
             {
                 status: SessionStatus.Cancelled,
                 responseEncryptionPrivateJwk: null,
+                cancelReason: "sent to wrong recipient",
             },
         );
         expect(state.announce).toHaveBeenCalledWith(
@@ -68,6 +69,18 @@ describe("CancelSession", () => {
                 actor,
                 requestMeta: { requestId: "request-1" },
             },
+        );
+    });
+
+    it("clears the stored reason when the operator gave none", async () => {
+        const { useCase, sessions } = setup();
+
+        await useCase.execute({ ...command, reason: undefined });
+
+        expect(sessions.updateIfUnconsumed).toHaveBeenCalledWith(
+            "tenant-1",
+            "session-1",
+            expect.objectContaining({ cancelReason: null }),
         );
     });
 

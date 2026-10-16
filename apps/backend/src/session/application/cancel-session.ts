@@ -58,7 +58,7 @@ export interface CancelSessionCommand {
     sessionId: string;
     /** The only session type the caller may change, see `sessionChangeScope`. */
     scope?: SessionType;
-    /** Why the offer was cancelled, stored in the logs and sent to the webhook. */
+    /** Why the offer was cancelled, stored on the session and in the logs and sent to the webhook. */
     reason?: string;
     /** The client or user that cancelled the session. */
     actor: CancellationActor;
@@ -110,7 +110,10 @@ export class CancelSession {
         const cancelled = await this.sessions.updateIfUnconsumed(
             session.tenantId,
             session.id,
-            stateUpdate(SessionStatus.Cancelled),
+            {
+                ...stateUpdate(SessionStatus.Cancelled),
+                cancelReason: command.reason ?? null,
+            },
         );
         if (!cancelled) {
             const current = await this.sessions.getForTenant(

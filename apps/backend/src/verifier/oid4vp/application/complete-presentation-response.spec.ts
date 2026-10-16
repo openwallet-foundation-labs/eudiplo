@@ -41,6 +41,7 @@ describe("CompletePresentationResponse", () => {
             responseEncryptionPrivateJwk: null,
             outcome: {
                 result: "success",
+                source: "verifier",
                 credentials: [
                     { id: "credential-1", verified: true },
                     { id: undefined, verified: true },

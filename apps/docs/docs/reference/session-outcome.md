@@ -11,10 +11,10 @@ Statuses, result fields and failure codes of EUDIPLO sessions, as returned by `G
 | `active`    | Request created; the wallet has not fetched it yet.                                                            | Offer created.                                                                                    |
 | `fetched`   | The wallet fetched the request object. ISO 18013-7 and Digital Credentials API sessions skip this status.      | The first credential of the session was issued.                                                   |
 | `completed` | The presentation was verified.                                                                                 | The wallet reported `credential_accepted` ([Notifications](../issuance/notifications.md)).        |
-| `failed`    | Verification failed, or the wallet sent an error response (for example the user declined).                    | The wallet reported `credential_failure` or `credential_deleted`.                                 |
+| `failed`    | Verification failed, or the wallet sent an error response (for example the user declined).                    | The wallet reported `credential_failure` or `credential_deleted`; see [Issuance notifications](#issuance-notifications). |
 | `expired`   | `expiresAt` passed before the session finished.                                                                | The offer expired before it was redeemed ([Credential Offers](../issuance/credential-offers.md)). |
 
-Sessions only move forward: `active` → `fetched` → `completed`, `failed` or `expired`. The last three are terminal; a later wallet request is rejected with `400`, and a late response never overwrites the final status.
+Sessions only move forward: `active` → `fetched` → `completed`, `failed` or `expired`. The last three are terminal; a later offer redemption or presentation request is rejected with `400`, and a late presentation response never overwrites the final status. A late [issuance notification](#issuance-notifications) is accepted and recorded but leaves status and result alone.
 
 Expiry is enforced when a wallet uses the session: a presentation request or response after `expiresAt` gets `400` ("The session has expired"). The status itself changes to `expired` when the session maintenance job runs, every `SESSION_TIDY_UP_INTERVAL` seconds (default 3600). Until then an overdue session still shows `active` or `fetched`.
 
@@ -24,9 +24,10 @@ Expiry is enforced when a wallet uses the session: a presentation request or res
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `status`           | See above.                                                                                                                                                                                  |
 | `credentials`      | Only when `completed`. OpenID4VP: `[{ "id": "<query id>", "values": [ { <claims> } ] }]`, one `values` entry per presented credential. ISO 18013-7: `[{ "id", "format": "mso_mdoc", "docType", "claims" }]`. |
-| `outcome`          | Structured result, see below. Set on `completed` and `failed`.                                                                                                                              |
-| `failureCode`      | Stable code of a classified failure, see [failure codes](#failure-codes). Absent for other failures.                                                                                        |
+| `outcome`          | Structured result, see below. Set on `completed` and `failed`, for issuance once the wallet sent a notification.                                                                                                                              |
+| `failureCode`      | Stable code of a classified failure, see [failure codes](#failure-codes). Absent or `null` otherwise.                                                                                        |
 | `errorReason`      | Short, display-safe description of the failure.                                                                                                                                             |
+| `cancelReason`     | The `reason` given when the session was [cancelled](../concepts/sessions.md#cancelling-an-offer); `null` when none was given or the session was cancelled before 10.0.                                                                |
 | `responseCode`     | One-time code of a completed OpenID4VP or ISO 18013-7 presentation; compare it with the `response_code` of a [same-device redirect](../presentation/receive-results.md#same-device-redirect). Left out for callers that read the session only through `sessions:read`. |
 | `consumedAt`       | When the presentation completed.                                                                                                                                                            |
 | `expiresAt`        | When the request expires (presentation configuration `lifeTime`, default 300 seconds).                                                                                                      |
@@ -37,6 +38,7 @@ Expiry is enforced when a wallet uses the session: a presentation request or res
 ```json
 {
     "result": "failed",
+    "source": "verifier",
     "error": "trust_chain_not_trusted",
     "message": "The credential issuer is not in the trusted list.",
     "credentials": [
@@ -55,11 +57,14 @@ Expiry is enforced when a wallet uses the session: a presentation request or res
 | Field                      | Content                                                                                                                                                            |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `result`                   | `success` or `failed`.                                                                                                                                             |
+| `source`                   | Who decided the result: `wallet` for a wallet error response or an OpenID4VCI notification, `verifier` when EUDIPLO verified the presentation.                      |
 | `error`                    | Failure code; same value as `failureCode`. Only for classified failures.                                                                                           |
 | `message`                  | Short, display-safe message; same value as `errorReason`.                                                                                                          |
+| `description`              | The wallet's own text: `error_description` of a wallet error response, or `event_description` of a `credential_failure` or `credential_deleted` notification. Wallet-controlled; show it as plain text only.    |
 | `credentials[]`            | Per credential query. On success every presented query with `"verified": true`; on a classified verification failure the credential that failed, with its `error` and `message`. |
 | `credentials[].format`, `docType` | Credential format and, for mDOC, the docType, when known.                                                                                                    |
 | `credentials[].trust`      | ISO 18013-7 success only: the matched trust list entry (`matchedIssuer`, `issuanceThumbprint`, `matchMode`, `revocationThumbprint`).                               |
+| `credentials[].warnings[]` | Reserved for non-fatal conditions (`code`, `message`) observed while verifying the credential; currently never set.                                                |
 
 Branch on `error`; treat `message` as display text. Detailed diagnostics, such as certificate subjects or trust list URLs, are never part of the outcome; they go to the server log and the [session log](#session-logs).
 
@@ -89,7 +94,19 @@ The message names the credential query and the claim paths, never the disclosed 
 
 ### Wallet error responses
 
-When the wallet answers with an OAuth error instead of a presentation, for example because the user declined, EUDIPLO records the wallet's code as `failureCode` (`access_denied`, `invalid_request`, `vp_formats_not_supported`, `wallet_unavailable`, ...). `errorReason` and `outcome.message` read `Wallet error: <error>: <error_description>`. The wallet gets HTTP `200`, as OpenID4VP 1.0 §8.2 requires, with a `redirect_uri` carrying `error` and `error_description` if a redirect is configured. EUDIPLO accepts the error both as form parameters and inside an encrypted `direct_post.jwt` response.
+When the wallet answers with an OAuth error instead of a presentation, for example because the user declined, EUDIPLO records the wallet's code as `failureCode` (`access_denied`, `invalid_request`, `vp_formats_not_supported`, `wallet_unavailable`, ...). `errorReason` and `outcome.message` read `Wallet error: <error>: <error_description>`; `outcome.source` is `wallet` and `outcome.description` holds the wallet's `error_description` on its own. The wallet gets HTTP `200`, as OpenID4VP 1.0 §8.2 requires, with a `redirect_uri` carrying `error` and `error_description` if a redirect is configured. EUDIPLO accepts the error both as form parameters and inside an encrypted `direct_post.jwt` response.
+
+### Issuance notifications
+
+When a wallet sends an [OpenID4VCI notification](../issuance/notifications.md), EUDIPLO records its result on the issuance session, with `outcome.source` set to `wallet`; for `credential_failure` and `credential_deleted`, the notification's `event_description` becomes `outcome.description`:
+
+| Event                 | Status      | `failureCode` | `errorReason` and `outcome.message`         |
+| --------------------- | ----------- | ------------- | ------------------------------------------- |
+| `credential_accepted` | `completed` | none          | none                                        |
+| `credential_deleted`  | `failed`    | `credential_deleted` | `The wallet user rejected the credential` |
+| `credential_failure`  | `failed`    | `credential_failure` | `The wallet could not store the credential` |
+
+Only the first event finishes the session: it moves a `fetched` session to `completed` or `failed` and writes the fields above. A wallet that received several credentials in one session can notify for each, and may notify again; those later events are stored on their entry in `notifications` and sent to the webhook, but status, `outcome`, `failureCode` and `errorReason` keep the first event's result. Before 10.0 the latest event decided.
 
 ### Other failures
 

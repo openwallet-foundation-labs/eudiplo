@@ -480,11 +480,14 @@ export class Iso18013Service {
         } catch (err: any) {
             const reason = `HPKE decryption failed: ${err?.message ?? err}`;
             this.logger.warn({ sessionId }, reason);
+            // The exception text stays in the log, out of the stored session.
+            const message = "HPKE decryption failed";
             await this.failSession(session, {
-                errorReason: reason,
+                errorReason: message,
                 outcome: {
                     result: "failed",
-                    message: "HPKE decryption failed",
+                    source: "verifier",
+                    message,
                 },
             });
             this.auditLogService.logFlowError(logContext, err as Error, {
@@ -576,6 +579,7 @@ export class Iso18013Service {
                 failureCode: errorCode,
                 outcome: {
                     result: "failed",
+                    source: "verifier",
                     error: errorCode,
                     message: shortMessage,
                     credentials: [
@@ -613,6 +617,7 @@ export class Iso18013Service {
         const responseCode = randomUUID();
         const outcome: SessionOutcome = {
             result: "success",
+            source: "verifier",
             credentials: [
                 {
                     id: mdocCred.id,

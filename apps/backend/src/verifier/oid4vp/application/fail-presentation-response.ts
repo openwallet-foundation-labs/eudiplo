@@ -4,6 +4,7 @@ import type { SessionData } from "../../../session/domain/session-data.js";
 import type {
     SessionOutcome,
     SessionOutcomeCredential,
+    SessionOutcomeSource,
 } from "../../../session/domain/session-outcome.js";
 import { SessionStatus } from "../../../session/domain/session-state.js";
 import type { WebhookConfiguration } from "../../../webhook/domain/webhook-configuration.js";
@@ -16,6 +17,10 @@ export interface FailPresentationResponseInput {
     requestId?: string | null;
     message: string;
     code?: string;
+    /** Who decided the failure. */
+    source: SessionOutcomeSource;
+    /** The wallet's own text, for wallet errors. */
+    description?: string;
     /** Per-credential failure details for the outcome. */
     credentials?: SessionOutcomeCredential[];
     /** Reports the failure to this webhook (best effort, never with credentials). */
@@ -44,8 +49,10 @@ export class FailPresentationResponse {
     ): Promise<FailPresentationResult> {
         const outcome: SessionOutcome = {
             result: "failed",
+            source: input.source,
             ...(input.code ? { error: input.code } : {}),
             message: input.message,
+            ...(input.description ? { description: input.description } : {}),
             ...(input.credentials?.length
                 ? { credentials: input.credentials }
                 : {}),

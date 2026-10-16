@@ -124,9 +124,10 @@ export interface SessionData {
     externalIssuer?: string;
     authorizationServerId?: string;
     externalSubject?: string;
-    errorReason?: string;
-    failureCode?: string;
+    errorReason?: string | null;
+    failureCode?: string | null;
     outcome?: SessionOutcome | null;
+    cancelReason?: string | null;
     txCodeFailedAttempts: number;
     consumed: boolean;
     consumedAt?: Date;
@@ -136,6 +137,12 @@ export type NewSession = Pick<SessionData, "id" | "tenantId"> &
     Partial<Omit<SessionData, "id" | "tenantId" | "tenant">>;
 export type SessionUpdate = Partial<
     Omit<SessionData, "id" | "tenantId" | "tenant" | "createdAt" | "updatedAt">
+>;
+
+/** The session's result, written together with the status that decided it. */
+export type SessionResultUpdate = Pick<
+    SessionUpdate,
+    "outcome" | "failureCode" | "errorReason"
 >;
 
 export interface ExternalSessionBinding {

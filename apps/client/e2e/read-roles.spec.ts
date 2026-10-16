@@ -129,13 +129,15 @@ test.describe('read and status roles', () => {
     await expect(page.getByRole('button', { name: 'Presentation Request' })).toHaveCount(0);
 
     await page.goto(`/session-management/${sessionId}`);
-    await expect(
-      page.getByRole('heading', { name: `Session Details: ${sessionId}` })
-    ).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Cancel Offer' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Presentation Session' })).toBeVisible();
+    await expect(page.getByText(sessionId)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Session cancelled' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Cancel (Offer|Request)$/ })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Recreate Request' })).toHaveCount(0);
-    // The backend leaves the request URI out for read-only callers.
-    await expect(page.getByText('Presentation Request QR Code')).toHaveCount(0);
+
+    // Pending requests stay hidden from read-only callers, so the page returns to the list.
+    await page.goto(`/session-management/${openSessionId}`);
+    await expect(page).toHaveURL(/\/session-management$/);
   });
 
   test('audit:read opens the activity log and nothing else of the administration', async ({

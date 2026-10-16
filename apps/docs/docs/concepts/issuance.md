@@ -134,4 +134,4 @@ stateDiagram-v2
     expired --> [*]
 ```
 
-Authorization and token exchange do not change the status. An offer without `offerLifetimeSeconds` (on the offer or in the issuance configuration) has no `expiresAt`. Once redeemed, a session no longer expires, so a wallet holding tokens can keep requesting credentials. The notification endpoint sets the final status; if the wallet never calls it, the session stays `fetched` until retention cleanup. Rules shared with presentations are on [Sessions](sessions.md).
+Authorization and token exchange do not change the status. An offer without `offerLifetimeSeconds` (on the offer or in the issuance configuration) has no `expiresAt`. Once redeemed, a session no longer expires, so a wallet holding tokens can keep requesting credentials. The first notification of the session sets the final status; later notifications, for another credential or a repeated one, are recorded and forwarded but do not change it. If the wallet never calls it, the session stays `fetched` until retention cleanup. Rules shared with presentations are on [Sessions](sessions.md).

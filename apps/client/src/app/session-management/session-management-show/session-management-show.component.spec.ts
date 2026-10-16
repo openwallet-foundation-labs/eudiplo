@@ -111,6 +111,245 @@ describe('SessionManagementShowComponent', () => {
     expect(card.componentInstance.canChange).toBe(allowed);
   });
 
+  it('shows why a presentation failed, with its failure code, instead of the request link', () => {
+    roles = ['presentation:request'];
+    component.session = {
+      ...presentation,
+      status: 'failed',
+      requestUrl: 'openid4vp://?request_uri=x',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      errorReason: 'Wallet error: invalid_request: MissingRequiredRegistrationCertificate',
+      failureCode: 'invalid_request',
+      outcome: {
+        result: 'failed',
+        source: 'wallet',
+        error: 'invalid_request',
+        message: 'Wallet error: invalid_request: MissingRequiredRegistrationCertificate',
+        description: 'MissingRequiredRegistrationCertificate',
+      },
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('.result-card');
+    expect(card.classList).toContain('result-error');
+    expect(card.querySelector('.result-title')?.textContent).toContain(
+      'The wallet rejected the request'
+    );
+    expect(card.querySelector('.result-message')?.textContent?.trim()).toBe(
+      'The wallet says: MissingRequiredRegistrationCertificate'
+    );
+    expect(card.querySelector('.result-hint')).not.toBeNull();
+    expect(card.querySelector('.result-code code')?.textContent).toBe('invalid_request');
+    expect(fixture.nativeElement.querySelector('.qr-card')).toBeNull();
+  });
+
+  it('shows the reason the operator gave for a cancelled request', () => {
+    component.session = {
+      ...presentation,
+      status: 'cancelled',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      cancelReason: 'Sent to the wrong person',
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('.result-card');
+    const messages = [...card.querySelectorAll('.result-message')].map((item) =>
+      item.textContent?.trim()
+    );
+    expect(messages).toEqual([
+      'It was cancelled before a wallet answered the request.',
+      'Reason: Sent to the wrong person',
+    ]);
+  });
+
+  it('lists the result of each credential and links to sessions with the same failure', () => {
+    component.session = {
+      ...presentation,
+      status: 'failed',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      failureCode: 'signature_invalid',
+      outcome: {
+        result: 'failed',
+        error: 'signature_invalid',
+        message: 'A credential could not be verified',
+        credentials: [
+          { id: 'pid', format: 'dc+sd-jwt', verified: true, trust: { matchedIssuer: 'PID CA' } },
+          { id: 'mdl', verified: false, error: 'signature_invalid', message: 'Bad signature' },
+        ],
+      },
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const rows: HTMLElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.result-credential')
+    );
+    expect(rows.map((row) => row.classList.contains('verified'))).toEqual([true, false]);
+    expect(rows[1].textContent).toContain('Bad signature');
+    expect(rows[1].textContent).toContain('signature_invalid');
+    const link: HTMLAnchorElement = fixture.nativeElement.querySelector('.result-code-link');
+    expect(link.getAttribute('href')).toContain('status=failed&failureCode=signature_invalid');
+  });
+
+  it.each([
+    ['active', true],
+    ['failed', false],
+  ])('shows the role hint for a %s session without the offer role: %s', (status, shown) => {
+    roles = ['sessions:read'];
+    component.session = {
+      ...presentation,
+      status,
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    expect(!!fixture.nativeElement.querySelector('.role-hint')).toBe(shown);
+  });
+
+  it('shows the QR code of a pending request to its side, and nothing of a result', async () => {
+    roles = ['presentation:request'];
+    component.session = {
+      ...presentation,
+      requestUrl: 'openid4vp://?request_uri=x',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+    } as unknown as Session;
+    await component.generateQRCode('openid4vp://?request_uri=x');
+    fixture.detectChanges();
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('.qr-card');
+    expect(card.querySelector('img.qr-image')).not.toBeNull();
+    expect(card.textContent).toContain('openid4vp://?request_uri=x');
+    expect(fixture.nativeElement.querySelector('.result-card')).toBeNull();
+  });
+
+  it('shows the claims of a completed presentation with the trusted issuer', () => {
+    roles = ['sessions:read'];
+    component.session = {
+      ...presentation,
+      status: 'completed',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      credentials: [
+        {
+          id: 'membership',
+          values: [{ vct: 'urn:example:membership', name: 'Max', cnf: { jwk: {} } }],
+        },
+      ],
+      outcome: {
+        result: 'success',
+        source: 'verifier',
+        credentials: [{ id: 'membership', verified: true, trust: { matchedIssuer: 'Club CA' } }],
+      },
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('.presented-card');
+    expect(card.querySelector('.presented-title')?.textContent).toContain('urn:example:membership');
+    expect(card.querySelector('.presented-meta')?.textContent).toContain('Trusted issuer: Club CA');
+    const rows = Array.from(card.querySelectorAll('tbody tr')).map((row) =>
+      Array.from(row.children).map((cell) => cell.textContent?.trim())
+    );
+    expect(rows).toEqual([['name', 'Max']]);
+    // A verified presentation lists no per-credential failures.
+    expect(fixture.nativeElement.querySelector('.result-credentials')).toBeNull();
+  });
+
+  it('labels an OpenID4VP mdoc with the docType from the outcome', () => {
+    component.session = {
+      ...presentation,
+      status: 'completed',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      credentials: [{ id: 'mdl', values: [{ 'org.iso.18013.5.1': { age_over_18: true } }] }],
+      outcome: {
+        result: 'success',
+        source: 'verifier',
+        credentials: [{ id: 'mdl', verified: true, docType: 'org.iso.18013.5.1.mDL' }],
+      },
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.presented-type')?.textContent).toContain(
+      'org.iso.18013.5.1.mDL'
+    );
+  });
+
+  it('shows the warnings of a verified presentation', () => {
+    component.session = {
+      ...presentation,
+      status: 'completed',
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+      outcome: {
+        result: 'success',
+        source: 'verifier',
+        credentials: [
+          {
+            id: 'pid',
+            format: 'dc+sd-jwt',
+            verified: true,
+            warnings: [{ code: 'status_stale', message: 'Stale status list' }],
+          },
+        ],
+      },
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const row: HTMLElement = fixture.nativeElement.querySelector('.result-credential');
+    expect(row.textContent).toContain('dc+sd-jwt');
+    expect(row.querySelector('.result-warning')?.textContent).toContain('Stale status list');
+  });
+
+  it.each([[['issuance:offer']], [['sessions:read']]])(
+    'tells %j that a fetched issuance was issued and waits for the confirmation',
+    (granted) => {
+      roles = granted;
+      component.session = {
+        ...issuance,
+        status: 'fetched',
+        createdAt: '2026-10-16T07:04:22.000Z',
+        updatedAt: '2026-10-16T07:04:29.000Z',
+        notifications: [],
+      } as unknown as Session;
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.waiting-card').textContent).toContain(
+        'The credentials were issued. Waiting for the wallet to confirm them.'
+      );
+      expect(fixture.nativeElement.querySelector('.qr-card')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.role-hint')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.result-card')).toBeNull();
+    }
+  );
+
+  it('lists each credential configuration of an issuance with its own copy button', () => {
+    component.session = {
+      ...issuance,
+      credentialPayload: { credentialConfigurationIds: ['pid', 'mdl'] },
+      createdAt: '2026-10-16T07:04:22.000Z',
+      updatedAt: '2026-10-16T07:04:29.000Z',
+      notifications: [],
+    } as unknown as Session;
+    fixture.detectChanges();
+
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('[aria-label]'))
+      .map((el) => (el as HTMLElement).getAttribute('aria-label'))
+      .filter((label) => label?.startsWith('Copy configuration ID'));
+    expect(labels).toEqual(['Copy configuration ID pid', 'Copy configuration ID mdl']);
+  });
+
   it.each([
     [['issuance:offer'], false],
     [['issuance:manage'], true],
@@ -142,11 +381,11 @@ describe('SessionManagementShowComponent errors', () => {
   function create(session: Partial<Session>): SessionManagementShowComponent {
     const component = new SessionManagementShowComponent(
       sessionService as never,
-      {} as never,
+      { snapshot: { params: { id: 'session' } } } as never,
       snackBar as never,
       { navigate: vi.fn() } as never,
       httpClient as never,
-      {} as never,
+      { getConfig: () => Promise.resolve(), isEnabled: () => false } as never,
       { open: () => ({ afterClosed: () => of({ reason: 'test' }) }) } as never,
       // The caller may change the session, so cancel and the offer are offered.
       { hasRole: () => true } as never
@@ -173,6 +412,30 @@ describe('SessionManagementShowComponent errors', () => {
   afterEach(() => {
     Reflect.deleteProperty(navigator, 'credentials');
     vi.unstubAllGlobals();
+  });
+
+  it.each([
+    ['active', true],
+    ['failed', false],
+  ])('starts polling when an %s session opens: %s', async (status, polling) => {
+    sessionService.getSession.mockResolvedValue({ id: 'session', status });
+    const component = create({});
+
+    await component.ngOnInit();
+
+    expect(component.isPolling()).toBe(polling);
+    component.stopPolling();
+  });
+
+  it('stops polling a finished session even when its status did not change', async () => {
+    sessionService.getSession.mockResolvedValue({ id: 'session', status: 'failed' });
+    const component = create({ status: 'failed' });
+    component.startPolling('session');
+
+    await component.fetchSessionStatus('session');
+
+    expect(component.isPolling()).toBe(false);
+    expect(snackBar.open).not.toHaveBeenCalled();
   });
 
   it("shows the backend's reason when cancelling fails for another reason than a conflict", async () => {
@@ -227,7 +490,7 @@ describe('SessionManagementShowComponent errors', () => {
   it.each([
     [
       { statusCode: 400, timestamp: '2026-10-11T12:00:00.000Z', path: '/presentations/s/oid4vp' },
-      'The verifier rejected the presentation; the session status shows why.',
+      'The verifier rejected the presentation; the session result shows why.',
     ],
     [
       {

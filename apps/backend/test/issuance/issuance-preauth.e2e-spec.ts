@@ -1497,6 +1497,74 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             expect(session.body.notifications).toEqual([
                 expect.objectContaining({ event: "credential_accepted" }),
             ]);
+            expect(session.body.outcome).toEqual({
+                result: "success",
+                source: "wallet",
+            });
+        });
+
+        test.each([
+            ["credential_failure", "The wallet could not store the credential"],
+            ["credential_deleted", "The wallet user rejected the credential"],
+        ] as const)(
+            "keeps the %s failure when the wallet later accepts",
+            async (failure, message) => {
+                const delivery = nock(receiver)
+                    .post("/notify")
+                    .times(2)
+                    .reply(204);
+                const offerResponse = await createNotifyingOffer();
+                const { notify } = await retrieveCredentials(offerResponse);
+                const finished = {
+                    status: "failed",
+                    failureCode: failure,
+                    errorReason: message,
+                    outcome: {
+                        result: "failed",
+                        source: "wallet",
+                        error: failure,
+                        message,
+                    },
+                };
+
+                await notify(failure);
+                const failed = await getSession(offerResponse.body.session);
+                expect(failed.body).toMatchObject(finished);
+
+                // The later event is stored and delivered, but the first
+                // event already finished the session.
+                await notify("credential_accepted");
+                expect(delivery.isDone()).toBe(true);
+                const later = await getSession(offerResponse.body.session);
+                expect(later.body).toMatchObject(finished);
+                expect(later.body.notifications).toEqual([
+                    expect.objectContaining({ event: "credential_accepted" }),
+                ]);
+            },
+        );
+
+        test("keeps a completed session when the wallet later reports a failure", async () => {
+            nock(receiver).post("/notify").times(2).reply(204);
+            const offerResponse = await createNotifyingOffer();
+            const { notify } = await retrieveCredentials(offerResponse);
+
+            await notify("credential_accepted");
+            await notify("credential_deleted", "Removed by the user");
+
+            const session = await getSession(offerResponse.body.session);
+            expect(session.body.status).toBe("completed");
+            expect(session.body.failureCode ?? null).toBeNull();
+            expect(session.body.errorReason ?? null).toBeNull();
+            expect(session.body.outcome).toEqual({
+                result: "success",
+                source: "wallet",
+            });
+            expect(session.body.notifications).toEqual([
+                expect.objectContaining({
+                    event: "credential_deleted",
+                    eventDescription: "Removed by the user",
+                }),
+            ]);
         });
 
         test("forwards the event description and the reference", async () => {
@@ -1529,6 +1597,17 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             const session = await getSession(offerResponse.body.session);
             expect(session.body.status).toBe("failed");
             expect(session.body.notifications).toEqual([notification]);
+            expect(session.body).toMatchObject({
+                failureCode: "credential_failure",
+                errorReason: "The wallet could not store the credential",
+                outcome: {
+                    result: "failed",
+                    source: "wallet",
+                    error: "credential_failure",
+                    message: "The wallet could not store the credential",
+                    description: "Could not store: [E42]",
+                },
+            });
         });
     });
 

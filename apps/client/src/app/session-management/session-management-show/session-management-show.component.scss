@@ -30,17 +30,25 @@
 // General layout
 .info-grid {
   display: grid;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
 }
 
 .info-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 
-  strong {
-    min-width: 140px;
-    flex-shrink: 0;
+  dt {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -139,21 +147,29 @@
 
 // Status chips
 .status-success {
+  --mat-chip-label-text-color: white;
+  --mat-chip-selected-label-text-color: white;
   background-color: var(--eudiplo-success) !important;
   color: white !important;
 }
 
 .status-pending {
+  --mat-chip-label-text-color: white;
+  --mat-chip-selected-label-text-color: white;
   background-color: var(--eudiplo-warning) !important;
   color: white !important;
 }
 
 .status-error {
+  --mat-chip-label-text-color: white;
+  --mat-chip-selected-label-text-color: white;
   background-color: var(--eudiplo-danger) !important;
   color: white !important;
 }
 
 .status-default {
+  --mat-chip-label-text-color: white;
+  --mat-chip-selected-label-text-color: white;
   background-color: var(--mat-sys-on-surface-variant) !important;
   color: white !important;
 }
@@ -270,4 +286,231 @@
 .role-hint {
   margin: 0;
   color: var(--mat-sys-on-surface-variant);
+}
+
+// Header
+.page-header h2 {
+  margin: 0;
+}
+
+.page-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.section-heading {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.result-label {
+  font-weight: 500;
+}
+
+// Presented claims
+.presented-credential + .presented-credential {
+  margin-top: 24px;
+}
+
+.presented-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.presented-type {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--mat-sys-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.presented-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  overflow-wrap: anywhere;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--eudiplo-success);
+  }
+}
+
+.claims-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    overflow-wrap: anywhere;
+  }
+
+  thead th {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  tbody th {
+    width: 35%;
+    font-family: monospace;
+    font-weight: normal;
+    font-size: 13px;
+  }
+}
+
+// Result of a finished session
+.result-card {
+  border-left: 4px solid var(--mat-sys-outline);
+
+  &.result-error {
+    border-left-color: var(--eudiplo-danger);
+    background-color: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+
+  &.result-success {
+    border-left-color: var(--eudiplo-success);
+  }
+}
+
+.result-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.result-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+
+  .result-error & {
+    color: var(--eudiplo-danger);
+  }
+
+  .result-success & {
+    color: var(--eudiplo-success);
+  }
+}
+
+.result-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  p {
+    margin: 0;
+  }
+}
+
+.result-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.result-message {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.result-code {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.result-code-link {
+  color: inherit;
+}
+
+.result-hint {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.result-credentials {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-credential {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface);
+
+  > mat-icon {
+    color: var(--eudiplo-danger);
+    flex-shrink: 0;
+  }
+
+  &.verified > mat-icon {
+    color: var(--eudiplo-success);
+  }
+}
+
+.result-credential-name {
+  font-weight: 500;
+}
+
+.result-credential-type {
+  margin-left: 8px;
+  font-weight: normal;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.result-credential-detail {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.result-warning {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--eudiplo-warning);
+  }
+}
+
+.mono {
+  font-family: monospace;
+  overflow-wrap: anywhere;
 }

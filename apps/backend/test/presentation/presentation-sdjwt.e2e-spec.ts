@@ -602,7 +602,9 @@ describe("Presentation - SD-JWT Credential", () => {
         expect(sessionRes.body.failureCode).toBe("access_denied");
         expect(sessionRes.body.outcome).toMatchObject({
             result: "failed",
+            source: "wallet",
             error: "access_denied",
+            description: "User cancelled the presentation request",
         });
     });
 
@@ -704,6 +706,7 @@ describe("Presentation - SD-JWT Credential", () => {
         );
         // Classified failures name the failing credential in the outcome.
         expect(sessionRes.body.failureCode).toEqual(expect.any(String));
+        expect(sessionRes.body.outcome.source).toBe("verifier");
         expect(sessionRes.body.outcome.credentials).toEqual([
             {
                 id: "pid",

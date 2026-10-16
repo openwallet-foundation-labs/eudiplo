@@ -39,6 +39,7 @@ export class CompletePresentationResponse {
     ): Promise<SessionOutcome> {
         const outcome: SessionOutcome = {
             result: "success",
+            source: "verifier",
             credentials: input.credentials.map((credential: any) => ({
                 id:
                     typeof credential?.id === "string"

@@ -4,7 +4,7 @@ title: Troubleshooting
 
 Find the symptom, then apply the fix. Each cookbook lists only the problems that are specific to its steps; everything else is collected here.
 
-When a wallet is involved, collect its log right after the failure: in the EU Reference Implementation open **Settings → Retrieve Logs**, in Paradym Wallet open **Settings → Export Logs**. The [wallet compatibility record](reference/wallet-compatibility.md) has details for other wallets. On the EUDIPLO side, **Sessions → All Sessions** in the Web Client shows the status, and `GET /api/session/{id}` adds `failureCode` and `errorReason`. Remove tokens, keys and personal data before you share logs.
+When a wallet is involved, collect its log right after the failure: in the EU Reference Implementation open **Settings → Retrieve Logs**, in Paradym Wallet open **Settings → Export Logs**. The [wallet compatibility record](reference/wallet-compatibility.md) has details for other wallets. On the EUDIPLO side, open the session under **Sessions → All Sessions** in the Web Client: a failed session shows why it failed, its failure code where one is recorded, and the wallet's own description when the wallet reported the failure. `GET /api/session/{id}` returns the same as described in [Session Outcome](reference/session-outcome.md). Remove tokens, keys and personal data before you share logs.
 
 ## Install and connect
 
