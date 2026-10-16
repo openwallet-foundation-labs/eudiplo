@@ -1,7 +1,7 @@
-import { HttpException, HttpStatus } from "@nestjs/common";
-import type {
+import { HttpException, HttpStatus, type Logger } from "@nestjs/common";
+import {
     OAuthError,
-    OAuthErrorCode,
+    type OAuthErrorCode,
 } from "../authorization/domain/oauth-error.js";
 
 /**
@@ -80,6 +80,26 @@ export function tokenErrorResponse(error: OAuthError): TokenErrorException {
             ? HttpStatus.UNAUTHORIZED
             : HttpStatus.BAD_REQUEST,
     );
+}
+
+/**
+ * HTTP response for an error of an authorization server endpoint: an
+ * {@link OAuthError} becomes its {@link tokenErrorResponse} and its
+ * `logDetail` is logged; any other error is returned unchanged.
+ */
+export function toOAuthHttpError(
+    error: unknown,
+    logger: Pick<Logger, "warn" | "error">,
+): unknown {
+    if (!(error instanceof OAuthError)) {
+        return error;
+    }
+    if (error.logDetail && error.cause !== undefined) {
+        logger.error(error.logDetail, error.cause);
+    } else if (error.logDetail) {
+        logger.warn(error.logDetail);
+    }
+    return tokenErrorResponse(error);
 }
 
 /**

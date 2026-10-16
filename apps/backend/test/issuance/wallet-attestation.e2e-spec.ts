@@ -269,12 +269,8 @@ async function createWalletAttestationJwt(options: {
     walletProviderKey: CryptoKey;
     holderPublicKey: Jwk;
     authorizationServer: string;
-    status?: {
-        status_list: {
-            idx: number;
-            uri: string;
-        };
-    };
+    /** The status claim; tests of malformed claims pass any value. */
+    status?: unknown;
 }): Promise<string> {
     // Export the private key for jose signing
     const privateKeyArrayBuffer = await globalThis.crypto.subtle.exportKey(
@@ -301,7 +297,7 @@ async function createWalletAttestationJwt(options: {
     };
 
     // Add status claim if provided
-    if (options.status) {
+    if (options.status !== undefined) {
         payload.status = options.status;
     }
 
@@ -2445,7 +2441,7 @@ describe("Issuance - Wallet Attestation", () => {
         name: string;
         issuerMode?: "strict" | "best_effort" | "disabled";
         serverMode?: "strict" | "best_effort" | "disabled";
-        statusList: "unavailable" | "out-of-range" | "revoked";
+        statusList: "unavailable" | "out-of-range" | "revoked" | "malformed";
         accepted: boolean;
     };
 
@@ -2473,6 +2469,24 @@ describe("Issuance - Wallet Attestation", () => {
             issuerMode: "best_effort",
             statusList: "out-of-range",
             accepted: false,
+        },
+        {
+            name: "rejects a malformed status claim in best_effort mode",
+            issuerMode: "best_effort",
+            statusList: "malformed",
+            accepted: false,
+        },
+        {
+            name: "rejects a malformed status claim in strict mode",
+            issuerMode: "strict",
+            statusList: "malformed",
+            accepted: false,
+        },
+        {
+            name: "accepts a malformed status claim when the status check is disabled",
+            issuerMode: "disabled",
+            statusList: "malformed",
+            accepted: true,
         },
         {
             name: "accepts a revoked attestation when the status check is disabled",
@@ -2563,6 +2577,7 @@ describe("Issuance - Wallet Attestation", () => {
                     });
 
                 // Index 5 is revoked; the list has 128 entries.
+                // A malformed status claim names no list to fetch.
                 const statusListNock =
                     statusList === "unavailable"
                         ? nock("http://localhost:8787")
@@ -2631,10 +2646,16 @@ describe("Issuance - Wallet Attestation", () => {
                     holderPublicKey: holderPublicKeyJwk as Jwk,
                     authorizationServer: authServerUrl,
                     status: {
-                        status_list: {
-                            idx: statusList === "out-of-range" ? 500 : 5,
-                            uri: statusListUrl,
-                        },
+                        status_list:
+                            statusList === "malformed"
+                                ? { uri: statusListUrl }
+                                : {
+                                      idx:
+                                          statusList === "out-of-range"
+                                              ? 500
+                                              : 5,
+                                      uri: statusListUrl,
+                                  },
                     },
                 });
 
@@ -2678,9 +2699,12 @@ describe("Issuance - Wallet Attestation", () => {
                         },
                     });
                 }
-                // Disabled never fetches the status list.
+                // Disabled never fetches the status list, nor does a
+                // malformed status claim.
                 expect(statusListNock.isDone()).toBe(
-                    issuerMode !== "disabled" && serverMode !== "disabled",
+                    statusList !== "malformed" &&
+                        issuerMode !== "disabled" &&
+                        serverMode !== "disabled",
                 );
             } finally {
                 // Later tests copy the current config; leave no mode behind.

@@ -9,7 +9,7 @@ import { SessionNotFound } from "../../../../../session/application/session-erro
 import type { SessionStore } from "../../../../../session/application/session-store.js";
 import type { SessionAuthorization } from "../../../../../session/domain/session-data.js";
 import type { DpopProofReplayRegistry } from "../../ports/dpop-proof-replay-registry.js";
-import { OAuthError } from "../domain/oauth-error.js";
+import { verifyClientAttestation } from "../domain/client-attestation.js";
 import { assertOfferRedeemable } from "../domain/offer-redemption.js";
 import {
     assertValidPushedAuthorizationRequest,
@@ -79,24 +79,19 @@ export class PushAuthorizationRequest {
             builtInServer,
         );
 
-        try {
-            await this.clientAttestation.verify(
-                tenantId,
-                clientAttestation,
-                authorizationServerMetadata.issuer,
-                walletAttestationPolicy.walletAttestationRequired,
-                walletAttestationPolicy.walletProviderTrustLists,
-                walletAttestationPolicy.walletAttestationStatusCheckMode,
-            );
-        } catch (err) {
-            throw new OAuthError(
-                "invalid_client",
-                "Client attestation validation failed",
-                {
-                    logDetail: `Client attestation validation failed for tenant ${tenantId}: ${err instanceof Error ? err.message : "Unknown error"}`,
-                },
-            );
-        }
+        await verifyClientAttestation(
+            "par",
+            () =>
+                this.clientAttestation.verify(
+                    tenantId,
+                    clientAttestation,
+                    authorizationServerMetadata.issuer,
+                    walletAttestationPolicy.walletAttestationRequired,
+                    walletAttestationPolicy.walletProviderTrustLists,
+                    walletAttestationPolicy.walletAttestationStatusCheckMode,
+                ),
+            `tenant ${tenantId}`,
+        );
 
         assertValidPushedAuthorizationRequest(body);
 

@@ -18,7 +18,7 @@ import {
 import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import type { HttpMethod, RequestLike } from "@openid4vc/oauth2";
 import type { Request, Response } from "express";
-import { tokenErrorResponse } from "../../exceptions/token-error.exception.js";
+import { toOAuthHttpError } from "../../exceptions/token-error.exception.js";
 import {
     OID4VCI_SETTINGS,
     type Oid4vciSettings,
@@ -161,14 +161,6 @@ export class AuthorizeController {
     }
 
     private toHttpError(error: unknown): unknown {
-        if (!(error instanceof OAuthError)) {
-            return error;
-        }
-        if (error.logDetail && error.cause !== undefined) {
-            this.logger.error(error.logDetail, error.cause);
-        } else if (error.logDetail) {
-            this.logger.warn(error.logDetail);
-        }
-        return tokenErrorResponse(error);
+        return toOAuthHttpError(error, this.logger);
     }
 }
