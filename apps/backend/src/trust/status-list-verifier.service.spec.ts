@@ -500,9 +500,9 @@ describe("StatusListVerifierService.getStatusEntryFromJwt", () => {
             payload: { status: { identifier_list: { id: "1", uri: "x" } } },
         },
     ])("returns undefined for $case", ({ payload }) => {
-        expect(statusLists.getStatusEntryFromJwt(jwtWith(payload))).toBe(
-            undefined,
-        );
+        expect(
+            statusLists.getStatusEntryFromJwt(jwtWith(payload)),
+        ).toBeUndefined();
     });
 
     it.each([
