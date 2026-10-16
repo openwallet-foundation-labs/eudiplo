@@ -5,7 +5,6 @@
  */
 
 import type { INestApplication } from "@nestjs/common";
-import * as x509 from "@peculiar/x509";
 import { X509Certificate, X509CertificateGenerator } from "@peculiar/x509";
 import { decodeJwt, decodeProtectedHeader, importPKCS8, SignJWT } from "jose";
 import nock from "nock";
@@ -70,16 +69,19 @@ export async function generateSelfSignedCertificate(): Promise<{
         ["sign", "verify"],
     );
 
-    x509.cryptoProvider.set(globalThis.crypto);
-
-    const cert = await X509CertificateGenerator.createSelfSigned({
-        serialNumber: "01",
-        name: "CN=Test Wallet Provider",
-        notBefore: new Date(),
-        notAfter: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-        signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
-        keys: keyPair,
-    });
+    // Pass webcrypto instead of setting the global provider, which the
+    // backend replaced with its KMS provider for key chain certificates.
+    const cert = await X509CertificateGenerator.createSelfSigned(
+        {
+            serialNumber: "01",
+            name: "CN=Test Wallet Provider",
+            notBefore: new Date(),
+            notAfter: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
+            keys: keyPair,
+        },
+        globalThis.crypto,
+    );
 
     return {
         certificate: cert,

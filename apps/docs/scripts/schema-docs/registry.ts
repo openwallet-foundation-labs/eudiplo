@@ -31,6 +31,12 @@ export interface SchemaDoc {
     descriptions?: Record<string, string>;
 }
 
+// The published KmsConfig v2 text says the list limits new key chains only; imports are limited too.
+const kmsProviderDescriptions = {
+    algorithms:
+        "Signing algorithms new and imported key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). An import through the API, the config folder or a configuration bundle whose key uses another algorithm is refused. Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+};
+
 /**
  * Zod schemas rendered in the docs. Add an entry here, run
  * `pnpm --filter @eudiplo/docs run prebuild`, then use
@@ -68,10 +74,10 @@ export const schemaDocs: SchemaDoc[] = [
     },
     { name: "schema-metadata-publish", schema: SignSchemaMetaConfigSchema },
     { name: "kms-config", schema: KmsConfigSchema },
-    { name: "kms-provider-db", schema: DbKmsConfigSchema },
-    { name: "kms-provider-vault", schema: VaultKmsConfigSchema },
-    { name: "kms-provider-aws-kms", schema: AwsKmsConfigSchema },
-    { name: "kms-provider-pkcs11", schema: Pkcs11KmsConfigSchema },
-    { name: "kms-provider-http", schema: HttpKmsConfigSchema },
-    { name: "kms-provider-csc", schema: CscKmsConfigSchema },
+    { name: "kms-provider-db", schema: DbKmsConfigSchema, descriptions: kmsProviderDescriptions },
+    { name: "kms-provider-vault", schema: VaultKmsConfigSchema, descriptions: kmsProviderDescriptions },
+    { name: "kms-provider-aws-kms", schema: AwsKmsConfigSchema, descriptions: kmsProviderDescriptions },
+    { name: "kms-provider-pkcs11", schema: Pkcs11KmsConfigSchema, descriptions: kmsProviderDescriptions },
+    { name: "kms-provider-http", schema: HttpKmsConfigSchema, descriptions: kmsProviderDescriptions },
+    { name: "kms-provider-csc", schema: CscKmsConfigSchema, descriptions: kmsProviderDescriptions },
 ];

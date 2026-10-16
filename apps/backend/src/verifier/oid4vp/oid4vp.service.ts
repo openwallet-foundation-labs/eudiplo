@@ -423,7 +423,6 @@ export class Oid4vpService {
 
             const header = {
                 ...request.header,
-                alg: "ES256",
                 x5c: this.certService.getCertChain(cert),
             };
 

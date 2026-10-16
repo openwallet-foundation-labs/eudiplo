@@ -265,6 +265,22 @@ describe("portable schema identity and migrations", () => {
         ["KeyChain", { type: "standalone" }, 2],
         ["KeyChain", {}, 1],
         ["Client", { type: "standalone" }, 1],
+        [
+            "KmsConfig",
+            { providers: [{ id: "db", type: "db", algorithms: ["ES384"] }] },
+            2,
+        ],
+        [
+            "KmsConfig",
+            {
+                providers: [
+                    { id: "db", type: "db" },
+                    { id: "hsm", type: "pkcs11", defaultAlgorithm: "ES384" },
+                ],
+            },
+            2,
+        ],
+        ["KmsConfig", { providers: [{ id: "db", type: "db" }] }, 1],
     ] as const)("reads a bare %s file %o as v%i", (kind, spec, version) => {
         expect(bareFileVersion(kind, spec)).toBe(version);
     });
@@ -308,6 +324,45 @@ describe("portable schema identity and migrations", () => {
         expect(
             migrateDocument(result.document, validateConfigDocument).migrations,
         ).toEqual([]);
+    });
+
+    it("upgrades a v1 KMS configuration to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("KmsConfig", 1),
+            metadata: { generation: 1 },
+            spec: { providers: [{ id: "db", type: "db" }] },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual(["kms-config-v2-algorithms"]);
+        expect(result.document.$schema).toBe(schemaUrl("KmsConfig", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it("accepts provider algorithms only from KMS configuration v2 on", () => {
+        const spec = {
+            providers: [
+                {
+                    id: "db",
+                    type: "db",
+                    algorithms: ["ES256", "ES384"],
+                    defaultAlgorithm: "ES384",
+                },
+            ],
+        };
+        expect(
+            validateConfigDocument(
+                normalizeDocument({ $schema: schemaUrl("KmsConfig", 2), spec }),
+            ),
+        ).toEqual([]);
+        expect(
+            validateConfigDocument(
+                normalizeDocument({ $schema: schemaUrl("KmsConfig", 1), spec }),
+            ).length,
+        ).toBeGreaterThan(0);
     });
 
     it.each(["audit:read", "sessions:read", "credentials:status", "keys:manage"])(

@@ -41,6 +41,14 @@ import { focusIfFocusWasLost } from '../../common/focus-if-lost.util';
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
 export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
+export type SigningAlgorithm = NonNullable<KeyChainCreateDto['alg']>;
+
+/** Signing algorithms with the curve each one selects. */
+const SIGNING_ALGORITHM_LABELS: Record<SigningAlgorithm, string> = {
+  ES256: 'ES256 (ECDSA P-256)',
+  ES384: 'ES384 (ECDSA P-384)',
+  ES512: 'ES512 (ECDSA P-521)',
+};
 
 /** Why a registrar enrollment was refused, shown next to Create & Enroll. */
 export interface EnrollmentError {
@@ -239,6 +247,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       description: [''],
       // KMS provider for key storage/signing
       kmsProvider: ['db', Validators.required],
+      // Signing algorithm; starts at the provider's default
+      alg: ['ES256' as SigningAlgorithm, Validators.required],
       // Rotation settings (only for internal and external CA chains)
       rotationEnabled: [true],
       rotationIntervalDays: [30, [Validators.required, Validators.min(1), Validators.max(3650)]],
@@ -255,6 +265,18 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       .get('rotationEnabled')!
       .valueChanges.subscribe(() => this.syncRotationControls());
     this.syncRotationControls();
+
+    // Each provider offers its own algorithms: keep the chosen one if the new
+    // provider offers it, else use the provider's default.
+    this.configForm.get('kmsProvider')!.valueChanges.subscribe((provider: string) => {
+      const alg = this.configForm.value.alg as SigningAlgorithm;
+      if (!this.algorithmsOf(provider).includes(alg)) {
+        this.configForm.patchValue(
+          { alg: this.defaultAlgorithmOf(provider) },
+          { emitEvent: false }
+        );
+      }
+    });
 
     // A refusal belongs to the registrar enrollment it reports.
     merge(this.usageForm.valueChanges, this.accessSourceForm.valueChanges).subscribe(() => {
@@ -306,6 +328,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
         'db';
 
       this.configForm.patchValue({ kmsProvider: selected });
+      this.configForm.patchValue({ alg: this.defaultAlgorithmOf(selected) }, { emitEvent: false });
     } catch (error) {
       console.error('Failed to load KMS providers:', error);
       this.availableKmsProviders = [];
@@ -313,7 +336,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       this.configForm.patchValue({ kmsProvider: 'db' });
       openErrorSnackBar(
         this.snackBar,
-        `${asSentence(getApiErrorMessage(error, 'Failed to load KMS providers'))} Falling back to db.`
+        `${asSentence(getApiErrorMessage(error, 'Failed to load KMS providers'))} Falling back to db with ES256.`
       );
     } finally {
       this.isLoadingKmsProviders = false;
@@ -417,6 +440,42 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
     return this.isInternalChain && !!this.configForm.value.rotationEnabled;
   }
 
+  /** Algorithms a provider offers for new key chains; ES256 while providers are unknown. */
+  private algorithmsOf(providerName: string): SigningAlgorithm[] {
+    const provider = this.availableKmsProviders.find((p) => p.name === providerName);
+    return (provider?.capabilities.supportedAlgs ?? ['ES256']).filter(
+      (alg): alg is SigningAlgorithm => alg in SIGNING_ALGORITHM_LABELS
+    );
+  }
+
+  /** A provider's default algorithm, or the first it offers. */
+  private defaultAlgorithmOf(providerName: string): SigningAlgorithm {
+    const offered = this.algorithmsOf(providerName);
+    const preferred = this.availableKmsProviders.find((p) => p.name === providerName)?.capabilities
+      .defaultAlg;
+    return offered.find((alg) => alg === preferred) ?? offered[0] ?? 'ES256';
+  }
+
+  /** Algorithms the selected provider offers for new key chains. */
+  get algorithmOptions(): { value: SigningAlgorithm; label: string }[] {
+    return this.algorithmsOf(this.configForm.value.kmsProvider).map((value) => ({
+      value,
+      label: SIGNING_ALGORITHM_LABELS[value],
+    }));
+  }
+
+  /**
+   * True when EUDIPLO generates the key, so the user picks its algorithm. An
+   * imported key brings its own curve, and registrar enrollment uses the
+   * provider's default.
+   */
+  get showAlgorithm(): boolean {
+    return (
+      !this.isExternalCertificate &&
+      !(this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar')
+    );
+  }
+
   get isExternalCertificate(): boolean {
     return (
       (this.selectedUsage === 'access' && this.selectedAccessSource === 'external') ||
@@ -515,6 +574,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
         type: usage === 'access' || !this.isInternalChain ? 'standalone' : 'internalChain',
         description: description || this.getDefaultDescription(),
         kmsProvider: this.configForm.value.kmsProvider || this.defaultKmsProvider || 'db',
+        alg: this.configForm.value.alg || undefined,
         rotationPolicy: this.rotationPolicy(),
       };
 
@@ -741,6 +801,9 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       });
     }
 
+    const algorithm = this.algorithmSummary();
+    if (algorithm) summary.push({ label: 'Algorithm', value: algorithm });
+
     if (this.isInternalChain) {
       summary.push({
         label: 'Type',
@@ -768,6 +831,19 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
     }
 
     return summary;
+  }
+
+  /** The summary's algorithm: the chosen one, or the provider default for a registrar enrollment. */
+  private algorithmSummary(): string | undefined {
+    if (this.showAlgorithm) {
+      const alg = this.configForm.value.alg as SigningAlgorithm;
+      return SIGNING_ALGORITHM_LABELS[alg] ?? alg;
+    }
+    if (this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar') {
+      const alg = this.defaultAlgorithmOf(this.configForm.value.kmsProvider);
+      return `${SIGNING_ALGORITHM_LABELS[alg]} (provider default)`;
+    }
+    return undefined;
   }
 
   private getCertificateSourceLabel(): string {

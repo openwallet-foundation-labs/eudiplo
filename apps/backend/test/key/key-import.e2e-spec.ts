@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
@@ -9,11 +9,13 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { Role } from "../../src/auth/roles/role.enum.js";
 import { EncryptionService } from "../../src/crypto/encryption/encryption.service.js";
+import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto.js";
 import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto.js";
 import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { ConfigOwnershipService } from "../../src/platform/config-portability/config-ownership.service.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { clientToken, getTenantAdminToken, getToken } from "../utils.js";
+import { createSelfSignedCa, expectCertificateSignedBy } from "../utils-ec.js";
 
 describe("Key Chain — Import (e2e)", () => {
     let app: INestApplication;
@@ -672,6 +674,131 @@ describe("Key Chain — Import (e2e)", () => {
 
             expect(planned.body.items).not.toContainEqual(
                 expect.objectContaining({ id: guarded.id }),
+            );
+        });
+    });
+
+    describe("curves", () => {
+        const getKeyChain = (id: string) =>
+            request(app.getHttpServer())
+                .get(`/key-chain/${id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+
+        test.each([
+            ["ES384", "secp384r1", "P-384"],
+            ["ES512", "secp521r1", "P-521"],
+        ] as const)(
+            "imports a %s PKCS#8 PEM key with the algorithm of its curve",
+            async (alg, namedCurve, crv) => {
+                const keyPem = generateKeyPairSync("ec", { namedCurve })
+                    .privateKey.export({ type: "pkcs8", format: "pem" })
+                    .toString();
+                const id = v4();
+                await request(app.getHttpServer())
+                    .post("/key-chain/import")
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        id,
+                        keyPem,
+                        usageType: KeyUsageType.Attestation,
+                    } satisfies KeyChainImportDto)
+                    .expect(201);
+
+                const keyChain = await getKeyChain(id);
+                expect(keyChain.body.alg).toBe(alg);
+                expect(keyChain.body.activePublicKey).toMatchObject({
+                    crv,
+                    alg,
+                });
+                expect(keyChain.body.activePublicKey).not.toHaveProperty("d");
+                expectCertificateSignedBy(
+                    keyChain.body.activeCertificate.pem,
+                    alg,
+                );
+            },
+        );
+
+        test.each([
+            ["RSA", () => generateKeyPairSync("rsa", { modulusLength: 2048 })],
+            ["Ed25519", () => generateKeyPairSync("ed25519")],
+            [
+                "secp256k1",
+                () => generateKeyPairSync("ec", { namedCurve: "secp256k1" }),
+            ],
+        ] as const)("rejects a %s PEM key with 400", async (_name, keys) => {
+            const keyPem = keys()
+                .privateKey.export({ type: "pkcs8", format: "pem" })
+                .toString();
+            const response = await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({ keyPem, usageType: KeyUsageType.Attestation })
+                .expect(400);
+            expect(response.body.message).toContain("Unsupported key");
+        });
+
+        test("rejects a P-384 JWK whose alg names ES256", async () => {
+            const privateJwk = generateKeyPairSync("ec", {
+                namedCurve: "secp384r1",
+            }).privateKey.export({ format: "jwk" });
+            const response = await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    key: { ...privateJwk, alg: "ES256" },
+                    usageType: KeyUsageType.Attestation,
+                })
+                .expect(400);
+            expect(response.body.message).toContain("does not match");
+        });
+
+        test("an internal chain under a P-384 CA certificate gets a P-384 signing key", async () => {
+            const ca = await createSelfSignedCa("ES384");
+            const id = v4();
+            await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    id,
+                    key: ca.privateJwk as KeyChainImportDto["key"],
+                    crt: [ca.certificatePem],
+                    usageType: KeyUsageType.Attestation,
+                    type: KeyChainType.InternalChain,
+                } satisfies KeyChainImportDto)
+                .expect(201);
+
+            const keyChain = await getKeyChain(id);
+            expect(keyChain.body).toMatchObject({
+                type: "internalChain",
+                alg: "ES384",
+                activePublicKey: { crv: "P-384", alg: "ES384" },
+            });
+            expect(keyChain.body.rootCertificate.pem.trim()).toBe(
+                ca.certificatePem.trim(),
+            );
+            expectCertificateSignedBy(
+                keyChain.body.activeCertificate.pem,
+                "ES384",
+                ca.certificatePem,
+            );
+        });
+
+        test("rejects a P-384 CA key with a P-256 root certificate", async () => {
+            const ca = await createSelfSignedCa("ES384");
+            const otherRoot = await createSelfSignedCa("ES256");
+            const response = await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    key: ca.privateJwk as KeyChainImportDto["key"],
+                    crt: [otherRoot.certificatePem],
+                    usageType: KeyUsageType.Attestation,
+                    type: KeyChainType.InternalChain,
+                } satisfies KeyChainImportDto)
+                .expect(400);
+            expect(response.body.message).toContain(
+                "does not match the provided private key",
             );
         });
     });

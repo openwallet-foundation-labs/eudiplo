@@ -164,7 +164,9 @@ function createHarness(issuanceConfig: Record<string, unknown> = {}) {
     };
     const keyChain = {
         getKid: vi.fn().mockResolvedValue("kid-1"),
-        getPublicKey: vi.fn().mockResolvedValue({ kty: "EC", kid: "kid-1" }),
+        getPublicKey: vi
+            .fn()
+            .mockResolvedValue({ kty: "EC", crv: "P-256", kid: "kid-1" }),
     };
     const nonces = { save: vi.fn().mockResolvedValue(undefined) };
     const dpopProofs = { register: vi.fn().mockResolvedValue(true) };
@@ -1253,7 +1255,7 @@ describe("Built-in authorization server token endpoint", () => {
                 signer: {
                     method: "jwk",
                     alg: "ES256",
-                    publicJwk: { kty: "EC", kid: "kid-1" },
+                    publicJwk: { kty: "EC", crv: "P-256", kid: "kid-1" },
                     kid: "kid-1",
                 },
                 subject: "session-1",

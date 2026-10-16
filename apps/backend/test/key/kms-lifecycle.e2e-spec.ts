@@ -7,6 +7,7 @@ import { AppModule } from "../../src/app.module.js";
 import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { getToken } from "../utils.js";
+import { expectCertificateSignedBy } from "../utils-ec.js";
 
 describe("Key Chain — KMS provider lifecycle (e2e)", () => {
     let app: INestApplication;
@@ -105,6 +106,10 @@ describe("Key Chain — KMS provider lifecycle (e2e)", () => {
             const listed = listRes.body.find((k: any) => k.id === keyChainId);
             expect(listed).toBeDefined();
 
+            // Without alg the key chain uses the provider's default.
+            expect(getRes.body.alg).toBe("ES256");
+            expect(getRes.body.activePublicKey.crv).toBe("P-256");
+
             // 4. Delete the key chain
             if (provider.capabilities.canDelete) {
                 await request(app.getHttpServer())
@@ -118,6 +123,103 @@ describe("Key Chain — KMS provider lifecycle (e2e)", () => {
                     .set("Authorization", `Bearer ${authToken}`)
                     .expect(404);
             }
+        },
+    );
+
+    test.each([
+        ["ES384", "P-384", KeyChainType.Standalone],
+        ["ES512", "P-521", KeyChainType.InternalChain],
+    ] as const)(
+        "db — creates a %s key chain on %s (%s)",
+        async (alg, crv, type) => {
+            const createRes = await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    type,
+                    usageType: "attestation",
+                    kmsProvider: "db",
+                    alg,
+                })
+                .expect(201);
+
+            const getRes = await request(app.getHttpServer())
+                .get(`/key-chain/${createRes.body.id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+
+            expect(getRes.body.alg).toBe(alg);
+            expect(getRes.body.activePublicKey).toMatchObject({
+                kty: "EC",
+                crv,
+                alg,
+            });
+            const rootPem = getRes.body.rootCertificate?.pem;
+            expectCertificateSignedBy(
+                getRes.body.activeCertificate.pem,
+                alg,
+                rootPem,
+            );
+            if (rootPem) expectCertificateSignedBy(rootPem, alg);
+
+            await request(app.getHttpServer())
+                .delete(`/key-chain/${createRes.body.id}`)
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(204);
+        },
+    );
+
+    test("rotation keeps the curve of an ES384 key chain", async () => {
+        const createRes = await request(app.getHttpServer())
+            .post("/key-chain")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                type: KeyChainType.InternalChain,
+                usageType: "attestation",
+                kmsProvider: "db",
+                alg: "ES384",
+            })
+            .expect(201);
+        const id = createRes.body.id;
+        const before = await request(app.getHttpServer())
+            .get(`/key-chain/${id}`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        await request(app.getHttpServer())
+            .post(`/key-chain/${id}/rotate`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(204);
+
+        const after = await request(app.getHttpServer())
+            .get(`/key-chain/${id}`)
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(after.body.activePublicKey.x).not.toBe(
+            before.body.activePublicKey.x,
+        );
+        expect(after.body.alg).toBe("ES384");
+        expect(after.body.activePublicKey.crv).toBe("P-384");
+        expectCertificateSignedBy(
+            after.body.activeCertificate.pem,
+            "ES384",
+            after.body.rootCertificate.pem,
+        );
+    });
+
+    test.each(["ES256K", "RS256", "EdDSA"])(
+        "rejects alg %s with 400",
+        async (alg) => {
+            await request(app.getHttpServer())
+                .post("/key-chain")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    type: KeyChainType.Standalone,
+                    usageType: "attestation",
+                    kmsProvider: "db",
+                    alg,
+                })
+                .expect(400);
         },
     );
 });

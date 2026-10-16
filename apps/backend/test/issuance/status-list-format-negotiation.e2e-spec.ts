@@ -1,9 +1,17 @@
 import { INestApplication } from "@nestjs/common";
+import { Sign1 } from "@owf/cose";
 import { decodeProtectedHeader } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { IssuanceTestContext, setupIssuanceTestApp } from "../utils.js";
+import {
+    createKeyChain,
+    deleteKeyChain,
+    expectCoseSign1SignedWithX5chain,
+    expectJwsSignedWithX5c,
+} from "../utils-ec.js";
 
 function parseBinary(
     res: NodeJS.ReadableStream,
@@ -117,4 +125,50 @@ describe("Status List - Token Format Negotiation", () => {
         );
         expect(Buffer.compare(firstResponse.body, secondResponse.body)).toBe(0);
     });
+
+    test.each(["ES384", "ES512"] as const)(
+        "signs JWT and CWT with the algorithm of an %s key chain",
+        async (alg) => {
+            const keyChainId = await createKeyChain(app, authToken, {
+                usageType: KeyUsageType.StatusList,
+                alg,
+            });
+            let listId: string | undefined;
+            try {
+                const list = await request(app.getHttpServer())
+                    .post("/status-lists")
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({ keyChainId })
+                    .expect(201);
+                listId = list.body.id;
+                const url = `/issuers/root/status-management/status-list/${listId}`;
+
+                const jwt = await request(app.getHttpServer())
+                    .get(url)
+                    .expect(200);
+                const payload = await expectJwsSignedWithX5c(jwt.text, alg);
+                expect(payload.status_list).toBeDefined();
+
+                const cwt = await request(app.getHttpServer())
+                    .get(url)
+                    .set("Accept", "application/statuslist+cwt")
+                    .buffer(true)
+                    .parse(parseBinary)
+                    .expect(200);
+                expectCoseSign1SignedWithX5chain(
+                    Sign1.decode(new Uint8Array(cwt.body)),
+                    alg,
+                );
+            } finally {
+                // Other tests use the default status list key chain.
+                if (listId) {
+                    await request(app.getHttpServer())
+                        .delete(`/status-lists/${listId}`)
+                        .set("Authorization", `Bearer ${authToken}`)
+                        .expect(204);
+                }
+                await deleteKeyChain(app, authToken, keyChainId);
+            }
+        },
+    );
 });

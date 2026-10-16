@@ -23,6 +23,11 @@ import { App } from "supertest/types";
 import { DataSource } from "typeorm";
 import { Agent, setGlobalDispatcher } from "undici";
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
+import {
+    type KmsSigningAlg,
+    signingAlgSpec,
+} from "../../src/crypto/key/domain/signing-algs.js";
+import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { buildClaims } from "../../src/issuer/configuration/credentials/utils/derive.js";
 import { IssuanceDto } from "../../src/issuer/configuration/issuance/dto/issuance.dto.js";
 import { Session } from "../../src/session/entities/session.entity.js";
@@ -32,6 +37,13 @@ import {
     IssuanceTestContext,
     setupIssuanceTestApp,
 } from "../utils.js";
+import {
+    createCredentialConfigCopy,
+    createKeyChain,
+    credentialConfigurationMetadata,
+    deleteKeyChain,
+    expectJwsSignedWithX5c,
+} from "../utils-ec.js";
 import {
     addX5cHeaderToKeyAttestationJwt,
     configureTrustedAttestationProvider,
@@ -1520,8 +1532,67 @@ describe("Issuance - Pre-authorized Code Flow", () => {
         });
     });
 
-    async function retrieveCredentials(offerResponse: any) {
-        const holderKeyPair = await generateKeyPair("ES256", {
+    test.each(["ES384", "ES512"] as const)(
+        "signs the SD-JWT VC with the algorithm of an %s key chain",
+        async (alg) => {
+            const keyChainId = await createKeyChain(app, authToken, {
+                usageType: KeyUsageType.Attestation,
+                alg,
+            });
+            const configId = `pid-${alg}-${Date.now()}`;
+            let deleteConfig: (() => Promise<void>) | undefined;
+
+            try {
+                deleteConfig = await createCredentialConfigCopy(
+                    app,
+                    authToken,
+                    "pid-no-key",
+                    { id: configId, keyChainId },
+                );
+                const metadata = await credentialConfigurationMetadata(
+                    app,
+                    configId,
+                );
+                expect(
+                    metadata.credential_signing_alg_values_supported,
+                ).toEqual([alg]);
+
+                const offerResponse = await request(app.getHttpServer())
+                    .post("/issuer/offer")
+                    .trustLocalhost()
+                    .set("Authorization", `Bearer ${authToken}`)
+                    .send({
+                        response_type: "uri",
+                        credentialConfigurationIds: [configId],
+                        flow: "pre_authorized_code",
+                    })
+                    .expect(201);
+                // The holder proves possession with a key on the same curve.
+                const response = await retrieveCredentials(offerResponse, alg);
+                const credential: string = (
+                    response.credentialResponse.credentials?.[0] as any
+                ).credential;
+
+                const payload = await expectJwsSignedWithX5c(
+                    credential.split("~")[0],
+                    alg,
+                );
+                expect(payload.vct).toBe("urn:eudi:pid:de:1");
+                expect((payload.cnf as { jwk: { crv: string } }).jwk.crv).toBe(
+                    signingAlgSpec(alg).crv,
+                );
+            } finally {
+                await deleteConfig?.();
+                await deleteKeyChain(app, authToken, keyChainId);
+            }
+        },
+    );
+
+    async function retrieveCredentials(
+        offerResponse: any,
+        holderAlg: KmsSigningAlg = "ES256",
+    ) {
+        const holderKeyPair = await generateKeyPair(holderAlg, {
             extractable: true,
         });
         const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
@@ -1555,7 +1626,7 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             issuerMetadata,
             signer: {
                 method: "jwk",
-                alg: "ES256",
+                alg: holderAlg,
                 publicJwk: holderPublicKeyJwk,
             } as JwtSignerJwk,
             clientId,

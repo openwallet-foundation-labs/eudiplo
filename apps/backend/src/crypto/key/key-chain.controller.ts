@@ -262,6 +262,11 @@ export class KeyChainController {
         type: KeyChainIdResponseDto,
     })
     @ApiResponse({
+        status: 400,
+        description:
+            "The key material is invalid, or its algorithm is not one the KMS provider offers.",
+    })
+    @ApiResponse({
         status: 409,
         description:
             "The id belongs to a key chain that EUDIPLO manages itself, such as the tenant's encryption key chain.",

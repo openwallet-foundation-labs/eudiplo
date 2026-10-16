@@ -10,10 +10,16 @@ import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto.js";
+import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { TrustListCreateDto } from "../../src/issuer/trust-list/dto/trust-list-create.dto.js";
 import { TrustListService } from "../../src/issuer/trust-list/trustlist.service.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { getToken, readConfig } from "../utils.js";
+import {
+    createKeyChain,
+    deleteKeyChain,
+    expectJwsSignedWithX5c,
+} from "../utils-ec.js";
 
 interface TestContext {
     app: INestApplication<App>;
@@ -674,6 +680,54 @@ describe("Trust List e2e Tests", () => {
 
             const { payload } = await jwtVerify(jwt, publicKey);
             expect(payload.LoTE).toBeDefined();
+        });
+    });
+
+    describe("LoTE JWT Signing with an ES384 key chain", () => {
+        test("signs the LoTE with ES384 and verifies against its x5c", async () => {
+            const keyChainId = await createKeyChain(ctx.app, ctx.authToken, {
+                usageType: KeyUsageType.TrustList,
+                alg: "ES384",
+            });
+            const createDto: TrustListCreateDto = {
+                id: "es384-trust-list",
+                description: "ES384 Signing Test",
+                keyChainId,
+                entities: [
+                    {
+                        type: "internal",
+                        issuerKeyChainId:
+                            "c3f24b6e-9b71-4b62-8d37-5f1a2c9e47ad",
+                        revocationKeyChainId:
+                            "1f8c6b29-a4d3-4e7f-b2a0-9c5d13e8f746",
+                        info: {
+                            name: "ES384 Test Provider",
+                            lang: "en",
+                        },
+                    },
+                ],
+            };
+
+            try {
+                const response = await request(ctx.app.getHttpServer())
+                    .post("/trust-list")
+                    .set("Authorization", `Bearer ${ctx.authToken}`)
+                    .send(createDto)
+                    .expect(201);
+
+                const payload = await expectJwsSignedWithX5c(
+                    response.body.jwt,
+                    "ES384",
+                );
+                expect(payload.LoTE).toBeDefined();
+            } finally {
+                // Later tests rely on the default trust list key chain.
+                await request(ctx.app.getHttpServer())
+                    .delete(`/trust-list/${createDto.id}`)
+                    .set("Authorization", `Bearer ${ctx.authToken}`)
+                    .expect((res) => expect([204, 404]).toContain(res.status));
+                await deleteKeyChain(ctx.app, ctx.authToken, keyChainId);
+            }
         });
     });
 

@@ -21,6 +21,10 @@ import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { EncryptionService } from "../../crypto/encryption/encryption.service.js";
 import { CertService } from "../../crypto/key/cert/cert.service.js";
+import {
+    signingAlgForJwk,
+    signingAlgSpec,
+} from "../../crypto/key/domain/signing-algs.js";
 import { KeyChainService } from "../../crypto/key/key-chain.service.js";
 import { KeyUsageType } from "../../crypto/key/types/key-usage-type.js";
 import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.js";
@@ -365,11 +369,12 @@ export class Iso18013Service {
             tenantId,
             cert.keyId,
         );
+        const alg = signingAlgForJwk(keyChain.activeJwk);
         const signingJwk = (await exportJWK(
             await crypto.subtle.importKey(
                 "jwk",
                 keyChain.activeJwk,
-                { name: "ECDSA", namedCurve: "P-256" },
+                { name: "ECDSA", namedCurve: signingAlgSpec(alg).crv },
                 true,
                 ["sign"],
             ),
@@ -384,6 +389,7 @@ export class Iso18013Service {
             sessionTranscript,
             signingJwk,
             certificateChain,
+            alg,
         );
     }
 

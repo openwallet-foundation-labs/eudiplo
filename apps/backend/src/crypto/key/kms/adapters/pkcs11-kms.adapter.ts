@@ -1,6 +1,14 @@
 import { createHash } from "node:crypto";
 import { Logger, NotImplementedException } from "@nestjs/common";
-import { exportJWK, type JWK } from "jose";
+import type { JWK } from "jose";
+import {
+    assertKmsSigningAlg,
+    externalAlgorithmPolicy,
+    KMS_SIGNING_ALGS,
+    type KmsAlgorithmPolicy,
+    resolveAlgorithmCapabilities,
+    signingAlgSpec,
+} from "../../domain/signing-algs.js";
 import type { KmsProviderType } from "../../dto/kms-config.dto.js";
 import type {
     KmsAdapter,
@@ -28,12 +36,12 @@ export interface Pkcs11AdapterConfig {
      * true if the adapter only needs to sign with existing keys.
      */
     readOnly?: boolean;
+    /**
+     * Algorithms allowed for new keys (from `kms.json`). Restrict them to
+     * the curves the token supports.
+     */
+    algorithms?: KmsAlgorithmPolicy;
 }
-
-// DER encoding of the P-256 named-curve OID (1.2.840.10045.3.1.7).
-const P256_OID_DER = Buffer.from([
-    0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07,
-]);
 
 // Minimal subset of the pkcs11js surface we touch. Avoids a hard
 // compile-time dependency on the optional native module.
@@ -106,7 +114,7 @@ interface Pkcs11Constants {
 /**
  * PKCS#11 KMS adapter.
  *
- * Generates ECDSA P-256 keys directly inside the HSM/token via the
+ * Generates ECDSA P-256, P-384 or P-521 keys directly inside the HSM/token via the
  * PKCS#11 interface and routes all signing through `C_Sign`. Private
  * key material is created with `CKA_SENSITIVE=true` and
  * `CKA_EXTRACTABLE=false` so it never leaves the device.
@@ -124,13 +132,7 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
 
     readonly providerId: string;
     readonly type: KmsProviderType = "pkcs11";
-    readonly capabilities: KmsAdapterCapabilities = {
-        canCreate: true,
-        canImport: false,
-        canDelete: true,
-        supportedAlgs: ["ES256"],
-        defaultAlg: "ES256",
-    };
+    readonly capabilities: KmsAdapterCapabilities;
 
     private readonly config: Pkcs11AdapterConfig;
     private readonly jwkCache = new PublicJwkCache();
@@ -143,14 +145,26 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
     constructor(config: Pkcs11AdapterConfig) {
         this.providerId = config.providerId;
         this.config = config;
+        this.capabilities = {
+            canCreate: true,
+            canImport: false,
+            canDelete: true,
+            // Tokens differ in the curves they support: the default only, unless configured.
+            ...resolveAlgorithmCapabilities(
+                KMS_SIGNING_ALGS,
+                externalAlgorithmPolicy(config.algorithms),
+            ),
+        };
     }
 
     async generateKey(opts: {
         kid: string;
         alg?: KmsSigningAlg;
     }): Promise<KmsKeyMaterial> {
+        // Not limited to capabilities.supportedAlgs: rotation keeps the
+        // algorithm of an existing key chain.
         const alg = opts.alg ?? this.capabilities.defaultAlg;
-        this.assertSupported(alg);
+        assertKmsSigningAlg(alg, `Pkcs11KmsAdapter[${this.providerId}]`);
         const { p11, c, session } = await this.ensureSession();
 
         const idBuf = Buffer.from(opts.kid, "utf8");
@@ -161,7 +175,10 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
             { type: c.CKA_ID, value: idBuf },
             { type: c.CKA_TOKEN, value: true },
             { type: c.CKA_VERIFY, value: true },
-            { type: c.CKA_EC_PARAMS, value: P256_OID_DER },
+            {
+                type: c.CKA_EC_PARAMS,
+                value: Buffer.from(signingAlgSpec(alg).curveOidDer),
+            },
         ];
         const privateTemplate: Pkcs11Attribute[] = [
             { type: c.CKA_CLASS, value: c.CKO_PRIVATE_KEY },
@@ -212,7 +229,8 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
             );
         }
         const signAlg = alg ?? ref.alg;
-        this.assertSupported(signAlg);
+        assertKmsSigningAlg(signAlg, `Pkcs11KmsAdapter[${this.providerId}]`);
+        const spec = signingAlgSpec(signAlg);
 
         const { p11, c, session } = await this.ensureSession();
         const handle = this.findObject(
@@ -228,10 +246,14 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
             );
         }
 
-        const digest = createHash("sha256").update(data).digest();
+        const digest = createHash(spec.nodeHash).update(data).digest();
         p11.C_SignInit(session, { mechanism: c.CKM_ECDSA }, handle);
-        // ECDSA P-256 signature is exactly 64 bytes (r||s).
-        const sig = p11.C_Sign(session, digest, Buffer.alloc(64));
+        // CKM_ECDSA returns the raw r || s, two coordinates long.
+        const sig = p11.C_Sign(
+            session,
+            digest,
+            Buffer.alloc(spec.coordinateSize * 2),
+        );
         return new Uint8Array(sig);
     }
 
@@ -375,35 +397,30 @@ export class Pkcs11KmsAdapter implements KmsAdapter {
                 `Pkcs11KmsAdapter[${this.providerId}]: CKA_EC_POINT returned non-buffer value`,
             );
         }
+        const { crv, coordinateSize } = signingAlgSpec(alg);
         const ecPoint = unwrapEcPoint(raw);
-        if (ecPoint.length !== 65 || ecPoint[0] !== 0x04) {
+        if (ecPoint.length !== 1 + 2 * coordinateSize || ecPoint[0] !== 0x04) {
             throw new Error(
-                `Pkcs11KmsAdapter[${this.providerId}]: unexpected EC point encoding (length ${ecPoint.length})`,
+                `Pkcs11KmsAdapter[${this.providerId}]: unexpected EC point encoding for ${crv} (length ${ecPoint.length})`,
             );
         }
-        const x = ecPoint.subarray(1, 33);
-        const y = ecPoint.subarray(33, 65);
-
-        const spki = buildP256Spki(x, y);
-        const cryptoKey = await globalThis.crypto.subtle.importKey(
-            "spki",
-            new Uint8Array(spki),
-            { name: "ECDSA", namedCurve: "P-256" },
+        const jwk: JWK = {
+            kty: "EC",
+            crv,
+            x: ecPoint.subarray(1, 1 + coordinateSize).toString("base64url"),
+            y: ecPoint.subarray(1 + coordinateSize).toString("base64url"),
+            kid,
+            alg,
+        };
+        // Rejects points that are not on the curve.
+        await globalThis.crypto.subtle.importKey(
+            "jwk",
+            { kty: jwk.kty, crv, x: jwk.x, y: jwk.y },
+            { name: "ECDSA", namedCurve: crv },
             true,
             ["verify"],
         );
-        const jwk = await exportJWK(cryptoKey);
-        jwk.kid = kid;
-        jwk.alg = alg;
         return jwk;
-    }
-
-    private assertSupported(alg: KmsSigningAlg): void {
-        if (!this.capabilities.supportedAlgs.includes(alg)) {
-            throw new Error(
-                `Pkcs11KmsAdapter[${this.providerId}]: unsupported alg '${alg}'`,
-            );
-        }
     }
 }
 
@@ -416,51 +433,11 @@ function unwrapEcPoint(raw: Buffer): Buffer {
     if (raw.length >= 2 && raw[0] === 0x04 && raw[1] === raw.length - 2) {
         return raw.subarray(2);
     }
-    // Long-form DER length (rare for P-256 — 65 bytes fits short form).
+    // Long-form DER length (P-521 points are 133 bytes).
     if (raw.length >= 3 && raw[0] === 0x04 && raw[1] === 0x81) {
         return raw.subarray(3);
     }
     return raw;
-}
-
-/**
- * Build a P-256 SubjectPublicKeyInfo around the raw uncompressed EC
- * point so we can hand it to WebCrypto's SPKI importer.
- *
- * Layout (DER): SEQUENCE { AlgorithmIdentifier, BIT STRING { 04 || x || y } }
- * where AlgorithmIdentifier = SEQUENCE { id-ecPublicKey, prime256v1 OID }.
- */
-function buildP256Spki(x: Buffer, y: Buffer): Buffer {
-    const prefix = Buffer.from([
-        0x30,
-        0x59, // SEQUENCE, 89 bytes
-        0x30,
-        0x13, // SEQUENCE, 19 bytes (AlgorithmIdentifier)
-        0x06,
-        0x07,
-        0x2a,
-        0x86,
-        0x48,
-        0xce,
-        0x3d,
-        0x02,
-        0x01, // id-ecPublicKey
-        0x06,
-        0x08,
-        0x2a,
-        0x86,
-        0x48,
-        0xce,
-        0x3d,
-        0x03,
-        0x01,
-        0x07, // prime256v1
-        0x03,
-        0x42,
-        0x00,
-        0x04, // BIT STRING, 66 bytes, 0 unused, uncompressed
-    ]);
-    return Buffer.concat([prefix, x, y]);
 }
 
 function toConstants(mod: Pkcs11Module): Pkcs11Constants {

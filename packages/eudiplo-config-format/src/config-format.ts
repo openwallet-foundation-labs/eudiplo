@@ -3,7 +3,7 @@
 export const CONFIG_FORMATS = {
     Tenant: { slug: "tenant", file: "TenantConfigFile", version: 1 },
     Client: { slug: "client", file: "ClientConfigFile", version: 2 },
-    KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 1 },
+    KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 2 },
     KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 2 },
     RegistrarConfig: {
         slug: "registrar-config",
@@ -89,13 +89,27 @@ export function resourceId(input: ConfigFile<unknown>): string {
 /**
  * The format version a bare file (a spec without envelope) is read as: v1,
  * except a key chain with `type`, which KeyChain v2 added and which the bare
- * key chain export writes.
+ * key chain export writes, and a KMS configuration with a provider that sets
+ * `algorithms` or `defaultAlgorithm`, which KmsConfig v2 added and which the
+ * tenant `kms.json` is saved as.
  */
 export function bareFileVersion(
     kind: ConfigResourceKind,
     spec: Record<string, unknown>,
 ): number {
-    return kind === "KeyChain" && "type" in spec ? 2 : 1;
+    if (kind === "KeyChain") return "type" in spec ? 2 : 1;
+    if (kind === "KmsConfig") {
+        const providers = Array.isArray(spec.providers) ? spec.providers : [];
+        return providers.some(
+            (provider) =>
+                typeof provider === "object" &&
+                provider !== null &&
+                ("algorithms" in provider || "defaultAlgorithm" in provider),
+        )
+            ? 2
+            : 1;
+    }
+    return 1;
 }
 export interface ConfigMigrationIssue {
     severity: "warning" | "required-input" | "error";
@@ -182,6 +196,16 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 2,
         // v2 only adds the roles audit:read, sessions:read, credentials:status
         // and keys:manage: a v1 spec is a valid v2 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "kms-config-v2-algorithms",
+        kind: "KmsConfig",
+        from: 1,
+        to: 2,
+        // v2 only adds the optional provider fields algorithms and
+        // defaultAlgorithm: a v1 spec is a valid v2 spec, whose providers keep
+        // their default algorithms.
         migrate: (spec) => ({ spec }),
     },
     {

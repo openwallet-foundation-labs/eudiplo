@@ -31,11 +31,11 @@ import {
 } from "../../platform/config-import/config-import-orchestrator.service.js";
 import { loadConfigDto } from "../../shared/utils/config-file-loader.util.js";
 import { TrustListReferences } from "./application/trust-list-references.js";
+import { TrustListInUseError } from "./domain/trust-list-reference.js";
 import {
     isTrustListRenewalDue,
     trustListNextUpdate,
 } from "./domain/trust-list-validity.js";
-import { TrustListInUseError } from "./domain/trust-list-reference.js";
 import {
     TrustListCreateDto,
     TrustListEntity,
@@ -589,6 +589,10 @@ export class TrustListService {
         const signed = await signLoTE({
             lote: trustList.data as LoTEDocument,
             keyId: cert.keyId,
+            algorithm: await this.keyChainService.getSigningAlg(
+                trustList.tenantId,
+                cert.keyId,
+            ),
             signer,
             certificates: cert.crt,
         });

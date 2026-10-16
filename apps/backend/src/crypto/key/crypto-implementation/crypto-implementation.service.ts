@@ -1,22 +1,19 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/oauth2";
-import { ES256 } from "@owf/crypto";
+import { ES256, ES384, ES512 } from "@owf/crypto";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity.js";
+import {
+    KMS_SIGNING_ALGS,
+    type KmsSigningAlg,
+    SIGNING_ALG_SPECS,
+    signingAlgForCurve,
+} from "../domain/signing-algs.js";
 import { CryptoImplementation } from "./crypto-implementation.js";
-
-export type CryptoType = "ES256";
 
 /**
  * JOSE algorithm names used for SD-JWT VC
  */
-export type JoseAlgorithm = "ES256" | "ES384" | "ES512";
-
-const JOSE_TO_CLASSIC_COSE_ALG: Record<JoseAlgorithm, number> = {
-    ES256: -7,
-    ES384: -35,
-    ES512: -36,
-};
+export type JoseAlgorithm = KmsSigningAlg;
 
 /**
  * COSE algorithm identifiers used for mDOC (ISO 18013-5)
@@ -25,49 +22,51 @@ const JOSE_TO_CLASSIC_COSE_ALG: Record<JoseAlgorithm, number> = {
  */
 export type CoseAlgorithm = number;
 
+const CRYPTO_IMPLEMENTATIONS: Record<KmsSigningAlg, CryptoImplementation> = {
+    ES256,
+    ES384,
+    ES512,
+};
+
 @Injectable()
 export class CryptoImplementationService {
-    private readonly supportedAlgorithms: CryptoType[] = ["ES256"];
-    private readonly cryptoMap: Map<CryptoType, CryptoImplementation>;
-    private cachedDefaultAlg: CryptoType | null = null;
-
-    constructor(private readonly configService: ConfigService) {
-        // Initialize the map of algorithms to implementations
-        this.cryptoMap = new Map([["ES256", ES256]]);
-    }
-
     /**
-     * Returns the supported algorithms based on the credential format.
-     * - For SD-JWT VC: Returns JOSE algorithm names (ES256)
-     * - For mDOC: Returns COSE algorithm identifiers (-7)
+     * Algorithms EUDIPLO accepts in signatures of wallets and other issuers
+     * (proofs, key binding JWTs, presented credentials), in the identifiers
+     * of the credential format.
+     * - For SD-JWT VC: JOSE algorithm names (ES256, ES384, ES512)
+     * - For mDOC: classic and fully-specified COSE algorithm identifiers
      * @param credentialFormat The credential format
      * @returns Array of algorithm identifiers appropriate for the format
      */
     getAlgs(
         credentialFormat: CredentialFormat,
     ): (JoseAlgorithm | CoseAlgorithm)[] {
-        // Map internal crypto types to JOSE algorithms
-        const joseAlgs: JoseAlgorithm[] = this.supportedAlgorithms.map(
-            (alg) => {
-                switch (alg) {
-                    case "ES256":
-                        return "ES256";
-                    default:
-                        throw new Error(`Unsupported algorithm: ${alg}`);
-                }
-            },
-        );
+        return this.toFormatAlgs(credentialFormat, KMS_SIGNING_ALGS);
+    }
 
-        if (credentialFormat === CredentialFormat.SD_JWT_VC) {
-            return joseAlgs;
-        }
+    /**
+     * The identifiers of one signing algorithm in a credential format, for
+     * `credential_signing_alg_values_supported` of a credential signed with a
+     * key of that algorithm.
+     */
+    getSigningAlgs(
+        credentialFormat: CredentialFormat,
+        alg: KmsSigningAlg,
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        return this.toFormatAlgs(credentialFormat, [alg]);
+    }
 
+    private toFormatAlgs(
+        credentialFormat: CredentialFormat,
+        joseAlgs: readonly JoseAlgorithm[],
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
         if (credentialFormat === CredentialFormat.MSO_MDOC) {
             const coseAlgs = new Set<number>();
 
             for (const alg of joseAlgs) {
                 // Include classic COSE alg IDs for compatibility with generic identifiers.
-                coseAlgs.add(JOSE_TO_CLASSIC_COSE_ALG[alg]);
+                coseAlgs.add(SIGNING_ALG_SPECS[alg].coseAlg);
 
                 // Also include RFC 9864 fully-specified identifiers.
                 const fullySpecifiedAlg =
@@ -80,34 +79,13 @@ export class CryptoImplementationService {
             return Array.from(coseAlgs);
         }
 
-        // Default to JOSE algorithms
-        return joseAlgs;
-    }
-
-    /**
-     * Return the algorithm that is used for the crypto operations like signing.
-     * @returns The configured algorithm type
-     */
-    getAlg(): CryptoType {
-        if (!this.cachedDefaultAlg) {
-            this.cachedDefaultAlg = this.configService.get(
-                "CRYPTO_ALG",
-            ) as CryptoType;
-
-            // Validate the algorithm type
-            if (!this.supportedAlgorithms.includes(this.cachedDefaultAlg)) {
-                throw new Error(
-                    `Unsupported algorithm: ${this.cachedDefaultAlg}`,
-                );
-            }
-        }
-
-        return this.cachedDefaultAlg;
+        // SD-JWT VC and the default use JOSE algorithms
+        return [...joseAlgs];
     }
 
     /**
      * Returns the crypto implementation directly based on the JWK properties.
-     * Currently supports ES256 (P-256 curve).
+     * Supports EC keys on P-256 (ES256), P-384 (ES384) and P-521 (ES512).
      * @param jwk - JSON Web Key
      * @returns The appropriate crypto implementation
      * @throws Error if the crypto implementation cannot be determined from the JWK
@@ -117,30 +95,13 @@ export class CryptoImplementationService {
             throw new Error("Invalid JWK provided");
         }
 
-        // Check for ES256 (P-256 curve)
-        if (jwk.kty === "EC" && jwk.crv === "P-256") {
-            return this.cryptoMap.get("ES256")!;
+        const alg = jwk.kty === "EC" ? signingAlgForCurve(jwk.crv) : undefined;
+        if (alg) {
+            return CRYPTO_IMPLEMENTATIONS[alg];
         }
 
         throw new Error(
             `Unable to determine crypto implementation from JWK: unsupported key type or curve`,
         );
-    }
-
-    /**
-     * Returns the crypto implementation based on the provided or configured algorithm.
-     * @param alg - Optional algorithm type, defaults to the configured algorithm
-     * @returns The appropriate crypto implementation
-     * @throws Error if the algorithm is not supported
-     */
-    getCrypto(alg?: string): CryptoImplementation {
-        const algorithmType = alg || this.getAlg();
-        const implementation = this.cryptoMap.get(algorithmType as CryptoType);
-
-        if (!implementation) {
-            throw new Error(`Unsupported algorithm: ${algorithmType}`);
-        }
-
-        return implementation;
     }
 }

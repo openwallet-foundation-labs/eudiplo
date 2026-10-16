@@ -651,3 +651,112 @@ describe('KeyCreateWizardComponent internal chains', () => {
     expect(component.configForm.valid).toBe(false);
   });
 });
+
+describe('KeyCreateWizardComponent signing algorithm', () => {
+  let keyChainService: { create: ReturnType<typeof vi.fn>; getProviders: ReturnType<typeof vi.fn> };
+
+  const providers = [
+    {
+      name: 'db',
+      type: 'db',
+      capabilities: {
+        canCreate: true,
+        canImport: true,
+        canDelete: true,
+        supportedAlgs: ['ES256', 'ES384', 'ES512'],
+        defaultAlg: 'ES256',
+      },
+    },
+    {
+      name: 'hsm',
+      type: 'pkcs11',
+      capabilities: {
+        canCreate: true,
+        canImport: false,
+        canDelete: true,
+        supportedAlgs: ['ES384'],
+        defaultAlg: 'ES384',
+      },
+    },
+  ];
+
+  async function create(): Promise<KeyCreateWizardComponent> {
+    const component = new KeyCreateWizardComponent(
+      new FormBuilder(),
+      keyChainService as never,
+      {} as never,
+      { snapshot: { queryParamMap: new Map() } } as never,
+      { navigate: vi.fn() } as never,
+      { open: vi.fn().mockReturnValue({ onAction: () => of() }) } as never,
+      { hasRole: () => false } as never
+    );
+    await component.loadKmsProviders();
+    component.usageForm.patchValue({ usage: 'attestation' });
+    component.caSourceForm.patchValue({ keyChainType: 'internalChain' });
+    return component;
+  }
+
+  beforeEach(() => {
+    keyChainService = {
+      create: vi.fn().mockResolvedValue({ id: 'created' }),
+      getProviders: vi.fn().mockResolvedValue({ providers, default: 'db' }),
+    };
+  });
+
+  it("offers the provider's algorithms and preselects its default", async () => {
+    const component = await create();
+
+    expect(component.algorithmOptions.map((o) => o.value)).toEqual(['ES256', 'ES384', 'ES512']);
+    expect(component.configForm.value.alg).toBe('ES256');
+
+    component.configForm.patchValue({ kmsProvider: 'hsm' });
+    expect(component.algorithmOptions.map((o) => o.value)).toEqual(['ES384']);
+    expect(component.configForm.value.alg).toBe('ES384');
+  });
+
+  it('sends the chosen algorithm and names it in the summary', async () => {
+    const component = await create();
+    component.configForm.patchValue({ alg: 'ES512' });
+
+    expect(component.getSummary()).toContainEqual({
+      label: 'Algorithm',
+      value: 'ES512 (ECDSA P-521)',
+    });
+    await component.createKey();
+
+    expect(keyChainService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'internalChain', alg: 'ES512' })
+    );
+  });
+
+  it('keeps the chosen algorithm when the new provider offers it', async () => {
+    const component = await create();
+    component.configForm.patchValue({ alg: 'ES384' });
+
+    component.configForm.patchValue({ kmsProvider: 'hsm' });
+    expect(component.configForm.value.alg).toBe('ES384');
+
+    component.configForm.patchValue({ alg: 'ES384', kmsProvider: 'db' });
+    expect(component.configForm.value.alg).toBe('ES384');
+  });
+
+  it('names the provider default for a registrar enrollment', async () => {
+    const component = await create();
+    component.usageForm.patchValue({ usage: 'access' });
+    component.accessSourceForm.patchValue({ accessSource: 'registrar' });
+    component.configForm.patchValue({ kmsProvider: 'hsm' });
+
+    expect(component.showAlgorithm).toBe(false);
+    expect(component.getSummary()).toContainEqual({
+      label: 'Algorithm',
+      value: 'ES384 (ECDSA P-384) (provider default)',
+    });
+  });
+
+  it('does not ask for an algorithm when the key is imported', async () => {
+    const component = await create();
+    component.caSourceForm.patchValue({ keyChainType: 'externalCaChain' });
+
+    expect(component.showAlgorithm).toBe(false);
+  });
+});

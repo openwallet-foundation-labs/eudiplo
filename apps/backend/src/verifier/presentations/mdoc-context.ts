@@ -1,15 +1,36 @@
 import { timingSafeEqual } from "node:crypto";
-import { p256 } from "@noble/curves/nist.js";
+import { p256, p384, p521 } from "@noble/curves/nist.js";
 import { hmac } from "@noble/hashes/hmac.js";
 import { sha256 } from "@noble/hashes/sha2.js";
-import { coseKeyToJwkClaim } from "@owf/cose";
+import { Curve, coseKeyToJwkClaim } from "@owf/cose";
 import { hex } from "@owf/identity-common";
 import { CoseKey, type MdocContext } from "@owf/mdoc";
 import { hkdf } from "@panva/hkdf";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
+import { signingAlgForCurve } from "../../crypto/key/domain/signing-algs.js";
 import { toBuffer } from "../../shared/utils/buffer.util.js";
+import { coseReadyJwk } from "../../shared/utils/cose-key-jwk.util.js";
+
+/**
+ * The noble curve for a COSE key's curve. Each one hashes with its own
+ * SHA-2 size (ES256, ES384, ES512). Keys without a curve are P-256.
+ */
+function nobleCurveFor(key: CoseKey) {
+    switch (key.curve ?? Curve["P-256"]) {
+        case Curve["P-256"]:
+            return p256;
+        case Curve["P-384"]:
+            return p384;
+        case Curve["P-521"]:
+            return p521;
+        default:
+            throw new Error(
+                `Unsupported COSE key curve ${String(key.curve)}: expected P-256, P-384 or P-521`,
+            );
+    }
+}
 
 // Use global Web Crypto API (available in Node.js 19+)
 const webCrypto = globalThis.crypto;
@@ -249,16 +270,21 @@ export const mdocContext: Omit<MdocContext, "fetch"> = {
         sign1: {
             sign: async (input) => {
                 const { key, toBeSigned } = input;
-                return p256.sign(toBeSigned, key.privateKey, {
+                return nobleCurveFor(key).sign(toBeSigned, key.privateKey, {
                     format: "compact",
                 });
             },
             verify: async (input) => {
                 const { signature, key, toBeVerified } = input;
                 // lowS is needed after upgrade of @noble/curves to keep existing tests passing
-                return p256.verify(signature, toBeVerified, key.publicKey, {
-                    lowS: false,
-                });
+                return nobleCurveFor(key).verify(
+                    signature,
+                    toBeVerified,
+                    key.publicKey,
+                    {
+                        lowS: false,
+                    },
+                );
             },
         },
     },
@@ -284,14 +310,22 @@ export const mdocContext: Omit<MdocContext, "fetch"> = {
             );
             const alg = input.algorithm
                 ? coseKeyToJwkClaim.algorithm(input.algorithm)
-                : "ES256";
+                : (signingAlgForCurve(
+                      (certificate.publicKey.algorithm as EcKeyAlgorithm)
+                          .namedCurve,
+                  ) ?? "ES256");
 
             const key = await importX509(certificate.toString(), alg, {
                 extractable: true,
             });
 
             return CoseKey.fromJwk(
-                (await exportJWK(key)) as unknown as Record<string, unknown>,
+                coseReadyJwk(
+                    (await exportJWK(key)) as unknown as Record<
+                        string,
+                        unknown
+                    >,
+                ),
             );
         },
 

@@ -10,6 +10,7 @@ import {
     urlField,
     withMeta,
 } from "../../../shared/common/zod/zod-schema.util.js";
+import { KMS_SIGNING_ALGS } from "../domain/signing-algs.js";
 
 /**
  * Fields that hold credentials. Their values are never returned by the API
@@ -121,6 +122,16 @@ const BaseKmsProviderConfigSchema = z.strictObject({
         "Human-readable description of this provider instance.",
         "Production HashiCorp Vault for signing keys",
     ),
+    algorithms: withMeta(z.array(z.enum(KMS_SIGNING_ALGS)).min(1).optional(), {
+        description:
+            "Signing algorithms new key chains of this provider may use: ES256 (P-256), ES384 (P-384), ES512 (P-521). Defaults to all three for db, vault and aws-kms. For pkcs11, http and csc, whose backends may not support every curve, it defaults to defaultAlgorithm (ES256 unless set). Existing keys keep signing with their own algorithm.",
+        examples: [["ES256", "ES384"]],
+    }),
+    defaultAlgorithm: withMeta(z.enum(KMS_SIGNING_ALGS).optional(), {
+        description:
+            "Algorithm used when a key chain is created without one. Must be in algorithms. Defaults to ES256 if allowed, otherwise the first entry of algorithms.",
+        examples: ["ES256"],
+    }),
 });
 
 export const DbKmsConfigSchema = BaseKmsProviderConfigSchema.extend({
@@ -360,6 +371,18 @@ export const KmsConfigSchema = z
             }
 
             providerIds.set(provider.id, index);
+
+            if (
+                provider.defaultAlgorithm !== undefined &&
+                provider.algorithms !== undefined &&
+                !provider.algorithms.includes(provider.defaultAlgorithm)
+            ) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["providers", index, "defaultAlgorithm"],
+                    message: `defaultAlgorithm '${provider.defaultAlgorithm}' is not in algorithms (${provider.algorithms.join(", ")})`,
+                });
+            }
         }
 
         if (

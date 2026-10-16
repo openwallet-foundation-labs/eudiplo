@@ -136,3 +136,50 @@ test.describe('key creation wizard imports', () => {
     expect(stored.type).toBe('standalone');
   });
 });
+
+test.describe('key creation wizard signing algorithm', () => {
+  const created: string[] = [];
+
+  test.beforeEach(() => {
+    test.skip(
+      !hasAuthCredentials,
+      'Set E2E_TENANT_CLIENT_ID and E2E_TENANT_CLIENT_SECRET for tenant flow tests.'
+    );
+  });
+
+  test.afterAll(async ({ request }) => {
+    for (const id of created) await deleteKeyChain(request, id);
+  });
+
+  test('creates an ES384 key chain on P-384', async ({ page, request }) => {
+    const description = `E2E ES384 ${randomBytes(4).toString('hex')}`;
+    await configure(
+      page,
+      ['Credential Signing (Attestation)', 'Create Key Chain (Recommended)'],
+      description
+    );
+
+    const algorithm = page.getByRole('combobox', { name: 'Signing Algorithm' });
+    await expect(algorithm).toContainText('ES256 (ECDSA P-256)');
+    await algorithm.click();
+    await page.getByRole('option', { name: 'ES384 (ECDSA P-384)' }).click();
+    await expect(page.locator('.summary-card')).toContainText(/Algorithm:\s*ES384 \(ECDSA P-384\)/);
+
+    const answered = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/api/key-chain') && response.request().method() === 'POST'
+    );
+    await page.getByRole('button', { name: 'Create Key Chain' }).click();
+    const response = await answered;
+    expect(response.ok(), `POST /api/key-chain: ${await response.text()}`).toBe(true);
+    const { id } = (await response.json()) as { id: string };
+    created.push(id);
+    expect(response.request().postDataJSON()).toMatchObject({ alg: 'ES384' });
+
+    await expect(page.getByRole('heading', { name: `Key Chain: ${description}` })).toBeVisible();
+    await expect(page.getByText('ES384 (ECDSA P-384)')).toBeVisible();
+    const stored = await keyChain(request, id);
+    expect(stored.alg).toBe('ES384');
+    expect(stored.activePublicKey.crv).toBe('P-384');
+  });
+});
