@@ -1,9 +1,7 @@
 import { inflateSync } from "node:zlib";
 import { Injectable, Logger } from "@nestjs/common";
 import {
-    getListFromStatusListJWT,
     getStatusListFromJWT,
-    StatusList,
     StatusListCwt,
     StatusListEntry,
     StatusType,
@@ -55,14 +53,6 @@ const STATUS_LIST_JWT_TYPES = new Set([
 
 /** Byte budget of the parsed status lists. */
 const PARSED_CACHE_MAX_BYTES = 64 * 1024 * 1024;
-
-/**
- * A parsed `StatusList` holds a JavaScript array with one number per status,
- * about 8 bytes each whatever the bits per status. The compressed token does
- * not bound this: a token of a few hundred bytes can hold millions of
- * statuses.
- */
-const PARSED_BYTES_PER_STATUS = 8;
 
 /**
  * Memory a status list token takes, or more. A string is counted at two
@@ -122,14 +112,6 @@ export interface StatusCheckResult {
 @Injectable()
 export class StatusListVerifierService {
     private readonly logger = new Logger(StatusListVerifierService.name);
-
-    /**
-     * Cache of parsed status lists keyed by URI.
-     */
-    private readonly cache = new BoundedTtlCache<StatusList>({
-        maxEntries: CACHE_MAX_ENTRIES,
-        maxBytes: PARSED_CACHE_MAX_BYTES,
-    });
 
     /**
      * Cache of raw status list JWTs keyed by URI.
@@ -310,59 +292,6 @@ export class StatusListVerifierService {
     }
 
     /**
-     * Get a status list from cache or fetch it. The token's signature is not
-     * verified, so a status read from this list must not decide whether a
-     * credential is accepted.
-     *
-     * @param uri The URI of the status list JWT
-     * @returns The parsed StatusList
-     */
-    async getStatusList(uri: string): Promise<StatusList> {
-        // Check cache first
-        const cached = this.cache.get(uri);
-        if (cached) {
-            this.logger.debug(`Using cached status list for ${uri}`);
-            return cached;
-        }
-
-        // Fetch and cache
-        this.logger.debug(`Fetching status list from ${uri}`);
-        const statusListToken = await this.fetchStatusListToken(uri);
-
-        let statusList: StatusList;
-        let ttl: number | undefined;
-        let exp: number | undefined;
-
-        if (typeof statusListToken === "string") {
-            statusList = getListFromStatusListJWT(statusListToken);
-            const payload = decodeJwt(statusListToken);
-            ttl = typeof payload.ttl === "number" ? payload.ttl : undefined;
-            exp = typeof payload.exp === "number" ? payload.exp : undefined;
-        } else {
-            const statusListCwt = StatusListCwt.fromToken(statusListToken);
-            statusList = statusListCwt.payload.statusList;
-            ttl = statusListCwt.payload.timeToLive;
-            exp = statusListCwt.payload.expirationTime
-                ? Math.floor(
-                      statusListCwt.payload.expirationTime.getTime() / 1000,
-                  )
-                : undefined;
-        }
-
-        this.cache.set(
-            uri,
-            statusList,
-            // The token's size covers what the list keeps besides its
-            // statuses, such as its aggregation_uri.
-            tokenBytes(statusListToken) +
-                statusList.totalStatuses * PARSED_BYTES_PER_STATUS,
-            this.cacheExpiresAt(ttl, exp),
-        );
-
-        return statusList;
-    }
-
-    /**
      * Fetch a status list JWT from a URI.
      *
      * @param uri The URI to fetch
@@ -437,12 +366,10 @@ export class StatusListVerifierService {
      */
     clearCache(uri?: string): void {
         if (uri) {
-            this.cache.delete(uri);
             this.cachedJwts.delete(uri);
             this.cachedCwts.delete(uri);
             this.inflatedLists.delete(uri);
         } else {
-            this.cache.clear();
             this.cachedJwts.clear();
             this.cachedCwts.clear();
             this.inflatedLists.clear();
@@ -453,16 +380,14 @@ export class StatusListVerifierService {
      * Get cache statistics for monitoring. Expired entries are not counted.
      */
     getCacheStats(): { size: number; jwtCacheSize: number; uris: string[] } {
-        this.cache.deleteExpired();
         this.cachedJwts.deleteExpired();
         this.cachedCwts.deleteExpired();
         this.inflatedLists.deleteExpired();
         return {
-            size: this.cache.size,
+            size: this.inflatedLists.size,
             jwtCacheSize: this.cachedJwts.size,
             uris: Array.from(
                 new Set([
-                    ...this.cache.keys(),
                     ...this.cachedJwts.keys(),
                     ...this.cachedCwts.keys(),
                     ...this.inflatedLists.keys(),

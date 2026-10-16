@@ -91,6 +91,7 @@ export async function generateSelfSignedCertificate(): Promise<{
 export async function createMockTrustListJwt(
     signingCert: { certificate: X509Certificate; privateKey: CryptoKey },
     walletProviderCert: X509Certificate,
+    serviceTypeIdentifier = "http://uri.etsi.org/19602/SvcType/WalletSolution",
 ): Promise<string> {
     const privateKeyArrayBuffer = await globalThis.crypto.subtle.exportKey(
         "pkcs8",
@@ -129,8 +130,7 @@ export async function createMockTrustListJwt(
                     TrustedEntityServices: [
                         {
                             ServiceInformation: {
-                                ServiceTypeIdentifier:
-                                    "http://uri.etsi.org/19602/SvcType/WalletSolution",
+                                ServiceTypeIdentifier: serviceTypeIdentifier,
                                 ServiceName: [
                                     {
                                         lang: "en",
