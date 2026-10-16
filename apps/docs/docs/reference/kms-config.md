@@ -17,6 +17,12 @@ rejected. Unlike configuration import files, `kms.json` has no
 `${VAR:default}` syntax. `defaultProvider` must match a provider `id`, and
 provider IDs must be unique.
 
+Both files are either the bare content below or a `KmsConfig` document with
+`$schema` (`https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json`, older
+versions are migrated) and the content in `spec`; see
+[Document envelope](config-bundle-format.md#document-envelope). A document of
+another kind is rejected.
+
 import SchemaReference from "@site/src/components/SchemaReference";
 
 ## File

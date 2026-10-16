@@ -172,4 +172,77 @@ describe("KmsConfigService", () => {
         expect(provider?.type).toBe("csc");
         expect(service.getDefaultProviderId("tenant-a")).toBe("shared");
     });
+
+    it("reads kms.json files wrapped in a configuration document", () => {
+        vi.mocked(existsSync).mockImplementation((path) => {
+            const value = String(path);
+            return (
+                value === "/config/kms.json" ||
+                value === "/config/tenant-a/kms.json"
+            );
+        });
+        vi.mocked(readFileSync).mockImplementation((path) => {
+            const value = String(path);
+            if (value === "/config/kms.json") {
+                return JSON.stringify({
+                    $schema:
+                        "https://eudiplo.dev/schemas/v1/KmsConfigFile.schema.json",
+                    spec: {
+                        defaultProvider: "db",
+                        providers: [
+                            {
+                                id: "db",
+                                type: "db",
+                                description: "Default database provider",
+                            },
+                        ],
+                    },
+                });
+            }
+
+            if (value === "/config/tenant-a/kms.json") {
+                return JSON.stringify({
+                    $schema:
+                        "https://eudiplo.dev/schemas/v2/KmsConfigFile.schema.json",
+                    metadata: { generation: 2 },
+                    spec: {
+                        defaultProvider: "tenant-db",
+                        providers: [
+                            {
+                                id: "tenant-db",
+                                type: "db",
+                                algorithms: ["ES384"],
+                            },
+                        ],
+                    },
+                });
+            }
+
+            throw new Error(`unexpected path ${value}`);
+        });
+
+        const service = createService();
+
+        expect(service.getDefaultProviderId()).toBe("db");
+        expect(service.getProviders("tenant-a")).toEqual([
+            { id: "db", type: "db", description: "Default database provider" },
+            { id: "tenant-db", type: "db", algorithms: ["ES384"] },
+        ]);
+        expect(service.getDefaultProviderId("tenant-a")).toBe("tenant-db");
+    });
+
+    it("rejects a kms.json document of another kind", () => {
+        vi.mocked(existsSync).mockImplementation(
+            (path) => String(path) === "/config/kms.json",
+        );
+        vi.mocked(readFileSync).mockImplementation(() =>
+            JSON.stringify({
+                $schema:
+                    "https://eudiplo.dev/schemas/v1/TenantConfigFile.schema.json",
+                spec: { name: "demo" },
+            }),
+        );
+
+        expect(() => createService()).toThrow(/expected a KmsConfig document/);
+    });
 });

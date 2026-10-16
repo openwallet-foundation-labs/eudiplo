@@ -7,6 +7,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
+import { KmsConfigService } from "../../src/crypto/key/kms/kms-config.service.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
 import { getTenantAdminToken, getToken } from "../utils.js";
 
@@ -355,5 +356,53 @@ describe("Key Chain — KMS configuration management (e2e)", () => {
                 ],
             })
             .expect(400);
+    });
+
+    test("reads a tenant kms.json written as a configuration document", async () => {
+        const server = app.getHttpServer();
+        const tenantFile = join(tmpConfigDir, TENANT_ID, "kms.json");
+        const spec = {
+            defaultProvider: "tenant-db",
+            providers: [{ id: "tenant-db", type: "db" }],
+        };
+        try {
+            writeFileSync(
+                tenantFile,
+                JSON.stringify({
+                    $schema:
+                        "https://eudiplo.dev/schemas/v1/KmsConfigFile.schema.json",
+                    spec,
+                }),
+            );
+            app.get(KmsConfigService).invalidateTenantCache(TENANT_ID);
+
+            const res = await request(server)
+                .get("/key-chain/providers/config")
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+            expect(res.body.tenantConfig).toEqual(spec);
+            expect(res.body.effectiveConfig.defaultProvider).toBe("tenant-db");
+
+            writeFileSync(
+                tenantFile,
+                JSON.stringify({
+                    $schema:
+                        "https://eudiplo.dev/schemas/v1/TenantConfigFile.schema.json",
+                    spec: { name: "demo" },
+                }),
+            );
+            const refused = await request(server)
+                .get("/key-chain/providers/config")
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(400);
+            expect(JSON.stringify(refused.body)).toContain(
+                "expected a KmsConfig document",
+            );
+        } finally {
+            await request(server)
+                .delete("/key-chain/providers/config")
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(204);
+        }
     });
 });

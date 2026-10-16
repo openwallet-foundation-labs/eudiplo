@@ -7,6 +7,7 @@ import {
     type KmsProviderConfig,
     parseResolvedKmsConfig,
 } from "../schemas/kms-config.schema.js";
+import { kmsConfigFileSpec } from "./kms-config-file.js";
 
 const DEFAULT_PROVIDER_ID = "db";
 
@@ -70,7 +71,11 @@ export class KmsConfigService {
 
         try {
             const raw = readFileSync(globalPath, "utf8");
-            return parseResolvedKmsConfig(JSON.parse(raw), "global kms.json");
+            const source = "global kms.json";
+            return parseResolvedKmsConfig(
+                kmsConfigFileSpec(JSON.parse(raw), source),
+                source,
+            );
         } catch (err) {
             this.logger.warn(
                 `Failed to read global kms.json at ${globalPath}: ${
@@ -89,9 +94,10 @@ export class KmsConfigService {
 
         try {
             const raw = readFileSync(tenantPath, "utf8");
+            const source = `tenant '${tenantId}' kms.json`;
             return parseResolvedKmsConfig(
-                JSON.parse(raw),
-                `tenant '${tenantId}' kms.json`,
+                kmsConfigFileSpec(JSON.parse(raw), source),
+                source,
             );
         } catch (err) {
             this.logger.warn(
