@@ -47,7 +47,11 @@ import type {
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import { CONFIG_RESOURCE_KINDS } from "./config-resource.types.js";
-import { mayReadConfigOwnership } from "./config-resource-access.js";
+import {
+    mayExportConfigDocument,
+    mayReadConfigOwnership,
+} from "./config-resource-access.js";
+import { ConfigDocumentDto } from "./dto/config-document.dto.js";
 import { ConfigResourceOwnershipDto } from "./dto/config-resource-ownership.dto.js";
 
 @ApiTags("Configuration portability")
@@ -341,6 +345,66 @@ export class ConfigPortabilityController {
             );
         }
         return this.ownershipService.listKind(tenantId, kind);
+    }
+
+    @Get("resources/:kind/:id/document")
+    // A literal list for the roles reference; config-resource-access.spec.ts
+    // keeps it equal to the roles mayExportConfigDocument admits.
+    @Secured([
+        Role.Tenants,
+        Role.TenantAdmin,
+        Role.Issuances,
+        Role.Presentations,
+        Role.Clients,
+        Role.Registrar,
+    ])
+    @ApiOperation({
+        summary: "Export one resource as a configuration document",
+        description:
+            "Returns the resource as a `$schema` and `spec` document in the current format version, the format of the files in the config folder and of the documents in a configuration bundle. Secrets are `${PLACEHOLDER}` references, as in the bundle export, and image references name the file. A key chain held in the database keeps its private keys, for a CA chain also the signing key, which `GET /key-chain/{id}/export` leaves out, so a `KeyChain` document needs `tenant:admin` or `tenants:manage`. Other kinds accept the roles that change them through the management API, for example `issuance:manage` for `CredentialConfig`. Singleton kinds use their fixed ID: `tenant`, `kms`, `registrar` and `issuance`.",
+    })
+    @ApiParam({ name: "kind", enum: CONFIG_RESOURCE_KINDS })
+    @ApiParam({ name: "id", description: "Resource ID" })
+    @ApiResponse({
+        status: 200,
+        description: "The configuration document",
+        type: ConfigDocumentDto,
+    })
+    @ApiResponse({ status: 400, description: "Unknown resource kind." })
+    @ApiResponse({
+        status: 403,
+        description:
+            "The token has no tenant or no role that may export this kind.",
+    })
+    @ApiResponse({ status: 404, description: "The resource does not exist." })
+    async exportDocument(
+        @Token() token: TokenPayload,
+        @Req() request: Request,
+        @Param("kind") rawKind: string,
+        @Param("id") id: string,
+    ): Promise<ConfigFile> {
+        const tenantId = requireTenantContext(token);
+        const kind = this.assertKind(rawKind);
+        if (!mayExportConfigDocument(token.roles, kind)) {
+            throw new ForbiddenException(
+                kind === "KeyChain"
+                    ? "A key chain document contains private keys and needs tenant:admin or tenants:manage."
+                    : `Exporting ${kind} resources needs a role that manages them.`,
+            );
+        }
+        const document = await this.bundleService.exportDocument(
+            tenantId,
+            kind,
+            id,
+        );
+        await this.auditLogService.record({
+            tenantId,
+            actionType: "config_resource_exported",
+            actor: resolveAuditActor(token),
+            after: { kind, id },
+            requestMeta: extractRequestMeta(request),
+        });
+        return document;
     }
 
     @Post("resources/:kind/:id/detach")

@@ -22,7 +22,7 @@ import {
   getRegistrationCertStatus,
   type RegistrationCertStatus,
 } from '../../../utils/registration-cert-status';
-import { downloadJsonFile } from '../../../common/download-json.util';
+import { ConfigDocumentService } from '../../../config-portability/config-document.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
 import { getApiErrorMessage } from '../../../utils/error-message';
@@ -70,7 +70,8 @@ export class PresentationShowComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
-    private readonly clipboard: Clipboard
+    private readonly clipboard: Clipboard,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   ngOnInit(): void {
@@ -247,24 +248,24 @@ export class PresentationShowComponent implements OnInit {
     }
   }
 
-  /**
-   * Downloads the current configuration as a JSON file.
-   */
-  downloadConfig() {
-    if (this.config) {
-      const exportConfig: any = { ...this.config };
-      if (this.registrationCertJwt) {
-        exportConfig.registration_cert = {
-          ...((this.config as any).registration_cert ?? {}),
-          jwt: this.registrationCertJwt,
-        };
-      }
-      delete exportConfig.registrationCertCache;
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('PresentationConfig');
+  }
 
-      downloadJsonFile(exportConfig, `presentation-config-${this.config.id}.json`);
+  /**
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
+   */
+  async downloadConfig(): Promise<void> {
+    if (!this.config) return;
+    try {
+      const message = await this.configDocuments.download('PresentationConfig', this.config.id);
+      this.snackBar.open(message, 'Close', { duration: 8000 });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
     }
-    this.snackBar.open('Configuration downloaded', 'Close', {
-      duration: 3000,
-    });
   }
 }

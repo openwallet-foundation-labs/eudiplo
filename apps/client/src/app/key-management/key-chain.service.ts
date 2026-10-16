@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   type KmsConfigDto,
   type KmsProvidersResponseDto,
@@ -10,7 +10,6 @@ import {
   keyChainControllerCreate,
   keyChainControllerDelete,
   keyChainControllerDeleteTenantKmsConfig,
-  keyChainControllerExport,
   keyChainControllerGetAll,
   keyChainControllerGetById,
   keyChainControllerGetProviders,
@@ -21,6 +20,7 @@ import {
   keyChainControllerUpdate,
   keyChainControllerUpdateTenantKmsConfig,
 } from '@eudiplo/sdk-core';
+import { ConfigDocumentService } from '../config-portability/config-document.service';
 import type { Role } from '../services/jwt.service';
 import { hasHttpStatus } from '../utils/error-message';
 
@@ -55,6 +55,8 @@ export function isForbidden(error: unknown): boolean {
   providedIn: 'root',
 })
 export class KeyChainService {
+  private readonly configDocuments = inject(ConfigDocumentService);
+
   /**
    * Get available KMS providers and configured default provider.
    */
@@ -160,11 +162,11 @@ export class KeyChainService {
   }
 
   /**
-   * Export a key chain in config-import-compatible format (includes the private
-   * key of database-held keys). Requires the tenant:admin or tenants:manage role.
+   * Saves the key chain as a configuration document for the config folder and
+   * configuration bundles. It includes the private keys of database-held keys,
+   * so it requires the tenant:admin or tenants:manage role.
    */
-  async export(id: string): Promise<Record<string, unknown>> {
-    const response = await keyChainControllerExport({ path: { id } });
-    return response.data as Record<string, unknown>;
+  async downloadConfig(id: string): Promise<void> {
+    await this.configDocuments.download('KeyChain', id);
   }
 }

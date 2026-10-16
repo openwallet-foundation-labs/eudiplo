@@ -28,9 +28,16 @@
         <button mat-icon-button [routerLink]="['copy']" matTooltip="Copy configuration">
           <mat-icon>content_copy</mat-icon>
         </button>
-        <button mat-icon-button (click)="downloadConfig()" matTooltip="Download configuration">
-          <mat-icon>download</mat-icon>
-        </button>
+        @if (canDownloadConfig) {
+          <button
+            mat-icon-button
+            aria-label="Download configuration"
+            (click)="downloadConfig()"
+            matTooltip="Download configuration"
+          >
+            <mat-icon>download</mat-icon>
+          </button>
+        }
         <button
           mat-icon-button
           (click)="deletePresentation()"

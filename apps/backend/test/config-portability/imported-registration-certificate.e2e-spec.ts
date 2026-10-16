@@ -225,6 +225,43 @@ describe("config bundle plan with an imported registration certificate (e2e)", (
         await app?.close();
     });
 
+    test("exports an imported certificate and re-imports it unchanged", async () => {
+        await storeCovered("exported");
+        const jwt = covering();
+        const bundle = bundleOf([presentationDocument("exported", jwt)]);
+        await apply(bundle, (await plan(bundle)).planFingerprint!).expect(201);
+
+        const document = (
+            await api()
+                .get(
+                    "/config-bundles/resources/PresentationConfig/exported/document",
+                )
+                .set("Authorization", auth)
+                .expect(200)
+        ).body;
+        expect(document.spec.registration_cert).toEqual({ jwt });
+        const result = await plan(bundleOf([document]));
+        expect(result.items.map((item) => item.action)).toEqual(["unchanged"]);
+
+        // A bundle export keeps the certificate as well.
+        const exported: ConfigBundle = (
+            await api()
+                .get("/config-bundles/export")
+                .set("Authorization", auth)
+                .expect(200)
+        ).body;
+        const presentation = exported.documents.find(
+            (candidate) => candidate.spec.id === "exported",
+        );
+        expect(presentation?.spec.registration_cert).toEqual({ jwt });
+        const replanned = await plan(exported);
+        expect(
+            replanned.items
+                .filter((item) => item.id === "exported")
+                .map((item) => item.action),
+        ).toEqual(["unchanged"]);
+    });
+
     test("blocks a certificate that does not cover the request", async () => {
         await expectRefused(
             certificate([["given_name"]]),

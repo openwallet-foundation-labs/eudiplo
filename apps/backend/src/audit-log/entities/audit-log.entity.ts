@@ -30,6 +30,7 @@ export type AuditActionType =
     | "config_client_secret_generated"
     | "config_resource_detached"
     | "config_resource_reattached"
+    | "config_resource_exported"
     | "session_cancelled";
 
 export type AuditActorType = "user" | "client" | "system";

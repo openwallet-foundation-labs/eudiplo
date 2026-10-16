@@ -827,6 +827,7 @@ export const AuditLogResponseDtoSchema = {
                 'config_client_secret_generated',
                 'config_resource_detached',
                 'config_resource_reattached',
+                'config_resource_exported',
                 'session_cancelled'
             ],
             type: 'string'
@@ -12800,6 +12801,48 @@ export const ConfigResourceOwnershipDtoSchema = {
         'resourceId',
         'ownership',
         'generation'
+    ]
+} as const;
+
+export const ConfigDocumentMetadataDtoSchema = {
+    type: 'object',
+    properties: {
+        generation: {
+            type: 'number',
+            description: 'Generation of the stored definition',
+            minimum: 1
+        },
+        ownership: {
+            enum: [
+                'unmanaged',
+                'file-managed'
+            ],
+            type: 'string',
+            description: 'Who owns the resource'
+        }
+    }
+} as const;
+
+export const ConfigDocumentDtoSchema = {
+    type: 'object',
+    properties: {
+        $schema: {
+            type: 'string',
+            description: 'Canonical schema URL; names the kind and the format version',
+            example: 'https://eudiplo.dev/schemas/v2/CredentialConfigFile.schema.json'
+        },
+        metadata: {
+            $ref: '#/components/schemas/ConfigDocumentMetadataDto'
+        },
+        spec: {
+            type: 'object',
+            additionalProperties: true,
+            description: 'The resource configuration in the schema\'s format'
+        }
+    },
+    required: [
+        '$schema',
+        'spec'
     ]
 } as const;
 

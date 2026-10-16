@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
 import { decodeJwt, decodeProtectedHeader } from 'jose';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { IssuanceConfig } from '@eudiplo/sdk-core';
-import { downloadJsonFile } from '../../../common/download-json.util';
+import { ConfigDocumentService } from '../../../config-portability/config-document.service';
 import {
   defaultAccessTokenLifetimeSeconds,
   IssuanceConfigService,
@@ -102,7 +102,8 @@ export class IssuanceConfigShowComponent implements OnInit {
   constructor(
     private readonly issuanceConfigService: IssuanceConfigService,
     private readonly snackBar: MatSnackBar,
-    private readonly clipboard: Clipboard
+    private readonly clipboard: Clipboard,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   get primaryDisplay(): any {
@@ -346,15 +347,24 @@ export class IssuanceConfigShowComponent implements OnInit {
     return new Date(dateString).toLocaleString();
   }
 
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('IssuanceConfig');
+  }
+
   /**
-   * Downloads the current configuration as a JSON file.
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
    */
-  downloadConfig() {
-    if (this.config) {
-      downloadJsonFile(this.config, 'issuance-config.json');
+  async downloadConfig(): Promise<void> {
+    if (!this.config) return;
+    try {
+      const message = await this.configDocuments.download('IssuanceConfig', 'issuance');
+      this.snackBar.open(message, 'Close', { duration: 8000 });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
     }
-    this.snackBar.open('Configuration downloaded', 'Close', {
-      duration: 3000,
-    });
   }
 }

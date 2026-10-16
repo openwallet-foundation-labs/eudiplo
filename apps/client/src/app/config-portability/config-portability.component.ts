@@ -33,6 +33,7 @@ import {
 } from './config-portability.service';
 import { openErrorSnackBar } from '../utils/error-snackbar';
 import { offersApplyFromFile } from './config-ownership.service';
+import { isConfigDocument, singleDocumentBundle } from './config-document-bundle';
 
 /**
  * How one side of a field change reads in the plan: a value, a word naming what is not shown,
@@ -150,13 +151,19 @@ export class ConfigPortabilityComponent implements OnInit {
         this.bundle = undefined;
       } else {
         const parsed = JSON.parse(await file.text()) as ConfigBundle;
-        if (
+        if (isConfigDocument(parsed)) {
+          // A single resource, as "Download configuration" saves it.
+          this.bundle = await singleDocumentBundle(parsed, this.jwt.getTenantId() ?? '');
+        } else if (
           parsed.manifest?.format !== 'eudiplo.config-bundle' ||
           !Array.isArray(parsed.documents)
         ) {
-          throw new Error('This is not an EUDIPLO configuration bundle');
+          throw new Error(
+            'This is neither an EUDIPLO configuration bundle nor a configuration document'
+          );
+        } else {
+          this.bundle = parsed;
         }
-        this.bundle = parsed;
         this.bundleArchive = undefined;
       }
       this.bundleFileName = file.name;

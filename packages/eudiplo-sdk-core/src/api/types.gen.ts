@@ -413,7 +413,7 @@ export type UpdateTenantDto = {
 export type AuditLogResponseDto = {
     id: string;
     tenantId: string;
-    actionType: 'tenant_created' | 'tenant_updated' | 'tenant_deleted' | 'presentation_config_created' | 'presentation_config_updated' | 'presentation_config_deleted' | 'issuance_config_updated' | 'credential_config_created' | 'credential_config_updated' | 'credential_config_deleted' | 'status_list_config_updated' | 'status_list_config_reset' | 'webhook_endpoint_created' | 'webhook_endpoint_updated' | 'webhook_endpoint_deleted' | 'attribute_provider_created' | 'attribute_provider_updated' | 'attribute_provider_deleted' | 'config_bundle_exported' | 'config_bundle_imported' | 'config_client_secret_generated' | 'config_resource_detached' | 'config_resource_reattached' | 'session_cancelled';
+    actionType: 'tenant_created' | 'tenant_updated' | 'tenant_deleted' | 'presentation_config_created' | 'presentation_config_updated' | 'presentation_config_deleted' | 'issuance_config_updated' | 'credential_config_created' | 'credential_config_updated' | 'credential_config_deleted' | 'status_list_config_updated' | 'status_list_config_reset' | 'webhook_endpoint_created' | 'webhook_endpoint_updated' | 'webhook_endpoint_deleted' | 'attribute_provider_created' | 'attribute_provider_updated' | 'attribute_provider_deleted' | 'config_bundle_exported' | 'config_bundle_imported' | 'config_client_secret_generated' | 'config_resource_detached' | 'config_resource_reattached' | 'config_resource_exported' | 'session_cancelled';
     actorType: 'user' | 'client' | 'system';
     actorId?: string;
     actorDisplay?: string;
@@ -6071,6 +6071,31 @@ export type ConfigResourceOwnershipDto = {
     lastAppliedAt?: string;
 };
 
+export type ConfigDocumentMetadataDto = {
+    /**
+     * Generation of the stored definition
+     */
+    generation?: number;
+    /**
+     * Who owns the resource
+     */
+    ownership?: 'unmanaged' | 'file-managed';
+};
+
+export type ConfigDocumentDto = {
+    /**
+     * Canonical schema URL; names the kind and the format version
+     */
+    $schema: string;
+    metadata?: ConfigDocumentMetadataDto;
+    /**
+     * The resource configuration in the schema's format
+     */
+    spec: {
+        [key: string]: unknown;
+    };
+};
+
 export type PresentationConfigWritable = {
     /**
      * Clock skew tolerance for credential JWT time validation, in seconds.
@@ -8884,6 +8909,43 @@ export type ConfigPortabilityControllerResourcesOfKindResponses = {
 };
 
 export type ConfigPortabilityControllerResourcesOfKindResponse = ConfigPortabilityControllerResourcesOfKindResponses[keyof ConfigPortabilityControllerResourcesOfKindResponses];
+
+export type ConfigPortabilityControllerExportDocumentData = {
+    body?: never;
+    path: {
+        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+        /**
+         * Resource ID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/config-bundles/resources/{kind}/{id}/document';
+};
+
+export type ConfigPortabilityControllerExportDocumentErrors = {
+    /**
+     * Unknown resource kind.
+     */
+    400: unknown;
+    /**
+     * The token has no tenant or no role that may export this kind.
+     */
+    403: unknown;
+    /**
+     * The resource does not exist.
+     */
+    404: unknown;
+};
+
+export type ConfigPortabilityControllerExportDocumentResponses = {
+    /**
+     * The configuration document
+     */
+    200: ConfigDocumentDto;
+};
+
+export type ConfigPortabilityControllerExportDocumentResponse = ConfigPortabilityControllerExportDocumentResponses[keyof ConfigPortabilityControllerExportDocumentResponses];
 
 export type ConfigPortabilityControllerDetachData = {
     body?: never;

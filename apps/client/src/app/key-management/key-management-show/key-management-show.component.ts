@@ -379,15 +379,7 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const exportData = await this.keyChainService.export(this.keyChain.id);
-      const json = JSON.stringify(exportData, null, 4);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${this.keyChain.usageType}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await this.keyChainService.downloadConfig(this.keyChain.id);
       this.snackBar.open('Key chain exported', 'Close', { duration: 3000 });
     } catch (error) {
       if (isForbidden(error)) {
