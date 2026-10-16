@@ -29,6 +29,15 @@
       "description": "Optional KMS provider id for key storage operations.",
       "type": "string"
     },
+    "alg": {
+      "description": "Signing algorithm, which also selects the curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Must be one of the KMS provider's supportedAlgs; defaults to its defaultAlg. Rotation keeps it.",
+      "type": "string",
+      "enum": [
+        "ES256",
+        "ES384",
+        "ES512"
+      ]
+    },
     "rotationPolicy": {
       "description": "Optional rotation policy.",
       "type": "object",

@@ -1,4 +1,4 @@
-import { X509Certificate } from "node:crypto";
+import { createPrivateKey, X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
     BadRequestException,
@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { exportJWK, importPKCS8, type JWK } from "jose";
+import type { JWK } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
@@ -21,11 +21,16 @@ import {
     CertificateBuilderService,
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
+import { importedKeyChainType } from "./domain/key-chain-import-type.js";
+import { providerAlgRefusal, signingAlgForJwk } from "./domain/signing-algs.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
-import { importedKeyChainType } from "./domain/key-chain-import-type.js";
 import { importedRotationIntervals } from "./key-chain-import-rotation.js";
-import type { KmsAdapter, KmsKeyRef } from "./kms/kms-adapter.js";
+import type {
+    KmsAdapter,
+    KmsKeyRef,
+    KmsSigningAlg,
+} from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
 
 // Avoids a backtracking-prone `=+$` regex by trimming padding with a bounded loop.
@@ -101,7 +106,7 @@ export class KeyChainImportService {
         });
         const hostname = this.getHostname();
 
-        const privateKey = await this.resolvePrivateKey(dto);
+        const privateKey = this.resolvePrivateKey(dto);
         const existing = await this.keyChainRepository.findOne({
             where: { tenantId, id },
             select: { id: true, usage: true },
@@ -117,11 +122,12 @@ export class KeyChainImportService {
         if (!privateKey.kid) {
             privateKey.kid = `${id}-active`;
         }
-        if (!privateKey.alg) {
-            privateKey.alg = "ES256";
-        }
+        const alg = this.signingAlgOf(privateKey);
+        privateKey.alg = alg;
 
         const adapter = this.kmsRegistry.resolve(dto.kmsProvider, tenantId);
+        // Checked before either import path hands the key to the provider.
+        this.assertProviderSupports(adapter, alg);
         // External adapters must not overwrite the active key while a replacement is being validated.
         if (replacing && adapter.type !== "db")
             privateKey.kid = `${id}-import-${v4()}`;
@@ -197,7 +203,32 @@ export class KeyChainImportService {
         return id;
     }
 
-    private async resolvePrivateKey(dto: KeyChainImportDto): Promise<JWK> {
+    /** The algorithm of an imported key, from its curve; 400 for other keys. */
+    private signingAlgOf(privateKey: JWK): KmsSigningAlg {
+        try {
+            return signingAlgForJwk(privateKey);
+        } catch (error) {
+            throw new BadRequestException(
+                error instanceof Error ? error.message : String(error),
+            );
+        }
+    }
+
+    /** 400 when the provider's configured algorithms do not include `alg`. */
+    private assertProviderSupports(
+        adapter: KmsAdapter,
+        alg: KmsSigningAlg,
+    ): void {
+        const refusal = providerAlgRefusal(
+            adapter.providerId,
+            adapter.capabilities.supportedAlgs,
+            alg,
+            "the imported key",
+        );
+        if (refusal) throw new BadRequestException(refusal);
+    }
+
+    private resolvePrivateKey(dto: KeyChainImportDto): JWK {
         if (dto.key) {
             return { ...dto.key };
         }
@@ -207,13 +238,13 @@ export class KeyChainImportService {
         }
 
         try {
-            const key = await importPKCS8(dto.keyPem, "ES256", {
-                extractable: true,
-            });
-            return await exportJWK(key);
+            // The curve, and with it the algorithm, comes from the key.
+            return createPrivateKey(dto.keyPem).export({
+                format: "jwk",
+            }) as JWK;
         } catch (error) {
             throw new BadRequestException(
-                `Invalid PKCS#8 PEM private key: ${
+                `Invalid PEM private key: ${
                     error instanceof Error ? error.message : String(error)
                 }`,
             );
@@ -270,8 +301,10 @@ export class KeyChainImportService {
 
         this.validateRootCertificate(rootCertificate, rootMat.ref.publicJwk);
 
+        // The signing key uses the curve of the CA key.
         const activeMat = await adapter.generateKey({
             kid: `${id}-active-${Date.now()}`,
+            alg: rootMat.ref.alg,
         });
         const { chain } = await this.certBuilder.createCaSignedCert({
             caAdapter: adapter,

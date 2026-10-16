@@ -62,6 +62,11 @@ export interface ChainValidationResult {
     error?: string;
     /** Detailed error information for debugging */
     errorDetails?: string;
+    /**
+     * The validated path, leaf first, when the chain matched a trusted
+     * entity of the trust list.
+     */
+    path?: x509.X509Certificate[];
 }
 
 /**
@@ -338,11 +343,13 @@ export class CredentialChainValidationService {
             `Certificate chain validated successfully. Matched entity: ${matchedEntity.entity.entityId ?? "unknown"}, mode: ${matchedEntity.matchMode}`,
         );
 
-        return { verified: true, matchedEntity };
+        return { verified: true, matchedEntity, path };
     }
 
     /**
-     * Verify a status list JWT signature against the matched entity's revocation certificate.
+     * Verify a status list JWT signature against the matched entity's
+     * revocation certificate, or its matched issuance certificate if the
+     * entity lists no revocation service.
      *
      * @param statusListJwt The status list JWT
      * @param matchedEntity The matched trusted entity (may be null)
@@ -361,16 +368,6 @@ export class CredentialChainValidationService {
             return true;
         }
 
-        // Check if the matched entity has a revocation certificate
-        if (!matchedEntity.revocationCert) {
-            this.logger.warn(
-                `TrustedEntity ${matchedEntity.entity.entityId ?? "unknown"} has no revocation certificate configured`,
-            );
-            // Accept if entity doesn't define a revocation cert
-            return true;
-        }
-
-        // Status list must have x5c
         if (!x5c?.length) {
             this.logger.warn(
                 "Status list JWT missing x5c, but credential had x5c trust chain",
@@ -378,33 +375,63 @@ export class CredentialChainValidationService {
             return false;
         }
 
-        // Validate status list's certificate chain
+        // The status list must be signed under a revocation certificate of
+        // the entity that issued the credential, or, if the entity lists no
+        // revocation service, under the certificate the credential matched.
+        // Any other signer could serve a list in which a revoked credential
+        // is valid. Entities are told apart by certificate, not by entityId,
+        // which is an optional and not necessarily unique name.
+        const entityId = matchedEntity.entity.entityId ?? "unknown";
+        const revocationServices = matchedEntity.entity.services.filter((s) =>
+            s.serviceTypeIdentifier.endsWith("/Revocation"),
+        );
         const result = await this.validateChain(x5c, trustListSource, {
             ...policy,
-            serviceTypeFilter: "/Revocation",
+            serviceTypeFilter:
+                revocationServices.length > 0 ? "/Revocation" : "/Issuance",
         });
-
-        if (!result.verified) {
+        if (!result.verified || !result.path) {
             this.logger.warn(
-                `Status list chain validation failed: ${result.errorDetails}`,
+                `Status list chain validation failed for TrustedEntity ${entityId}: ${result.errorDetails ?? "no trusted entity matched"}`,
             );
             return false;
         }
 
-        // Verify status list is signed by the revocation cert from the same entity
-        if (result.matchedEntity) {
-            const statusEntityId = result.matchedEntity.entity.entityId;
-            const credentialEntityId = matchedEntity.entity.entityId;
+        const leafThumb = await this.getThumbprint(result.path[0]);
+        const endThumb = await this.getThumbprint(result.path.at(-1)!);
 
-            if (statusEntityId !== credentialEntityId) {
+        if (revocationServices.length === 0) {
+            // CA or path end match: the path ends at the issuance
+            // certificate. Leaf pin: the leaf is that certificate.
+            const signerThumb =
+                matchedEntity.matchMode === "leaf-pinned"
+                    ? leafThumb
+                    : endThumb;
+            if (signerThumb !== matchedEntity.issuanceThumbprint) {
                 this.logger.warn(
-                    `Status list signed by different entity. Status: ${statusEntityId}, Credential: ${credentialEntityId}`,
+                    `Status list is not signed under the issuance certificate of TrustedEntity ${entityId}, which has no revocation certificate. Expected: ${matchedEntity.issuanceThumbprint}, status list: ${signerThumb}`,
                 );
                 return false;
             }
+            return true;
         }
 
-        return true;
+        // Same rule as for credentials: a CA revocation certificate must be
+        // the path end, a pinned one the leaf or path end per pinnedCertMode.
+        const revocationMatch = await this.x509v.pathMatchesTrustedEntities(
+            result.path,
+            [matchedEntity.entity],
+            policy.pinnedCertMode ?? "leaf",
+            "/Revocation",
+        );
+        if (revocationMatch) {
+            return true;
+        }
+
+        this.logger.warn(
+            `Status list is not signed under a revocation certificate of TrustedEntity ${entityId}. Status list leaf: ${leafThumb}, path end: ${endThumb}`,
+        );
+        return false;
     }
 
     /**

@@ -1,4 +1,5 @@
 import type { JWK } from "jose";
+import { DEFAULT_SIGNING_ALG, signingAlgSpec } from "../domain/signing-algs.js";
 import type { KmsAdapter, KmsKeyRef, KmsSigningAlg } from "./kms-adapter.js";
 
 /**
@@ -11,13 +12,9 @@ interface KmsSigningKeyMarker {
     __kmsAlg: KmsSigningAlg;
 }
 
-const ALG_TO_WEBCRYPTO: Record<KmsSigningAlg, KeyAlgorithm> = {
-    ES256: {
-        name: "ECDSA",
-        // @ts-expect-error - WebCrypto KeyAlgorithm doesn't include namedCurve in its type
-        namedCurve: "P-256",
-    },
-};
+function webCryptoAlgorithm(alg: KmsSigningAlg): EcKeyAlgorithm {
+    return { name: "ECDSA", namedCurve: signingAlgSpec(alg).crv };
+}
 
 /**
  * Build an opaque CryptoKey-shaped value that routes WebCrypto `sign`
@@ -31,7 +28,7 @@ const ALG_TO_WEBCRYPTO: Record<KmsSigningAlg, KeyAlgorithm> = {
 export function makeKmsSigningKey(
     adapter: KmsAdapter,
     ref: KmsKeyRef,
-    alg: KmsSigningAlg = "ES256",
+    alg: KmsSigningAlg = DEFAULT_SIGNING_ALG,
 ): CryptoKey {
     const marker: KmsSigningKeyMarker = {
         __kmsAdapter: adapter,
@@ -39,7 +36,7 @@ export function makeKmsSigningKey(
         __kmsAlg: alg,
     };
     const key: Partial<CryptoKey> & KmsSigningKeyMarker = {
-        algorithm: ALG_TO_WEBCRYPTO[alg],
+        algorithm: webCryptoAlgorithm(alg),
         extractable: false,
         type: "private",
         usages: ["sign"],
@@ -147,15 +144,12 @@ function isKmsKey(key: CryptoKey): key is CryptoKey & KmsSigningKeyMarker {
  */
 export async function importPublicCryptoKey(
     publicJwk: JWK,
-    alg: KmsSigningAlg = "ES256",
+    alg: KmsSigningAlg = DEFAULT_SIGNING_ALG,
 ): Promise<CryptoKey> {
-    if (alg !== "ES256") {
-        throw new Error(`Unsupported alg ${alg}`);
-    }
     return globalThis.crypto.subtle.importKey(
         "jwk",
         publicJwk as JsonWebKey,
-        { name: "ECDSA", namedCurve: "P-256" },
+        webCryptoAlgorithm(alg),
         true,
         ["verify"],
     );

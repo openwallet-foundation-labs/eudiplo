@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { KEY_CHAIN_TYPES } from "../domain/key-chain-import-type.js";
+import { KMS_SIGNING_ALGS } from "../domain/signing-algs.js";
 import { KeyUsageType } from "../types/key-usage-type.js";
 
 export const RotationPolicyCreateSchema = z
@@ -47,6 +48,12 @@ export const KeyChainCreateSchema = z
             .string()
             .optional()
             .describe("Optional KMS provider id for key storage operations."),
+        alg: z
+            .enum(KMS_SIGNING_ALGS)
+            .optional()
+            .describe(
+                "Signing algorithm, which also selects the curve: ES256 (P-256), ES384 (P-384) or ES512 (P-521). Must be one of the KMS provider's supportedAlgs; defaults to its defaultAlg. Rotation keeps it.",
+            ),
         rotationPolicy: RotationPolicyCreateSchema.optional().describe(
             "Optional rotation policy.",
         ),

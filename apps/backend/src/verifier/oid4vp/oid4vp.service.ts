@@ -378,10 +378,14 @@ export class Oid4vpService {
                             keys: [responseEncryptionPublicJwk],
                         },
                         vp_formats_supported: {
+                            // OID4VP 1.0 Appendix B.2.2
                             mso_mdoc: {
-                                alg: this.cryptoImplementationService.getAlgs(
-                                    CredentialFormat.MSO_MDOC,
-                                ),
+                                issuerauth_alg_values:
+                                    this.cryptoImplementationService.getAlgs(
+                                        CredentialFormat.MSO_MDOC,
+                                    ),
+                                deviceauth_alg_values:
+                                    this.cryptoImplementationService.getMdocDeviceAuthAlgs(),
                             },
                             "dc+sd-jwt": {
                                 "kb-jwt_alg_values":
@@ -423,7 +427,6 @@ export class Oid4vpService {
 
             const header = {
                 ...request.header,
-                alg: "ES256",
                 x5c: this.certService.getCertChain(cert),
             };
 

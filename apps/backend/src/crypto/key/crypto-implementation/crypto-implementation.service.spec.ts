@@ -1,28 +1,51 @@
-import { ConfigService } from "@nestjs/config";
 import { describe, expect, test } from "vitest";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity.js";
 import { CryptoImplementationService } from "./crypto-implementation.service.js";
 
 describe("CryptoImplementationService", () => {
-    test("returns both classic and fully-specified COSE alg values for mDOC", () => {
-        const configService = {
-            get: () => "ES256",
-        } as unknown as ConfigService;
-        const service = new CryptoImplementationService(configService);
+    const service = new CryptoImplementationService();
 
-        const algs = service.getAlgs(CredentialFormat.MSO_MDOC);
+    test("returns the classic COSE algs for mDOC IssuerAuth", () => {
+        expect(service.getAlgs(CredentialFormat.MSO_MDOC)).toEqual([
+            -7, -35, -36,
+        ]);
+    });
 
-        expect(algs).toEqual(expect.arrayContaining([-7, -9]));
+    test("accepts classic and fully-specified COSE algs for mDOC DeviceAuth", () => {
+        expect(service.getMdocDeviceAuthAlgs()).toEqual([
+            -7, -35, -36, -9, -51, -52,
+        ]);
     });
 
     test("returns JOSE alg values for SD-JWT VC", () => {
-        const configService = {
-            get: () => "ES256",
-        } as unknown as ConfigService;
-        const service = new CryptoImplementationService(configService);
+        expect(service.getAlgs(CredentialFormat.SD_JWT_VC)).toEqual([
+            "ES256",
+            "ES384",
+            "ES512",
+        ]);
+    });
 
-        const algs = service.getAlgs(CredentialFormat.SD_JWT_VC);
+    test("names one algorithm for credential_signing_alg_values_supported", () => {
+        expect(
+            service.getSigningAlgs(CredentialFormat.SD_JWT_VC, "ES384"),
+        ).toEqual(["ES384"]);
+        // Only the identifier placed in the IssuerAuth `alg` header.
+        expect(
+            service.getSigningAlgs(CredentialFormat.MSO_MDOC, "ES384"),
+        ).toEqual([-35]);
+    });
 
-        expect(algs).toContain("ES256");
+    test.each([
+        ["P-256", "ES256"],
+        ["P-384", "ES384"],
+        ["P-521", "ES512"],
+    ])("picks the implementation for %s keys", (crv, alg) => {
+        expect(service.getCryptoFromJwk({ kty: "EC", crv }).alg).toBe(alg);
+    });
+
+    test("rejects keys on other curves", () => {
+        expect(() =>
+            service.getCryptoFromJwk({ kty: "EC", crv: "secp256k1" }),
+        ).toThrow(/unsupported key type or curve/);
     });
 });

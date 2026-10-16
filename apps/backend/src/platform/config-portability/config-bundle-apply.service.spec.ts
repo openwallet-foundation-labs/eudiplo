@@ -3,9 +3,12 @@ import {
     normalizeDocument,
     schemaUrl,
 } from "@eudiplo/config-format/config-format.js";
+import { BadRequestException } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
+import type { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
+import { ConfigKmsReferenceService } from "./config-kms-reference.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
 import { ConfigResourceRegistry } from "./config-resource.registry.js";
 import type {
@@ -350,6 +353,7 @@ describe("reviewed plans and replacement failures", () => {
                 .fn()
                 .mockRejectedValue(new Error("invalid replacement")),
         };
+        service.kmsReferenceService = { unsupportedAlgorithm: vi.fn() };
         service.migrationService = {
             unwrapForLegacyImporter: (document: any) => document.spec,
         };
@@ -449,7 +453,10 @@ describe("key chain replacement", () => {
             ConfigBundleApplyService.prototype,
         ) as any;
         service.repos = { keyChains: { save: vi.fn() } };
-        service.kmsReferenceService = { verify: vi.fn() };
+        service.kmsReferenceService = {
+            verify: vi.fn(),
+            unsupportedAlgorithm: vi.fn(),
+        };
         service.keyChainService = { importKeyChain: vi.fn() };
         service.migrationService = new ConfigMigrationService(
             new ConfigResourceRegistry(),
@@ -559,6 +566,60 @@ describe("key chain replacement", () => {
         );
         expect(service.repos.keyChains.save).not.toHaveBeenCalled();
     });
+    it.each([
+        [
+            "an internal chain with private keys",
+            "jwk",
+            async () => {
+                const root = await keyWithCertificate(true);
+                const active = await keyWithCertificate();
+                return {
+                    keySource: {
+                        type: "private-jwk",
+                        jwk: root.jwk,
+                        activeJwk: active.jwk,
+                    },
+                    crt: [root.certificate],
+                    activeCertificate: active.certificate,
+                };
+            },
+        ],
+        [
+            "an external key reference",
+            "publicJwk",
+            async () => ({
+                keySource: {
+                    type: "external-reference",
+                    provider: "db",
+                    externalKeyId: "kms-key",
+                    publicJwk: { kty: "EC", crv: "P-256", x: "x", y: "y" },
+                },
+                crt: ["cert"],
+            }),
+        ],
+    ])(
+        "refuses %s whose algorithm the KMS provider does not offer",
+        async (_label, keyField, spec) => {
+            const service = setup();
+            service.kmsReferenceService = new ConfigKmsReferenceService({
+                resolve: () => ({
+                    providerId: "db",
+                    capabilities: { supportedAlgs: ["ES384"] },
+                }),
+            } as unknown as KmsProviderRegistry);
+            const verify = vi.spyOn(service.kmsReferenceService, "verify");
+
+            await expect(
+                service.applyKeyChain("tenant", keyChain(await spec())),
+            ).rejects.toThrow(
+                new BadRequestException(
+                    `KMS provider 'db' does not offer ES256 for the key in keySource.${keyField}. Supported: ES384`,
+                ),
+            );
+            expect(verify).not.toHaveBeenCalled();
+            expect(service.repos.keyChains.save).not.toHaveBeenCalled();
+        },
+    );
     it("stores the rotation values of an internal chain with private keys as given", async () => {
         const service = setup();
         const root = await keyWithCertificate(true);

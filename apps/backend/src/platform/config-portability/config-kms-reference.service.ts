@@ -1,6 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { importJWK, type JWK } from "jose";
+import {
+    providerAlgRefusal,
+    signingAlgForJwk,
+    signingAlgSpec,
+} from "../../crypto/key/domain/signing-algs.js";
+import type {
+    KmsAdapter,
+    KmsSigningAlg,
+} from "../../crypto/key/kms/kms-adapter.js";
 import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
+import { keyChainProviderKeys } from "./key-chain-document.js";
 
 interface ExternalKeySource {
     provider: string;
@@ -13,6 +23,42 @@ interface ExternalKeySource {
 @Injectable()
 export class ConfigKmsReferenceService {
     constructor(private readonly kmsRegistry: KmsProviderRegistry) {}
+
+    /**
+     * The first key of a key chain document whose algorithm its KMS provider
+     * does not offer (`algorithms` in kms.json), or undefined. Keys that are
+     * not EC keys on a supported curve, and unknown providers, are left to
+     * the checks that report those.
+     */
+    unsupportedAlgorithm(
+        tenantId: string,
+        spec: Record<string, any>,
+    ): { path: string; message: string } | undefined {
+        const { provider, keys } = keyChainProviderKeys(spec);
+        if (keys.length === 0) return undefined;
+        let adapter: KmsAdapter;
+        try {
+            adapter = this.kmsRegistry.resolve(provider, tenantId);
+        } catch {
+            return undefined;
+        }
+        for (const { path, jwk } of keys) {
+            let alg: KmsSigningAlg;
+            try {
+                alg = signingAlgForJwk(jwk as JWK);
+            } catch {
+                continue;
+            }
+            const message = providerAlgRefusal(
+                adapter.providerId,
+                adapter.capabilities.supportedAlgs,
+                alg,
+                `the key in ${path.replace("/spec/", "").replaceAll("/", ".")}`,
+            );
+            if (message) return { path, message };
+        }
+        return undefined;
+    }
 
     async verify(tenantId: string, source: ExternalKeySource): Promise<void> {
         await this.verifyOne(
@@ -43,19 +89,27 @@ export class ConfigKmsReferenceService {
         publicJwk: JWK,
     ): Promise<void> {
         const adapter = this.kmsRegistry.resolve(provider, tenantId);
+        let alg: KmsSigningAlg;
+        try {
+            alg = signingAlgForJwk(publicJwk);
+        } catch (error) {
+            throw new BadRequestException(
+                `External KMS key '${externalKeyId}': ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
         const challenge = globalThis.crypto.getRandomValues(new Uint8Array(32));
         const signature = await adapter.sign(
-            { externalKeyId, publicJwk, alg: "ES256" },
+            { externalKeyId, publicJwk, alg },
             challenge,
         );
-        const publicKey = await importJWK(publicJwk, "ES256");
+        const publicKey = await importJWK(publicJwk, alg);
         if (publicKey instanceof Uint8Array) {
             throw new BadRequestException(
                 "External KMS public JWK must be asymmetric",
             );
         }
         const valid = await globalThis.crypto.subtle.verify(
-            { name: "ECDSA", hash: "SHA-256" },
+            { name: "ECDSA", hash: signingAlgSpec(alg).hash },
             publicKey,
             this.toArrayBuffer(signature),
             this.toArrayBuffer(challenge),

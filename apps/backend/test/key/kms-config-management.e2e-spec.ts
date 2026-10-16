@@ -25,6 +25,8 @@ describe("Key Chain — KMS configuration management (e2e)", () => {
     const GLOBAL_SECRET = "global-vault-secret";
     const TENANT_SECRET = "tenant-vault-secret";
     const TENANT_ID = "kms-config-admin";
+    /** A global provider that allows only ES256 for new key chains. */
+    const ES256_ONLY = "db-es256-only";
 
     /** The stored tenant file, as written by the API. */
     const storedTenantConfig = () =>
@@ -42,6 +44,7 @@ describe("Key Chain — KMS configuration management (e2e)", () => {
             JSON.stringify({
                 providers: [
                     { id: "db", type: "db" },
+                    { id: ES256_ONLY, type: "db", algorithms: ["ES256"] },
                     {
                         id: "global-vault",
                         type: "vault",
@@ -261,6 +264,78 @@ describe("Key Chain — KMS configuration management (e2e)", () => {
 
         expect(res.body.message).toContain("global-vault");
         expect(storedTenantConfig().providers[1].id).toBe("vault");
+    });
+
+    test("a provider limited to ES256 refuses ES512 and reports its algorithms", async () => {
+        const server = app.getHttpServer();
+        const providers = await request(server)
+            .get("/key-chain/providers")
+            .set("Authorization", `Bearer ${managerToken}`)
+            .expect(200);
+        const byName = (name: string) =>
+            providers.body.providers.find(
+                (provider: { name: string }) => provider.name === name,
+            );
+        expect(byName(ES256_ONLY).capabilities).toMatchObject({
+            supportedAlgs: ["ES256"],
+            defaultAlg: "ES256",
+        });
+        expect(byName("db").capabilities.supportedAlgs).toEqual([
+            "ES256",
+            "ES384",
+            "ES512",
+        ]);
+
+        const refused = await request(server)
+            .post("/key-chain")
+            .set("Authorization", `Bearer ${managerToken}`)
+            .send({
+                type: "standalone",
+                usageType: "attestation",
+                kmsProvider: ES256_ONLY,
+                alg: "ES512",
+            })
+            .expect(400);
+        expect(refused.body.message).toContain(ES256_ONLY);
+
+        const created = await request(server)
+            .post("/key-chain")
+            .set("Authorization", `Bearer ${managerToken}`)
+            .send({
+                type: "standalone",
+                usageType: "attestation",
+                kmsProvider: ES256_ONLY,
+            })
+            .expect(201);
+        const keyChain = await request(server)
+            .get(`/key-chain/${created.body.id}`)
+            .set("Authorization", `Bearer ${managerToken}`)
+            .expect(200);
+        expect(keyChain.body.alg).toBe("ES256");
+        await request(server)
+            .delete(`/key-chain/${created.body.id}`)
+            .set("Authorization", `Bearer ${managerToken}`)
+            .expect(204);
+    });
+
+    test("rejects a defaultAlgorithm outside the provider's algorithms", async () => {
+        const res = await request(app.getHttpServer())
+            .put("/key-chain/providers/config")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                providers: [
+                    {
+                        id: "db",
+                        type: "db",
+                        algorithms: ["ES256"],
+                        defaultAlgorithm: "ES384",
+                    },
+                ],
+            })
+            .expect(400);
+        expect(JSON.stringify(res.body)).toContain(
+            "defaultAlgorithm 'ES384' is not in algorithms (ES256)",
+        );
     });
 
     test("rejects invalid KMS configurations", async () => {

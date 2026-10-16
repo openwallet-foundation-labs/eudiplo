@@ -342,7 +342,10 @@ export class StatusListService implements OnApplicationBootstrap {
         const cert = await this.getSigningCert(entry);
 
         const preHeader: StatusListJWTHeaderParameters = {
-            alg: "ES256",
+            alg: await this.keyChainService.getSigningAlg(
+                entry.tenantId,
+                cert.keyId,
+            ),
             typ: "statuslist+jwt",
             x5c: this.certService.getLeafCertBase64(cert),
         };
@@ -448,6 +451,10 @@ export class StatusListService implements OnApplicationBootstrap {
         const x5chain = certChainPem.map(
             (pem) => new Uint8Array(new X509Certificate(pem).rawData),
         );
+        const algorithm =
+            SignatureAlgorithm[
+                await this.keyChainService.getSigningAlg(tenantId, keyId)
+            ];
 
         const cwt = new StatusListCwt({
             payload: {
@@ -458,7 +465,7 @@ export class StatusListService implements OnApplicationBootstrap {
                 statusList: payload.statusList,
             },
             protectedHeaders: new Map<number, unknown>([
-                [1, SignatureAlgorithm.ES256],
+                [1, algorithm],
                 [4, new TextEncoder().encode(keyId)],
                 // mDOC status verification expects x5chain in protected headers.
                 [33, x5chain],
@@ -467,8 +474,8 @@ export class StatusListService implements OnApplicationBootstrap {
 
         return cwt.signAndEncode(
             {
-                signingKey: { algorithm: SignatureAlgorithm.ES256 } as never,
-                algorithm: SignatureAlgorithm.ES256,
+                signingKey: { algorithm } as never,
+                algorithm,
             },
             {
                 sign: async ({ toBeSigned }) =>

@@ -1,11 +1,8 @@
 import type { JWK } from "jose";
+import type { KmsSigningAlg } from "../domain/signing-algs.js";
 import type { KmsProviderType } from "../dto/kms-config.dto.js";
 
-/**
- * Supported signing algorithms. New algorithms can be added here once
- * adapters declare support for them via {@link KmsAdapterCapabilities.supportedAlgs}.
- */
-export type KmsSigningAlg = "ES256";
+export type { KmsSigningAlg } from "../domain/signing-algs.js";
 
 /**
  * Opaque reference to a key stored by a KMS provider.
@@ -42,7 +39,11 @@ export interface KmsAdapterCapabilities {
     canCreate: boolean;
     canImport: boolean;
     canDelete: boolean;
-    /** Algorithms the adapter can sign with. */
+    /**
+     * Algorithms new keys can be created with: what the adapter type
+     * supports, narrowed by the provider's `algorithms` in `kms.json`.
+     * Existing keys keep signing with their own algorithm.
+     */
     supportedAlgs: KmsSigningAlg[];
     /** Default algorithm used when caller does not specify one. */
     defaultAlg: KmsSigningAlg;
@@ -91,7 +92,8 @@ export interface KmsAdapter {
     /**
      * Produce a raw ECDSA signature over `data` using the key identified
      * by `ref`. The returned value MUST be the raw `r || s` concatenation
-     * expected by JOSE / COSE (64 bytes for P-256). For X.509 the caller
+     * expected by JOSE / COSE (64, 96 or 132 bytes for P-256, P-384
+     * or P-521). For X.509 the caller
      * re-encodes to ECDSA-Sig-Value DER.
      */
     sign(

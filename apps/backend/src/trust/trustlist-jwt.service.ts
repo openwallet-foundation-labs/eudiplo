@@ -43,17 +43,23 @@ export class TrustListJwtService {
     }
 
     private importVerifierKey(ref: TrustListRef, jwt: string) {
-        const alg = (ref.verifierKey?.alg as string | undefined) || "ES256";
-        if (ref.verifierKey) return importJWK(ref.verifierKey, alg);
-        if (ref.verifierKeyPem) {
-            // A PEM key names no algorithm, so use the one in the list's header.
-            // The import fails when the key does not fit that algorithm.
-            return importSPKI(
-                ref.verifierKeyPem,
-                decodeProtectedHeader(jwt).alg ?? alg,
+        // Without an alg on the pinned key, use the one in the list's header.
+        // The import fails when the key does not fit it (EC keys are bound
+        // to one algorithm each).
+        const headerAlg = decodeProtectedHeader(jwt).alg ?? "ES256";
+        if (ref.verifierKey) {
+            return importJWK(
+                ref.verifierKey,
+                (ref.verifierKey.alg as string | undefined) || headerAlg,
             );
         }
-        return importX509(this.derToPemCertificate(ref.verifierX509Der!), alg);
+        if (ref.verifierKeyPem) {
+            return importSPKI(ref.verifierKeyPem, headerAlg);
+        }
+        return importX509(
+            this.derToPemCertificate(ref.verifierX509Der!),
+            headerAlg,
+        );
     }
 
     /**

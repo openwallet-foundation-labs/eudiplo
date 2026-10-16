@@ -11,6 +11,7 @@ import {
 } from "jose";
 import { Span } from "nestjs-otel";
 import { Repository } from "typeorm";
+import { signingAlgForJwk, signingAlgSpec } from "./domain/signing-algs.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import type {
     KmsAdapter,
@@ -79,9 +80,10 @@ export class KeyChainSigningService {
         const ref = this.refFromEntity(keyChain);
 
         const { b64: _b64, ...compatibleHeader } = header;
+        // The key decides the algorithm; a caller's alg is only a hint.
         const jwtHeader = {
             ...compatibleHeader,
-            alg: header.alg || "ES256",
+            alg: ref.alg,
             kid: keyChain.activeJwk.kid,
         };
 
@@ -134,7 +136,7 @@ export class KeyChainSigningService {
             keys: { publicKey, privateKey: signingKey },
             signingAlgorithm: {
                 name: "ECDSA",
-                hash: "SHA-256",
+                hash: signingAlgSpec(ref.alg).hash,
             },
         });
 
@@ -162,8 +164,25 @@ export class KeyChainSigningService {
             return publicJwk;
         }
 
-        const publicKey = await importJWK(publicJwk, "ES256");
+        const publicKey = await importJWK(
+            publicJwk,
+            signingAlgForJwk(publicJwk),
+        );
         return exportSPKI(publicKey as CryptoKey);
+    }
+
+    /**
+     * The signing algorithm of a key chain (ES256, ES384 or ES512),
+     * following the curve of its active key.
+     */
+    async getSigningAlg(
+        tenantId: string,
+        keyId?: string,
+    ): Promise<KmsSigningAlg> {
+        const keyChain = keyId
+            ? await this.getKeyChain(tenantId, keyId)
+            : await this.getFirstKeyChain(tenantId);
+        return signingAlgForJwk(keyChain.activeJwk);
     }
 
     async getKid(tenantId: string): Promise<string> {
@@ -214,9 +233,7 @@ export class KeyChainSigningService {
         storedJwk: JWK,
         externalKeyId?: string,
     ): KmsKeyRef {
-        const alg =
-            (storedJwk.alg as KmsSigningAlg | undefined) ??
-            adapter.capabilities.defaultAlg;
+        const alg = signingAlgForJwk(storedJwk);
         if (adapter.type === "db") {
             const publicJwk = this.getPublicJwk(storedJwk);
             return { privateJwk: storedJwk, publicJwk, alg };

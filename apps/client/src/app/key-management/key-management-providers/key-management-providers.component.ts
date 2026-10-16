@@ -42,6 +42,8 @@ interface ProviderRow {
   canImport: boolean;
   canDelete: boolean;
   supportedAlgs: string[];
+  /** Algorithm of new key chains that name none. */
+  defaultAlg: string;
   healthOk?: boolean;
   latencyMs?: number;
   healthError?: string;
@@ -227,6 +229,7 @@ export class KeyManagementProvidersComponent implements OnInit {
       canImport: provider.capabilities.canImport,
       canDelete: provider.capabilities.canDelete,
       supportedAlgs: provider.capabilities.supportedAlgs,
+      defaultAlg: provider.capabilities.defaultAlg,
       healthOk: health?.ok,
       latencyMs: health?.latencyMs,
       healthError: health?.error,
