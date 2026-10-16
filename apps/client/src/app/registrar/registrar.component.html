@@ -29,7 +29,7 @@
             Registrar Credentials
           </mat-card-title>
           <mat-card-subtitle>
-            Configure OIDC credentials for accessing the registrar service
+            Connect to the registrar and set what it puts in your certificates
           </mat-card-subtitle>
         </mat-card-header>
 
@@ -157,6 +157,56 @@
                   <mat-hint>Password is set. Enter a new value to change it.</mat-hint>
                 }
                 <mat-error>{{ fieldError('password') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <h3>Relying Party Contact</h3>
+            <p class="section-help">
+              Sent when EUDIPLO registers your relying party at the registrar, which puts it in your
+              access certificates. Set at least one value before creating an access certificate. A
+              relying party that is already registered keeps the contact it was registered with;
+              change it at the registrar.
+            </p>
+            <div
+              formGroupName="relyingPartyContact"
+              fxLayout="row"
+              fxLayoutGap="16px"
+              fxLayout.lt-md="column"
+            >
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Contact Support URL</mat-label>
+                <input
+                  matInput
+                  formControlName="supportUri"
+                  type="url"
+                  placeholder="https://verifier.example/support"
+                />
+                <mat-hint>Goes into your access certificates; https only</mat-hint>
+                <mat-error>{{ fieldError('relyingPartyContact.supportUri') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Email</mat-label>
+                <input
+                  matInput
+                  formControlName="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="support@verifier.example"
+                />
+                <mat-error>{{ fieldError('relyingPartyContact.email') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Phone</mat-label>
+                <input
+                  matInput
+                  formControlName="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="+49 30 1234567"
+                />
+                <mat-error>{{ fieldError('relyingPartyContact.phone') }}</mat-error>
               </mat-form-field>
             </div>
 

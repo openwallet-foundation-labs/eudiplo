@@ -1050,6 +1050,27 @@ export const RegistrationCertificateDefaultsSchema = {
     }
 } as const;
 
+export const RelyingPartyContactSchema = {
+    type: 'object',
+    properties: {
+        supportUri: {
+            type: 'string',
+            description: 'https URL where the relying party can be contacted.',
+            example: 'https://verifier.example/support'
+        },
+        email: {
+            type: 'string',
+            description: 'Email address of the relying party.',
+            example: 'support@verifier.example'
+        },
+        phone: {
+            type: 'string',
+            description: 'Phone number of the relying party.',
+            example: '+49 30 1234567'
+        }
+    }
+} as const;
+
 export const RegistrarConfigResponseDtoSchema = {
     type: 'object',
     properties: {
@@ -1079,6 +1100,17 @@ export const RegistrarConfigResponseDtoSchema = {
             anyOf: [
                 {
                     $ref: '#/components/schemas/RegistrationCertificateDefaults'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        relyingPartyContact: {
+            description: 'Contact sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one value to issue access certificates. A relying party that is already registered keeps its contact.',
+            anyOf: [
+                {
+                    $ref: '#/components/schemas/RelyingPartyContact'
                 },
                 {
                     type: 'null'
@@ -1153,6 +1185,35 @@ export const CreateRegistrarConfigDtoSchema = {
                     type: 'null'
                 }
             ]
+        },
+        relyingPartyContact: {
+            description: 'Contact of the relying party, sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one contact value to issue access certificates. A relying party that is already registered keeps its contact.',
+            anyOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        supportUri: {
+                            description: 'https URL where the relying party can be contacted.',
+                            type: 'string',
+                            format: 'uri'
+                        },
+                        email: {
+                            description: 'Email address of the relying party.',
+                            type: 'string',
+                            pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'
+                        },
+                        phone: {
+                            description: 'Phone number of the relying party.',
+                            type: 'string',
+                            pattern: '^[+0-9()\\-\\s]{5,40}$'
+                        }
+                    },
+                    additionalProperties: false
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
     required: [
@@ -1207,6 +1268,35 @@ export const UpdateRegistrarConfigDtoSchema = {
                         type: 'string'
                     },
                     additionalProperties: {}
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        relyingPartyContact: {
+            description: 'Contact of the relying party, sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one contact value to issue access certificates. A relying party that is already registered keeps its contact.',
+            anyOf: [
+                {
+                    type: 'object',
+                    properties: {
+                        supportUri: {
+                            description: 'https URL where the relying party can be contacted.',
+                            type: 'string',
+                            format: 'uri'
+                        },
+                        email: {
+                            description: 'Email address of the relying party.',
+                            type: 'string',
+                            pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'
+                        },
+                        phone: {
+                            description: 'Phone number of the relying party.',
+                            type: 'string',
+                            pattern: '^[+0-9()\\-\\s]{5,40}$'
+                        }
+                    },
+                    additionalProperties: false
                 },
                 {
                     type: 'null'

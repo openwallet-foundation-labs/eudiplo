@@ -282,6 +282,12 @@ describe("portable schema identity and migrations", () => {
             2,
         ],
         ["KmsConfig", { providers: [{ id: "db", type: "db" }] }, 1],
+        [
+            "RegistrarConfig",
+            { relyingPartyContact: { email: "support@verifier.example" } },
+            2,
+        ],
+        ["RegistrarConfig", { registrarUrl: "https://registrar.example" }, 1],
     ] as const)("reads a bare %s file %o as v%i", (kind, spec, version) => {
         expect(bareFileVersion(kind, spec)).toBe(version);
     });
@@ -341,6 +347,57 @@ describe("portable schema identity and migrations", () => {
         expect(
             migrateDocument(result.document, validateConfigDocument).migrations,
         ).toEqual([]);
+    });
+
+    it("upgrades a v1 registrar configuration to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("RegistrarConfig", 1),
+            metadata: { generation: 1 },
+            spec: {
+                registrarUrl: "https://registrar.example/api",
+                oidcUrl: "https://auth.example/realms/registrar",
+                clientId: "registrar-client",
+                username: "verifier",
+                password: "secret",
+            },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual([
+            "registrar-config-v2-relying-party-contact",
+        ]);
+        expect(result.document.$schema).toBe(schemaUrl("RegistrarConfig", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it("accepts a relying party contact only from registrar configuration v2 on", () => {
+        const spec = {
+            registrarUrl: "https://registrar.example/api",
+            oidcUrl: "https://auth.example/realms/registrar",
+            clientId: "registrar-client",
+            username: "verifier",
+            password: "secret",
+            relyingPartyContact: { email: "support@verifier.example" },
+        };
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("RegistrarConfig", 2),
+                    spec,
+                }),
+            ),
+        ).toEqual([]);
+        expect(
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("RegistrarConfig", 1),
+                    spec,
+                }),
+            ).length,
+        ).toBeGreaterThan(0);
     });
 
     it("accepts provider algorithms only from KMS configuration v2 on", () => {

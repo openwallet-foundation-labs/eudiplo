@@ -206,19 +206,34 @@ describe("RegistrarConfigService", () => {
                 ...dto,
                 clientSecret: null,
                 registrationCertificateDefaults: null,
+                relyingPartyContact: null,
             });
         });
     });
 
     describe("replaceConfig", () => {
-        it("saves clientSecret and registrationCertificateDefaults null when the replacement leaves them out", async () => {
+        it("saves clientSecret, registrationCertificateDefaults and relyingPartyContact null when the replacement leaves them out", async () => {
             await service.replaceConfig("tenant", dto);
 
             expect(repository.save).toHaveBeenCalledWith(
                 expect.objectContaining({
                     clientSecret: null,
                     registrationCertificateDefaults: null,
+                    relyingPartyContact: null,
                 }),
+            );
+        });
+
+        it("stores the relyingPartyContact of the replacement", async () => {
+            const contact = { email: "support@verifier.example" };
+
+            await service.replaceConfig("tenant", {
+                ...dto,
+                relyingPartyContact: contact,
+            });
+
+            expect(repository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ relyingPartyContact: contact }),
             );
         });
 

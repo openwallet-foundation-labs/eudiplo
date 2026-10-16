@@ -26,6 +26,7 @@ import {
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from "./generated/index.js";
+import { registrarErrorMessage } from "./registrar-error-message.js";
 
 /**
  * Limits for every request to the registrar API and its OIDC provider: one
@@ -247,13 +248,23 @@ export class RegistrarAuthService {
      * URL or token.
      */
     async getClient(tenantId: string) {
+        return this.clientFor(await this.getConfigOrThrow(tenantId));
+    }
+
+    private async getConfigOrThrow(
+        tenantId: string,
+    ): Promise<RegistrarConfigEntity> {
         const config = await this.configRepository.findOneBy({ tenantId });
         if (!config) {
             throw new NotFoundException(
                 `No registrar configuration found for tenant ${tenantId}`,
             );
         }
+        return config;
+    }
 
+    /** A registrar API client authenticated with the credentials of `config`. */
+    private async clientFor(config: RegistrarConfigEntity) {
         // Checked before the token is requested, so no credentials are sent
         // for a configuration whose registrar URL is blocked.
         await this.outboundUrlPolicy.assertSafeUrl(config.registrarUrl);
@@ -270,10 +281,13 @@ export class RegistrarAuthService {
 
     /**
      * Get the relying party ID from the registrar.
-     * If none exists yet, one is registered on the fly.
+     * If none exists yet, one is registered on the fly with the contact of
+     * the registrar configuration. An existing relying party is used as it
+     * is: the registrar has no request to change its contact.
      */
     async getRelyingPartyId(tenantId: string): Promise<string> {
-        const client = await this.getClient(tenantId);
+        const config = await this.getConfigOrThrow(tenantId);
+        const client = await this.clientFor(config);
 
         const res = await relyingPartyControllerFindAll({ client });
         if (res.error) {
@@ -288,9 +302,14 @@ export class RegistrarAuthService {
 
         const relyingParties = res.data || [];
         if (relyingParties.length === 0) {
+            const contact = config.relyingPartyContact;
             const createRes = await relyingPartyControllerRegister({
                 client,
-                body: {},
+                body: {
+                    supportUri: contact?.supportUri,
+                    email: contact?.email,
+                    phone: contact?.phone,
+                },
             });
             if (createRes.error) {
                 this.logger.error(
@@ -298,7 +317,7 @@ export class RegistrarAuthService {
                     `[${tenantId}] Failed to register relying party`,
                 );
                 throw new BadRequestException(
-                    "Failed to register relying party at registrar",
+                    `Failed to register relying party at registrar: ${registrarErrorMessage(createRes.error)}`,
                 );
             }
             return createRes.data!.id;
