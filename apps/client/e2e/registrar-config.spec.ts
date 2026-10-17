@@ -224,10 +224,12 @@ test('keeps registration certificate defaults the form does not show', async ({ 
   await signIn(page, tenant);
   await openRegistrarConfig(page);
 
-  await expect(page.getByRole('textbox', { name: 'Support URI' })).toHaveValue(
+  await expect(page.getByRole('textbox', { name: 'Support URI', exact: true })).toHaveValue(
     storedDefaults.support_uri
   );
-  await page.getByRole('textbox', { name: 'Support URI' }).fill('https://verifier.example/help');
+  await page
+    .getByRole('textbox', { name: 'Support URI', exact: true })
+    .fill('https://verifier.example/help');
   await page.getByRole('button', { name: 'Update Configuration' }).click();
   await expect(page.getByText('Configuration saved successfully')).toBeVisible();
 
@@ -279,7 +281,7 @@ test('deletes the configuration', async ({ page }) => {
 
   await expect(page.getByText('Configuration deleted')).toBeVisible();
   expect(question).toContain(
-    'Its URLs, account, stored password and registration certificate defaults are removed.'
+    'Its URLs, account, stored password, relying party contact and registration certificate defaults are removed.'
   );
   await expect(page.getByRole('button', { name: 'Save Configuration' })).toBeVisible();
   expect((await tenant.call('GET', '/api/registrar/config')).status).toBe(404);

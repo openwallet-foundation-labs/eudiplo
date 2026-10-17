@@ -8,7 +8,7 @@ export const CONFIG_FORMATS = {
     RegistrarConfig: {
         slug: "registrar-config",
         file: "RegistrarConfigFile",
-        version: 1,
+        version: 2,
     },
     IssuanceConfig: {
         slug: "issuance-config",
@@ -91,13 +91,16 @@ export function resourceId(input: ConfigFile<unknown>): string {
  * except a key chain with `type`, which KeyChain v2 added and which the bare
  * key chain export writes, and a KMS configuration with a provider that sets
  * `algorithms` or `defaultAlgorithm`, which KmsConfig v2 added and which the
- * tenant `kms.json` is saved as.
+ * tenant `kms.json` is saved as, and a registrar configuration with
+ * `relyingPartyContact`, which RegistrarConfig v2 added.
  */
 export function bareFileVersion(
     kind: ConfigResourceKind,
     spec: Record<string, unknown>,
 ): number {
     if (kind === "KeyChain") return "type" in spec ? 2 : 1;
+    if (kind === "RegistrarConfig")
+        return "relyingPartyContact" in spec ? 2 : 1;
     if (kind === "KmsConfig") {
         const providers = Array.isArray(spec.providers) ? spec.providers : [];
         return providers.some(
@@ -216,6 +219,16 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         // v2 only adds the optional provider fields algorithms and
         // defaultAlgorithm: a v1 spec is a valid v2 spec, whose providers keep
         // their default algorithms.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "registrar-config-v2-relying-party-contact",
+        kind: "RegistrarConfig",
+        from: 1,
+        to: 2,
+        // v2 only adds the optional relyingPartyContact: a v1 spec is a
+        // valid v2 spec, whose relying party is registered without contact
+        // as before.
         migrate: (spec) => ({ spec }),
     },
     {

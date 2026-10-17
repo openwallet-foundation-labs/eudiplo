@@ -24,6 +24,30 @@ export class RegistrationCertificateDefaults {
 }
 
 /**
+ * Contact of the relying party, sent when EUDIPLO registers it at the
+ * registrar. The registrar puts these values in the access certificates.
+ */
+export class RelyingPartyContact {
+    @ApiPropertyOptional({
+        description: "https URL where the relying party can be contacted.",
+        example: "https://verifier.example/support",
+    })
+    supportUri?: string;
+
+    @ApiPropertyOptional({
+        description: "Email address of the relying party.",
+        example: "support@verifier.example",
+    })
+    email?: string;
+
+    @ApiPropertyOptional({
+        description: "Phone number of the relying party.",
+        example: "+49 30 1234567",
+    })
+    phone?: string;
+}
+
+/**
  * Stores the configuration for connecting to an external registrar service.
  * Each tenant can have their own registrar configuration with OIDC credentials.
  * The client secret and password are encrypted at rest.
@@ -121,4 +145,18 @@ export class RegistrarConfigEntity {
     })
     @Column("json", { nullable: true })
     registrationCertificateDefaults?: RegistrationCertificateDefaults | null;
+
+    /**
+     * Contact sent when EUDIPLO registers the tenant's relying party at the
+     * registrar. A relying party that is already registered keeps its
+     * contact.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Contact sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one value to issue access certificates. A relying party that is already registered keeps its contact.",
+        type: () => RelyingPartyContact,
+        nullable: true,
+    })
+    @Column("json", { nullable: true })
+    relyingPartyContact?: RelyingPartyContact | null;
 }

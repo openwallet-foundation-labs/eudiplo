@@ -9,6 +9,15 @@ import type {
 } from '@eudiplo/sdk-core';
 
 /**
+ * Contact sent when EUDIPLO registers the relying party at the registrar.
+ */
+export interface RelyingPartyContact {
+  supportUri?: string;
+  email?: string;
+  phone?: string;
+}
+
+/**
  * Registrar configuration response from the API.
  * The password and client secret are never returned for security reasons; instead
  * hasPassword and hasClientSecret indicate if one is set.
@@ -20,6 +29,7 @@ export interface RegistrarConfig {
   clientId: string;
   username: string;
   registrationCertificateDefaults?: Record<string, unknown> | null;
+  relyingPartyContact?: RelyingPartyContact | null;
   /** Indicates whether a password is configured (actual password is never returned) */
   hasPassword: boolean;
   /** Indicates whether a client secret is configured (actual secret is never returned) */
@@ -36,6 +46,7 @@ export interface RegistrarConfigRequest {
   clientSecret?: string;
   username: string;
   registrationCertificateDefaults?: Record<string, unknown> | null;
+  relyingPartyContact?: RelyingPartyContact | null;
   password?: string;
 }
 

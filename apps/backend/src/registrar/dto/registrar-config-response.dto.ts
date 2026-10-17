@@ -47,6 +47,7 @@ export class RegistrarConfigResponseDto extends OmitType(
         dto.username = entity.username;
         dto.registrationCertificateDefaults =
             entity.registrationCertificateDefaults;
+        dto.relyingPartyContact = entity.relyingPartyContact;
         dto.hasPassword = !!entity.password;
         dto.hasClientSecret = !!entity.clientSecret;
         return dto;

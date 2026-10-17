@@ -30,12 +30,20 @@ vi.mock("./generated/index.js", async (importOriginal) => ({
 
 describe("RegistrarAuthService.getRelyingPartyId", () => {
     let service: RegistrarAuthService;
+    let configRepository: { findOneBy: ReturnType<typeof vi.fn> };
 
     beforeEach(() => {
         vi.mocked(relyingPartyControllerFindAll).mockReset();
         vi.mocked(relyingPartyControllerRegister).mockReset();
-        service = new RegistrarAuthService({} as any, {} as any, {} as any);
-        vi.spyOn(service, "getClient").mockResolvedValue({} as any);
+        configRepository = {
+            findOneBy: vi.fn().mockResolvedValue({ relyingPartyContact: null }),
+        };
+        service = new RegistrarAuthService(
+            configRepository as any,
+            {} as any,
+            {} as any,
+        );
+        vi.spyOn(service as any, "clientFor").mockResolvedValue({});
     });
 
     it("returns the first existing relying party without registering one", async () => {
@@ -60,6 +68,53 @@ describe("RegistrarAuthService.getRelyingPartyId", () => {
         );
     });
 
+    it("registers the relying party with the configured contact", async () => {
+        configRepository.findOneBy.mockResolvedValue({
+            relyingPartyContact: {
+                supportUri: "https://verifier.example/support",
+                email: "support@verifier.example",
+                phone: "+49 30 1234567",
+            },
+        });
+        vi.mocked(relyingPartyControllerFindAll).mockResolvedValue({
+            data: [],
+        } as any);
+        vi.mocked(relyingPartyControllerRegister).mockResolvedValue({
+            data: { id: "rp-new" },
+        } as any);
+
+        await service.getRelyingPartyId("tenant");
+
+        expect(configRepository.findOneBy).toHaveBeenCalledWith({
+            tenantId: "tenant",
+        });
+        expect(relyingPartyControllerRegister).toHaveBeenCalledWith(
+            expect.objectContaining({
+                body: {
+                    supportUri: "https://verifier.example/support",
+                    email: "support@verifier.example",
+                    phone: "+49 30 1234567",
+                },
+            }),
+        );
+    });
+
+    it("registers the relying party without contact when none is configured", async () => {
+        vi.mocked(relyingPartyControllerFindAll).mockResolvedValue({
+            data: [],
+        } as any);
+        vi.mocked(relyingPartyControllerRegister).mockResolvedValue({
+            data: { id: "rp-new" },
+        } as any);
+
+        await service.getRelyingPartyId("tenant");
+
+        const { body } = vi.mocked(relyingPartyControllerRegister).mock
+            .calls[0][0];
+        // Undefined fields are left out of the JSON body.
+        expect(JSON.parse(JSON.stringify(body))).toEqual({});
+    });
+
     it("throws a BadRequestException when the registrar rejects the registration", async () => {
         vi.mocked(relyingPartyControllerFindAll).mockResolvedValue({
             data: [],
@@ -71,7 +126,7 @@ describe("RegistrarAuthService.getRelyingPartyId", () => {
 
         await expect(service.getRelyingPartyId("tenant")).rejects.toThrow(
             new BadRequestException(
-                "Failed to register relying party at registrar",
+                "Failed to register relying party at registrar: Forbidden",
             ),
         );
     });
