@@ -48,11 +48,7 @@ export class PublishEntityConfiguration {
         const { entity, version } = own;
 
         const cached = this.cache.get(tenantId);
-        if (
-            cached &&
-            cached.version === version &&
-            cached.expiresAt > this.now()
-        ) {
+        if (cached?.version === version && cached.expiresAt > this.now()) {
             if ("error" in cached) throw cached.error;
             return cached.jwt;
         }
