@@ -140,7 +140,7 @@ Typical role sets:
 
 `issuance:manage`, `presentation:manage` and `keys:manage` create, import,
 rotate and delete key chains, but exporting a key chain with its private key
-(`GET /api/key-chain/{id}/export`) and the tenant KMS provider configuration
+(`GET /api/key-chain/{id}/export` or its configuration document) and the tenant KMS provider configuration
 (`/api/key-chain/providers/config`), which contains provider credentials, need
 `tenant:admin` or `tenants:manage`, like configuration bundles.
 

@@ -87,7 +87,8 @@ To go from a log line or a pasted offer link to the session, search the session 
 Changes to a tenant and to its credential, issuance, presentation and
 status-list configurations, webhook endpoints and attribute providers are
 recorded with actor, time and changed fields, as are bundle imports, exports,
-detach and reattach actions, generated client secrets and cancelled sessions (with the
+exports of single resources as documents (`config_resource_exported`, with kind
+and ID), detach and reattach actions, generated client secrets and cancelled sessions (with the
 reason). Secrets are not recorded: the API keys of webhook endpoints and
 attribute providers and the upstream client secrets of chained authorization
 servers appear as `[REDACTED]`, and a changed secret is still listed among the

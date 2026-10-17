@@ -134,3 +134,71 @@ describe("ConfigPortabilityController import", () => {
         );
     });
 });
+
+describe("ConfigPortabilityController document export", () => {
+    function createExporter(exportDocument: ReturnType<typeof vi.fn>) {
+        const auditLog = { record: vi.fn().mockResolvedValue(undefined) };
+        const controller = new ConfigPortabilityController(
+            { exportDocument } as unknown as ConfigBundleService,
+            {} as ConfigBundleArchiveService,
+            {} as ConfigBundleApplyService,
+            {} as ConfigMigrationService,
+            {} as ConfigOwnershipService,
+            auditLog as unknown as AuditLogService,
+            {} as ConfigImportJournalService,
+            {} as ConfigFolderBundleService,
+        );
+        return { controller, auditLog };
+    }
+
+    it("records the exported kind and ID, never the document", async () => {
+        const document = { $schema: "s", spec: { id: "pid", secret: "x" } };
+        const { controller, auditLog } = createExporter(
+            vi.fn().mockResolvedValue(document),
+        );
+
+        await expect(
+            controller.exportDocument(
+                token,
+                request,
+                "CredentialConfig",
+                "pid",
+            ),
+        ).resolves.toBe(document);
+
+        expect(auditLog.record).toHaveBeenCalledOnce();
+        expect(auditLog.record).toHaveBeenCalledWith(
+            expect.objectContaining({
+                tenantId: "demo",
+                actionType: "config_resource_exported",
+                after: { kind: "CredentialConfig", id: "pid" },
+            }),
+        );
+    });
+
+    it("records nothing when the export fails", async () => {
+        const { controller, auditLog } = createExporter(
+            vi.fn().mockRejectedValue(new Error("not found")),
+        );
+
+        await expect(
+            controller.exportDocument(token, request, "CredentialConfig", "x"),
+        ).rejects.toThrow("not found");
+        expect(auditLog.record).not.toHaveBeenCalled();
+    });
+
+    it("refuses a key chain without an admin role and records nothing", async () => {
+        const exportDocument = vi.fn();
+        const { controller, auditLog } = createExporter(exportDocument);
+        const keyManager = {
+            ...token,
+            roles: ["keys:manage"],
+        } as unknown as TokenPayload;
+
+        await expect(
+            controller.exportDocument(keyManager, request, "KeyChain", "key"),
+        ).rejects.toThrow("private keys");
+        expect(exportDocument).not.toHaveBeenCalled();
+        expect(auditLog.record).not.toHaveBeenCalled();
+    });
+});

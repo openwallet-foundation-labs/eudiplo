@@ -10,7 +10,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { WebhookEndpointEntity } from '@eudiplo/sdk-core';
 import { getApiKeyAuthType, getApiKeyHeaderName } from '../../common/auth-display.util';
-import { downloadJsonFile } from '../../common/download-json.util';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { WebhookEndpointService } from '../webhook-endpoint.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
@@ -46,7 +46,8 @@ export class WebhookEndpointShowComponent implements OnInit {
     private readonly webhookEndpointService: WebhookEndpointService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   ngOnInit(): void {
@@ -100,13 +101,24 @@ export class WebhookEndpointShowComponent implements OnInit {
     }
   }
 
-  downloadConfig(): void {
-    if (this.endpoint) {
-      const config = { ...(this.endpoint as any) };
-      delete config.tenantId;
-      delete config.tenant;
-      downloadJsonFile(config, `webhook-endpoint-${this.endpoint.id}.json`);
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('WebhookEndpoint');
+  }
+
+  /**
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
+   */
+  async downloadConfig(): Promise<void> {
+    if (!this.endpoint) return;
+    try {
+      const message = await this.configDocuments.download('WebhookEndpoint', this.endpoint.id);
+      this.snackBar.open(message, 'Close', { duration: 8000 });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
     }
-    this.snackBar.open('Configuration downloaded', 'Close', { duration: 3000 });
   }
 }

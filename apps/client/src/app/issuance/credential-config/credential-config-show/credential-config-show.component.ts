@@ -16,7 +16,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CredentialConfig, deriveRuntimeArtifacts } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../credential-config.service';
 import { StatusListManagementService } from '../../../status-list-management/status-list-management.service';
-import { downloadJsonFile } from '../../../common/download-json.util';
+import { ConfigDocumentService } from '../../../config-portability/config-document.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
 import { JwtService } from '../../../services/jwt.service';
@@ -77,7 +77,8 @@ export class CredentialConfigShowComponent implements OnInit {
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
     private readonly clipboard: Clipboard,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   /** The schema pages need `registrar:manage`; without it their links would end in "Access denied". */
@@ -741,16 +742,25 @@ export class CredentialConfigShowComponent implements OnInit {
     return hasType && hasMandatory && hasDisclosable;
   }
 
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('CredentialConfig');
+  }
+
   /**
-   * Downloads the current configuration as a JSON file.
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
    */
-  downloadConfig() {
-    if (this.config) {
-      downloadJsonFile(this.config, `credential-config-${this.config.id}.json`);
+  async downloadConfig(): Promise<void> {
+    if (!this.config) return;
+    try {
+      const message = await this.configDocuments.download('CredentialConfig', this.config.id);
+      this.snackBar.open(message, 'Close', { duration: 8000 });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
     }
-    this.snackBar.open('Configuration downloaded', 'Close', {
-      duration: 3000,
-    });
   }
 
   asAny(obj: any) {

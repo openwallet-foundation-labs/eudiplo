@@ -42,3 +42,19 @@ export function mayReadConfigOwnership(
     ]);
     return (roles ?? []).some((role) => allowed.has(role));
 }
+
+/**
+ * Whether a token may export one resource of a kind as a configuration
+ * document. A key chain document carries the private keys of keys held in
+ * the database, so it needs the roles of the key export; the other kinds
+ * follow {@link mayReadConfigOwnership}.
+ */
+export function mayExportConfigDocument(
+    roles: readonly Role[] | undefined,
+    kind: ConfigResourceKind,
+): boolean {
+    if (kind === "KeyChain") {
+        return (roles ?? []).some((role) => CONFIG_ADMIN_ROLES.includes(role));
+    }
+    return mayReadConfigOwnership(roles, kind);
+}

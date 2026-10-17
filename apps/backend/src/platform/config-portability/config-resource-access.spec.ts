@@ -11,7 +11,10 @@ import {
     CONFIG_RESOURCE_KINDS,
     type ConfigResourceKind,
 } from "./config-resource.types.js";
-import { mayReadConfigOwnership } from "./config-resource-access.js";
+import {
+    mayExportConfigDocument,
+    mayReadConfigOwnership,
+} from "./config-resource-access.js";
 import { ConfigResourceRouteService } from "./config-resource-route.service.js";
 
 const sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -157,5 +160,42 @@ describe("mayReadConfigOwnership", () => {
         );
 
         expect(guarded).toEqual(readers);
+    });
+});
+
+describe("mayExportConfigDocument", () => {
+    it("needs an admin role for a key chain, which carries private keys", () => {
+        for (const role of [Role.Keys, Role.Issuances, Role.Presentations]) {
+            expect(mayExportConfigDocument([role], "KeyChain")).toBe(false);
+        }
+        expect(mayExportConfigDocument([Role.TenantAdmin], "KeyChain")).toBe(
+            true,
+        );
+        expect(mayExportConfigDocument([Role.Tenants], "KeyChain")).toBe(true);
+    });
+
+    it("follows the ownership rule for every other kind", () => {
+        for (const kind of CONFIG_RESOURCE_KINDS.filter(
+            (kind) => kind !== "KeyChain",
+        )) {
+            for (const role of allRoles) {
+                expect(mayExportConfigDocument([role], kind)).toBe(
+                    mayReadConfigOwnership([role], kind),
+                );
+            }
+        }
+    });
+
+    it("matches the roles of the document endpoint's guard", () => {
+        const exporters = allRoles.filter((role) =>
+            CONFIG_RESOURCE_KINDS.some((kind) =>
+                mayExportConfigDocument([role], kind),
+            ),
+        );
+        const guarded = allRoles.filter((role) =>
+            rolesAllow(ConfigPortabilityController, "exportDocument", [role]),
+        );
+
+        expect(guarded).toEqual(exporters);
     });
 });

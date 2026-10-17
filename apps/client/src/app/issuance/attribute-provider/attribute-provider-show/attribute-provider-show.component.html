@@ -18,9 +18,16 @@
         >
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Download configuration" (click)="downloadConfig()">
-          <mat-icon>download</mat-icon>
-        </button>
+        @if (canDownloadConfig) {
+          <button
+            mat-icon-button
+            aria-label="Download configuration"
+            matTooltip="Download configuration"
+            (click)="downloadConfig()"
+          >
+            <mat-icon>download</mat-icon>
+          </button>
+        }
         <button
           mat-icon-button
           (click)="deleteProvider()"

@@ -90,7 +90,8 @@ describe('CredentialConfigShowComponent loading', () => {
       { open: vi.fn() } as never,
       { navigate: vi.fn() } as never,
       {} as never,
-      { hasRole: () => true } as never
+      { hasRole: () => true } as never,
+      {} as never
     );
 
     component.loadConfig();
@@ -99,6 +100,46 @@ describe('CredentialConfigShowComponent loading', () => {
       expect(component.loadError).toBe(
         'Failed to load credential configuration: Forbidden resource'
       )
+    );
+  });
+});
+
+describe('CredentialConfigShowComponent download', () => {
+  function create(download: ReturnType<typeof vi.fn>) {
+    const snackBar = { open: vi.fn() };
+    const configDocuments = { download, canDownload: () => true };
+    const component = new CredentialConfigShowComponent(
+      {} as never,
+      {} as never,
+      {} as never,
+      snackBar as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      configDocuments as never
+    );
+    component.config = { id: 'pid' } as never;
+    return { component, snackBar };
+  }
+
+  it('downloads the configuration document', async () => {
+    const download = vi.fn().mockResolvedValue('Configuration downloaded');
+    const { component, snackBar } = create(download);
+
+    await component.downloadConfig();
+
+    expect(download).toHaveBeenCalledWith('CredentialConfig', 'pid');
+    expect(snackBar.open.mock.lastCall?.[0]).toBe('Configuration downloaded');
+  });
+
+  it("shows the backend's reason when the download fails", async () => {
+    const download = vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    const { component, snackBar } = create(download);
+
+    await component.downloadConfig();
+
+    expect(snackBar.open.mock.lastCall?.[0]).toBe(
+      'Failed to download configuration: Forbidden resource'
     );
   });
 });

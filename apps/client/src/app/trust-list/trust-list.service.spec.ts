@@ -32,8 +32,11 @@ describe('TrustListService', () => {
     expect(paths).toEqual(['/api/trust-list']);
   });
 
-  it('saves the export of the trust list as a JSON file named after it', async () => {
-    const config = { id: 'membership-issuers', entities: [] };
+  it('saves the configuration document of the trust list as <id>.json', async () => {
+    const config = {
+      $schema: 'https://eudiplo.dev/schemas/v1/TrustListConfigFile.schema.json',
+      spec: { id: 'membership-issuers', entities: [] },
+    };
     const paths = respondWith(config);
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, 'click')
@@ -50,10 +53,8 @@ describe('TrustListService', () => {
       Object.assign(URL, { createObjectURL, revokeObjectURL });
     }
 
-    expect(paths).toEqual(['/api/trust-list/membership-issuers/export']);
-    expect((click.mock.contexts[0] as HTMLAnchorElement).download).toBe(
-      'trustlist-membership-issuers-config.json'
-    );
+    expect(paths).toEqual(['/api/config-bundles/resources/TrustList/membership-issuers/document']);
+    expect((click.mock.contexts[0] as HTMLAnchorElement).download).toBe('membership-issuers.json');
     expect(files).toHaveLength(1);
     expect(JSON.parse(await files[0].text())).toEqual(config);
   });

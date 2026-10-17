@@ -51,7 +51,7 @@ describe('KeyManagementShowComponent', () => {
 
 describe('KeyManagementShowComponent key export', () => {
   const keyChain = { id: 'key', usageType: 'attestation' } as KeyChainResponseDto;
-  let keyChainService: { export: ReturnType<typeof vi.fn> };
+  let keyChainService: { downloadConfig: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let dialog: { open: ReturnType<typeof vi.fn> };
   let roles: string[];
@@ -71,7 +71,7 @@ describe('KeyManagementShowComponent key export', () => {
   }
 
   beforeEach(() => {
-    keyChainService = { export: vi.fn() };
+    keyChainService = { downloadConfig: vi.fn() };
     snackBar = { open: vi.fn() };
     dialog = { open: vi.fn() };
     roles = [];
@@ -84,8 +84,18 @@ describe('KeyManagementShowComponent key export', () => {
     expect(component.canExport).toBe(false);
     await component.exportKeyChain();
 
-    expect(keyChainService.export).not.toHaveBeenCalled();
+    expect(keyChainService.downloadConfig).not.toHaveBeenCalled();
     expect(snackBar.open.mock.lastCall?.[0]).toContain('tenant:admin');
+  });
+
+  it('downloads the configuration document of the key chain', async () => {
+    roles = ['tenant:admin'];
+    keyChainService.downloadConfig.mockResolvedValue(undefined);
+
+    await create().exportKeyChain();
+
+    expect(keyChainService.downloadConfig).toHaveBeenCalledWith('key');
+    expect(snackBar.open.mock.lastCall?.[0]).toBe('Key chain exported');
   });
 
   it.each(['tenant:admin', 'tenants:manage'])('offers the export with %s', (role) => {
@@ -96,7 +106,10 @@ describe('KeyManagementShowComponent key export', () => {
 
   it('explains a rejected export', async () => {
     roles = ['tenant:admin'];
-    keyChainService.export.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    keyChainService.downloadConfig.mockRejectedValue({
+      statusCode: 403,
+      message: 'Forbidden resource',
+    });
 
     await create().exportKeyChain();
 
@@ -105,7 +118,10 @@ describe('KeyManagementShowComponent key export', () => {
 
   it("shows the backend's reason when the export fails for another reason", async () => {
     roles = ['tenant:admin'];
-    keyChainService.export.mockRejectedValue({ statusCode: 404, message: 'Key chain not found' });
+    keyChainService.downloadConfig.mockRejectedValue({
+      statusCode: 404,
+      message: 'Key chain not found',
+    });
 
     await create().exportKeyChain();
 
@@ -117,7 +133,7 @@ describe('KeyManagementShowComponent key export', () => {
   it('shows the public key chain as JSON without calling the export', () => {
     create().viewAsJson();
 
-    expect(keyChainService.export).not.toHaveBeenCalled();
+    expect(keyChainService.downloadConfig).not.toHaveBeenCalled();
     expect(dialog.open.mock.lastCall?.[1].data.jsonData).toBe(keyChain);
   });
 });

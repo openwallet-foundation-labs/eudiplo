@@ -15,12 +15,16 @@ import {
     BadRequestException,
     ConflictException,
     Injectable,
+    NotFoundException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare as compareSecret } from "bcrypt";
 import { Not, Repository } from "typeorm";
-import { KeyUsage } from "../../crypto/key/entities/key-chain.entity.js";
+import {
+    type KeyChainEntity,
+    KeyUsage,
+} from "../../crypto/key/entities/key-chain.entity.js";
 import { KmsTenantConfigService } from "../../crypto/key/kms/kms-tenant-config.service.js";
 import { withoutRemovedChainedVp } from "../../issuer/configuration/issuance/domain/removed-authorization-servers.js";
 import {
@@ -50,6 +54,7 @@ import type {
     ConfigBundle,
     ConfigBundleRequirement,
     ConfigDocument,
+    ConfigFile,
     ConfigImportMode,
     ConfigImportPlan,
     ConfigImportPlanItem,
@@ -72,7 +77,6 @@ const OMITTED_FIELDS = new Set([
     "updatedAt",
     "registrationCertificateCache",
     "readerAuthCache",
-    "jwt",
     "cwt",
     "list",
     "statusList",
@@ -86,16 +90,26 @@ function sha256(value: string | Buffer): string {
     return createHash("sha256").update(value).digest("hex");
 }
 
-function canonicalize(value: unknown): unknown {
-    if (Array.isArray(value)) return value.map(canonicalize);
+/**
+ * The configuration revision also leaves out signed artifacts such as a trust
+ * list's `jwt`, which change when the list is signed again, not when its
+ * configuration changes. Exports keep `jwt`: an imported registration
+ * certificate is configuration.
+ */
+const REVISION_OMITTED_FIELDS = new Set([...OMITTED_FIELDS, "jwt"]);
+
+function canonicalize(
+    value: unknown,
+    omitted: ReadonlySet<string> = OMITTED_FIELDS,
+): unknown {
+    if (Array.isArray(value))
+        return value.map((item) => canonicalize(item, omitted));
     if (!value || typeof value !== "object") return value;
     return Object.fromEntries(
         Object.entries(value as Record<string, unknown>)
-            .filter(
-                ([key, item]) => !OMITTED_FIELDS.has(key) && item !== undefined,
-            )
+            .filter(([key, item]) => !omitted.has(key) && item !== undefined)
             .sort(([left], [right]) => left.localeCompare(right))
-            .map(([key, item]) => [key, canonicalize(item)]),
+            .map(([key, item]) => [key, canonicalize(item, omitted)]),
     );
 }
 
@@ -126,10 +140,11 @@ function placeholder(
     id: string,
     path: string,
 ): string {
+    // Splitting avoids a trailing `_+$` match, which backtracks on long IDs.
     return `${kind}_${id}_${path}`
-        .replaceAll(/[^A-Za-z0-9]+/g, "_")
-        .replace(/^_+/, "")
-        .replace(/_+$/, "")
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .join("_")
         .toUpperCase();
 }
 
@@ -196,41 +211,17 @@ export class ConfigBundleService {
             tenantId,
             "Tenant",
             "tenant",
-            {
-                name: tenant.name,
-                description: tenant.description ?? undefined,
-                sessionConfig: tenant.sessionConfig ?? undefined,
-                statusListConfig: tenant.statusListConfig ?? undefined,
-            },
+            this.tenantSpec(tenant),
         );
 
         for (const client of await this.clients.find({ where: { tenantId } })) {
-            const spec: Record<string, unknown> = {
-                clientId: client.clientId,
-                description: client.description ?? undefined,
-                roles: client.roles,
-                allowedPresentationConfigs: client.allowedPresentationConfigs,
-                allowedIssuanceConfigs: client.allowedIssuanceConfigs,
-            };
-            if (client.secret || this.configService.get<string>("OIDC")) {
-                const env = placeholder("Client", client.clientId, "secret");
-                spec.secret = `\${${env}}`;
-                requirements.push({
-                    code: "CLIENT_SECRET_REQUIRED",
-                    resource: { kind: "Client", id: client.clientId },
-                    path: "/spec/secret",
-                    placeholder: env,
-                    message:
-                        "Client secrets are one-way hashed. Supply a replacement or set secret to !generate during import.",
-                });
-            }
             await this.addDocument(
                 documents,
                 requirements,
                 tenantId,
                 "Client",
                 client.clientId,
-                spec,
+                this.clientSpec(client, requirements),
                 false,
             );
         }
@@ -251,40 +242,7 @@ export class ConfigBundleService {
         for (const keyChain of await this.keyChains.find({
             where: { tenantId, usage: KeyUsage.Sign },
         })) {
-            const publicJwk = this.toPublicJwk(
-                keyChain.hasInternalCa()
-                    ? keyChain.rootJwk
-                    : keyChain.activeJwk,
-            );
-            const keySource = keyChain.externalKeyId
-                ? {
-                      type: "external-reference",
-                      provider: keyChain.kmsProvider,
-                      externalKeyId: keyChain.hasInternalCa()
-                          ? keyChain.rootExternalKeyId
-                          : keyChain.externalKeyId,
-                      publicJwk,
-                      activeExternalKeyId: keyChain.hasInternalCa()
-                          ? keyChain.externalKeyId
-                          : undefined,
-                      activePublicJwk: keyChain.hasInternalCa()
-                          ? this.toPublicJwk(keyChain.activeJwk)
-                          : undefined,
-                  }
-                : { type: "required", publicJwk };
-            const spec: Record<string, unknown> = {
-                id: keyChain.id,
-                ...keyChainSettingsSpec(keyChain),
-                usageType: keyChain.usageType,
-                kmsProvider: keyChain.kmsProvider,
-                keySource,
-                crt: keyChain.hasInternalCa()
-                    ? [keyChain.rootCertificate]
-                    : [keyChain.activeCertificate],
-                activeCertificate: keyChain.hasInternalCa()
-                    ? keyChain.activeCertificate
-                    : undefined,
-            };
+            const spec = this.keyChainSpec(keyChain);
             if (!keyChain.externalKeyId) {
                 requirements.push({
                     code: "PRIVATE_KEY_REQUIRED",
@@ -428,6 +386,67 @@ export class ConfigBundleService {
             documents: documents.map((document) => serializeDocument(document)),
             assets,
         };
+    }
+
+    /**
+     * Exports one resource as a configuration document: the format of the
+     * files in the config folder and of the documents in a bundle. Secrets
+     * become placeholders like in the bundle export, but a key chain held in
+     * the database keeps its private keys, like `GET /key-chain/{id}/export`,
+     * so importing the document restores the same keys.
+     */
+    async exportDocument(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+    ): Promise<ConfigFile> {
+        const singletonId = CONFIG_SINGLETON_IDS[kind];
+        const spec =
+            singletonId && id !== singletonId
+                ? undefined
+                : await this.exportSpec(tenantId, kind, id);
+        if (!spec) {
+            throw new NotFoundException(`${kind} '${id}' not found`);
+        }
+        const documents: ConfigDocument[] = [];
+        await this.addDocument(
+            documents,
+            [],
+            tenantId,
+            kind,
+            id,
+            spec,
+            // A client names a placeholder for its secret; key chains keep their keys.
+            kind !== "Client" && kind !== "KeyChain",
+        );
+        await this.rewriteAssetReferences(tenantId, documents);
+        return serializeDocument(documents[0]);
+    }
+
+    private async exportSpec(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+    ): Promise<Record<string, unknown> | undefined> {
+        if (kind === "Client") {
+            const client = await this.clients.findOneBy({
+                tenantId,
+                clientId: id,
+            });
+            return client ? this.clientSpec(client, []) : undefined;
+        }
+        // The tenant's encryption key chain is system-owned, not configuration.
+        if (
+            kind === "KeyChain" &&
+            (await this.keyChains.countBy({
+                tenantId,
+                id,
+                usage: KeyUsage.Sign,
+            })) === 0
+        ) {
+            return undefined;
+        }
+        return this.storedSpec(tenantId, kind, id);
     }
 
     async plan(
@@ -855,7 +874,9 @@ export class ConfigBundleService {
             tenant: await this.tenants.findOneBy({ id: tenantId }),
             resources: rows.map((entries) =>
                 entries
-                    .map(canonicalize)
+                    .map((entry) =>
+                        canonicalize(entry, REVISION_OMITTED_FIELDS),
+                    )
                     .sort((a, b) =>
                         stableConfigJson(a).localeCompare(stableConfigJson(b)),
                     ),
@@ -872,7 +893,9 @@ export class ConfigBundleService {
             ownership: await this.ownershipService.list(tenantId),
             kms: this.kmsTenantConfigService.getTenantConfig(tenantId),
         };
-        return sha256(stableConfigJson(canonicalize(state)));
+        return sha256(
+            stableConfigJson(canonicalize(state, REVISION_OMITTED_FIELDS)),
+        );
     }
 
     private async planAssets(
@@ -1260,6 +1283,108 @@ export class ConfigBundleService {
         }
     }
 
+    private tenantSpec(tenant: Record<string, any>): Record<string, unknown> {
+        return {
+            name: tenant.name,
+            description: tenant.description ?? undefined,
+            sessionConfig: tenant.sessionConfig ?? undefined,
+            statusListConfig: tenant.statusListConfig ?? undefined,
+        };
+    }
+
+    /** Client secrets are one-way hashed, so the spec names a placeholder. */
+    private clientSpec(
+        client: Record<string, any>,
+        requirements: ConfigBundleRequirement[],
+    ): Record<string, unknown> {
+        const spec: Record<string, unknown> = {
+            clientId: client.clientId,
+            description: client.description ?? undefined,
+            roles: client.roles,
+            allowedPresentationConfigs: client.allowedPresentationConfigs,
+            allowedIssuanceConfigs: client.allowedIssuanceConfigs,
+        };
+        if (client.secret || this.configService.get<string>("OIDC")) {
+            const env = placeholder("Client", client.clientId, "secret");
+            spec.secret = `\${${env}}`;
+            requirements.push({
+                code: "CLIENT_SECRET_REQUIRED",
+                resource: { kind: "Client", id: client.clientId },
+                path: "/spec/secret",
+                placeholder: env,
+                message:
+                    "Client secrets are one-way hashed. Supply a replacement or set secret to !generate during import.",
+            });
+        }
+        return spec;
+    }
+
+    /**
+     * A key chain held in the database names its private keys only with
+     * `privateKeys`; otherwise its key source is `required`. Keys held in an
+     * external KMS are always an `external-reference`.
+     */
+    private keyChainSpec(
+        keyChain: KeyChainEntity,
+        privateKeys = false,
+    ): Record<string, unknown> {
+        const internal = keyChain.hasInternalCa();
+        const keySource = this.keyChainKeySource(keyChain, privateKeys);
+        return {
+            id: keyChain.id,
+            ...keyChainSettingsSpec(keyChain),
+            usageType: keyChain.usageType,
+            kmsProvider: keyChain.kmsProvider,
+            keySource,
+            crt: [
+                internal
+                    ? keyChain.rootCertificate
+                    : keyChain.activeCertificate,
+            ],
+            activeCertificate: internal
+                ? keyChain.activeCertificate
+                : undefined,
+        };
+    }
+
+    private keyChainKeySource(
+        keyChain: KeyChainEntity,
+        privateKeys: boolean,
+    ): Record<string, unknown> {
+        const internal = keyChain.hasInternalCa();
+        if (keyChain.externalKeyId) {
+            return {
+                type: "external-reference",
+                provider: keyChain.kmsProvider,
+                externalKeyId: internal
+                    ? keyChain.rootExternalKeyId
+                    : keyChain.externalKeyId,
+                publicJwk: this.toPublicJwk(
+                    internal ? keyChain.rootJwk : keyChain.activeJwk,
+                ),
+                ...(internal
+                    ? {
+                          activeExternalKeyId: keyChain.externalKeyId,
+                          activePublicJwk: this.toPublicJwk(keyChain.activeJwk),
+                      }
+                    : {}),
+            };
+        }
+        if (privateKeys) {
+            return {
+                type: "private-jwk",
+                jwk: internal ? keyChain.rootJwk : keyChain.activeJwk,
+                ...(internal ? { activeJwk: keyChain.activeJwk } : {}),
+            };
+        }
+        return {
+            type: "required",
+            publicJwk: this.toPublicJwk(
+                internal ? keyChain.rootJwk : keyChain.activeJwk,
+            ),
+        };
+    }
+
     private trustListSpec(
         trustList: Record<string, any>,
     ): Record<string, unknown> {
@@ -1598,24 +1723,28 @@ export class ConfigBundleService {
         };
     }
 
-    private async currentSpec(
+    private currentSpec(
         tenantId: string,
         document: ConfigDocument,
     ): Promise<Record<string, any> | undefined> {
-        const id = resourceId(document);
+        return this.storedSpec(tenantId, document.kind, resourceId(document));
+    }
+
+    /**
+     * The persisted configuration of one resource in the fields of its spec.
+     * Client secrets are the stored hashes and key chains held in the
+     * database carry their private keys.
+     */
+    private async storedSpec(
+        tenantId: string,
+        kind: ConfigResourceKind,
+        id: string,
+    ): Promise<Record<string, any> | undefined> {
         let entity: any;
-        switch (document.kind) {
+        switch (kind) {
             case "Tenant": {
                 entity = await this.tenants.findOneBy({ id: tenantId });
-                return entity
-                    ? {
-                          name: entity.name,
-                          description: entity.description ?? undefined,
-                          sessionConfig: entity.sessionConfig ?? undefined,
-                          statusListConfig:
-                              entity.statusListConfig ?? undefined,
-                      }
-                    : undefined;
+                return entity ? this.tenantSpec(entity) : undefined;
             }
             case "Client": {
                 entity = await this.clients.findOneBy({
@@ -1641,47 +1770,7 @@ export class ConfigBundleService {
                 );
             case "KeyChain": {
                 entity = await this.keyChains.findOneBy({ tenantId, id });
-                if (!entity) return undefined;
-                const internal = entity.hasInternalCa();
-                const keySource = entity.externalKeyId
-                    ? {
-                          type: "external-reference",
-                          provider: entity.kmsProvider,
-                          externalKeyId: internal
-                              ? entity.rootExternalKeyId
-                              : entity.externalKeyId,
-                          publicJwk: this.toPublicJwk(
-                              internal ? entity.rootJwk : entity.activeJwk,
-                          ),
-                          ...(internal
-                              ? {
-                                    activeExternalKeyId: entity.externalKeyId,
-                                    activePublicJwk: this.toPublicJwk(
-                                        entity.activeJwk,
-                                    ),
-                                }
-                              : {}),
-                      }
-                    : {
-                          type: "private-jwk",
-                          jwk: internal ? entity.rootJwk : entity.activeJwk,
-                          ...(internal ? { activeJwk: entity.activeJwk } : {}),
-                      };
-                return {
-                    id,
-                    ...keyChainSettingsSpec(entity),
-                    usageType: entity.usageType,
-                    keySource,
-                    crt: [
-                        internal
-                            ? entity.rootCertificate
-                            : entity.activeCertificate,
-                    ],
-                    activeCertificate: internal
-                        ? entity.activeCertificate
-                        : undefined,
-                    kmsProvider: entity.kmsProvider,
-                };
+                return entity ? this.keyChainSpec(entity, true) : undefined;
             }
             case "RegistrarConfig":
                 entity = await this.registrarConfigs.findOneBy({ tenantId });
@@ -1726,9 +1815,7 @@ export class ConfigBundleService {
                     : undefined;
             }
         }
-        return entity
-            ? this.canonicalEntitySpec(document.kind, entity)
-            : undefined;
+        return entity ? this.canonicalEntitySpec(kind, entity) : undefined;
     }
 
     private async exists(

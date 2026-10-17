@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -32,7 +33,7 @@ describe('StatusListEditComponent', () => {
       snackBar as never,
       {} as never,
       new CredentialConfigService(),
-      new KeyChainService()
+      TestBed.inject(KeyChainService)
     );
 
     component.ngOnInit();

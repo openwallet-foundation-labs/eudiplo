@@ -163,6 +163,21 @@ secrets with `${…}` placeholders and private keys with
 generate them (see
 [secret and key policy](../reference/config-bundle-format.md#secret-and-key-policy)).
 
+## Download one resource
+
+**Download configuration** on the page of a credential, issuance or
+presentation configuration, a webhook endpoint, an attribute provider, a trust
+list or a key chain (**Export as config JSON**) saves the resource as a
+document named `<id>.json`, ready for the config folder. The API is
+`GET /api/config-bundles/resources/<kind>/<id>/document`
+([single resources](../reference/config-bundle-format.md#single-resources)).
+Secrets are `${…}` placeholders, as in a bundle export; the Web Client names
+the environment variables to set before the import. **Choose bundle or
+document** under **Settings > Config Portability** also takes the file and
+plans it like a bundle with that one resource. A key chain document
+contains the private keys of a `db` key chain and needs `tenant:admin` or
+`tenants:manage`.
+
 ## Upgrade old files
 
 After a backend upgrade, files and bundles in an older format keep working on

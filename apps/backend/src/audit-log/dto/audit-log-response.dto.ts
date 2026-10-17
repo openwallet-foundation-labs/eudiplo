@@ -24,6 +24,7 @@ export type AuditActionTypeLiteral =
     | "config_client_secret_generated"
     | "config_resource_detached"
     | "config_resource_reattached"
+    | "config_resource_exported"
     | "session_cancelled";
 
 const ACTION_TYPE_VALUES: AuditActionTypeLiteral[] = [
@@ -50,6 +51,7 @@ const ACTION_TYPE_VALUES: AuditActionTypeLiteral[] = [
     "config_client_secret_generated",
     "config_resource_detached",
     "config_resource_reattached",
+    "config_resource_exported",
     "session_cancelled",
 ];
 

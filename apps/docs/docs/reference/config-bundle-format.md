@@ -30,7 +30,11 @@ Every portable resource is one JSON document:
 Tenant, KMS, registrar and issuance settings exist once per tenant and have no ID.
 In tenant config folders, the importer also accepts *bare* files (only the
 `spec` content) at the known paths and wraps them; a document with an unknown
-`$schema` or a newer version than the backend supports is rejected.
+`$schema` or a newer version than the backend supports is rejected. A bare file
+names no version, so it is read as version 1, except key chain and KMS files
+([format versions](#resource-types-and-versions)): prefer documents, which
+`GET /api/config-bundles/resources/:kind/:id/document` and the Web Client's
+download buttons write ([single resources](#single-resources)).
 
 ## Resource types and versions
 
@@ -167,7 +171,9 @@ ZIP entries not listed in the manifest are rejected. A ZIP may have at most
 
 ## Secret and key policy
 
-Exports never contain secret values or database-held private keys:
+Bundle exports (`GET /api/config-bundles/export`) never contain secret values
+or database-held private keys. The document of a single key chain is the one
+exception ([single resources](#single-resources)).
 
 | Value                                                                 | In the export                                                | Requirement code         | On import                                                             |
 | --------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------------- |
@@ -197,9 +203,11 @@ A `private-jwk` key source takes one of two forms:
   which may be followed by the root certificate. Both certificates must be
   PEM and match their keys, the root certificate must be a CA certificate,
   and `kmsProvider` must be `db` or left out; the plan blocks the resource
-  otherwise. Exports never contain the signing key of an internal chain
-  ([key chain export](../trust/keys-and-certificates.md#import-a-key-and-certificate)),
-  so this form needs key material you hold outside EUDIPLO.
+  otherwise. Bundle exports and `GET /api/key-chain/{id}/export` never contain
+  the signing key of an internal chain
+  ([key chain export](../trust/keys-and-certificates.md#import-a-key-and-certificate));
+  `GET /api/config-bundles/resources/KeyChain/{id}/document` writes this form
+  ([single resources](#single-resources)).
 
 **Placeholders.** Any string value can be `${VAR}` or `${VAR:default}`
 (uppercase letters, digits, `_`; an empty variable counts as unset). Values are
@@ -270,11 +278,12 @@ All endpoints act on the tenant of the access token and accept `tenant:admin` or
 | `POST /api/config-bundles/operations/:id/acknowledge-interruption?confirmWorkerStopped=true` | Release the lock of an interrupted operation |
 | `GET /api/config-bundles/resources`                               | Ownership and generation of every resource |
 | `GET /api/config-bundles/resources/:kind`                         | Ownership and generation of one kind's resources |
+| `GET /api/config-bundles/resources/:kind/:id/document`            | Export one resource as a document ([single resources](#single-resources)) |
 | `POST /api/config-bundles/resources/:kind/:id/detach`             | Make a `file-managed` resource `detached`  |
 | `POST /api/config-bundles/resources/:kind/:id/reattach/plan`      | Plan resetting a resource to its version in `CONFIG_FOLDER` |
 | `POST /api/config-bundles/resources/:kind/:id/reattach?planFingerprint=…` | Apply that plan and make the resource `file-managed` again |
 
-Exports, imports, detach and reattach actions are recorded in the tenant audit log.
+Exports of bundles and single resources, imports, detach and reattach actions are recorded in the tenant audit log.
 
 `GET /api/config-bundles/resources/:kind` also accepts the roles that change
 resources of that kind, so screens can lock file-managed resources for them:
@@ -289,3 +298,28 @@ resources of that kind, so screens can lock file-managed resources for them:
 | `Client`                                                                | `clients:manage`                                        |
 | `RegistrarConfig`                                                       | `registrar:manage`                                      |
 | `KmsConfig`                                                             | no other role                                           |
+
+### Single resources
+
+`GET /api/config-bundles/resources/:kind/:id/document` returns one resource as
+a document in the current format version: the content of its file in a
+[tenant folder](#tenant-folder-layout) or a bundle. Save it as
+`<directory>/<id>.json` (for the singletons `info.json`, `kms.json`,
+`registrar.json` and `issuance/issuance.json`) and, once its `${…}`
+placeholders are set, the next import plans it as `unchanged`. The singletons use their fixed IDs `tenant`, `kms`, `registrar`
+and `issuance`; the tenant's encryption key chain is not configuration and
+answers `404`. The **Download configuration** buttons of the Web Client save
+this document as `<id>.json`, and the import of **Settings > Config
+Portability** accepts it in place of a bundle.
+
+Secrets are `${…}` placeholders as in a bundle export
+([secret and key policy](#secret-and-key-policy)); with the default
+`CONFIG_VARIABLE_STRICT=skip`, a folder import fails for that tenant until the
+environment variables are set. The Web Client names them after the download.
+Image references name
+the file, which has to be in the folder's `images/` or already stored on the
+target instance. Unlike a bundle, a `KeyChain` document of a key held in the
+database keeps its private keys as `keySource: { "type": "private-jwk" }`,
+for an internal chain with the signing key in `activeJwk`, so its import
+restores the same keys. A `KeyChain` document therefore needs `tenant:admin` or
+`tenants:manage`; the other kinds also accept the roles in the table above.

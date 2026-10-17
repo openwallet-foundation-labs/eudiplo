@@ -17,7 +17,8 @@ the roles in the token.
 Most endpoints also act on the tenant in the token and refuse a token without
 one, such as the root client's. Without a tenant, `tenants:manage` works for the
 `/api/tenant` endpoints and for rotating client secrets.
-`GET /api/config-bundles/resources/:kind` also checks the kind
+`GET /api/config-bundles/resources/:kind` and
+`GET /api/config-bundles/resources/:kind/:id/document` also check the kind
 ([which roles](config-bundle-format.md#management-api)).
 
 import RoleReference from "@site/src/components/RoleReference";

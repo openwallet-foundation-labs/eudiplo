@@ -10,7 +10,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { AttributeProviderEntity } from '@eudiplo/sdk-core';
 import { getApiKeyAuthType, getApiKeyHeaderName } from '../../../common/auth-display.util';
-import { downloadJsonFile } from '../../../common/download-json.util';
+import { ConfigDocumentService } from '../../../config-portability/config-document.service';
 import { AttributeProviderService } from '../attribute-provider.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
@@ -46,7 +46,8 @@ export class AttributeProviderShowComponent implements OnInit {
     private readonly attributeProviderService: AttributeProviderService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   ngOnInit(): void {
@@ -102,13 +103,24 @@ export class AttributeProviderShowComponent implements OnInit {
     }
   }
 
-  downloadConfig(): void {
-    if (this.provider) {
-      const config = { ...(this.provider as any) };
-      delete config.tenantId;
-      delete config.tenant;
-      downloadJsonFile(config, `attribute-provider-${this.provider.id}.json`);
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('AttributeProvider');
+  }
+
+  /**
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
+   */
+  async downloadConfig(): Promise<void> {
+    if (!this.provider) return;
+    try {
+      const message = await this.configDocuments.download('AttributeProvider', this.provider.id);
+      this.snackBar.open(message, 'Close', { duration: 8000 });
+    } catch (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to download configuration')
+      );
     }
-    this.snackBar.open('Configuration downloaded', 'Close', { duration: 3000 });
   }
 }
