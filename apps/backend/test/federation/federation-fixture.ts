@@ -50,11 +50,13 @@ function signer(key: FederationKey) {
 const now = () => Math.floor(Date.now() / 1000);
 
 /** Serves the entity configuration of `id`, signed with `key`. */
-async function serveEntityConfiguration(options: {
+export async function serveEntityConfiguration(options: {
     id: string;
     key: FederationKey;
     authorityHints?: string[];
     metadata?: Record<string, Record<string, unknown>>;
+    /** Keep answering instead of answering once. */
+    persist?: boolean;
 }) {
     const jwt = await createEntityConfiguration({
         signJwtCallback: signer(options.key),
@@ -74,7 +76,9 @@ async function serveEntityConfiguration(options: {
             },
         },
     });
-    nock(options.id)
+    const scope = nock(options.id);
+    if (options.persist) scope.persist();
+    scope
         .get("/.well-known/openid-federation")
         .optionally()
         .reply(200, jwt, CONTENT_TYPE);
@@ -86,14 +90,18 @@ async function serveEntityConfiguration(options: {
  * subject's federation key. `listed: false` answers 404 instead, as for an
  * entity the issuer does not list.
  */
-async function serveSubordinateStatement(options: {
+export async function serveSubordinateStatement(options: {
     issuer: string;
     issuerKey: FederationKey;
     subject: string;
-    subjectKey: FederationKey;
+    subjectKey: Pick<FederationKey, "jwk">;
     listed?: boolean;
+    /** Keep answering instead of answering once. */
+    persist?: boolean;
 }) {
-    const scope = nock(options.issuer)
+    const base = nock(options.issuer);
+    if (options.persist) base.persist();
+    const scope = base
         .get("/fetch")
         .query({ sub: options.subject })
         .optionally();

@@ -220,7 +220,7 @@ const ConfigDocumentMetadataSchema = z
 export const KeyChainConfigFileSchema = z.union([
     z.strictObject({
         $schema: z.literal(
-            "https://eudiplo.dev/schemas/v2/KeyChainConfigFile.schema.json",
+            "https://eudiplo.dev/schemas/v3/KeyChainConfigFile.schema.json",
         ),
         metadata: ConfigDocumentMetadataSchema,
         spec: PortableKeyChainSpecSchema,

@@ -11,6 +11,7 @@ export const ResponseType = {
 export const ClientIdScheme = {
     X509_HASH: "x509_hash",
     X509_SAN_DNS: "x509_san_dns",
+    OPENID_FEDERATION: "openid_federation",
 } as const;
 
 export const PresentationRequestSchema = z
@@ -52,10 +53,14 @@ export const PresentationRequestSchema = z
                 "Clock skew override in seconds for credential JWT time validation.",
             ),
         clientIdScheme: z
-            .enum([ClientIdScheme.X509_HASH, ClientIdScheme.X509_SAN_DNS])
+            .enum([
+                ClientIdScheme.X509_HASH,
+                ClientIdScheme.X509_SAN_DNS,
+                ClientIdScheme.OPENID_FEDERATION,
+            ])
             .optional()
             .describe(
-                "OID4VP client identifier scheme; defaults to x509_hash.",
+                "OID4VP client identifier prefix; defaults to x509_hash. openid_federation uses the tenant's OpenID Federation entity id and needs openid_credential_verifier in federation.entityTypes of the issuance configuration.",
             ),
         reference: z
             .string()

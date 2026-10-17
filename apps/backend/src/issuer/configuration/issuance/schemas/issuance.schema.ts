@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { trustMarkType } from "../../../../trust/domain/trust-mark.js";
 import { RevocationCheckMode } from "../../../../trust/types.js";
+import { FEDERATION_ENTITY_TYPES } from "../domain/own-federation-entity.js";
 import { REMOVED_CHAINED_VP_MESSAGE } from "../domain/removed-authorization-servers.js";
 
 const ChainedAsTokenConfigSchema = z
@@ -302,6 +304,19 @@ const FederationTrustAnchorConfigSchema = z
     .describe("Trust anchor reference for OpenID Federation.")
     .strict();
 
+const HttpsUrlSchema = z.url({ protocol: /^https$/ });
+
+const FederationEntityMetadataSchema = z
+    .object({
+        organization_name: z.string().min(1).optional(),
+        contacts: z.array(z.string().min(1)).min(1).optional(),
+        logo_uri: HttpsUrlSchema.optional(),
+        policy_uri: HttpsUrlSchema.optional(),
+        homepage_uri: HttpsUrlSchema.optional(),
+    })
+    .describe("Informational metadata of the federation entity.")
+    .strict();
+
 const UNSUPPORTED_FEDERATION_ROLE =
     "Only the federation role 'leaf' is supported: EUDIPLO does not act as a trust anchor or intermediate";
 const UNSUPPORTED_FEDERATION_SIGNING_POLICY =
@@ -309,7 +324,7 @@ const UNSUPPORTED_FEDERATION_SIGNING_POLICY =
 
 /**
  * Federation options the schema accepts but EUDIPLO cannot honor: a role
- * other than `leaf` (no entity configuration is published) and a disabled
+ * other than `leaf` (EUDIPLO issues no subordinate statements) and a disabled
  * signing policy (federation checks are always enforced).
  *
  * @returns the reason, or `undefined` when the options are supported.
@@ -364,6 +379,58 @@ const FederationConfigSchema = z
         trustAnchors: z
             .array(FederationTrustAnchorConfigSchema)
             .describe("Federation trust anchors."),
+        entityTypes: z
+            .array(z.enum(FEDERATION_ENTITY_TYPES))
+            .min(1)
+            .optional()
+            .describe(
+                "Roles the entity configuration publishes metadata for. Defaults to openid_credential_issuer.",
+            ),
+        authorityHints: z
+            .array(HttpsUrlSchema)
+            .optional()
+            .describe(
+                "authority_hints of the entity configuration: the superiors that issue a subordinate statement about this entity. Defaults to the trust anchor entity ids.",
+            ),
+        entityKeyChainId: z
+            .string()
+            .min(1)
+            .optional()
+            .describe(
+                "Key chain with usage type 'federation' that signs the entity configuration. Without it, a federation key chain of the tenant is used; set it when the tenant has several.",
+            ),
+        entityConfigurationLifetimeSeconds: z.coerce
+            .number()
+            .int()
+            .min(60)
+            .max(31536000)
+            .optional()
+            .describe(
+                "Lifetime (exp - iat) of the entity configuration in seconds. Defaults to 86400.",
+            ),
+        trustMarks: z
+            .array(
+                z
+                    .string()
+                    .min(1)
+                    .refine((jwt) => trustMarkType(jwt) !== undefined, {
+                        message:
+                            "A trust mark must be a JWT with a trust_mark_type claim",
+                    }),
+            )
+            .optional()
+            .describe(
+                "Trust mark JWTs issued to this entity, published in the entity configuration.",
+            ),
+        entityMetadata: FederationEntityMetadataSchema.optional().describe(
+            "Informational federation_entity metadata of the entity configuration.",
+        ),
+        includeTrustChain: z
+            .boolean()
+            .optional()
+            .describe(
+                "Add the trust chain of this entity as trust_chain header to federation SD-JWT VCs and OID4VP request objects.",
+            ),
     })
     .describe("OpenID Federation configuration.")
     .strict();

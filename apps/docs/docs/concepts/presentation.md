@@ -41,7 +41,7 @@ The wallet-facing URLs contain a `walletNonce`, not the session ID; [Sessions](s
 
 ## Request object
 
-The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with the algorithm of the `access` key chain (`ES256` unless the key chain uses P-384 or P-521) chosen when the request was created ([which one](../trust/keys-and-certificates.md#default-access-key-chain)), whose certificate chain is in the `x5c` header.
+The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with the algorithm of the `access` key chain (`ES256` unless the key chain uses P-384 or P-521) chosen when the request was created ([which one](../trust/keys-and-certificates.md#default-access-key-chain)), whose certificate chain is in the `x5c` header; with the `openid_federation` client identifier, the header has no `x5c` and the wallet picks the key by its `kid` ([OpenID Federation](../trust/federation.md#oid4vp-requests-with-a-federation-client-identifier)).
 
 ```json
 {
@@ -71,8 +71,8 @@ The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with the alg
 
 What EUDIPLO adds to the configured DCQL query:
 
-- **`client_id`** is derived from the access certificate: `x509_hash` by default, `x509_san_dns` if the request asks for it.
-- **Response encryption key.** Each session gets a fresh P-256 key pair. The public key goes into `client_metadata.jwks`; the private key is stored encrypted in the session and deleted when the session ends.
+- **`client_id`** is derived from the access certificate: `x509_hash` by default, `x509_san_dns` if the request asks for it; `openid_federation` uses the tenant's federation entity ID instead.
+- **Response encryption key.** Each session gets a fresh P-256 key pair. The public key goes into `client_metadata.jwks`; the private key is stored encrypted in the session and deleted when the session ends. With `openid_federation`, the wallet encrypts to the tenant encryption key from the federation metadata instead.
 - **`nonce`** is a random value per request; the wallet must bind its presentation to it.
 - **Trusted authorities.** `etsi_tl` entries in the configuration reference trust lists. In the request they become `aki` values, the key identifiers of the issuer certificates listed in those trust lists; trust lists whose issuers cannot all be expressed that way are also sent as `etsi_tl` URLs. See [DCQL](../presentation/dcql.md).
 - **Optional parts:** `transaction_data` (from the request or the configuration), and a registration certificate in `verifier_info` if the configuration requests one.

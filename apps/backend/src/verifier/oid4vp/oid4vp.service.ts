@@ -6,17 +6,15 @@ import {
     Injectable,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { base64url } from "jose";
+import { base64url, type JWK } from "jose";
 import { Span, TraceService } from "nestjs-otel";
 import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service.js";
 import { CertService } from "../../crypto/key/cert/cert.service.js";
-import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service.js";
 import { KeyChainService } from "../../crypto/key/key-chain.service.js";
 import { KeyUsageType } from "../../crypto/key/types/key-usage-type.js";
-import { CredentialFormat } from "../../issuer/configuration/credentials/entities/credential.entity.js";
 import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.js";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto.js";
 import { CreateSession } from "../../session/application/create-session.js";
@@ -58,7 +56,11 @@ import {
 } from "./application/parse-authorization-response.js";
 import { ProcessVerifiedPresentation } from "./application/process-verified-presentation.js";
 import { RetrievePresentationRequest } from "./application/retrieve-presentation-request.js";
-import { createClientId } from "./client-id.util.js";
+import {
+    createClientId,
+    federationClientId,
+    isFederationClientId,
+} from "./client-id.util.js";
 import { applyTrustedAuthoritiesPolicy } from "./dcql-trusted-authorities.util.js";
 import { AuthorizationResponse } from "./dto/authorization-response.dto.js";
 import {
@@ -66,6 +68,14 @@ import {
     PresentationRequestOptions,
 } from "./dto/presentation-request.dto.js";
 import { OID4VP_SETTINGS, type Oid4vpSettings } from "./oid4vp-settings.js";
+import {
+    VERIFIER_FEDERATION_IDENTITY,
+    type VerifierFederationIdentity,
+} from "./ports/verifier-federation-identity.js";
+import {
+    ENCRYPTED_RESPONSE_ENC_VALUES_SUPPORTED,
+    VerifierMetadataService,
+} from "./verifier-metadata.service.js";
 
 @Injectable()
 export class Oid4vpService {
@@ -90,8 +100,10 @@ export class Oid4vpService {
         private readonly auditLogger: SessionLoggerService,
         @InjectRepository(WebhookEndpointEntity)
         private readonly webhookEndpointRepo: Repository<WebhookEndpointEntity>,
-        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly traceService: TraceService,
+        private readonly verifierMetadata: VerifierMetadataService,
+        @Inject(VERIFIER_FEDERATION_IDENTITY)
+        private readonly federationIdentity: VerifierFederationIdentity,
     ) {}
 
     private async resolveWebhookFromEndpoint(
@@ -326,6 +338,31 @@ export class Oid4vpService {
 
             const clientId =
                 session.clientId ?? createClientId(cert, this.certService);
+            const federation = isFederationClientId(clientId);
+
+            // trust_chain goes into the JWS header (OpenID Federation
+            // Section 4.3). OID4VP 1.0 Section 5.9.3 also allows it as a
+            // request parameter, but @openid4vc/openid4vp 0.7 wallets reject
+            // that parameter with an openid_federation: client_id.
+            let trustChain: string[] | undefined;
+            if (federation) {
+                const entity = await this.federationIdentity.forTenant(
+                    session.tenantId,
+                );
+                if (
+                    !entity ||
+                    clientId !== federationClientId(entity.entityId)
+                ) {
+                    throw new BadRequestException(
+                        "The OpenID Federation verifier identity of this request is no longer configured",
+                    );
+                }
+                if (entity.includeTrustChain) {
+                    trustChain = await this.federationIdentity.trustChain(
+                        session.tenantId,
+                    );
+                }
+            }
 
             // Use transaction_data from session (which may have been overridden) or fall back to config
             const transaction_data =
@@ -335,15 +372,28 @@ export class Oid4vpService {
                 )?.map((td) => base64url.encode(JSON.stringify(td))) ||
                 undefined;
 
-            const { publicJwk: responseEncryptionPublicJwk, privateJwk } =
-                await this.encryptionService.generateEphemeralEncryptionKeyPair();
-            await this.sessionStore.updateForTenant(
-                session.tenantId,
-                session.id,
-                {
-                    responseEncryptionPrivateJwk: privateJwk,
-                },
-            );
+            // With openid_federation the wallet ignores client_metadata and
+            // encrypts to a key of the verifier metadata in the trust chain:
+            // the tenant encryption key, which decrypts the response when
+            // the session holds no ephemeral key.
+            let responseEncryptionPublicJwk: JWK;
+            if (federation) {
+                responseEncryptionPublicJwk =
+                    await this.encryptionService.getEncryptionPublicKey(
+                        session.tenantId,
+                    );
+            } else {
+                const { publicJwk, privateJwk } =
+                    await this.encryptionService.generateEphemeralEncryptionKeyPair();
+                responseEncryptionPublicJwk = publicJwk;
+                await this.sessionStore.updateForTenant(
+                    session.tenantId,
+                    session.id,
+                    {
+                        responseEncryptionPrivateJwk: privateJwk,
+                    },
+                );
+            }
 
             // Per OID4VP spec Section 13.3: use walletNonce in wallet-facing URLs
             // to separate the wallet-facing identifier (request-id) from the
@@ -377,31 +427,10 @@ export class Oid4vpService {
                         jwks: {
                             keys: [responseEncryptionPublicJwk],
                         },
-                        vp_formats_supported: {
-                            // OID4VP 1.0 Appendix B.2.2
-                            mso_mdoc: {
-                                issuerauth_alg_values:
-                                    this.cryptoImplementationService.getAlgs(
-                                        CredentialFormat.MSO_MDOC,
-                                    ),
-                                deviceauth_alg_values:
-                                    this.cryptoImplementationService.getMdocDeviceAuthAlgs(),
-                            },
-                            "dc+sd-jwt": {
-                                "kb-jwt_alg_values":
-                                    this.cryptoImplementationService.getAlgs(
-                                        CredentialFormat.SD_JWT_VC,
-                                    ),
-                                "sd-jwt_alg_values":
-                                    this.cryptoImplementationService.getAlgs(
-                                        CredentialFormat.SD_JWT_VC,
-                                    ),
-                            },
-                        },
-                        encrypted_response_enc_values_supported: [
-                            "A128GCM",
-                            "A256GCM",
-                        ],
+                        vp_formats_supported:
+                            this.verifierMetadata.vpFormatsSupported(),
+                        encrypted_response_enc_values_supported:
+                            ENCRYPTED_RESPONSE_ENC_VALUES_SUPPORTED,
                     },
                     state: session.useDcApi ? undefined : walletFacingId,
                     transaction_data,
@@ -425,10 +454,15 @@ export class Oid4vpService {
                 },
             };
 
-            const header = {
-                ...request.header,
-                x5c: this.certService.getCertChain(cert),
-            };
+            // signJWT sets the kid of the access key, which the
+            // openid_credential_verifier metadata of the entity lists.
+            const header: Record<string, unknown> = federation
+                ? { ...request.header }
+                : {
+                      ...request.header,
+                      x5c: this.certService.getCertChain(cert),
+                  };
+            if (trustChain) header.trust_chain = trustChain;
 
             const signedJwt = await this.keyChainService.signJWT(
                 request.payload,
@@ -499,11 +533,22 @@ export class Oid4vpService {
             keyId: presentationConfig.accessKeyChainId ?? undefined,
         });
 
-        const clientId = createClientId(
-            cert,
-            this.certService,
-            values.clientIdScheme,
-        );
+        let clientId: string;
+        if (values.clientIdScheme === ClientIdScheme.OPENID_FEDERATION) {
+            const entity = await this.federationIdentity.forTenant(tenantId);
+            if (!entity) {
+                throw new BadRequestException(
+                    "clientIdScheme openid_federation needs federation.entityId, at least one trust anchor and openid_credential_verifier in federation.entityTypes of the issuance configuration",
+                );
+            }
+            clientId = federationClientId(entity.entityId);
+        } else {
+            clientId = createClientId(
+                cert,
+                this.certService,
+                values.clientIdScheme,
+            );
+        }
 
         const params = {
             client_id: clientId,

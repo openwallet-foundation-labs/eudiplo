@@ -207,7 +207,11 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
 
   async deleteKey(): Promise<void> {
     const displayName = this.description || this.keyId;
-    if (!confirm(`Delete key chain "${displayName}"? This cannot be undone.`)) {
+    const consequence =
+      this.usageType === 'federation'
+        ? ' If this key signs your OpenID Federation entity configuration, the entity is no longer trusted until your trust anchor lists the public key of a replacement federation key (and federation.entityKeyChainId, if set, names it).'
+        : '';
+    if (!confirm(`Delete key chain "${displayName}"? This cannot be undone.${consequence}`)) {
       return;
     }
 

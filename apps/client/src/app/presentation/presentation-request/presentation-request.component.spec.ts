@@ -43,7 +43,7 @@ describe('PresentationRequestComponent', () => {
   it('requests an x509_san_dns client ID when selected', async () => {
     component.form.patchValue({
       requestId: 'pid-verification',
-      x509SanDns: true,
+      clientIdScheme: 'x509_san_dns',
     });
 
     await component.onSubmit();
@@ -52,6 +52,32 @@ describe('PresentationRequestComponent', () => {
       requestId: 'pid-verification',
       response_type: 'uri',
       clientIdScheme: 'x509_san_dns',
+    });
+  });
+
+  it('requests an openid_federation client ID when selected', async () => {
+    component.form.patchValue({
+      requestId: 'pid-verification',
+      clientIdScheme: 'openid_federation',
+    });
+
+    await component.onSubmit();
+
+    expect(service.getOffer).toHaveBeenCalledWith({
+      requestId: 'pid-verification',
+      response_type: 'uri',
+      clientIdScheme: 'openid_federation',
+    });
+  });
+
+  it('sends no client ID scheme for the default certificate hash', async () => {
+    component.form.patchValue({ requestId: 'pid-verification' });
+
+    await component.onSubmit();
+
+    expect(service.getOffer).toHaveBeenCalledWith({
+      requestId: 'pid-verification',
+      response_type: 'uri',
     });
   });
 

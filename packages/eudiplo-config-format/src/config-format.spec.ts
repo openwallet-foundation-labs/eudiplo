@@ -97,7 +97,7 @@ describe("portable schema identity and migrations", () => {
         expect(result.migrations).toEqual(["rename-name"]);
     });
 
-    it("upgrades a v1 issuance configuration to v4 unchanged", () => {
+    it("upgrades a v1 issuance configuration to v5 unchanged", () => {
         const v1 = {
             $schema: schemaUrl("IssuanceConfig", 1),
             metadata: { generation: 2 },
@@ -112,8 +112,9 @@ describe("portable schema identity and migrations", () => {
             "issuance-config-v2-offer-lifetime",
             "issuance-config-v3-trust-list-verifier-pem",
             "issuance-config-v4-wallet-attestation-status-check-mode",
+            "issuance-config-v5-federation-entity",
         ]);
-        expect(result.document.$schema).toBe(schemaUrl("IssuanceConfig", 4));
+        expect(result.document.$schema).toBe(schemaUrl("IssuanceConfig", 5));
         expect(result.document.spec).toEqual(v1.spec);
         expect(result.document.metadata).toEqual({ generation: 2 });
         // Repeating the upgrade on the result is a no-op.
@@ -174,7 +175,7 @@ describe("portable schema identity and migrations", () => {
         ).toContain("Unknown property: verifierKeyPem");
     });
 
-    it("upgrades a v1 key chain to v2 unchanged", () => {
+    it("upgrades a v1 key chain to v3 unchanged", () => {
         const v1 = {
             $schema: schemaUrl("KeyChain", 1),
             metadata: { generation: 2 },
@@ -186,13 +187,64 @@ describe("portable schema identity and migrations", () => {
         };
         const result = migrateDocument(v1, validateConfigDocument);
         expect(result.issues).toEqual([]);
-        expect(result.migrations).toEqual(["key-chain-v2-type"]);
-        expect(result.document.$schema).toBe(schemaUrl("KeyChain", 2));
+        expect(result.migrations).toEqual([
+            "key-chain-v2-type",
+            "key-chain-v3-federation-usage",
+        ]);
+        expect(result.document.$schema).toBe(schemaUrl("KeyChain", 3));
         expect(result.document.spec).toEqual(v1.spec);
         expect(result.document.metadata).toEqual({ generation: 2 });
         expect(
             migrateDocument(result.document, validateConfigDocument).migrations,
         ).toEqual([]);
+    });
+
+    it("accepts the federation usage type only from v3 on", () => {
+        const spec = {
+            id: "federation",
+            usageType: "federation",
+            keySource: { type: "regenerate" },
+        };
+        const issues = (version: number) =>
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("KeyChain", version),
+                    metadata: { generation: 1 },
+                    spec,
+                }),
+            );
+        expect(issues(2).length).toBeGreaterThan(0);
+        expect(issues(3)).toEqual([]);
+        expect(bareFileVersion("KeyChain", spec)).toBe(3);
+    });
+
+    it("accepts the federation entity fields only from IssuanceConfig v5 on", () => {
+        const spec = {
+            authorizationServers: [{ id: "issuer", type: "built-in" }],
+            federation: {
+                entityId: "https://issuer.example.org",
+                trustAnchors: [
+                    {
+                        entityId: "https://ta.example.org",
+                        entityConfigurationUri:
+                            "https://ta.example.org/.well-known/openid-federation",
+                    },
+                ],
+                entityTypes: ["openid_credential_verifier"],
+            },
+        };
+        const issues = (version: number) =>
+            validateConfigDocument(
+                normalizeDocument({
+                    $schema: schemaUrl("IssuanceConfig", version),
+                    metadata: { generation: 1 },
+                    spec,
+                }),
+            );
+        expect(issues(4).map((issue) => issue.message)).toContain(
+            "Unknown property: entityTypes",
+        );
+        expect(issues(5)).toEqual([]);
     });
 
     it("accepts a key chain type only from v2 on", () => {

@@ -170,6 +170,33 @@ describe('issuer settings guided setup', () => {
     expect(payload.display).toEqual([{ name: 'Example Issuer', locale: 'en-US' }]);
   });
 
+  it('keeps the federation entity settings the form does not edit', async () => {
+    service.getConfig.mockResolvedValue({
+      ...config,
+      federation: {
+        mode: 'hybrid',
+        entityId: 'https://issuer.example/issuers/root',
+        trustAnchors: [
+          {
+            entityId: 'https://trust.example',
+            entityConfigurationUri: 'https://trust.example/config',
+          },
+        ],
+        entityTypes: ['openid_credential_issuer', 'openid_credential_verifier'],
+        authorityHints: ['https://intermediate.example'],
+        includeTrustChain: true,
+      },
+    });
+    await component.loadConfigForEdit();
+    component.onSubmit();
+    expect(service.saveConfiguration.mock.calls[0][0].federation).toMatchObject({
+      entityId: 'https://issuer.example/issuers/root',
+      entityTypes: ['openid_credential_issuer', 'openid_credential_verifier'],
+      authorityHints: ['https://intermediate.example'],
+      includeTrustChain: true,
+    });
+  });
+
   it('explicitly clears disabled trust settings and resets the PIN limit', async () => {
     service.getConfig.mockResolvedValue({
       ...config,

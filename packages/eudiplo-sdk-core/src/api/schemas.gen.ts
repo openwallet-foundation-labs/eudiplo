@@ -2935,6 +2935,7 @@ export const KeyChainResponseDtoSchema = {
                 'attestation',
                 'trustList',
                 'statusList',
+                'federation',
                 'encrypt'
             ],
             type: 'string',
@@ -3123,6 +3124,7 @@ export const KeyChainExportDtoSchema = {
                 'attestation',
                 'trustList',
                 'statusList',
+                'federation',
                 'encrypt'
             ],
             type: 'string',
@@ -3211,6 +3213,7 @@ export const KeyChainCreateDtoSchema = {
                 'attestation',
                 'trustList',
                 'statusList',
+                'federation',
                 'encrypt'
             ],
             description: 'Usage type determines the purpose of this key chain (access, attestation, etc.).',
@@ -3426,6 +3429,7 @@ export const KeyChainImportDtoSchema = {
                 'attestation',
                 'trustList',
                 'statusList',
+                'federation',
                 'encrypt'
             ],
             description: 'Usage type for this key chain.'
@@ -4746,6 +4750,7 @@ export const KeyChainEntitySchema = {
                 'attestation',
                 'trustList',
                 'statusList',
+                'federation',
                 'encrypt'
             ]
         },
@@ -5003,8 +5008,8 @@ export const CredentialConfigSchema = {
         sdJwtTrustFormat: {
             description: 'For SD-JWT credentials: determines whether to include certificate chain (x5c)\nor use federation-based trust (iss claim).\nDefault: "x5c" (federation must be explicitly selected)',
             enum: [
-                'x5c',
                 'federation',
+                'x5c',
                 null
             ],
             type: [
@@ -5152,8 +5157,8 @@ export const CredentialConfigCreateSchema = {
         sdJwtTrustFormat: {
             description: 'For SD-JWT credentials: determines whether to include certificate chain (x5c)\nor use federation-based trust (iss claim).\nDefault: "x5c" (federation must be explicitly selected)',
             enum: [
-                'x5c',
                 'federation',
+                'x5c',
                 null
             ],
             type: [
@@ -5300,8 +5305,8 @@ export const CredentialConfigUpdateSchema = {
         sdJwtTrustFormat: {
             description: 'For SD-JWT credentials: determines whether to include certificate chain (x5c)\nor use federation-based trust (iss claim).\nDefault: "x5c" (federation must be explicitly selected)',
             enum: [
-                'x5c',
                 'federation',
+                'x5c',
                 null
             ],
             type: [
@@ -10792,6 +10797,38 @@ export const FederationTrustAnchorConfigSchema = {
     additionalProperties: false
 } as const;
 
+export const FederationEntityMetadataSchema = {
+    type: 'object',
+    properties: {
+        organization_name: {
+            type: 'string',
+            example: 'Example Issuer GmbH'
+        },
+        contacts: {
+            items: {
+                type: 'string'
+            },
+            example: [
+                'ops@example.org'
+            ],
+            type: 'array'
+        },
+        logo_uri: {
+            type: 'string',
+            example: 'https://example.org/logo.png'
+        },
+        policy_uri: {
+            type: 'string',
+            example: 'https://example.org/privacy'
+        },
+        homepage_uri: {
+            type: 'string',
+            example: 'https://example.org'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const FederationConfigSchema = {
     type: 'object',
     properties: {
@@ -10848,6 +10885,80 @@ export const FederationConfigSchema = {
             },
             description: 'Configured federation trust anchors.',
             type: 'array'
+        },
+        entityTypes: {
+            type: 'array',
+            items: {
+                type: 'string',
+                enum: [
+                    'openid_credential_issuer',
+                    'openid_credential_verifier'
+                ]
+            },
+            description: 'Roles the entity configuration publishes metadata for. openid_credential_issuer adds the credential issuer metadata (and the built-in authorization server metadata when it is used), openid_credential_verifier the OID4VP verifier metadata.',
+            default: [
+                'openid_credential_issuer'
+            ]
+        },
+        authorityHints: {
+            items: {
+                type: 'string'
+            },
+            description: 'authority_hints of the entity configuration: entity ids of the superiors that issue a subordinate statement about this entity. Defaults to the trust anchor entity ids.',
+            example: [
+                'https://ta.example.org'
+            ],
+            type: 'array'
+        },
+        entityKeyChainId: {
+            type: 'string',
+            description: 'Key chain with usage type \'federation\' that signs the entity configuration. Without it, a federation key chain of the tenant is used; set it when the tenant has several.'
+        },
+        entityConfigurationLifetimeSeconds: {
+            type: 'number',
+            description: 'Lifetime (exp - iat) of the entity configuration in seconds.',
+            default: 86400
+        },
+        trustMarks: {
+            items: {
+                type: 'string'
+            },
+            description: 'Trust mark JWTs issued to this entity, published in the entity configuration.',
+            type: 'array'
+        },
+        entityMetadata: {
+            properties: {
+                organization_name: {
+                    type: 'string'
+                },
+                contacts: {
+                    type: 'array',
+                    items: {
+                        type: 'string'
+                    }
+                },
+                logo_uri: {
+                    type: 'string'
+                },
+                policy_uri: {
+                    type: 'string'
+                },
+                homepage_uri: {
+                    type: 'string'
+                }
+            },
+            additionalProperties: false,
+            description: 'Informational federation_entity metadata of the entity configuration.',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/FederationEntityMetadata'
+                }
+            ]
+        },
+        includeTrustChain: {
+            type: 'boolean',
+            description: 'Add the trust chain of this entity as trust_chain header to federation SD-JWT VCs and OID4VP request objects.',
+            default: false
         }
     },
     required: [
@@ -12598,7 +12709,8 @@ export const PresentationRequestSchema = {
             type: 'string',
             enum: [
                 'x509_hash',
-                'x509_san_dns'
+                'x509_san_dns',
+                'openid_federation'
             ],
             default: 'x509_hash'
         },

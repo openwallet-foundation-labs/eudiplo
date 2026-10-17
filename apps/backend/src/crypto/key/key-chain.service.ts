@@ -17,6 +17,7 @@ import {
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
 import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
+import { toPublicJwk } from "./domain/public-jwk.js";
 import {
     providerAlgRefusal,
     signingAlgForCurve,
@@ -695,6 +696,34 @@ export class KeyChainService {
     async getPublicKeys(tenantId: string, id: string): Promise<JWK[]> {
         const keyChain = await this.getEntity(tenantId, id);
         return keyChain.getPublicKeys();
+    }
+
+    /**
+     * Public keys (active and previous) of every signing key chain with one
+     * of the usage types, for publishing in metadata: only public members, a
+     * `kid` that appears twice listed once, keys without `kid` left out.
+     */
+    async getPublicKeysByUsageTypes(
+        tenantId: string,
+        usageTypes: KeyUsageType[],
+    ): Promise<JWK[]> {
+        // An empty OR list would drop the tenant filter.
+        if (usageTypes.length === 0) return [];
+        const keyChains = await this.keyChainRepository.find({
+            where: usageTypes.map((usageType) => ({
+                tenantId,
+                usage: KeyUsage.Sign,
+                usageType,
+            })),
+            order: { createdAt: "ASC" },
+        });
+        const keys = new Map<string, JWK>();
+        for (const keyChain of keyChains) {
+            for (const key of keyChain.getPublicKeys().map(toPublicJwk)) {
+                if (key.kid && !keys.has(key.kid)) keys.set(key.kid, key);
+            }
+        }
+        return [...keys.values()];
     }
 
     async getActiveCertificate(tenantId: string, id: string): Promise<string> {

@@ -30,6 +30,7 @@ Management endpoints carry the `/api` prefix, for example `POST /api/issuer/offe
 | `/issuers/{tenant}/credentials-metadata/...`        | SD-JWT VC type metadata                                              |
 | `/issuers/{tenant}/status-management/...`           | Status lists                                                         |
 | `/issuers/{tenant}/trust-list/...`                  | Published trust lists                                                |
+| `/issuers/{tenant}/.well-known/openid-federation`   | [OpenID Federation entity configuration](../trust/federation.md#publish-your-entity-configuration) |
 | `/presentations/{walletNonce}/oid4vp/...`           | OID4VP request object and response endpoint                          |
 | `/presentations/{session}/iso-18013-7`              | ISO 18013-7 Annex C response endpoint                                |
 | `/storage/{key}`                                    | Public files such as credential logos                                |

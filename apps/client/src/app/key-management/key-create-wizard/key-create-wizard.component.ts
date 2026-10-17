@@ -38,7 +38,8 @@ import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { JwtService } from '../../services/jwt.service';
 import { focusIfFocusWasLost } from '../../common/focus-if-lost.util';
 
-export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
+export type KeyUsageSelection =
+  'attestation' | 'statusList' | 'access' | 'trustList' | 'federation';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
 export type AccessSourceSelection = 'selfSigned' | 'registrar' | 'external';
 export type SigningAlgorithm = NonNullable<KeyChainCreateDto['alg']>;
@@ -153,6 +154,14 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       icon: 'shield',
       description: 'Create a key for signing trust lists.',
       hint: 'For trust framework operators only',
+    },
+    {
+      value: 'federation' as KeyUsageSelection,
+      label: 'OpenID Federation Entity Key',
+      icon: 'hub',
+      description:
+        'Create a key that signs the entity configuration of your OpenID Federation entity.',
+      hint: 'Only needed when this tenant takes part in an OpenID Federation',
     },
   ];
 
@@ -482,6 +491,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       this.isExternalCaChain ||
       (!!this.selectedUsage &&
         this.selectedUsage !== 'access' &&
+        // A federation key is published as a JWK; it needs no certificate.
+        this.selectedUsage !== 'federation' &&
         !this.isInternalChain &&
         this.configForm.value.useExternalCertificate)
     );
@@ -752,6 +763,12 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.router.navigate(['/trust-list']);
         });
+    } else if (usage === 'federation') {
+      this.snackBar.open(
+        'Federation key created! Your trust anchor needs its public key for the subordinate statement.',
+        'View Key',
+        { duration: 5000 }
+      );
     }
   }
 
@@ -765,6 +782,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
     if (usage === 'statusList') return 'Status List Signing Key';
     if (usage === 'attestation') return 'Credential Signing Key';
     if (usage === 'access') return 'Access Certificate';
+    if (usage === 'federation') return 'OpenID Federation Entity Key';
     return 'Key';
   }
 
@@ -853,6 +871,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   private getKeyTypeLabel(): string {
+    if (this.selectedUsage === 'federation') return 'Standalone key (published as JWK)';
     return this.isExternalCertificate
       ? 'Standalone (External Certificate)'
       : 'Standalone (Self-signed)';

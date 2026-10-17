@@ -499,3 +499,40 @@ describe('KeyManagementShowComponent registrar enrollment', () => {
     expect(snackBar.open.mock.lastCall?.[1]).toBe('Close');
   });
 });
+
+describe('KeyManagementShowComponent delete', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  function create(usageType: string): KeyManagementShowComponent {
+    const component = new KeyManagementShowComponent(
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never
+    );
+    component.keyChain = { id: 'key', usageType } as KeyChainResponseDto;
+    return component;
+  }
+
+  it('says that the entity configuration stops being published when a federation key is deleted', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    await create('federation').deleteKey();
+
+    expect(confirm.mock.lastCall?.[0]).toContain(
+      'no longer trusted until your trust anchor lists the public key'
+    );
+  });
+
+  it('keeps the plain question for other keys', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+
+    await create('attestation').deleteKey();
+
+    expect(confirm.mock.lastCall?.[0]).not.toContain('entity configuration');
+  });
+});

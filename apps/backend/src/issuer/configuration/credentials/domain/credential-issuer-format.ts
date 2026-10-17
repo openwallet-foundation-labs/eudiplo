@@ -8,6 +8,8 @@ export interface CredentialIssuanceContext {
     session: SessionData;
     claims: Record<string, unknown>;
     federationEntityId?: string;
+    /** Trust chain for the `trust_chain` header of federation credentials. */
+    federationTrustChain?: () => Promise<string[] | undefined>;
     issuanceSetId?: string;
 }
 

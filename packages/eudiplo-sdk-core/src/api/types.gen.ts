@@ -1170,7 +1170,7 @@ export type KeyChainResponseDto = {
     /**
      * Usage type of the key chain.
      */
-    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     /**
      * Type of key chain (standalone or internalChain).
      */
@@ -1283,7 +1283,7 @@ export type KeyChainExportDto = {
     /**
      * Usage type for this key chain.
      */
-    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     /**
      * Key chain type. For internalChain, key and crt are the root CA key and certificate; the import generates a new signing key.
      */
@@ -1325,7 +1325,7 @@ export type KeyChainCreateDto = {
     /**
      * Usage type determines the purpose of this key chain (access, attestation, etc.).
      */
-    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     /**
      * Type of key chain to create.
      */
@@ -1463,7 +1463,7 @@ export type KeyChainImportDto = {
     /**
      * Usage type for this key chain.
      */
-    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     /**
      * Key chain type. standalone: key is the signing key and crt its chain, leaf first. internalChain: key is a CA key and the last crt entry its CA certificate (created if crt is omitted); a new signing key is generated with a certificate issued by it. Without type, key is a CA key only if rotationPolicy.enabled is true and crt is not a single self-signed certificate that is not a CA. The export writes it.
      */
@@ -2046,7 +2046,7 @@ export type KeyChainEntity = {
     /**
      * The purpose/role of this key chain in the system.
      */
-    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+    usageType: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     /**
      * The usage type of the keys (sign or encrypt).
      */
@@ -2195,7 +2195,7 @@ export type CredentialConfig = {
      * or use federation-based trust (iss claim).
      * Default: "x5c" (federation must be explicitly selected)
      */
-    sdJwtTrustFormat?: 'x5c' | 'federation' | null;
+    sdJwtTrustFormat?: 'federation' | 'x5c' | null;
     lifeTime?: number;
 };
 
@@ -2259,7 +2259,7 @@ export type CredentialConfigCreate = {
      * or use federation-based trust (iss claim).
      * Default: "x5c" (federation must be explicitly selected)
      */
-    sdJwtTrustFormat?: 'x5c' | 'federation' | null;
+    sdJwtTrustFormat?: 'federation' | 'x5c' | null;
     lifeTime?: number;
 };
 
@@ -2323,7 +2323,7 @@ export type CredentialConfigUpdate = {
      * or use federation-based trust (iss claim).
      * Default: "x5c" (federation must be explicitly selected)
      */
-    sdJwtTrustFormat?: 'x5c' | 'federation' | null;
+    sdJwtTrustFormat?: 'federation' | 'x5c' | null;
     lifeTime?: number;
 };
 
@@ -5010,6 +5010,14 @@ export type FederationTrustAnchorConfig = {
     entityConfigurationUri: string;
 };
 
+export type FederationEntityMetadata = {
+    organization_name?: string;
+    contacts?: Array<string>;
+    logo_uri?: string;
+    policy_uri?: string;
+    homepage_uri?: string;
+};
+
 export type FederationConfig = {
     /**
      * Role this tenant plays in the OpenID Federation topology.
@@ -5038,6 +5046,40 @@ export type FederationConfig = {
         entityId: string;
         entityConfigurationUri: string;
     }>;
+    /**
+     * Roles the entity configuration publishes metadata for. openid_credential_issuer adds the credential issuer metadata (and the built-in authorization server metadata when it is used), openid_credential_verifier the OID4VP verifier metadata.
+     */
+    entityTypes?: Array<'openid_credential_issuer' | 'openid_credential_verifier'>;
+    /**
+     * authority_hints of the entity configuration: entity ids of the superiors that issue a subordinate statement about this entity. Defaults to the trust anchor entity ids.
+     */
+    authorityHints?: Array<string>;
+    /**
+     * Key chain with usage type 'federation' that signs the entity configuration. Without it, a federation key chain of the tenant is used; set it when the tenant has several.
+     */
+    entityKeyChainId?: string;
+    /**
+     * Lifetime (exp - iat) of the entity configuration in seconds.
+     */
+    entityConfigurationLifetimeSeconds?: number;
+    /**
+     * Trust mark JWTs issued to this entity, published in the entity configuration.
+     */
+    trustMarks?: Array<string>;
+    /**
+     * Informational federation_entity metadata of the entity configuration.
+     */
+    entityMetadata?: FederationEntityMetadata & {
+        organization_name?: string;
+        contacts?: Array<string>;
+        logo_uri?: string;
+        policy_uri?: string;
+        homepage_uri?: string;
+    };
+    /**
+     * Add the trust chain of this entity as trust_chain header to federation SD-JWT VCs and OID4VP request objects.
+     */
+    includeTrustChain?: boolean;
 };
 
 export type IssuerRegistrationCertificateConfig = {
@@ -6005,7 +6047,7 @@ export type PresentationRequest = {
     /**
      * Client identifier scheme for the OID4VP request. Defaults to x509_hash.
      */
-    clientIdScheme?: 'x509_hash' | 'x509_san_dns';
+    clientIdScheme?: 'x509_hash' | 'x509_san_dns' | 'openid_federation';
     /**
      * The type of response expected from the presentation request.
      */
@@ -7072,7 +7114,7 @@ export type KeyChainControllerGetAllData = {
         /**
          * Optional usage type filter
          */
-        usageType?: 'access' | 'attestation' | 'trustList' | 'statusList' | 'encrypt';
+        usageType?: 'access' | 'attestation' | 'trustList' | 'statusList' | 'federation' | 'encrypt';
     };
     url: '/api/key-chain';
 };

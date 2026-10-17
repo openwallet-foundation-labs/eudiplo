@@ -48,9 +48,25 @@
             <mat-slide-toggle formControlName="dcapi">
               Use DC-API instead of QR-Code
             </mat-slide-toggle>
-            <mat-slide-toggle formControlName="x509SanDns">
-              Use the certificate DNS name as the client ID
-            </mat-slide-toggle>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Client identifier</mat-label>
+              <mat-select formControlName="clientIdScheme">
+                <mat-option value="x509_hash">Certificate hash (x509_hash)</mat-option>
+                <mat-option value="x509_san_dns">Certificate DNS name (x509_san_dns)</mat-option>
+                <mat-option value="openid_federation"
+                  >OpenID Federation entity ID (openid_federation)</mat-option
+                >
+              </mat-select>
+              @if (form.get('clientIdScheme')?.value === 'openid_federation') {
+                <mat-hint
+                  >Needs a federation key, a federation entity ID, a trust anchor and
+                  openid_credential_verifier in federation.entityTypes (JSON View of the issuance
+                  configuration).</mat-hint
+                >
+              } @else {
+                <mat-hint>How the wallet identifies this verifier.</mat-hint>
+              }
+            </mat-form-field>
 
             @if (form.get('requestId')?.value && checkingReadiness) {
               <div class="readiness-hint">

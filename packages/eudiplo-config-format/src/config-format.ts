@@ -4,7 +4,7 @@ export const CONFIG_FORMATS = {
     Tenant: { slug: "tenant", file: "TenantConfigFile", version: 1 },
     Client: { slug: "client", file: "ClientConfigFile", version: 2 },
     KmsConfig: { slug: "kms-config", file: "KmsConfigFile", version: 2 },
-    KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 2 },
+    KeyChain: { slug: "key-chain", file: "KeyChainConfigFile", version: 3 },
     RegistrarConfig: {
         slug: "registrar-config",
         file: "RegistrarConfigFile",
@@ -13,7 +13,7 @@ export const CONFIG_FORMATS = {
     IssuanceConfig: {
         slug: "issuance-config",
         file: "IssuanceConfigFile",
-        version: 4,
+        version: 5,
     },
     CredentialConfig: {
         slug: "credential-config",
@@ -89,7 +89,8 @@ export function resourceId(input: ConfigFile<unknown>): string {
 /**
  * The format version a bare file (a spec without envelope) is read as: v1,
  * except a key chain with `type`, which KeyChain v2 added and which the bare
- * key chain export writes, and a KMS configuration with a provider that sets
+ * key chain export writes (v3 for usage type `federation`, which KeyChain v3
+ * added), and a KMS configuration with a provider that sets
  * `algorithms` or `defaultAlgorithm`, which KmsConfig v2 added and which the
  * tenant `kms.json` is saved as, and a registrar configuration with
  * `relyingPartyContact`, which RegistrarConfig v2 added.
@@ -98,7 +99,10 @@ export function bareFileVersion(
     kind: ConfigResourceKind,
     spec: Record<string, unknown>,
 ): number {
-    if (kind === "KeyChain") return "type" in spec ? 2 : 1;
+    if (kind === "KeyChain") {
+        if (spec.usageType === "federation") return 3;
+        return "type" in spec ? 2 : 1;
+    }
     if (kind === "RegistrarConfig")
         return "relyingPartyContact" in spec ? 2 : 1;
     if (kind === "KmsConfig") {
@@ -203,6 +207,17 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         migrate: (spec) => ({ spec }),
     },
     {
+        id: "issuance-config-v5-federation-entity",
+        kind: "IssuanceConfig",
+        from: 4,
+        to: 5,
+        // v5 only adds optional fields to `federation` for the published
+        // entity configuration (entityTypes, authorityHints,
+        // entityKeyChainId, entityConfigurationLifetimeSeconds, trustMarks,
+        // entityMetadata, includeTrustChain): a v4 spec is a valid v5 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
         id: "client-v2-read-and-status-roles",
         kind: "Client",
         from: 1,
@@ -238,6 +253,15 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 2,
         // v2 only adds the optional key chain `type`: a v1 spec is a valid v2
         // spec, imported as before.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "key-chain-v3-federation-usage",
+        kind: "KeyChain",
+        from: 2,
+        to: 3,
+        // v3 only adds the usage type `federation`: a v2 spec is a valid v3
+        // spec.
         migrate: (spec) => ({ spec }),
     },
     {

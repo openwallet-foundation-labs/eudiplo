@@ -430,6 +430,33 @@ describe("config upgrade", () => {
             },
         });
     });
+    it("upgrades a bare federation key chain export to KeyChain v3", async () => {
+        const { cwd, context } = await setup();
+        const source = join(cwd, "folder");
+        await mkdir(join(source, "key-chains"), { recursive: true });
+        const key = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+        await writeFile(
+            join(source, "key-chains", "federation.json"),
+            JSON.stringify({
+                id: "federation",
+                usageType: "federation",
+                type: "standalone",
+                key,
+            }),
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        expect(
+            JSON.parse(
+                await readFile(
+                    join(`${source}.upgraded`, "key-chains", "federation.json"),
+                    "utf8",
+                ),
+            ),
+        ).toMatchObject({
+            $schema: schemaUrl("KeyChain", 3),
+            spec: { usageType: "federation", type: "standalone" },
+        });
+    });
     it("does not expose secrets in a legacy folder upgrade diff", async () => {
         const { cwd, context, output } = await setup();
         const source = join(cwd, "folder");
