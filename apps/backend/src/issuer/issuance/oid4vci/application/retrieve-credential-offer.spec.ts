@@ -16,7 +16,11 @@ function setup(allowMultipleConsumption = false) {
     const repository = {
         findCredentialOffer: vi
             .fn<SessionRepository["findCredentialOffer"]>()
-            .mockResolvedValue({ offer, status: SessionStatus.Active }),
+            .mockResolvedValue({
+                id: "session-a",
+                offer,
+                status: SessionStatus.Active,
+            }),
         consumeCredentialOffer: vi
             .fn<SessionRepository["consumeCredentialOffer"]>()
             .mockResolvedValue(true),
@@ -32,12 +36,13 @@ function setup(allowMultipleConsumption = false) {
 describe("RetrieveCredentialOffer", () => {
     it("returns the offer only after tenant-scoped consumption succeeds", async () => {
         const { repository, useCase } = setup();
-        await expect(useCase.execute("tenant-a", "session-a")).resolves.toEqual(
-            offer,
-        );
+        await expect(
+            useCase.execute("tenant-a", "wallet-nonce-a"),
+        ).resolves.toEqual(offer);
+        // Found by the wallet reference of the offer URI, consumed by its ID.
         expect(repository.findCredentialOffer).toHaveBeenCalledWith(
             "tenant-a",
-            "session-a",
+            "wallet-nonce-a",
         );
         expect(repository.consumeCredentialOffer).toHaveBeenCalledWith(
             "tenant-a",
@@ -45,17 +50,17 @@ describe("RetrieveCredentialOffer", () => {
         );
     });
 
-    it.each([null, { offer: null, status: SessionStatus.Active }])(
-        "does not consume a missing offer: %j",
-        async (value) => {
-            const { repository, useCase } = setup();
-            repository.findCredentialOffer.mockResolvedValue(value);
-            await expect(
-                useCase.execute("tenant-a", "session-a"),
-            ).rejects.toBeInstanceOf(CredentialOfferNotFound);
-            expect(repository.consumeCredentialOffer).not.toHaveBeenCalled();
-        },
-    );
+    it.each([
+        null,
+        { id: "session-a", offer: null, status: SessionStatus.Active },
+    ])("does not consume a missing offer: %j", async (value) => {
+        const { repository, useCase } = setup();
+        repository.findCredentialOffer.mockResolvedValue(value);
+        await expect(
+            useCase.execute("tenant-a", "session-a"),
+        ).rejects.toBeInstanceOf(CredentialOfferNotFound);
+        expect(repository.consumeCredentialOffer).not.toHaveBeenCalled();
+    });
 
     it("does not return a stale read when another consumer won", async () => {
         const { repository, useCase } = setup();

@@ -30,14 +30,16 @@ Portal                    EUDIPLO                         Wallet (browser)
   |    "iso-18013-7" }  ---> |                                  |
   |                          | 1. getPresentationConfig()       |
   |                          | 2. getEncryptionPublicKey()      |
-  |                          | 3. randomBytes(16) → nonce       |
+  |                          | 3. randomBytes(16) → nonce,      |
+  |                          |    randomUUID() → walletNonce    |
   |                          | 4. buildDeviceRequestCbor()      |
   |                          | 5. buildEncryptionInfo()         |
   |                          | 6. sessionService.create()       |
   |  <--- { session,         |                                  |
   |   org_iso_mdoc: {        |                                  |
   |     device_request,      |                                  |
-  |     encryption_info } }  |                                  |
+  |     encryption_info,     |                                  |
+  |     response_uri } }     |                                  |
   |                          |                                  |
   |  navigator.credentials.get({ digital: {                    |
   |    requests: [{                                             |
@@ -54,8 +56,10 @@ Portal                    EUDIPLO                         Wallet (browser)
   |                          |                                  |
   |  <-- { protocol: "org-iso-mdoc", data: EncryptedResponse } --
   |                          |                                  |
-  |  POST /presentations/    |                                  |
-  |    :id/iso-18013-7  ---> |                                  |
+  |  POST response_uri       |                                  |
+  |  (/presentations/        |                                  |
+  |   :walletNonce/          |                                  |
+  |   iso-18013-7)      ---> |                                  |
   |  { data: base64url }     | 9.  getEncryptionPrivateJwk()   |
   |                          | 10. buildIsoMdocDcApiTranscript()
   |                          | 11. hpkeOpen()                  |
@@ -236,11 +240,12 @@ And `mdocverifierService.verify()` uses `SessionTranscript.forOid4VpDcApi()` whe
 ## 6. New Session entity fields
 
 ```typescript
-dcApiProtocol?: string  // "oid4vp" | "iso-18013-7"
+dcApiProtocol?: string  // "iso-18013-7"; unset for OID4VP sessions
 browserOrigin?: string  // stored at offer time to reconstruct the DCAPIHandover on response
 ```
 
-The existing `vp_nonce` field stores the 16-byte nonce as a hex string.
+The existing `vp_nonce` field stores the 16-byte nonce as a hex string, and the
+existing `walletNonce` field the random value of the `response_uri` (since 10.0).
 
 These fields allow the `DCAPIHandover` transcript to be reconstructed at response
 time without storing the full CBOR bytes in the session.
@@ -267,15 +272,21 @@ enum ResponseType {
   "crossDeviceUri": "",
   "org_iso_mdoc": {
     "device_request": "<base64url-encoded CBOR DeviceRequest>",
-    "encryption_info": "<base64url-encoded CBOR EncryptionInfo>"
+    "encryption_info": "<base64url-encoded CBOR EncryptionInfo>",
+    "response_uri": "<PUBLIC_URL>/presentations/<walletNonce>/iso-18013-7"
   }
 }
 ```
 
 ### Response endpoint routing
 
-The browser posts the encrypted response directly to
-`POST /presentations/:sessionId/iso-18013-7` (no `/api` prefix). Like the
+The browser posts the encrypted response directly to the offer's
+`response_uri`, `POST /presentations/:walletNonce/iso-18013-7` (no `/api`
+prefix). The endpoint finds the session only by its `walletNonce` and
+`dcApiProtocol`: the session ID is listed by the management API and sent in
+webhooks, so whoever had it could otherwise post a response in the holder's
+place and end the session as failed. The OID4VP endpoints never answer an
+ISO 18013-7 `walletNonce`. Like the
 sibling `oid4vp` wallet-facing routes, the path is listed in
 `GLOBAL_PREFIX_EXCLUSIONS` (`main.helpers.ts`) so the global `/api` prefix
 does not apply — otherwise the endpoint only exists under
@@ -336,9 +347,12 @@ The 16-byte nonce is generated in `createOffer()` via `randomBytes(16)`, stored 
 2. `buildIsoMdocDcApiTranscript()` — the `EncryptionInfo` is re-encoded from the
    stored nonce at response time to rebuild the `DCAPIHandover` transcript
 
-This nonce is **distinct** from the `walletNonce` used in the OID4VP flow. ISO 18013-7
-has no `request_uri` or nonce/sessionId split, so the portal uses the session UUID
-directly as the response endpoint identifier.
+This nonce is **distinct** from the `walletNonce`. ISO 18013-7 has no
+`request_uri`, but the response endpoint still needs an identifier that is not
+the session ID (see "Response endpoint routing"): `createOffer()` generates a
+random `walletNonce` and returns it inside `org_iso_mdoc.response_uri`.
+Sessions created before 10.0 got their session ID as `walletNonce` from
+migration `1785400000000`.
 
 ### 8.5 Compatibility workaround: tolerant `issuerAltName` parsing
 
@@ -391,7 +405,7 @@ const offer = await fetch('/api/verifier/offer', {
   body: JSON.stringify({ ..., response_type: 'iso-18013-7' }),
 }).then(r => r.json());
 
-// offer.org_iso_mdoc = { device_request: '<base64url>', encryption_info: '<base64url>' }
+// offer.org_iso_mdoc = { device_request: '<base64url>', encryption_info: '<base64url>', response_uri: '<url>' }
 ```
 
 ### 9.2 DC API request
@@ -430,7 +444,7 @@ const protocol = result.protocol;   // "org-iso-mdoc" | "openid4vp-v1-unsigned"
 const data = result.data instanceof Uint8Array ? toBase64url(result.data) : result.data;
 
 if (protocol === 'org-iso-mdoc') {
-  const response = await fetch(`/presentations/${offer.session}/iso-18013-7`, {
+  const response = await fetch(offer.org_iso_mdoc.response_uri, {
     method: 'POST',
     body: JSON.stringify({ data }),
   }).then(r => r.json());
@@ -462,7 +476,7 @@ end-to-end testing. Browser requirements:
 2. Call `POST /api/verifier/offer` with that configuration.
 3. Pass the returned `org_iso_mdoc` fields to `navigator.credentials.get()` as
    described in §9.
-4. Forward the encrypted response to `POST /presentations/:session/iso-18013-7`.
+4. Forward the encrypted response to `org_iso_mdoc.response_uri`.
 5. Verify that the session transitions to `Completed` and the webhook fires.
 
 ### HPKE unit test (manual)

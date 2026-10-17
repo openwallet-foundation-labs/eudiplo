@@ -71,7 +71,7 @@ export class ResolveCredentialSession {
                 token.sub,
                 reference.authorizationServerId,
                 reference.bindingClaim,
-                reference.sessionId,
+                reference.walletReference,
             );
         } else {
             session = await this.sessions.getForTenant(

@@ -33,7 +33,7 @@ export class ResolveExternalAuthorizationSession {
             externalIssuer,
             externalSubject,
             authorizationServerId,
-            sessionId: bindingValue,
+            walletReference: bindingValue,
         });
         if (!session)
             throw new ExternalSessionBindingError(

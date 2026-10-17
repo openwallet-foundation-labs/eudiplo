@@ -22,7 +22,10 @@ export interface ChainedAsSession {
     id: string;
     tenantId: string;
     status: ChainedAsSessionStatus;
-    /** Issuer state of the issuance session this session authorizes. */
+    /**
+     * ID of the issuance session this session authorizes (not the
+     * `issuer_state` the wallet sent), or a random value without an offer.
+     */
     issuerState: string;
     clientId: string;
     redirectUri: string;

@@ -11,10 +11,10 @@ import {
  * of a tenant with their pinned federation keys. A tenant's entity IDs are
  * unique.
  */
-export class AddFederationTrustAnchor1785300000000
+export class AddFederationTrustAnchor1785500000000
     implements MigrationInterface
 {
-    name = "AddFederationTrustAnchor1785300000000";
+    name = "AddFederationTrustAnchor1785500000000";
 
     async up(queryRunner: QueryRunner): Promise<void> {
         if (await queryRunner.hasTable("federation_trust_anchor_entity")) {

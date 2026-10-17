@@ -120,8 +120,9 @@ only the sessions of that side. Of the session types a client with
 `presentation:manage` without `issuance:offer` or `presentation:request`, it
 sees only the sessions a wallet can no longer use: redeemed, answered or in a
 final status. The others are left out of the list and answer `404`,
-because their session ID alone lets a wallet redeem the offer or answer the
-request; the counts include them. The sessions it sees come without the values
+because the session ID of an ISO 18013-7 request, or of an offer created
+before 10.0, alone lets a wallet answer or redeem it; the counts include them.
+The sessions it sees come without the values
 a wallet redeems or answers them with, such as the offer and request URIs and
 the transaction code. Changing credential status
 (`POST /api/session/revoke`) needs `credentials:status` or `issuance:manage`.

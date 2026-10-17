@@ -34,7 +34,6 @@ Fork the repository, clone your fork and follow the [development setup](apps/doc
 ```bash
 corepack enable
 pnpm install
-pnpm --filter @eudiplo/config-format build
 pnpm --filter @eudiplo/sdk-core build
 cp .env.example apps/backend/.env   # then set MASTER_SECRET, AUTH_CLIENT_ID and AUTH_CLIENT_SECRET
 

@@ -81,8 +81,8 @@ export class InteractiveAuthSessionEntity implements InteractiveAuthSession {
     codeChallengeMethod?: string;
 
     /**
-     * Issuer state from credential offer, if provided.
-     * Links this IAE session to a credential offer session.
+     * ID of the credential offer session that the request's `issuer_state`
+     * names, if provided (not the `issuer_state` itself).
      */
     @Column("varchar", { nullable: true })
     issuerState?: string;
@@ -139,6 +139,14 @@ export class InteractiveAuthSessionEntity implements InteractiveAuthSession {
      */
     @Column("text", { nullable: true, transformer: EncryptedStringTransformer })
     presentationData?: string;
+
+    /**
+     * ID of the verifier session of the current OpenID4VP step. Differs from
+     * `authSession`, which the wallet uses as bearer value, because the
+     * management API lists session IDs.
+     */
+    @Column("varchar", { nullable: true })
+    presentationSessionId?: string | null;
 
     /**
      * IAE actions configuration as JSON string.

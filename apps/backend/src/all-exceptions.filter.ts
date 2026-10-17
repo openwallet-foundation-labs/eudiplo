@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { EntityNotFoundError } from "typeorm";
+import { redactUrlPath } from "./platform/observability/redact-url.js";
 import { ConflictError } from "./shared/domain/conflict-error.js";
 import { NotFoundError } from "./shared/domain/not-found-error.js";
 
@@ -69,7 +70,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         // Log the error with stack trace if available using NestJS Logger
         this.logger.error(
-            `[${request.method}] ${requestPath} ${status} - ${JSON.stringify(logMessage)}`,
+            `[${request.method}] ${redactUrlPath(requestPath)} ${status} - ${JSON.stringify(logMessage)}`,
             exception instanceof Error ? exception.stack : undefined,
         );
 
