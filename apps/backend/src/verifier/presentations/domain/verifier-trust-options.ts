@@ -34,13 +34,17 @@ export function trustListAuthorities(
  * - only `openid_federation`: the SD-JWT VC issuer named in `iss` must chain
  *   to one of its trust anchors, and the credential must be signed with the
  *   key `kid` of its resolved `openid_credential_issuer` metadata
- *   (`federation-only`). No `x5c` is needed; mDOCs are rejected.
+ *   (`federation-only`). No `x5c` is needed; mDOCs are rejected. The
+ *   trust anchors must be registered with pinned keys for `tenantId`.
  * - none: the issuer is not checked. Only reachable with
  *   `SKIP_TRUST_AUTHORITY` (see {@link missingTrustedAuthorities}).
  */
 export function verifierTrustOptions(input: {
     trustLists: TrustListRef[];
-    /** Set for OID4VP, where managed trust-list ids are tenant scoped. */
+    /**
+     * Set for OID4VP, where managed trust-list ids are tenant scoped and
+     * federation trust anchors are looked up.
+     */
     tenantId?: string;
     authorities: DcqlTrustedAuthority[] | undefined;
     statusCheckMode?: RevocationCheckMode;
@@ -71,6 +75,7 @@ export function verifierTrustOptions(input: {
         },
         federationTrustSource: federationDecides
             ? {
+                  tenantId: input.tenantId,
                   mode: "federation-only",
                   trustAnchors: federationAnchors.map((value) => ({
                       entityId: value,

@@ -15,7 +15,11 @@ import {
 import { FederationTrustMode } from "../../src/issuer/configuration/issuance/dto/federation-config.dto.js";
 import { IssuanceDto } from "../../src/issuer/configuration/issuance/dto/issuance.dto.js";
 import { FederationTrustService } from "../../src/trust/federation-trust.service.js";
-import { serveFederation } from "../federation/federation-fixture.js";
+import {
+    type FederationKey,
+    federationKey,
+    serveFederation,
+} from "../federation/federation-fixture.js";
 import { IssuanceTestContext, setupIssuanceTestApp } from "../utils.js";
 
 setGlobalDispatcher(
@@ -30,12 +34,29 @@ describe("Issuance - OpenID Federation", () => {
     let app: INestApplication<App>;
     let authToken: string;
     let ctx: IssuanceTestContext;
+    /** The trust anchor's federation key, registered as its pinned key. */
+    let trustAnchorKey: FederationKey;
 
     beforeAll(async () => {
         ctx = await setupIssuanceTestApp();
         app = ctx.app;
         authToken = ctx.authToken;
+        trustAnchorKey = await federationKey("trust-anchor");
+        await request(app.getHttpServer())
+            .post("/federation-trust-anchor")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "ta-fed",
+                entityId: TRUST_ANCHOR,
+                jwks: { keys: [trustAnchorKey.jwk] },
+            })
+            .expect(201);
     });
+
+    /** Serves a federation whose trust anchor uses the pinned key. */
+    const serve = (options: Parameters<typeof serveFederation>[0]) =>
+        serveFederation({ trustAnchorKey, ...options });
 
     beforeEach(() => {
         nock.disableNetConnect();
@@ -136,7 +157,7 @@ describe("Issuance - OpenID Federation", () => {
 
     test("issuer metadata includes a federated authorization server whose trust chain is valid", async () => {
         const authServer = "https://as-fed.example.org";
-        await serveFederation({
+        await serve({
             trustAnchor: TRUST_ANCHOR,
             entity: authServer,
             metadata: { oauth_authorization_server: { issuer: authServer } },
@@ -147,6 +168,42 @@ describe("Issuance - OpenID Federation", () => {
         const metadata = await getIssuerMetadata().expect(200);
 
         expect(metadata.body.authorization_servers).toContain(authServer);
+    });
+
+    test("issuer metadata fails when the trust anchor's entity configuration is not signed with the pinned key", async () => {
+        const authServer = "https://as-repinned.example.org";
+        await serveFederation({
+            trustAnchor: TRUST_ANCHOR,
+            entity: authServer,
+            metadata: { oauth_authorization_server: { issuer: authServer } },
+            trustAnchorKey: await federationKey("trust-anchor"),
+        });
+        await configureFederatedAuthorizationServer(authServer);
+
+        await expectNotTrusted("not signed with a configured key");
+    });
+
+    test("refuses federation trust anchors without pinned keys", async () => {
+        const res = await request(app.getHttpServer())
+            .post("/issuer/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                authorizationServers: [
+                    { id: "issuer-built-in", type: "built-in" },
+                ],
+                federation: {
+                    trustAnchors: [
+                        {
+                            entityId: "https://unpinned.example.org",
+                            entityConfigurationUri:
+                                "https://unpinned.example.org/.well-known/openid-federation",
+                        },
+                    ],
+                },
+            })
+            .expect(400);
+        expect(res.body.message).toContain("https://unpinned.example.org");
     });
 
     test("issuer metadata fails for an authorization server outside the federation", async () => {
@@ -164,7 +221,7 @@ describe("Issuance - OpenID Federation", () => {
     test("issuer metadata fails for an authorization server that only names the trust anchor", async () => {
         // Matching an authority_hint alone does not establish trust.
         const authServer = "https://as-unlisted.example.org";
-        await serveFederation({
+        await serve({
             trustAnchor: TRUST_ANCHOR,
             entity: authServer,
             metadata: { oauth_authorization_server: { issuer: authServer } },
@@ -204,7 +261,7 @@ describe("Issuance - OpenID Federation", () => {
 
     test("issuer metadata fails for a federation entity without authorization server metadata", async () => {
         const authServer = "https://as-no-metadata.example.org";
-        await serveFederation({
+        await serve({
             trustAnchor: TRUST_ANCHOR,
             entity: authServer,
             metadata: {},

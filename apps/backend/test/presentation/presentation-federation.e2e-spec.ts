@@ -26,6 +26,7 @@ import {
     ResponseType,
 } from "../../src/verifier/oid4vp/dto/presentation-request.dto.js";
 import {
+    type FederationKey,
     federationKey,
     serveFederation,
 } from "../federation/federation-fixture.js";
@@ -55,6 +56,8 @@ describe("Presentation - OpenID Federation", () => {
     let ctx: PresentationTestContext;
 
     let client: Openid4vpClient;
+    /** The trust anchor's federation key, registered as its pinned key. */
+    let trustAnchorKey: FederationKey;
 
     beforeAll(async () => {
         ctx = await setupPresentationTestApp();
@@ -69,6 +72,18 @@ describe("Presentation - OpenID Federation", () => {
                 fetch: createTestFetch(app, () => host),
             },
         });
+
+        trustAnchorKey = await federationKey("trust-anchor");
+        await request(app.getHttpServer())
+            .post("/federation-trust-anchor")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "ta-fed",
+                entityId: "https://ta-fed.example.org",
+                jwks: { keys: [trustAnchorKey.jwk] },
+            })
+            .expect(201);
 
         await request(app.getHttpServer())
             .post("/verifier/config")
@@ -205,6 +220,10 @@ describe("Presentation - OpenID Federation", () => {
         },
     });
 
+    /** Serves a federation whose trust anchor uses the pinned key. */
+    const serve = (options: Parameters<typeof serveFederation>[0]) =>
+        serveFederation({ trustAnchorKey, ...options });
+
     beforeEach(() => {
         // The verifier caches federation resolutions
         ctx.app.get(FederationTrustService).clearTrustCache();
@@ -212,7 +231,7 @@ describe("Presentation - OpenID Federation", () => {
 
     test("accepts an SD-JWT signed with a key of its issuer's trusted federation metadata", async () => {
         const key = await credentialKey("credential-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: issuerMetadata(key.jwk),
@@ -251,7 +270,7 @@ describe("Presentation - OpenID Federation", () => {
     test("checks the status list with a key of the same issuer entity", async () => {
         const key = await credentialKey("credential-1");
         const statusKey = await credentialKey("status-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: {
@@ -275,7 +294,7 @@ describe("Presentation - OpenID Federation", () => {
 
     test("rejects a status list signed with a key its issuer does not list", async () => {
         const key = await credentialKey("credential-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: issuerMetadata(key.jwk),
@@ -297,7 +316,7 @@ describe("Presentation - OpenID Federation", () => {
 
     test("rejects an SD-JWT whose kid is not in its issuer's metadata", async () => {
         const key = await credentialKey("credential-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: issuerMetadata(key.jwk),
@@ -316,7 +335,7 @@ describe("Presentation - OpenID Federation", () => {
         // key in the issuer's federation metadata is trusted.
         const member = await credentialKey("credential-1");
         const attacker = await credentialKey("credential-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: issuerMetadata(member.jwk),
@@ -352,7 +371,7 @@ describe("Presentation - OpenID Federation", () => {
     test("rejects an SD-JWT whose issuer names the trust anchor but is not its subordinate", async () => {
         // Matching an authority_hint alone does not establish trust.
         const key = await credentialKey("credential-1");
-        await serveFederation({
+        await serve({
             entity: ISSUER,
             trustAnchor: TRUST_ANCHOR,
             metadata: issuerMetadata(key.jwk),
@@ -369,9 +388,57 @@ describe("Presentation - OpenID Federation", () => {
         });
     });
 
-    test("rejects an SD-JWT whose issuer is in another federation", async () => {
+    test("rejects a trust anchor entity configuration not signed with the pinned key", async () => {
+        // The trust anchor's host serves other keys, for example after a TLS
+        // or DNS compromise; the chain is valid under those keys alone.
         const key = await credentialKey("credential-1");
         await serveFederation({
+            entity: ISSUER,
+            trustAnchor: TRUST_ANCHOR,
+            metadata: issuerMetadata(key.jwk),
+            trustAnchorKey: await federationKey("trust-anchor"),
+        });
+
+        await expect(
+            presentFederationCredential(key.privateKey, {
+                kid: "credential-1",
+            }),
+        ).resolves.toMatchObject({
+            status: "failed",
+            failureCode: "no_trust_chain_to_root",
+        });
+    });
+
+    test("refuses a presentation configuration naming a trust anchor without pinned keys", async () => {
+        const res = await request(app.getHttpServer())
+            .post("/verifier/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "pid-unpinned",
+                dcql_query: {
+                    credentials: [
+                        {
+                            id: "pid",
+                            format: "dc+sd-jwt",
+                            meta: { vct_values: ["urn:eudi:pid:1"] },
+                            trusted_authorities: [
+                                {
+                                    type: "openid_federation",
+                                    values: ["https://unpinned.example.org"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            })
+            .expect(400);
+        expect(res.body.message).toContain("https://unpinned.example.org");
+    });
+
+    test("rejects an SD-JWT whose issuer is in another federation", async () => {
+        const key = await credentialKey("credential-1");
+        await serve({
             entity: ISSUER,
             trustAnchor: "https://other-ta.example.net",
             metadata: issuerMetadata(key.jwk),

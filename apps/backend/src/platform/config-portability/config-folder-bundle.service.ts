@@ -45,6 +45,10 @@ const FOLDER_RESOURCES: FolderResource[] = [
     { kind: "IssuanceConfig", file: "issuance/issuance.json" },
     { kind: "CredentialConfig", directory: "issuance/credentials" },
     { kind: "TrustList", directory: "trust-lists" },
+    {
+        kind: "FederationTrustAnchor",
+        directory: "federation-trust-anchors",
+    },
     { kind: "PresentationConfig", directory: "presentation" },
     { kind: "StatusList", directory: "issuance/status-lists" },
 ];

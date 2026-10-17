@@ -19,6 +19,9 @@ export type AuditActionTypeLiteral =
     | "attribute_provider_created"
     | "attribute_provider_updated"
     | "attribute_provider_deleted"
+    | "federation_trust_anchor_created"
+    | "federation_trust_anchor_updated"
+    | "federation_trust_anchor_deleted"
     | "config_bundle_exported"
     | "config_bundle_imported"
     | "config_client_secret_generated"
@@ -46,6 +49,9 @@ const ACTION_TYPE_VALUES: AuditActionTypeLiteral[] = [
     "attribute_provider_created",
     "attribute_provider_updated",
     "attribute_provider_deleted",
+    "federation_trust_anchor_created",
+    "federation_trust_anchor_updated",
+    "federation_trust_anchor_deleted",
     "config_bundle_exported",
     "config_bundle_imported",
     "config_client_secret_generated",

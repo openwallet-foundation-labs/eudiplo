@@ -179,7 +179,7 @@ describe("LocalFederationResolver", () => {
 
     const request = (overrides = {}) => ({
         entityId: LEAF,
-        trustAnchors: [{ entityId: TA }],
+        trustAnchors: [{ entityId: TA, jwks: { keys: [taKey] } }],
         metadataTypes: ["openid_credential_issuer"],
         ...overrides,
     });
@@ -234,11 +234,33 @@ describe("LocalFederationResolver", () => {
             resolver.resolveEntity(
                 request({
                     trustAnchors: [
-                        { entityId: "https://other-ta.example.org" },
+                        {
+                            entityId: "https://other-ta.example.org",
+                            jwks: { keys: [taKey] },
+                        },
                     ],
                 }),
             ),
         ).rejects.toMatchObject({ failure: "untrusted" });
+    });
+
+    it("rejects a trust anchor whose entity configuration is not signed with a pinned key", async () => {
+        // The host of the trust anchor serves an entity configuration with
+        // other keys, for example after a TLS compromise.
+        // Another key under the same kid.
+        const pinned = { ...(await createKey("other-ta")), kid: "ta" };
+        await expect(
+            resolver.resolveEntity(
+                request({
+                    trustAnchors: [{ entityId: TA, jwks: { keys: [pinned] } }],
+                }),
+            ),
+        ).rejects.toMatchObject({
+            failure: "untrusted",
+            message: expect.stringContaining(
+                "not signed with a configured key",
+            ),
+        });
     });
 
     it("rejects an entity without the requested metadata type", async () => {

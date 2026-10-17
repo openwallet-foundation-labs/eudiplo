@@ -64,3 +64,4 @@ export { AddAccessKeyChainIdToSession1784900000000 } from "./1784900000000-AddAc
 export { AddWalletAttestationStatusCheckMode1785000000000 } from "./1785000000000-AddWalletAttestationStatusCheckMode.js";
 export { AddCancelReasonToSession1785100000000 } from "./1785100000000-AddCancelReasonToSession.js";
 export { AddRelyingPartyContactToRegistrarConfig1785200000000 } from "./1785200000000-AddRelyingPartyContactToRegistrarConfig.js";
+export { AddFederationTrustAnchor1785300000000 } from "./1785300000000-AddFederationTrustAnchor.js";
