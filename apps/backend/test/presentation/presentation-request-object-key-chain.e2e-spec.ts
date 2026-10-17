@@ -14,6 +14,7 @@ import { TrustListCreateDto } from "../../src/issuer/trust-list/dto/trust-list-c
 import {
     callbacks,
     createTestFetch,
+    issuerStateOf,
     readConfig,
     setupIssuanceTestApp,
 } from "../utils.js";
@@ -122,7 +123,7 @@ describe("OID4VP request object of an existing session (e2e)", () => {
                 response_type: "code",
                 client_id: "test-wallet",
                 interaction_types_supported: "openid4vp_presentation",
-                issuer_state: offer.body.session,
+                issuer_state: issuerStateOf(offer.body.uri),
                 code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
                 code_challenge_method: "S256",
             })

@@ -20,7 +20,7 @@ pnpm --filter @eudiplo/cli format:check
 
 ## Run source changes directly
 
-The `dev` script runs the CLI through `tsx` with `apps/cli` as working directory, so you can try a change without building or installing. It needs the bundled assets, so run `assets:sync` once (a build does it too):
+The `dev` script builds `@eudiplo/config-format`, then runs the CLI through `tsx` with `apps/cli` as working directory, so you can try a change without building or installing the CLI. It needs the bundled assets, so run `assets:sync` once (a build does it too):
 
 ```bash
 pnpm --filter @eudiplo/cli assets:sync

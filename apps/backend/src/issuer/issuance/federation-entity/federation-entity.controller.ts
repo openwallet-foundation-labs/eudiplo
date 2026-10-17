@@ -17,7 +17,7 @@ import {
     PublishEntityConfiguration,
 } from "./application/publish-entity-configuration.js";
 
-export const ENTITY_STATEMENT_MEDIA_TYPE = "application/entity-statement+jwt";
+const ENTITY_STATEMENT_MEDIA_TYPE = "application/entity-statement+jwt";
 
 /**
  * Publishes the OpenID Federation entity configuration of a tenant at

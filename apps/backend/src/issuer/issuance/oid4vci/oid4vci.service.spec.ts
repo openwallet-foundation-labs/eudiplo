@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { Oauth2ServerErrorResponseError } from "@openid4vc/oauth2";
 import { describe, expect, it, vi } from "vitest";
+import { ExternalSessionBindingError } from "../../../session/application/resolve-external-authorization-session.js";
 import { SessionNotFound } from "../../../session/application/session-errors.js";
 import { CredentialClaimsResolutionError } from "../../configuration/credentials/domain/credential-claims.js";
 import {
@@ -301,6 +302,24 @@ describe("Oid4vciService credential request error mapping", () => {
         });
     });
 
+    it("maps an external token bound to no offer to credential_request_denied without details", async () => {
+        const error = await rejection(
+            setup({
+                resolveSession: () =>
+                    Promise.reject(
+                        new ExternalSessionBindingError(
+                            "No existing issuance session found for external AS token for tenant tenant, auth server as, claim issuer_state, value x",
+                        ),
+                    ),
+            }).getCredential(request, "tenant"),
+        );
+        expect(protocolError(error)).toEqual({
+            error: "credential_request_denied",
+            error_description:
+                "The access token is not associated with a valid session",
+        });
+    });
+
     it("maps a claim source without claims to credential_request_denied", async () => {
         const message =
             "The claim source returned no claims for credential configuration 'pid'";
@@ -558,6 +577,7 @@ describe("OID4VCI notification endpoint session resolution", () => {
         const session = {
             id: "session",
             tenantId: "tenant",
+            walletNonce: "wallet-ref",
             notifications: [
                 { id: "notification", credentialConfigurationId: "pid" },
             ],
@@ -570,6 +590,13 @@ describe("OID4VCI notification endpoint session resolution", () => {
                 .fn()
                 .mockImplementation(async (_tenantId: string, id?: string) => {
                     if (id !== session.id) throw new SessionNotFound();
+                    return session;
+                }),
+            getIssuanceForWalletReference: vi
+                .fn()
+                .mockImplementation(async (_tenantId: string, ref?: string) => {
+                    if (ref !== session.walletNonce)
+                        throw new SessionNotFound();
                     return session;
                 }),
         };
@@ -656,7 +683,7 @@ describe("OID4VCI notification endpoint session resolution", () => {
             "managed (OID4VP)",
             { iss: "managed", sub: "wallet", issuer_state: "session" },
         ],
-        ["external", { iss: "external", sub: "user", binding: "session" }],
+        ["external", { iss: "external", sub: "user", binding: "wallet-ref" }],
     ])("completes the session of a %s token", async (_kind, token) => {
         const test = setup(token);
         await test.notify();
@@ -676,7 +703,11 @@ describe("OID4VCI notification endpoint session resolution", () => {
         ["without issuer_state", { iss: "chained", sub: "session" }],
         [
             "bound to another identity",
-            { iss: "external", sub: "someone-else", binding: "session" },
+            { iss: "external", sub: "someone-else", binding: "wallet-ref" },
+        ],
+        [
+            "binding the session ID instead of its wallet reference",
+            { iss: "external", sub: "user", binding: "session" },
         ],
         [
             "without the binding claim",

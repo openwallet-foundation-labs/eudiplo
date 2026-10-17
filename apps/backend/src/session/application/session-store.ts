@@ -28,6 +28,7 @@ type SessionStoreRepository = Pick<
     | "findForTenant"
     | "findByIdForInternalFlow"
     | "findForWalletRequest"
+    | "findIssuanceForWalletReference"
     | "findIso18013Session"
     | "findByAuthorizationCode"
     | "findByRefreshToken"
@@ -121,6 +122,19 @@ export class SessionStore {
         );
     }
 
+    /**
+     * The issuance session a wallet names with `issuer_state`, the
+     * `credential_offer_uri` or an external token binding; never by session ID.
+     */
+    getIssuanceForWalletReference(
+        tenantId: string,
+        reference: string | undefined,
+    ): Promise<SessionData> {
+        return this.lookup(reference, (value) =>
+            this.sessions.findIssuanceForWalletReference(tenantId, value),
+        );
+    }
+
     /** Unscoped: only for IDs from internal flow correlation, never from a management request. */
     getForInternalFlow(sessionId: string): Promise<SessionData> {
         return this.lookup(sessionId, (id) =>
@@ -128,9 +142,10 @@ export class SessionStore {
         );
     }
 
-    getIso18013(sessionId: string): Promise<SessionData> {
-        return this.lookup(sessionId, (id) =>
-            this.sessions.findIso18013Session(id),
+    /** The ISO 18013-7 session of a wallet nonce; never by session ID. */
+    getIso18013(walletNonce: string): Promise<SessionData> {
+        return this.lookup(walletNonce, (value) =>
+            this.sessions.findIso18013Session(value),
         );
     }
 
@@ -246,15 +261,16 @@ export class SessionStore {
         return this.sessions.deleteForTenant(tenantId, sessionId, scope);
     }
 
+    /** The offer of the issuance session with this wallet reference. */
     async findCredentialOffer(
         tenantId: string,
-        sessionId: string,
+        walletReference: string,
     ): Promise<SessionCredentialOffer | null> {
         const offer = await this.sessions.findCredentialOffer(
             tenantId,
-            sessionId,
+            walletReference,
         );
-        if (offer) this.context.bind({ id: sessionId, tenantId });
+        if (offer) this.context.bind({ id: offer.id, tenantId });
         return offer;
     }
 

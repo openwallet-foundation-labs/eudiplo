@@ -8843,7 +8843,7 @@ export const SessionSchema = {
         },
         dcApiProtocol: {
             type: 'string',
-            description: 'DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).\nNull/undefined means the standard OID4VP flow (useDcApi=false).'
+            description: '"iso-18013-7" for ISO 18013-7 Annex C (org.iso.mdoc via DC API); unset\nfor OID4VP sessions, with or without DC API. Only unset sessions are\nanswered at the OID4VP endpoints.'
         },
         browserOrigin: {
             type: 'string',
@@ -8989,7 +8989,7 @@ export const SessionSchema = {
         },
         walletNonce: {
             type: 'string',
-            description: 'Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation.'
+            description: 'Cryptographic random nonce with which the wallet names the session instead of its ID.\nPresentations use it in request_uri, response_uri and state (OID4VP Section 13.3:\nrequest-id separate from the transaction-id); issuance offers in the credential_offer_uri\nand as issuer_state. Issuance sessions created before 10.0 have their ID as walletNonce.'
         },
         responseCode: {
             type: 'string',
@@ -12593,6 +12593,56 @@ export const ChainedAsParRequestDtoSchema = {
         'redirect_uri'
     ],
     additionalProperties: false
+} as const;
+
+export const OrgIsoMdocRequestSchema = {
+    type: 'object',
+    properties: {
+        device_request: {
+            type: 'string',
+            description: 'base64url-encoded CBOR DeviceRequest'
+        },
+        encryption_info: {
+            type: 'string',
+            description: 'base64url-encoded CBOR EncryptionInfo'
+        },
+        response_uri: {
+            type: 'string',
+            description: 'Where the page posts the wallet\'s encrypted response. Ends with the\nsession\'s `walletNonce`; the session ID is not accepted there.'
+        }
+    },
+    required: [
+        'device_request',
+        'encryption_info',
+        'response_uri'
+    ]
+} as const;
+
+export const Iso18013OfferResponseSchema = {
+    type: 'object',
+    properties: {
+        session: {
+            type: 'string',
+            description: 'Session ID, for the management API and webhooks.'
+        },
+        uri: {
+            type: 'string',
+            description: 'Always empty: the request goes through `org_iso_mdoc`.'
+        },
+        crossDeviceUri: {
+            type: 'string',
+            description: 'Always empty: the request goes through `org_iso_mdoc`.'
+        },
+        org_iso_mdoc: {
+            $ref: '#/components/schemas/OrgIsoMdocRequest'
+        }
+    },
+    required: [
+        'session',
+        'uri',
+        'crossDeviceUri',
+        'org_iso_mdoc'
+    ]
 } as const;
 
 export const PresentationRequestSchema = {

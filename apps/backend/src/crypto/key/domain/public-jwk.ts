@@ -4,7 +4,7 @@ import type { JWK } from "jose";
  * JWK members a published public key may carry: identification, intended
  * use and the public parameters of EC (x, y), OKP (x) and RSA (n, e) keys.
  */
-export const PUBLIC_JWK_MEMBERS = [
+const PUBLIC_JWK_MEMBERS = [
     "kty",
     "alg",
     "kid",

@@ -22,11 +22,10 @@ This section is for people who change EUDIPLO itself. Pick the task below; the p
 
 ```bash
 pnpm install
-pnpm --filter @eudiplo/config-format build
 pnpm --filter @eudiplo/sdk-core build
 cp .env.example apps/backend/.env   # then set MASTER_SECRET, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET
 
-pnpm dev:backend   # NestJS API on http://localhost:3000 (nest start --watch)
+pnpm dev:backend   # NestJS API on http://localhost:3000 (builds `@eudiplo/config-format`, then `nest start --watch`)
 pnpm dev:client    # Angular client on http://localhost:4200
 ```
 

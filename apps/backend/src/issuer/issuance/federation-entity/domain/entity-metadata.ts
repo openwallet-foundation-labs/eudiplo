@@ -54,6 +54,6 @@ export function buildEntityMetadata(parts: {
 }
 
 /** A key without `use` could be picked for another purpose by a wallet. */
-export function withUse(key: JWK, use: "sig" | "enc"): JWK {
+function withUse(key: JWK, use: "sig" | "enc"): JWK {
     return key.use ? key : { ...key, use };
 }

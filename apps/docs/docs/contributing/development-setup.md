@@ -28,14 +28,15 @@ pnpm install
 
 ## 2. Build the shared packages
 
-The backend and the CLI import `@eudiplo/config-format`, the client imports `@eudiplo/sdk-core`. Both are consumed from their `dist/` build:
+The backend and the CLI import `@eudiplo/config-format`, the client imports `@eudiplo/sdk-core`. Both are consumed from their `dist/` build.
+
+The backend's `dev`, `start`, `start:debug`, `test`, `test:watch`, `test:debug`, `test:e2e:local`, `test:e2e:watch` and `test:oidf` scripts and the CLI's `dev` script build the workspace packages they depend on first (their `build:deps` script). The build is incremental, so it does almost nothing when the package is unchanged. The `build` scripts of the backend and the CLI do not: `pnpm build` at the root builds packages in dependency order, and for a single package run `pnpm --filter @eudiplo/config-format build` first. Build `@eudiplo/sdk-core` yourself:
 
 ```bash
-pnpm --filter @eudiplo/config-format build
 pnpm --filter @eudiplo/sdk-core build
 ```
 
-Rebuild a package after you change it.
+Rebuild `@eudiplo/sdk-core` after you change it. A change to `@eudiplo/config-format` reaches a running `pnpm dev:backend` only after you restart it or run `pnpm --filter @eudiplo/config-format build`: the backend uses an injected copy of the package (`injectWorkspacePackages` in `pnpm-workspace.yaml`), which pnpm refreshes after a `build` script, not after a plain `tsc --watch`.
 
 ## 3. Configure the backend
 
@@ -60,13 +61,13 @@ Settings you often need locally:
 
 | Command | Starts | URL |
 | --- | --- | --- |
-| `pnpm dev:backend` | Backend (`nest start --watch`) | `http://localhost:3000`, Swagger UI at `/api/docs` |
+| `pnpm dev:backend` | Backend (builds `@eudiplo/config-format`, then `nest start --watch`) | `http://localhost:3000`, Swagger UI at `/api/docs` |
 | `pnpm dev:client` | Web client (`ng serve`; runs `gen:api` first) | `http://localhost:4200` |
 | `pnpm --filter test-rp dev` | Example webhooks and attribute provider (Cloudflare Worker) | `http://localhost:8787` |
 | `pnpm --filter kms-reference dev` | Reference service for the HTTP KMS adapter | `http://localhost:8788` |
 | `pnpm --filter @eudiplo/docs start` | Documentation with live reload ([run `prebuild` once first](./documentation.md#run-it-locally)) | `http://127.0.0.1:3003` |
 
-`pnpm dev` starts every package that has a `dev` script in parallel (backend, client, both workers and the SDK in watch mode). Other backend scripts: `start` (no watch), `start:debug` (watch with the Node inspector), `start:prod` (runs `dist/main.js`).
+`pnpm dev` starts every package that has a `dev` script in parallel (backend, client, both workers and the SDK in watch mode), except the CLI, whose `dev` script runs a single command. Other backend scripts: `start` (no watch), `start:debug` (watch with the Node inspector), `start:prod` (runs `dist/main.js`).
 
 To run the published images instead of your source, use the root `docker-compose.yml` (`docker compose up -d`); it reads the root `.env` and mounts `./assets` as configuration.
 
