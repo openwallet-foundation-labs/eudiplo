@@ -70,8 +70,9 @@ export class Session {
     useDcApi!: boolean;
 
     /**
-     * DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).
-     * Null/undefined means the standard OID4VP flow (useDcApi=false).
+     * "iso-18013-7" for ISO 18013-7 Annex C (org.iso.mdoc via DC API); unset
+     * for OID4VP sessions, with or without DC API. Only unset sessions are
+     * answered at the OID4VP endpoints.
      */
     @Column("varchar", { nullable: true })
     dcApiProtocol?: string;

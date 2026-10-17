@@ -719,7 +719,7 @@ export class InteractiveAuthorizationService {
         const { tenantId } = authSession;
         const presentation = await this.presentationSession(
             tenantId,
-            authSession.authSession,
+            authSession.presentationSessionId,
         );
         if (!presentation) {
             return {
@@ -736,13 +736,13 @@ export class InteractiveAuthorizationService {
                 );
             } catch (error) {
                 this.logger.warn(
-                    `OpenID4VP response of auth_session ${authSession.authSession} was rejected: ${error instanceof Error ? error.message : String(error)}`,
+                    `OpenID4VP response for interactive authorization ${authSession.id} was rejected: ${error instanceof Error ? error.message : String(error)}`,
                 );
             }
         }
         const verified = await this.presentationSession(
             tenantId,
-            authSession.authSession,
+            authSession.presentationSessionId,
         );
         if (verified?.status !== SessionStatus.Completed) {
             return {
@@ -751,9 +751,12 @@ export class InteractiveAuthorizationService {
             };
         }
 
+        // The verified session counts for this step only: a later step that
+        // fails to create its request must not be completed by it.
         await this.authSessionRepository.update(authSession.id, {
             status: "presentation_received",
             presentationData: openid4vpResponse,
+            presentationSessionId: null,
         });
 
         // Verified credentials are forwarded to attribute providers like
@@ -770,13 +773,14 @@ export class InteractiveAuthorizationService {
         return { success: true };
     }
 
-    /** Verifier session of the presentation request of an auth session. */
-    private presentationSession(
+    /** Verifier session of the current presentation request of an auth session. */
+    private async presentationSession(
         tenantId: string,
-        authSession: string,
+        presentationSessionId: string | null | undefined,
     ): Promise<SessionData | undefined> {
+        if (!presentationSessionId) return undefined;
         return this.sessionStore
-            .getForTenant(tenantId, authSession)
+            .getForTenant(tenantId, presentationSessionId)
             .catch((error: unknown) => {
                 if (error instanceof SessionNotFound) return undefined;
                 throw error;
@@ -957,10 +961,26 @@ export class InteractiveAuthorizationService {
         label?: string,
     ): Promise<InteractiveAuthorizationResponse> {
         try {
+            // The verifier session gets its own ID: the management API lists
+            // it, and the auth_session lets the wallet finish the
+            // authorization. Each presentation step gets a new one.
+            const presentationSessionId = randomUUID();
+            const bound = await this.authSessionRepository.updateForTenant(
+                tenantId,
+                authSession,
+                { presentationSessionId },
+            );
+            if (!bound) {
+                return {
+                    error: Oauth2ErrorCodes.InvalidRequest,
+                    error_description: "Invalid or expired auth_session",
+                };
+            }
+
             // The verifier session must exist before the request is created,
             // which stores the wallet-facing nonce the request_uri refers to.
             await this.createSession.execute({
-                id: authSession,
+                id: presentationSessionId,
                 tenantId,
                 requestId: presentationConfigId,
             });
@@ -968,7 +988,7 @@ export class InteractiveAuthorizationService {
             // Create the presentation request
             const presentationResult = await this.oid4vpService.createRequest(
                 presentationConfigId,
-                { session: authSession },
+                { session: presentationSessionId },
                 tenantId,
                 false, // useDcApi
                 origin,

@@ -160,3 +160,140 @@ describe("AuthorizationServersService refresh tokens", () => {
         });
     });
 });
+
+describe("AuthorizationServersService OID4VP callback", () => {
+    /** A pending callback whose verifier session is in the given state. */
+    function callback(verifierSession: Record<string, unknown>) {
+        const session = {
+            ...authorizedSession(),
+            status: ChainedAsSessionStatus.PENDING_VP_CALLBACK,
+            authorizationCode: undefined,
+            authorizationCodeExpiresAt: undefined,
+            walletState: "wallet-state",
+        };
+        const sessionRepository = {
+            findForTenant: vi.fn().mockResolvedValue(session),
+            save: vi.fn(async (saved: ChainedAsSession) => saved),
+        };
+        const sessionStore = {
+            getForTenant: vi.fn().mockResolvedValue({
+                id: "session-1",
+                ...verifierSession,
+            }),
+            updateForTenant: vi.fn(),
+        };
+        const authorizationServers = new AuthorizationServersService(
+            { publicUrl: "https://issuer.example" } as any,
+            {} as any,
+            {} as any,
+            sessionStore as any,
+            {
+                getIssuanceConfiguration: vi.fn().mockResolvedValue({
+                    authorizationServers: [
+                        {
+                            type: "oid4vp",
+                            id: "pid-auth",
+                            presentationConfigId: "pid",
+                        },
+                    ],
+                }),
+            } as any,
+            {} as any,
+            {} as any,
+            {} as any,
+            sessionRepository as any,
+            {} as any,
+            { register: vi.fn().mockResolvedValue(true) },
+        );
+        const call = (
+            responseCode?: string,
+            error?: string,
+            errorDescription?: string,
+        ) =>
+            authorizationServers.handleVerifierCallback(
+                "tenant-1",
+                "pid-auth",
+                "session-1",
+                responseCode,
+                error,
+                errorDescription,
+            );
+        return { call, session, sessionRepository };
+    }
+
+    it.each([
+        ["without a response_code", "completed", undefined, undefined],
+        ["with a wrong response_code", "completed", "guess", undefined],
+        [
+            "with an error while the presentation is open",
+            "active",
+            undefined,
+            "access_denied",
+        ],
+        [
+            "before the presentation ended",
+            "fetched",
+            "response-code",
+            undefined,
+        ],
+    ])(
+        "keeps the authorization pending for a call %s",
+        async (_case, status, responseCode, error) => {
+            const { call, session, sessionRepository } = callback({
+                status,
+                responseCode: "response-code",
+            });
+
+            await expect(call(responseCode, error)).rejects.toBeInstanceOf(
+                BadRequestException,
+            );
+            expect(session.status).toBe(
+                ChainedAsSessionStatus.PENDING_VP_CALLBACK,
+            );
+            expect(sessionRepository.save).not.toHaveBeenCalled();
+        },
+    );
+
+    it("ends the authorization with the wallet's error once the presentation failed", async () => {
+        const { call, session } = callback({ status: "failed" });
+
+        const location = new URL(
+            await call(undefined, "access_denied", "user said no"),
+        );
+
+        expect(location.searchParams.get("error")).toBe("access_denied");
+        expect(location.searchParams.get("error_description")).toBe(
+            "user said no",
+        );
+        expect(location.searchParams.get("state")).toBe("wallet-state");
+        expect(session.status).toBe(ChainedAsSessionStatus.EXPIRED);
+    });
+
+    it.each(["expired", "cancelled"])(
+        "ends the authorization with invalid_request once the presentation is %s",
+        async (status) => {
+            const { call, session } = callback({ status });
+
+            const location = new URL(await call());
+
+            expect(location.searchParams.get("error")).toBe("invalid_request");
+            expect(location.searchParams.get("error_description")).toBe(
+                "OID4VP verification did not complete successfully",
+            );
+            expect(session.status).toBe(ChainedAsSessionStatus.EXPIRED);
+        },
+    );
+
+    it("issues the code for the verifier session's response_code", async () => {
+        const { call, session } = callback({
+            status: "completed",
+            responseCode: "response-code",
+        });
+
+        // An error parameter does not override the verified presentation.
+        const location = new URL(await call("response-code", "access_denied"));
+
+        expect(location.searchParams.get("code")).toEqual(expect.any(String));
+        expect(session.status).toBe(ChainedAsSessionStatus.AUTHORIZED);
+    });
+});

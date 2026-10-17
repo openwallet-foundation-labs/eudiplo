@@ -142,9 +142,10 @@ export class SessionStore {
         );
     }
 
-    getIso18013(sessionId: string): Promise<SessionData> {
-        return this.lookup(sessionId, (id) =>
-            this.sessions.findIso18013Session(id),
+    /** The ISO 18013-7 session of a wallet nonce; never by session ID. */
+    getIso18013(walletNonce: string): Promise<SessionData> {
+        return this.lookup(walletNonce, (value) =>
+            this.sessions.findIso18013Session(value),
         );
     }
 

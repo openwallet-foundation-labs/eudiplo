@@ -78,7 +78,10 @@ export interface SessionRepository {
     ): Promise<boolean>;
     /** Internal flow correlation only; never use an untrusted management request ID. */
     findByIdForInternalFlow(id: string): Promise<SessionData | null>;
-    /** The presentation session of a wallet-facing OID4VP nonce; never by session ID. */
+    /**
+     * The OID4VP presentation session of a wallet-facing nonce; never by
+     * session ID, never an ISO 18013-7 session.
+     */
     findForWalletRequest(nonce: string): Promise<SessionData | null>;
     /**
      * The issuance session of a wallet reference (`walletNonce`): the value of
@@ -89,7 +92,8 @@ export interface SessionRepository {
         tenantId: string,
         reference: string,
     ): Promise<SessionData | null>;
-    findIso18013Session(id: string): Promise<SessionData | null>;
+    /** The ISO 18013-7 session of a wallet nonce; never by session ID. */
+    findIso18013Session(walletNonce: string): Promise<SessionData | null>;
     /** Session holding this code hash (only the hash of a code is stored). */
     findByAuthorizationCode(
         tenantId: string,

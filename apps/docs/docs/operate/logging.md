@@ -77,8 +77,8 @@ They are deleted with their session ([session retention](database.md#session-ret
 
 Once a request has resolved its session (by offer ID, `walletNonce`, `issuer_state`, code or access token), every following log line of that request, including the HTTP request log, carries `sessionId` and `tenantId`. This works with or without OpenTelemetry; with it, the request span and the span handling the session also get `session.id`.
 
-- The OID4VP routes (`/presentations/{walletNonce}/oid4vp/...`) contain the wallet nonce, not the session ID, so the HTTP request log reports it as `req.walletNonce`.
-- The value of the session search parameter `q` is always replaced by `[redacted]` in logged URLs and in the `url.query` span attribute, because it can contain a pre-authorized code.
+- Wallet-facing paths carry the session's `walletNonce`, with which anyone can fetch the credential offer or answer the presentation request. Logged URLs and the `url.path` span attribute replace it with `[redacted]` in `/issuers/{tenant}/vci/credential-offers/{walletNonce}`, `/presentations/{walletNonce}/oid4vp/...` and `/presentations/{walletNonce}/iso-18013-7`, and the `auth_session` in `/issuers/{tenant}/authorize/interactive/complete-web-auth/{auth_session}`. Since 10.0; 9.x logged the nonce in the URL and as `req.walletNonce`.
+- The values of the query parameters `q` (session search, can contain a pre-authorized code), `issuer_state`, `request_uri`, `code` and `response_code` are always replaced by `[redacted]` in logged URLs and in the `url.query` span attribute.
 
 To go from a log line or a pasted offer link to the session, search the session list with `GET /api/session?q=...` ([Finding sessions](../concepts/sessions.md#finding-sessions)).
 

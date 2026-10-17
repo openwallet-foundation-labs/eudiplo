@@ -60,7 +60,7 @@ describe("SessionStore", () => {
             ["tenant-1", "nonce-1"],
         ],
         ["getForInternalFlow", "findByIdForInternalFlow", ["session-1"]],
-        ["getIso18013", "findIso18013Session", ["session-1"]],
+        ["getIso18013", "findIso18013Session", ["nonce-1"]],
     ] as const)(
         "%s passes its scope through, binds the session and maps a miss to SessionNotFound",
         async (method, finder, args) => {

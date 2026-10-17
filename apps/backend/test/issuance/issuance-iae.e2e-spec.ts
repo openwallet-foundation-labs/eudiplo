@@ -976,6 +976,40 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             expect(response.body.code).toBeUndefined();
         });
 
+        test("gives the verifier session its own ID, which cannot finish the authorization", async () => {
+            const { authSession, resolved } = await startPresentationStep();
+            const openid4vpResponse = await presentationResponse(resolved);
+            const responseUri = new URL(
+                resolved.authorizationRequestPayload.response_uri as string,
+            );
+            const walletNonce = responseUri.pathname.split("/")[2];
+            const presentation = await app
+                .get(DataSource)
+                .getRepository(Session)
+                .findOneByOrFail({ walletNonce });
+            // The management API lists this ID; the auth_session differs.
+            expect(presentation.id).not.toBe(authSession);
+
+            // The wallet answers at the response_uri first ...
+            await request(app.getHttpServer())
+                .post(responseUri.pathname)
+                .type("form")
+                .send(openid4vpResponse)
+                .expect(200);
+
+            // ... so the listed ID would otherwise collect the only code.
+            const hijack = await submit(presentation.id, {
+                response: "x.y.z",
+            }).expect(400);
+            expect(hijack.body.error).toBe("invalid_request");
+
+            const response = await submit(
+                authSession,
+                openid4vpResponse,
+            ).expect(200);
+            expect(response.body.status).toBe("ok");
+        });
+
         test("rejects a presentation made for another auth_session", async () => {
             const first = await startPresentationStep();
             const second = await startPresentationStep();

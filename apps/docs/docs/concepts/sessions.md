@@ -56,9 +56,15 @@ Two more values bind the response to the request:
 
 Without the `response_code`, an attacker could start a request at your site, send its link to a victim, and pick up the victim's verified result in the attacker's own browser session. With it, only the browser that the victim's wallet redirected can claim the result, and a session completes once, so it has exactly one code.
 
+An ISO 18013-7 session has a `walletNonce` too (since 10.0): it is the last but one path segment of the offer's `org_iso_mdoc.response_uri`, and the response endpoint does not accept the session ID in its place. The OpenID4VP endpoints do not answer it.
+
+Each presentation step of [interactive authorization](../issuance/interactive-authorization.md) creates a presentation session of its own. Since 10.0, its ID is not the `auth_session` the wallet continues the authorization with.
+
+The [OID4VP-based authorization server](../issuance/authorization-servers.md) creates a presentation session with the ID of its authorization session, which is also the end of the pushed authorization `request_uri` and the `cas` parameter of its callback. The `request_uri` is no longer accepted once the wallet has opened it, before the presentation session exists. Since 10.0, the callback issues the authorization code only with the presentation session's `response_code`, and it ends the authorization only once the presentation session failed or expired.
+
 An issuance session has a `walletNonce` as well (since 10.0). It is the last path segment of the `credential_offer_uri` and, in the authorization code flow, the offer's `issuer_state`, which an external authorization server copies into its access tokens. The issuer endpoints and authorization servers do not accept the session ID in its place. Offers created before 10.0 keep their session ID as `walletNonce`.
 
-ISO 18013-7 responses are posted by your own page with the session ID, so these values do not apply there. How to implement the check is described in [Receive results](../presentation/receive-results.md); the specification text is in [OID4VP §13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-session-identifier-separati).
+ISO 18013-7 has no `nonce` and `response_code` like OpenID4VP; its response endpoint is covered by the `walletNonce` above. How to implement the check is described in [Receive results](../presentation/receive-results.md); the specification text is in [OID4VP §13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-session-identifier-separati).
 
 ## Cancelling an offer
 

@@ -4001,8 +4001,9 @@ export type Session = {
      */
     useDcApi: boolean;
     /**
-     * DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).
-     * Null/undefined means the standard OID4VP flow (useDcApi=false).
+     * "iso-18013-7" for ISO 18013-7 Annex C (org.iso.mdoc via DC API); unset
+     * for OID4VP sessions, with or without DC API. Only unset sessions are
+     * answered at the OID4VP endpoints.
      */
     dcApiProtocol?: string;
     /**
@@ -5940,6 +5941,38 @@ export type ChainedAsParRequestDto = {
     authorization_details?: Array<string | Array<{
         [key: string]: unknown;
     }>>;
+};
+
+export type OrgIsoMdocRequest = {
+    /**
+     * base64url-encoded CBOR DeviceRequest
+     */
+    device_request: string;
+    /**
+     * base64url-encoded CBOR EncryptionInfo
+     */
+    encryption_info: string;
+    /**
+     * Where the page posts the wallet's encrypted response. Ends with the
+     * session's `walletNonce`; the session ID is not accepted there.
+     */
+    response_uri: string;
+};
+
+export type Iso18013OfferResponse = {
+    /**
+     * Session ID, for the management API and webhooks.
+     */
+    session: string;
+    /**
+     * Always empty: the request goes through `org_iso_mdoc`.
+     */
+    uri: string;
+    /**
+     * Always empty: the request goes through `org_iso_mdoc`.
+     */
+    crossDeviceUri: string;
+    org_iso_mdoc: OrgIsoMdocRequest;
 };
 
 export type PresentationRequest = {
@@ -8754,9 +8787,9 @@ export type VerifierOfferControllerGetOfferData = {
 
 export type VerifierOfferControllerGetOfferResponses = {
     /**
-     * JSON response
+     * JSON response; `Iso18013OfferResponse` for `response_type: "iso-18013-7"`
      */
-    201: OfferResponse;
+    201: OfferResponse | Iso18013OfferResponse;
 };
 
 export type VerifierOfferControllerGetOfferResponse = VerifierOfferControllerGetOfferResponses[keyof VerifierOfferControllerGetOfferResponses];

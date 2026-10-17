@@ -115,7 +115,7 @@ The wallet authorizes by presenting a credential, for example a PID, that matche
 ```
 
 1. The wallet sends a pushed authorization request to `/issuers/{tenant}/authorization-servers/{id}/par` and opens `…/authorize`. This returns a page with an **Open wallet** link to the presentation request.
-2. After a successful presentation, EUDIPLO stores the verified claims on the issuance session, redirects with an authorization code, and issues tokens at `…/token`.
+2. After a successful presentation, the wallet opens `…/vp-callback` with the presentation's `response_code`. EUDIPLO stores the verified claims on the issuance session, redirects with an authorization code, and issues tokens at `…/token`. If the presentation failed or expired, the callback redirects with an error instead. Since 10.0, a callback without the matching `response_code` while the presentation is still open or has completed answers HTTP `400` and leaves the authorization pending: its `cas` parameter is the presentation session ID, which `GET /api/session` lists.
 3. Attribute providers receive the presented claims in `credentials`, see the [Attribute provider API](../reference/attribute-provider-api.md).
 
 Metadata is at `/.well-known/oauth-authorization-server/issuers/{tenant}/authorization-servers/{id}`. Like chained flows, OID4VP flows start from an authorization code offer. `immediateWalletRedirect` is accepted but has no effect.
