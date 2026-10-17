@@ -324,14 +324,18 @@ export class InteractiveAuthorizationService {
             throw error;
         }
 
+        // The issuer_state is the offer's wallet reference; the auth session
+        // keeps the offer's session ID.
+        let offerSessionId: string | undefined;
         if (request.issuer_state) {
-            const offerError = await this.offerRedemptionError(
+            const redemption = await this.redeemableOffer(
                 tenantId,
                 request.issuer_state,
             );
-            if (offerError) {
-                return offerError;
+            if ("error" in redemption) {
+                return redemption.error;
             }
+            offerSessionId = redemption.offer.id;
         }
 
         // Parse supported interaction types
@@ -372,7 +376,7 @@ export class InteractiveAuthorizationService {
             scope: request.scope,
             codeChallenge: request.code_challenge,
             codeChallengeMethod: request.code_challenge_method,
-            issuerState: request.issuer_state,
+            issuerState: offerSessionId,
             state: request.state,
             authorizationDetails: request.authorization_details
                 ? JSON.stringify(request.authorization_details)
@@ -780,25 +784,30 @@ export class InteractiveAuthorizationService {
     }
 
     /**
-     * Error response when `issuer_state` does not name an authorization code
-     * offer that can still be redeemed. The issued code, its PKCE binding and
-     * the verified credentials are bound to that offer, so a pre-authorized
-     * offer (redeemable with its tx_code only) is rejected as well.
+     * The authorization code offer that `issuer_state` names, or the error
+     * response when it names none that can still be redeemed. The issued
+     * code, its PKCE binding and the verified credentials are bound to that
+     * offer, so a pre-authorized offer (redeemable with its tx_code only) is
+     * rejected as well.
      */
-    private async offerRedemptionError(
+    private async redeemableOffer(
         tenantId: string,
         issuerState: string,
-    ): Promise<InteractiveAuthorizationResponse | undefined> {
+    ): Promise<
+        { offer: SessionData } | { error: InteractiveAuthorizationResponse }
+    > {
         const offer = await this.sessionStore
-            .getForTenant(tenantId, issuerState)
+            .getIssuanceForWalletReference(tenantId, issuerState)
             .catch((error: unknown) => {
                 if (error instanceof SessionNotFound) return undefined;
                 throw error;
             });
         if (!offer || offer.credentialPayload?.flow === "pre_authorized_code") {
             return {
-                error: Oauth2ErrorCodes.InvalidRequest,
-                error_description: "Invalid issuer_state",
+                error: {
+                    error: Oauth2ErrorCodes.InvalidRequest,
+                    error_description: "Invalid issuer_state",
+                },
             };
         }
         try {
@@ -806,13 +815,15 @@ export class InteractiveAuthorizationService {
         } catch (error) {
             if (error instanceof OAuthError) {
                 return {
-                    error: error.code,
-                    error_description: error.description,
+                    error: {
+                        error: error.code,
+                        error_description: error.description,
+                    },
                 };
             }
             throw error;
         }
-        return undefined;
+        return { offer };
     }
 
     /**

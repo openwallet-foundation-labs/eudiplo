@@ -8984,7 +8984,7 @@ export const SessionSchema = {
         },
         walletNonce: {
             type: 'string',
-            description: 'Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation.'
+            description: 'Cryptographic random nonce with which the wallet names the session instead of its ID.\nPresentations use it in request_uri, response_uri and state (OID4VP Section 13.3:\nrequest-id separate from the transaction-id); issuance offers in the credential_offer_uri\nand as issuer_state. Issuance sessions created before 10.0 have their ID as walletNonce.'
         },
         responseCode: {
             type: 'string',

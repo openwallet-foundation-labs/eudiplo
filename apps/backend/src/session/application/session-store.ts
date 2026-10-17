@@ -28,6 +28,7 @@ type SessionStoreRepository = Pick<
     | "findForTenant"
     | "findByIdForInternalFlow"
     | "findForWalletRequest"
+    | "findIssuanceForWalletReference"
     | "findIso18013Session"
     | "findByAuthorizationCode"
     | "findByRefreshToken"
@@ -118,6 +119,19 @@ export class SessionStore {
     getForWalletRequest(nonce: string): Promise<SessionData> {
         return this.lookup(nonce, (value) =>
             this.sessions.findForWalletRequest(value),
+        );
+    }
+
+    /**
+     * The issuance session a wallet names with `issuer_state`, the
+     * `credential_offer_uri` or an external token binding; never by session ID.
+     */
+    getIssuanceForWalletReference(
+        tenantId: string,
+        reference: string | undefined,
+    ): Promise<SessionData> {
+        return this.lookup(reference, (value) =>
+            this.sessions.findIssuanceForWalletReference(tenantId, value),
         );
     }
 
@@ -246,15 +260,16 @@ export class SessionStore {
         return this.sessions.deleteForTenant(tenantId, sessionId, scope);
     }
 
+    /** The offer of the issuance session with this wallet reference. */
     async findCredentialOffer(
         tenantId: string,
-        sessionId: string,
+        walletReference: string,
     ): Promise<SessionCredentialOffer | null> {
         const offer = await this.sessions.findCredentialOffer(
             tenantId,
-            sessionId,
+            walletReference,
         );
-        if (offer) this.context.bind({ id: sessionId, tenantId });
+        if (offer) this.context.bind({ id: offer.id, tenantId });
         return offer;
     }
 

@@ -19,6 +19,7 @@ import { Span, TraceService } from "nestjs-otel";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../../crypto/encryption/encryption.service.js";
 import { ChangeSessionState } from "../../../session/application/change-session-state.js";
+import { ExternalSessionBindingError } from "../../../session/application/resolve-external-authorization-session.js";
 import { SessionNotFound } from "../../../session/application/session-errors.js";
 import { SessionStore } from "../../../session/application/session-store.js";
 import type { SessionData } from "../../../session/domain/session-data.js";
@@ -168,6 +169,15 @@ export class Oid4vciService {
                 throw new CredentialRequestException(
                     "credential_request_denied",
                     error.message,
+                );
+            // An external token whose binding names no active offer of this
+            // server, such as one carrying the session ID instead of the
+            // offer's issuer_state. The message stays generic: the detailed
+            // one names tenant, server and binding value.
+            if (error instanceof ExternalSessionBindingError)
+                throw new CredentialRequestException(
+                    "credential_request_denied",
+                    "The access token is not associated with a valid session",
                 );
             throw error;
         }

@@ -15,6 +15,7 @@ function createStore(
         findForTenant: vi.fn().mockResolvedValue(session),
         findByIdForInternalFlow: vi.fn().mockResolvedValue(session),
         findForWalletRequest: vi.fn().mockResolvedValue(session),
+        findIssuanceForWalletReference: vi.fn().mockResolvedValue(session),
         findIso18013Session: vi.fn().mockResolvedValue(session),
         findByAuthorizationCode: vi.fn().mockResolvedValue(session),
         findByRefreshToken: vi.fn().mockResolvedValue(session),
@@ -53,6 +54,11 @@ describe("SessionStore", () => {
         ["getByRefreshToken", "findByRefreshToken", ["tenant-1", "refresh-1"]],
         ["getByRequestUri", "findByRequestUri", ["tenant-1", "urn:request:1"]],
         ["getForWalletRequest", "findForWalletRequest", ["nonce-1"]],
+        [
+            "getIssuanceForWalletReference",
+            "findIssuanceForWalletReference",
+            ["tenant-1", "nonce-1"],
+        ],
         ["getForInternalFlow", "findByIdForInternalFlow", ["session-1"]],
         ["getIso18013", "findIso18013Session", ["session-1"]],
     ] as const)(
@@ -73,6 +79,20 @@ describe("SessionStore", () => {
     );
 
     it.each([undefined, ""])(
+        "rejects an absent wallet reference (%j) without querying",
+        async (reference) => {
+            const { store, repository } = createStore();
+
+            await expect(
+                store.getIssuanceForWalletReference("tenant-1", reference),
+            ).rejects.toBeInstanceOf(SessionNotFound);
+            expect(
+                repository.findIssuanceForWalletReference,
+            ).not.toHaveBeenCalled();
+        },
+    );
+
+    it.each([undefined, ""])(
         "rejects an absent authorization code (%j) without querying",
         async (code) => {
             const { store, repository } = createStore();
@@ -88,12 +108,17 @@ describe("SessionStore", () => {
         const { store, repository, context } = createStore({
             findCredentialOffer: vi
                 .fn()
-                .mockResolvedValueOnce({ offer: null, status: "active" })
+                .mockResolvedValueOnce({
+                    id: "session-1",
+                    offer: null,
+                    status: "active",
+                })
                 .mockResolvedValueOnce(null),
         });
 
-        await store.findCredentialOffer("tenant-1", "session-1");
-        await store.findCredentialOffer("tenant-1", "session-2");
+        // Found by wallet reference, bound by the session ID.
+        await store.findCredentialOffer("tenant-1", "nonce-1");
+        await store.findCredentialOffer("tenant-1", "nonce-2");
 
         expect(repository.findCredentialOffer).toHaveBeenCalledTimes(2);
         expect(context.bind).toHaveBeenCalledExactlyOnceWith({

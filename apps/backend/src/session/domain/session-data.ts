@@ -148,7 +148,8 @@ export type SessionResultUpdate = Pick<
 export interface ExternalSessionBinding {
     tenantId: string;
     authorizationServerId: string;
-    sessionId: string;
+    /** The session's wallet reference the external server's token carries. */
+    walletReference: string;
     externalIssuer: string;
     externalSubject: string;
 }

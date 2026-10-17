@@ -1034,6 +1034,18 @@ export function createTestFetch(
     };
 }
 
+/**
+ * The `issuer_state` of a credential offer URI: the offer's wallet reference,
+ * the last path segment of its `credential_offer_uri` (never the session ID).
+ */
+export function issuerStateOf(uri: string): string {
+    const offerUri =
+        new URL(uri).searchParams.get("credential_offer_uri") ?? "";
+    const match = /\/credential-offers\/([^/?#]+)$/.exec(offerUri);
+    if (!match) throw new Error(`No credential offer reference in ${uri}`);
+    return match[1];
+}
+
 /** The wallet nonce in the `request_uri` of an OID4VP request URI. */
 export function walletNonceOf(uri: string): string {
     const requestUri = new URL(uri).searchParams.get("request_uri") ?? "";

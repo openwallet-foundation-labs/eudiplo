@@ -28,12 +28,12 @@ export class RetrieveCredentialOffer {
      */
     async execute(
         tenantId: string,
-        sessionId: string,
+        walletReference: string,
     ): Promise<CredentialOfferObject | null> {
         // Preserve the existing endpoint's lookup-failure mapping, including
         // persistence failures, while retaining the cause for diagnostics.
         const session = await this.sessions
-            .findCredentialOffer(tenantId, sessionId)
+            .findCredentialOffer(tenantId, walletReference)
             .catch((cause: unknown) => {
                 throw new CredentialOfferNotFound({ cause });
             });
@@ -45,7 +45,7 @@ export class RetrieveCredentialOffer {
                 !session.offer ||
                 !(await this.sessions.consumeCredentialOffer(
                     tenantId,
-                    sessionId,
+                    session.id,
                 ))
             ) {
                 throw new CredentialOfferNotFound();

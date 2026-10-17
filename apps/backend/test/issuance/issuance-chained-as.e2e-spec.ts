@@ -29,6 +29,7 @@ import { AppModule } from "../../src/app.module.js";
 import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto.js";
 import { CredentialConfigCreate } from "../../src/issuer/configuration/credentials/dto/credential-config-create.dto.js";
 import { IssuanceDto } from "../../src/issuer/configuration/issuance/dto/issuance.dto.js";
+import { CreateSession } from "../../src/session/application/create-session.js";
 import { SessionStore } from "../../src/session/application/session-store.js";
 import { SessionStatus } from "../../src/session/domain/session-state.js";
 import { PresentationConfigCreateDto } from "../../src/verifier/presentations/dto/presentation-config-create.dto.js";
@@ -832,6 +833,74 @@ describe("Issuance - Chained AS Flow", () => {
         // Verify the token contains issuer_state
         const tokenPayload = decodeJwt(tokenResponse.body.access_token);
         expect(tokenPayload.issuer_state).toBeDefined();
+    });
+
+    test("an offer's issuer_state links the token to the offer session, its session ID does not", async () => {
+        setupUpstreamOidcMocks();
+        mockUpstreamTokenResponse({ sub: "offer-user" });
+        await configureChainedAs();
+        const sessionId = randomUUID();
+        const walletNonce = randomUUID();
+        await app.get(CreateSession).execute({
+            id: sessionId,
+            walletNonce,
+            tenantId: "haip",
+            status: SessionStatus.Active,
+        });
+        const par = (issuerState: string) =>
+            request(app.getHttpServer())
+                .post("/issuers/haip/chained-as/par")
+                .trustLocalhost()
+                .send({
+                    response_type: "code",
+                    client_id: "test-wallet",
+                    redirect_uri: "http://wallet.example.com/callback",
+                    code_challenge:
+                        "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+                    code_challenge_method: "S256",
+                    issuer_state: issuerState,
+                });
+
+        const rejected = await par(sessionId).expect(400);
+        expect(rejected.body.message).toBe("Invalid issuer_state");
+
+        const parResponse = await par(walletNonce).expect(201);
+        const authorizeResponse = await request(app.getHttpServer())
+            .get("/issuers/haip/chained-as/authorize")
+            .query({
+                client_id: "test-wallet",
+                request_uri: parResponse.body.request_uri,
+            })
+            .trustLocalhost()
+            .redirects(0)
+            .expect(302);
+        const upstreamState = new URL(
+            authorizeResponse.headers.location,
+        ).searchParams.get("state")!;
+        const callbackResponse = await request(app.getHttpServer())
+            .get("/issuers/haip/chained-as/callback")
+            .query({ code: "upstream-auth-code", state: upstreamState })
+            .trustLocalhost()
+            .redirects(0)
+            .expect(302);
+        const tokenResponse = await request(app.getHttpServer())
+            .post("/issuers/haip/chained-as/token")
+            .trustLocalhost()
+            .send({
+                grant_type: "authorization_code",
+                code: new URL(
+                    callbackResponse.headers.location,
+                ).searchParams.get("code"),
+                redirect_uri: "http://wallet.example.com/callback",
+                code_verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+            })
+            .expect(200);
+
+        // The token names the session by ID, which the credential endpoint
+        // resolves; the wallet only ever sent the wallet reference.
+        expect(decodeJwt(tokenResponse.body.access_token).issuer_state).toBe(
+            sessionId,
+        );
     });
 
     test("token endpoint validates PKCE code verifier", async () => {

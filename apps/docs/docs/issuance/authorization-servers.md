@@ -15,7 +15,7 @@ Configure how wallets obtain the access token they present at the credential end
 | Refresh tokens, DPoP, wallet attestation | EUDIPLO | Your server | EUDIPLO | EUDIPLO |
 | Issuer URL | `/issuers/{tenant}` | Your `issuer` | `/issuers/{tenant}/chained-as` | `/issuers/{tenant}/authorization-servers/{id}` |
 
-Typical choices: `built-in` when your backend already knows the user and creates pre-authorized offers; `chained` to issue after a login at your identity provider ([cookbook](../cookbooks/issue-after-login.md)); `oid4vp` to issue after a PID presentation; `external` when your OAuth server already issues JWT access tokens and can carry the EUDIPLO session ID.
+Typical choices: `built-in` when your backend already knows the user and creates pre-authorized offers; `chained` to issue after a login at your identity provider ([cookbook](../cookbooks/issue-after-login.md)); `oid4vp` to issue after a PID presentation; `external` when your OAuth server already issues JWT access tokens and can carry the offer's `issuer_state`.
 
 ## Configure entries
 
@@ -70,7 +70,7 @@ Requirements for your server:
 
 1. It publishes OAuth authorization server or OpenID Connect discovery metadata for `issuer`, including `jwks_uri`.
 2. It issues JWT access tokens (`typ: at+jwt`) with `iss`, `sub`, `aud`, `exp`, `iat` and `jti`. `aud` must contain `{PUBLIC_URL}/issuers/{tenant}`.
-3. It copies the offer's `issuer_state` (the EUDIPLO session ID) unchanged into the access token claim named in `sessionBinding.claim`.
+3. It copies the offer's `issuer_state` unchanged into the access token claim named in `sessionBinding.claim`. Since 10.0 the `issuer_state` is a random value of the offer, not the EUDIPLO session ID, and EUDIPLO does not accept the session ID in that claim.
 4. Its metadata, `jwks_uri` and any `introspection_endpoint` are HTTPS URLs on public addresses, as the [outbound URL policy](../concepts/security-model.md#https-and-tls) requires. For a server on HTTP or a private address, set `OUTBOUND_URL_ALLOW_HTTP` or `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK`.
 
 Every token must point to an active offer session that was created for this authorization server; EUDIPLO never creates a session from an external token. With the first credential request, EUDIPLO binds the token's `iss` and `sub` to the session, and later tokens must carry the same identity. The claims must come from the offer or an attribute provider, see [Claims](claims.md#external-authorization-servers-need-a-dynamic-source). External entries do not accept `token`, `requireDPoP` or wallet attestation settings; your server handles those.
@@ -101,7 +101,7 @@ EUDIPLO acts as the authorization server towards the wallet and delegates the lo
 - EUDIPLO uses OpenID Connect discovery, the authorization code flow with PKCE (`S256`), and sends `client_id` and `client_secret` in the token request body. Omit `clientSecret` for a public client. `scopes` defaults to `["openid"]`. The API returns `clientSecret` as `<redacted>`; sending `<redacted>` back keeps the stored secret of the server with the same `id`, unless `upstream.issuer` changes, which needs the secret again.
 - EUDIPLO fetches the discovery document and calls the token endpoint under the [outbound URL policy](../concepts/security-model.md#https-and-tls): both need HTTPS on a public address unless `OUTBOUND_URL_ALLOW_HTTP` or `OUTBOUND_URL_ALLOW_PRIVATE_NETWORK` is set, and the token endpoint must answer without a redirect. Each of these requests, and token introspection at an external authorization server, must finish within 10 seconds, body included; a redirect from the introspection endpoint fails the check.
 - Attribute providers receive the upstream user as `identity`: `iss` and `sub` of the upstream ID token and the ID token claims merged over the upstream access token claims.
-- EUDIPLO's access token contains `issuer_state`, `client_id`, `upstream_iss` and `upstream_sub`; its `sub` is the wallet's `client_id`.
+- EUDIPLO's access token contains `issuer_state`, `client_id`, `upstream_iss` and `upstream_sub`; its `sub` is the wallet's `client_id`. Its `issuer_state` claim holds the EUDIPLO session ID, not the `issuer_state` of the offer.
 - Endpoints: `/issuers/{tenant}/chained-as/{par,authorize,callback,token}`, metadata at `/.well-known/oauth-authorization-server/issuers/{tenant}/chained-as`, keys at `/.well-known/jwks.json/issuers/{tenant}/chained-as`.
 
 Start chained flows from an authorization code offer; the wallet must send the offer's `issuer_state` in its pushed authorization request.
