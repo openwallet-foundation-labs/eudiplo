@@ -3832,6 +3832,45 @@ export type UpdateFederationTrustAnchorDto = {
     };
 };
 
+export type FederationTrustAnchorReferenceDto = {
+    /**
+     * Kind of configuration that names the trust anchor.
+     */
+    kind: 'PresentationConfig' | 'IssuanceConfig';
+    /**
+     * ID of the presentation config. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.
+     */
+    id?: string;
+    /**
+     * Description of the configuration; absent for configurations the caller may not read.
+     */
+    description?: string;
+};
+
+export type FederationTrustAnchorInUseDto = {
+    /**
+     * HTTP status code.
+     */
+    statusCode: number;
+    /**
+     * Time of the response.
+     */
+    timestamp: string;
+    /**
+     * Path of the request.
+     */
+    path: string;
+    /**
+     * Configurations still name the trust anchor's entity ID.
+     */
+    code: 'FEDERATION_TRUST_ANCHOR_IN_USE';
+    /**
+     * Names the configurations the caller may read and counts the others.
+     */
+    message: string;
+    references: Array<FederationTrustAnchorReferenceDto>;
+};
+
 export type VerificationProvenanceDto = {
     /**
      * Matched trusted entity ID, or the issuance certificate subject.
@@ -7976,7 +8015,13 @@ export type FederationTrustAnchorControllerDeleteErrors = {
      * Trust anchor not found
      */
     404: unknown;
+    /**
+     * Presentation configs or the issuance configuration of the tenant still name the trust anchor's entity ID; the response names those the caller may read and counts the others
+     */
+    409: FederationTrustAnchorInUseDto;
 };
+
+export type FederationTrustAnchorControllerDeleteError = FederationTrustAnchorControllerDeleteErrors[keyof FederationTrustAnchorControllerDeleteErrors];
 
 export type FederationTrustAnchorControllerDeleteResponses = {
     /**
@@ -8027,7 +8072,7 @@ export type FederationTrustAnchorControllerUpdateErrors = {
      */
     404: unknown;
     /**
-     * The entity ID is already registered
+     * The entity ID is already registered (body with `message` only), or the update changes the entity ID while presentation configs or the issuance configuration of the tenant still name the old one (body as for DELETE, with code FEDERATION_TRUST_ANCHOR_IN_USE and `references`)
      */
     409: unknown;
 };

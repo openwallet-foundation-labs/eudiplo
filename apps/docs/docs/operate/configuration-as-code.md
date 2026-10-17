@@ -207,8 +207,9 @@ eudiplo config import acme-upgraded.zip --instance staging --mode upsert --plan 
 The plan lists every resource as `create`, `update`, `unchanged`, `skip`,
 `delete` or `blocked`, with its field changes (secrets redacted). A plan with a `blocked` item
 cannot be applied: fix the reported issue (missing secret, stale generation,
-unknown reference, client ID used by another tenant, a deleted trust list that
-a configuration still uses) and plan again. A plan
+unknown reference, including an OpenID Federation trust anchor that is not
+registered, client ID used by another tenant, a deleted trust list or trust
+anchor that a configuration still uses) and plan again. A plan
 that grants roles beyond the caller's own, or changes a client with more
 roles, answers `403` ([granting roles](../reference/roles.md#granting-roles)). The import sends the plan's fingerprint; if
 the bundle, the mode or the target configuration changed in between, it fails
@@ -225,7 +226,10 @@ stored values, and before every `replace` import.
 bundle no longer contains. The plan blocks deleting a trust list that a
 configuration surviving the import still references, including a configuration
 created through the API or Web Client (`TRUST_LIST_IN_USE`, see
-[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). It needs
+[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)), and
+deleting a federation trust anchor whose entity ID such a configuration still
+names (`FEDERATION_TRUST_ANCHOR_IN_USE`, see
+[Delete a trust anchor](../trust/federation.md#delete-a-trust-anchor)). It needs
 its own plan and an explicit confirmation:
 
 ```bash

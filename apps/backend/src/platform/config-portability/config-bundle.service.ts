@@ -39,6 +39,15 @@ import {
 import { trustListConfig } from "../../issuer/trust-list/trust-list-config.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
 import { FilesService } from "../../storage/files.service.js";
+import {
+    type FederationTrustAnchorConfigurationChange,
+    FederationTrustAnchorReferences,
+} from "../../trust/federation-trust-anchor/application/federation-trust-anchor-references.js";
+import {
+    describeFederationTrustAnchorReferences,
+    federationTrustAnchorReferenceId,
+    isFederationTrustAnchorReferenceKind,
+} from "../../trust/federation-trust-anchor/domain/federation-trust-anchor-reference.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
 import {
     ConfigDocumentValidationService,
@@ -136,6 +145,26 @@ function planAction(state: {
     return state.exists ? "update" : "create";
 }
 
+/** The plan items by `<kind>/<id>`. */
+function planActions(
+    items: ConfigImportPlanItem[],
+): Map<string, ConfigImportPlanItem> {
+    return new Map(items.map((item) => [`${item.kind}/${item.id}`, item]));
+}
+
+/** Records a blocking issue on its plan item, if any, and in `issues`. */
+function block(
+    item: ConfigImportPlanItem | undefined,
+    issues: ConfigMigrationIssue[],
+    issue: ConfigMigrationIssue,
+): void {
+    if (item) {
+        item.issues.push(issue);
+        item.action = "blocked";
+    }
+    issues.push(issue);
+}
+
 function placeholder(
     kind: ConfigResourceKind,
     id: string,
@@ -164,6 +193,7 @@ export class ConfigBundleService {
         private readonly ownershipService: ConfigOwnershipService,
         private readonly configService: ConfigService,
         private readonly trustListReferences: TrustListReferences,
+        private readonly federationTrustAnchorReferences: FederationTrustAnchorReferences,
     ) {}
 
     private get tenants() {
@@ -758,6 +788,25 @@ export class ConfigBundleService {
                 )),
             );
         }
+        const trustAnchors = await this.trustAnchorEntityIdsAfter(
+            tenantId,
+            upgradedDocuments,
+            items,
+        );
+        issues.push(
+            ...(await this.blockUnregisteredTrustAnchors(
+                tenantId,
+                upgradedDocuments,
+                items,
+                trustAnchors.registered,
+            )),
+            ...(await this.blockChangingTrustAnchorsInUse(
+                tenantId,
+                upgradedDocuments,
+                items,
+                trustAnchors,
+            )),
+        );
         if (revision !== (await this.configurationRevision(tenantId)))
             throw new ConflictException(
                 "Configuration changed while planning; request a new plan",
@@ -845,6 +894,188 @@ export class ConfigBundleService {
             item.issues.push(issue);
             item.action = "blocked";
             issues.push(issue);
+        }
+        return issues;
+    }
+
+    /**
+     * The federation trust anchor entity IDs of the tenant before the plan
+     * (by anchor ID) and once it is applied; a skipped document leaves the
+     * stored anchor in place.
+     */
+    private async trustAnchorEntityIdsAfter(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+    ): Promise<{ stored: Map<string, string>; registered: Set<string> }> {
+        const actions = planActions(items);
+        const stored = new Map(
+            (
+                await this.federationTrustAnchors.find({
+                    where: { tenantId },
+                    select: { id: true, entityId: true },
+                })
+            ).map((anchor) => [anchor.id, anchor.entityId]),
+        );
+        const after = new Map(stored);
+        for (const document of documents) {
+            const entityId = (document.spec as { entityId?: unknown } | null)
+                ?.entityId;
+            if (
+                document.kind === "FederationTrustAnchor" &&
+                typeof entityId === "string" &&
+                actions.get(`${document.kind}/${resourceId(document)}`)
+                    ?.action !== "skip"
+            )
+                after.set(resourceId(document), entityId);
+        }
+        for (const item of items) {
+            if (
+                item.action === "delete" &&
+                item.kind === "FederationTrustAnchor"
+            )
+                after.delete(item.id);
+        }
+        return { stored, registered: new Set(after.values()) };
+    }
+
+    /**
+     * Blocks a document that apply would refuse because it names a federation
+     * trust anchor entity ID that neither the tenant nor the bundle registers
+     * (MISSING_RESOURCE_REFERENCE), so apply does not stop partway.
+     */
+    private async blockUnregisteredTrustAnchors(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+        registered: Set<string>,
+    ): Promise<ConfigMigrationIssue[]> {
+        const actions = planActions(items);
+        const issues: ConfigMigrationIssue[] = [];
+        // As apply stores them: the issuance configuration is refused only
+        // for entity IDs it adds to the stored one, a presentation config
+        // (stored whole) for every entity ID it names.
+        const storedIssuance = await this.issuanceConfigs.findOne({
+            where: { tenantId },
+            select: { tenantId: true, federation: true },
+        });
+        const storedIssuanceIds = new Set(
+            this.federationTrustAnchorReferences.trustAnchorIds(
+                "IssuanceConfig",
+                storedIssuance,
+            ),
+        );
+        for (const document of documents) {
+            const { kind } = document;
+            const item = actions.get(`${kind}/${resourceId(document)}`);
+            const action = item?.action;
+            if (
+                !isFederationTrustAnchorReferenceKind(kind) ||
+                (action !== "create" && action !== "update")
+            )
+                continue;
+            const missing = new Set(
+                this.federationTrustAnchorReferences
+                    .trustAnchorIds(kind, document.spec)
+                    .filter(
+                        (entityId) =>
+                            !registered.has(entityId) &&
+                            !(
+                                kind === "IssuanceConfig" &&
+                                storedIssuanceIds.has(entityId)
+                            ),
+                    ),
+            );
+            for (const entityId of missing) {
+                block(item, issues, {
+                    severity: "error",
+                    code: "MISSING_RESOURCE_REFERENCE",
+                    path:
+                        kind === "IssuanceConfig"
+                            ? "/spec/federation/trustAnchors"
+                            : "/spec/dcql_query/credentials",
+                    message: `No FederationTrustAnchor with entity ID '${entityId}' exists in the target instance or bundle; a trust anchor without pinned keys is never trusted. Add it to federation-trust-anchors/ with its federation keys.`,
+                    resource: { kind, id: resourceId(document) },
+                });
+            }
+        }
+        return issues;
+    }
+
+    /**
+     * Blocks deleting a federation trust anchor, or giving it another entity
+     * ID, while a configuration surviving the import still names the old
+     * entity ID (FEDERATION_TRUST_ANCHOR_IN_USE): a stored configuration the
+     * plan neither deletes nor rewrites, or a document of the bundle with its
+     * new content.
+     */
+    private async blockChangingTrustAnchorsInUse(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+        {
+            stored,
+            registered,
+        }: { stored: Map<string, string>; registered: Set<string> },
+    ): Promise<ConfigMigrationIssue[]> {
+        const lost = [...stored].filter(
+            ([, entityId]) => !registered.has(entityId),
+        );
+        if (lost.length === 0) return [];
+        const actions = planActions(items);
+        const issues: ConfigMigrationIssue[] = [];
+        const change: FederationTrustAnchorConfigurationChange = {
+            written: [],
+            removed: [],
+        };
+        for (const document of documents) {
+            const { kind, spec } = document;
+            if (
+                !isFederationTrustAnchorReferenceKind(kind) ||
+                actions.get(`${kind}/${resourceId(document)}`)?.action ===
+                    "skip"
+            )
+                continue;
+            change.written.push({
+                kind,
+                id: federationTrustAnchorReferenceId(
+                    kind,
+                    resourceId(document),
+                ),
+                content: spec,
+            });
+        }
+        for (const item of items) {
+            if (
+                item.action === "delete" &&
+                isFederationTrustAnchorReferenceKind(item.kind)
+            )
+                change.removed.push({
+                    kind: item.kind,
+                    id: federationTrustAnchorReferenceId(item.kind, item.id),
+                });
+        }
+        for (const [id, entityId] of lost) {
+            const references =
+                await this.federationTrustAnchorReferences.findAfter(
+                    tenantId,
+                    entityId,
+                    change,
+                );
+            if (references.length === 0) continue;
+            const item = actions.get(`FederationTrustAnchor/${id}`);
+            const deleted = item?.action === "delete";
+            block(item, issues, {
+                severity: "error",
+                code: "FEDERATION_TRUST_ANCHOR_IN_USE",
+                path: deleted ? "/metadata/id" : "/spec/entityId",
+                message: `${
+                    deleted
+                        ? `Federation trust anchor ${JSON.stringify(id)} is left out of this import, so replace mode deletes it`
+                        : `This import changes the entity ID of federation trust anchor ${JSON.stringify(id)}`
+                }, but ${entityId} is still named by ${describeFederationTrustAnchorReferences(references)}. Keep the trust anchor in the bundle or folder, or remove these references.`,
+                resource: { kind: "FederationTrustAnchor", id },
+            });
         }
         return issues;
     }
