@@ -219,6 +219,17 @@
                 <mat-icon matListItemIcon>checklist</mat-icon>
                 <span matListItemTitle>Trust Lists</span>
               </a>
+
+              <a
+                mat-list-item
+                [routerLink]="['/federation-trust-anchor']"
+                routerLinkActive="active-link"
+                ariaCurrentWhenActive="page"
+                (click)="closeSidenavOnMobile()"
+              >
+                <mat-icon matListItemIcon>account_tree</mat-icon>
+                <span matListItemTitle>Federation Trust Anchors</span>
+              </a>
             }
 
             <a

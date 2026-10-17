@@ -376,21 +376,18 @@
             } @else {
               @for (value of authority.values; track $index; let r = $index) {
                 <div class="row-fields">
-                  <mat-form-field
-                    ><mat-label>Federation authority URL</mat-label>
-                    <input
-                      matInput
-                      [ngModel]="value"
-                      (ngModelChange)="authority.values[r] = $event; updateQuery()"
-                      [ngModelOptions]="{ standalone: true }"
-                      placeholder="https://trustanchor.example"
-                    />
-                  </mat-form-field>
+                  <app-federation-trust-anchor-select
+                    label="Federation trust anchor"
+                    [disabled]="control.disabled"
+                    [ngModel]="value"
+                    (ngModelChange)="authority.values[r] = $event; updateQuery()"
+                    [ngModelOptions]="{ standalone: true }"
+                  />
                   <button
                     mat-icon-button
                     type="button"
                     (click)="removeTrust(credential, a, r)"
-                    aria-label="Remove federation authority"
+                    aria-label="Remove federation trust anchor"
                   >
                     <mat-icon>delete_outline</mat-icon>
                   </button>
@@ -412,7 +409,7 @@
             Add external trust list
           </button>
           <button mat-button type="button" (click)="addTrust(credential, 'federation')">
-            Add federation authority
+            Add federation trust anchor
           </button>
         </div>
         @if (control.touched && trustError(credential.trustedAuthorities); as error) {

@@ -1,9 +1,15 @@
+import { Subject } from 'rxjs';
+import { TestBed } from '@angular/core/testing';
 import { FormControl, Validators } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { schemaFormValidator } from '../../../utils/schema-form-validator';
 import { DCQLSchema } from '../../../utils/schemas';
 import { DcqlQueryEditorComponent } from './dcql-query-editor.component';
+import { FederationTrustAnchorService } from '../../../federation-trust-anchor/federation-trust-anchor.service';
+import { FederationTrustAnchorSelectComponent } from '../../../federation-trust-anchor/federation-trust-anchor-select/federation-trust-anchor-select.component';
 
 const query = {
   credentials: [
@@ -185,5 +191,45 @@ describe('DCQL editor managed trust lists', () => {
         'Existing references are preserved. Retry or add an external reference.'
     );
     component.ngOnDestroy();
+  });
+});
+
+describe('DCQL editor federation authorities', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('picks a registered trust anchor and writes its entity ID to the query', async () => {
+    const anchors = [
+      { id: 'eu', tenantId: 't', entityId: 'https://ta.example', jwks: { keys: [] } },
+    ];
+    TestBed.configureTestingModule({
+      imports: [DcqlQueryEditorComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: FederationTrustAnchorService,
+          useValue: {
+            registeredAnchors: vi.fn().mockResolvedValue(anchors),
+            loaded: new Subject(),
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(DcqlQueryEditorComponent);
+    fixture.componentInstance.control = new FormControl(query);
+    fixture.detectChanges();
+    fixture.componentInstance.addTrust(fixture.componentInstance.credentials[0], 'federation');
+    fixture.detectChanges();
+
+    const picker = fixture.debugElement.query(By.directive(FederationTrustAnchorSelectComponent))
+      .componentInstance as FederationTrustAnchorSelectComponent;
+    await vi.waitFor(() => expect(picker.loaded).toBe(true));
+    picker.selection.setValue('https://ta.example');
+
+    expect(fixture.componentInstance.control.value.credentials[0].trusted_authorities).toEqual([
+      { type: 'openid_federation', values: ['https://ta.example'] },
+    ]);
+    fixture.destroy();
   });
 });

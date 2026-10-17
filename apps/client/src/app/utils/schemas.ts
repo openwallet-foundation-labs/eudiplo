@@ -7,6 +7,7 @@ import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
 import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
 import kmsConfigSchemaObj from '../../../../../schemas/KmsConfigDto.schema.json';
+import { federationTrustAnchorJwksSchemaObj } from '../federation-trust-anchor/federation-trust-anchor-jwks.schema';
 
 // Create an array schema for TransactionData (URI-based matching allows arrays as root)
 const transactionDataArraySchemaObj = {
@@ -60,3 +61,7 @@ export const DCQLSchema = new SchemaValidation(DCQLObj);
 export const transactionDataArraySchema = new SchemaValidation(transactionDataArraySchemaObj);
 
 export const kmsConfigSchema = new SchemaValidation(kmsConfigSchemaObj);
+
+export const federationTrustAnchorJwksSchema = new SchemaValidation(
+  federationTrustAnchorJwksSchemaObj
+);

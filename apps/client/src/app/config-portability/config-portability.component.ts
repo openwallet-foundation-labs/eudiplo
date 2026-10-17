@@ -342,6 +342,7 @@ export class ConfigPortabilityComponent implements OnInit {
       AttributeProvider: '/attribute-providers',
       WebhookEndpoint: '/webhook-endpoints',
       TrustList: '/trust-list',
+      FederationTrustAnchor: '/federation-trust-anchor',
       StatusList: '/status-lists',
     };
     const base = routesByKind[resource.kind];
