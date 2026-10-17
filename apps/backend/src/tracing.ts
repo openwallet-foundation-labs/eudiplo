@@ -10,7 +10,10 @@ import {
     ATTR_SERVICE_NAME,
     ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
-import { REDACTED_QUERY_PARAMETERS } from "./platform/observability/redact-url.js";
+import {
+    REDACTED_QUERY_PARAMETERS,
+    redactSpanUrlPath,
+} from "./platform/observability/redact-url.js";
 
 /**
  * The query parameters @opentelemetry/instrumentation-http redacts by default
@@ -65,6 +68,8 @@ const otelSDK = new NodeSDK({
                     ...DEFAULT_REDACTED_QUERY_PARAMETERS,
                     ...REDACTED_QUERY_PARAMETERS,
                 ],
+                // Wallet references in the path are bearer values as well.
+                requestHook: redactSpanUrlPath,
             },
         }),
     ],

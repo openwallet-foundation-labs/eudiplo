@@ -337,7 +337,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             ).resolves.toBe(false);
         });
 
-        it("finds wallet requests only by wallet nonce, and ISO sessions only by protocol", async () => {
+        it("finds wallet requests only by wallet nonce, never an ISO 18013-7 session", async () => {
             const nonceMatch = randomUUID();
             await adapter.create({
                 id: nonceMatch,
@@ -348,6 +348,11 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             expect(await adapter.findForWalletRequest(sessionId)).toMatchObject(
                 { id: nonceMatch },
             );
+            // ISO 18013-7 sessions are answered only at their own endpoint.
+            await adapter.updateForTenant("tenant-b", nonceMatch, {
+                dcApiProtocol: "iso-18013-7",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
             await adapter.deleteForTenant("tenant-b", nonceMatch);
             // The session ID finds nothing, whatever the session's type.
             expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
@@ -355,21 +360,27 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 requestId: "age-check",
             });
             expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
-                dcApiProtocol: "iso-18013-7",
-            });
-            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
-                dcApiProtocol: null,
-            });
             expect(await adapter.findForWalletRequest(randomUUID())).toBeNull();
-            expect(await adapter.findIso18013Session(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
+        });
+
+        it("finds ISO 18013-7 sessions only by wallet nonce", async () => {
+            const isoSession = randomUUID();
+            await adapter.create({
+                id: isoSession,
+                tenantId: "tenant-b",
+                requestId: "age-check",
+                walletNonce: "iso-nonce",
+            });
+            // Not an ISO 18013-7 session yet.
+            expect(await adapter.findIso18013Session("iso-nonce")).toBeNull();
+            await adapter.updateForTenant("tenant-b", isoSession, {
                 dcApiProtocol: "iso-18013-7",
             });
-            expect(await adapter.findIso18013Session(sessionId)).toMatchObject({
-                id: sessionId,
-            });
+            expect(
+                await adapter.findIso18013Session("iso-nonce"),
+            ).toMatchObject({ id: isoSession });
+            // The management API lists the session ID; it finds nothing.
+            expect(await adapter.findIso18013Session(isoSession)).toBeNull();
         });
 
         it("never finds an issuance session for a wallet request", async () => {

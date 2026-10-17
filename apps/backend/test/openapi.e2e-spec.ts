@@ -411,7 +411,12 @@ describe("OpenAPI contract", () => {
             verifierOfferOperation.responses["201"].content?.[
                 "application/json"
             ].schema,
-        ).toMatchObject({ $ref: "#/components/schemas/OfferResponse" });
+        ).toEqual({
+            oneOf: [
+                { $ref: "#/components/schemas/OfferResponse" },
+                { $ref: "#/components/schemas/Iso18013OfferResponse" },
+            ],
+        });
         expect(
             verifierOfferOperation.responses["201"].content?.["image/png"]
                 .schema,

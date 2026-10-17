@@ -13,6 +13,8 @@ function interactiveAuthorization(
     ports: {
         sessionStore?: Record<string, unknown>;
         oid4vpService?: Record<string, unknown>;
+        createSession?: Record<string, unknown>;
+        presentationConfigService?: Record<string, unknown>;
     } = {},
 ) {
     const authSessionRepository = {
@@ -40,12 +42,12 @@ function interactiveAuthorization(
     const service = new InteractiveAuthorizationService(
         { publicUrl: "https://issuer.example" } as any,
         {} as any,
-        {} as any,
+        (ports.createSession ?? {}) as any,
         sessionStore as any,
         {} as any,
         {} as any,
         (ports.oid4vpService ?? {}) as any,
-        {} as any,
+        (ports.presentationConfigService ?? {}) as any,
         authSessionRepository,
     );
     const handle = (body: InteractiveAuthorizationRequestDto) =>
@@ -192,6 +194,7 @@ describe("InteractiveAuthorizationService openid4vp_presentation step", () => {
         codeChallenge: CODE_CHALLENGE,
         codeChallengeMethod: "S256",
         issuerState: "offer-1",
+        presentationSessionId: "presentation-1",
     };
     const presentationResponse = (openid4vp_response: string) =>
         ({
@@ -207,7 +210,7 @@ describe("InteractiveAuthorizationService openid4vp_presentation step", () => {
                 getForTenant.mockRejectedValueOnce(state);
             else
                 getForTenant.mockResolvedValueOnce({
-                    id: "auth-session",
+                    id: "presentation-1",
                     walletNonce: "wallet-nonce",
                     ...state,
                 });
@@ -250,6 +253,188 @@ describe("InteractiveAuthorizationService openid4vp_presentation step", () => {
             });
         },
     );
+
+    it("creates the presentation request under its own session ID, not the auth_session", async () => {
+        const execute = vi.fn().mockResolvedValue(undefined);
+        const createRequest = vi.fn().mockResolvedValue({ uri: "request" });
+        const { handle, authSessionRepository } = interactiveAuthorization(
+            undefined,
+            {
+                createSession: { execute },
+                oid4vpService: { createRequest },
+                presentationConfigService: {
+                    getPresentationConfigs: vi
+                        .fn()
+                        .mockResolvedValue([{ id: "pid" }]),
+                },
+            },
+        );
+
+        const response = await handle({
+            ...initialRequest,
+            interaction_types_supported: "openid4vp_presentation",
+            code_challenge: CODE_CHALLENGE,
+            code_challenge_method: "S256",
+        } as InteractiveAuthorizationRequestDto);
+
+        expect(response).toMatchObject({
+            status: "require_interaction",
+            type: "openid4vp_presentation",
+        });
+        const authSession = (response as { auth_session: string }).auth_session;
+        const [{ id: presentationSessionId }] = execute.mock.calls[0];
+        expect(presentationSessionId).not.toBe(authSession);
+        expect(authSessionRepository.updateForTenant).toHaveBeenCalledWith(
+            "tenant-1",
+            authSession,
+            { presentationSessionId },
+        );
+        expect(createRequest).toHaveBeenCalledWith(
+            "pid",
+            { session: presentationSessionId },
+            "tenant-1",
+            false,
+            "https://issuer.example",
+        );
+    });
+
+    it("creates no presentation request for an auth session that is gone", async () => {
+        const execute = vi.fn();
+        const createRequest = vi.fn();
+        const { handle, authSessionRepository } = interactiveAuthorization(
+            undefined,
+            {
+                createSession: { execute },
+                oid4vpService: { createRequest },
+                presentationConfigService: {
+                    getPresentationConfigs: vi
+                        .fn()
+                        .mockResolvedValue([{ id: "pid" }]),
+                },
+            },
+        );
+        authSessionRepository.updateForTenant.mockResolvedValue(false);
+
+        await expect(
+            handle({
+                ...initialRequest,
+                interaction_types_supported: "openid4vp_presentation",
+                code_challenge: CODE_CHALLENGE,
+                code_challenge_method: "S256",
+            } as InteractiveAuthorizationRequestDto),
+        ).resolves.toEqual({
+            error: "invalid_request",
+            error_description: "Invalid or expired auth_session",
+        });
+        expect(execute).not.toHaveBeenCalled();
+        expect(createRequest).not.toHaveBeenCalled();
+    });
+
+    it("looks up the step's verifier session by its own ID", async () => {
+        const getForTenant = presentation(
+            { status: "completed" },
+            { status: "completed" },
+        );
+        const { handle } = interactiveAuthorization(presentationStep, {
+            sessionStore: { getForTenant },
+            oid4vpService: { getResponse: vi.fn() },
+        });
+
+        await handle(presentationResponse('{"response":"jwe"}'));
+
+        expect(getForTenant).toHaveBeenCalledWith("tenant-1", "presentation-1");
+        expect(getForTenant).not.toHaveBeenCalledWith(
+            "tenant-1",
+            "auth-session",
+        );
+    });
+
+    it("does not let a verified presentation count for a later step", async () => {
+        const { handle, authSessionRepository } = interactiveAuthorization(
+            presentationStep,
+            {
+                sessionStore: {
+                    getForTenant: presentation(
+                        { status: "completed" },
+                        { status: "completed" },
+                    ),
+                },
+                oid4vpService: { getResponse: vi.fn() },
+            },
+        );
+
+        await handle(presentationResponse('{"response":"jwe"}'));
+
+        expect(authSessionRepository.update).toHaveBeenCalledWith(
+            "id-1",
+            expect.objectContaining({ presentationSessionId: null }),
+        );
+    });
+
+    it("gives a second presentation step a new verifier session", async () => {
+        const execute = vi.fn().mockResolvedValue(undefined);
+        const createRequest = vi.fn().mockResolvedValue({ uri: "request" });
+        const { handle, authSessionRepository } = interactiveAuthorization(
+            {
+                ...presentationStep,
+                iaeActions: JSON.stringify([
+                    {
+                        type: "openid4vp_presentation",
+                        presentationConfigId: "pid",
+                    },
+                    {
+                        type: "openid4vp_presentation",
+                        presentationConfigId: "address",
+                    },
+                ]),
+            },
+            {
+                sessionStore: {
+                    getForTenant: presentation(
+                        { status: "completed" },
+                        { status: "completed" },
+                    ),
+                },
+                oid4vpService: { getResponse: vi.fn(), createRequest },
+                createSession: { execute },
+            },
+        );
+
+        await expect(
+            handle(presentationResponse('{"response":"jwe"}')),
+        ).resolves.toMatchObject({
+            status: "require_interaction",
+            type: "openid4vp_presentation",
+        });
+        const [{ id: nextPresentationSessionId }] = execute.mock.calls[0];
+        expect(nextPresentationSessionId).not.toBe("presentation-1");
+        expect(nextPresentationSessionId).not.toBe("auth-session");
+        expect(authSessionRepository.updateForTenant).toHaveBeenCalledWith(
+            "tenant-1",
+            "auth-session",
+            { presentationSessionId: nextPresentationSessionId },
+        );
+        expect(createRequest).toHaveBeenCalledWith(
+            "address",
+            { session: nextPresentationSessionId },
+            "tenant-1",
+            false,
+            "https://issuer.example",
+        );
+    });
+
+    it("rejects a step whose presentation request was never created", async () => {
+        const getForTenant = vi.fn();
+        const { handle } = interactiveAuthorization(
+            { ...presentationStep, presentationSessionId: undefined },
+            { sessionStore: { getForTenant } },
+        );
+
+        await expect(
+            handle(presentationResponse('{"response":"jwe"}')),
+        ).resolves.toMatchObject({ error: "invalid_request" });
+        expect(getForTenant).not.toHaveBeenCalled();
+    });
 
     it("rejects a step without a presentation request", async () => {
         const { handle } = interactiveAuthorization(presentationStep, {

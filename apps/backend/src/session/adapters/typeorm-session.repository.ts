@@ -162,10 +162,14 @@ export class TypeOrmSessionRepository implements SessionRepository {
         return this.findSession({ id });
     }
     findForWalletRequest(walletNonce: string) {
-        // Never by session ID: the management API lists it and ISO 18013-7
-        // pages post with it. Never an issuance session: its wallet nonce is
-        // the offer's issuer_state.
-        return this.findSession({ walletNonce, ...typeWhere("presentation") });
+        // Never by session ID: the management API lists it. Never an issuance
+        // session (its wallet nonce is the offer's issuer_state) and never an
+        // ISO 18013-7 session, which only its own endpoint answers.
+        return this.findSession({
+            walletNonce,
+            dcApiProtocol: IsNull(),
+            ...typeWhere("presentation"),
+        });
     }
     findIssuanceForWalletReference(tenantId: string, reference: string) {
         return this.findSession({
@@ -174,8 +178,8 @@ export class TypeOrmSessionRepository implements SessionRepository {
             ...typeWhere("issuance"),
         });
     }
-    findIso18013Session(id: string) {
-        return this.findSession({ id, dcApiProtocol: "iso-18013-7" });
+    findIso18013Session(walletNonce: string) {
+        return this.findSession({ walletNonce, dcApiProtocol: "iso-18013-7" });
     }
     findByAuthorizationCode(tenantId: string, codeHash: string) {
         return this.findSession({ tenantId, authorization_code: codeHash });

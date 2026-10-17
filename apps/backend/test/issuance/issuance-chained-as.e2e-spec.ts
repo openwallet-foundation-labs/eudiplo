@@ -423,10 +423,29 @@ describe("Issuance - Chained AS Flow", () => {
             "urn:ietf:params:oauth:request_uri:",
             "",
         );
+        // `cas` is the verifier session ID, which the management API lists:
+        // calls without the response_code leave the authorization pending.
+        for (const query of [
+            { cas: sessionId, error: "access_denied" },
+            { cas: sessionId },
+        ]) {
+            await request(app.getHttpServer())
+                .get(`${path}/vp-callback`)
+                .query(query)
+                .trustLocalhost()
+                .redirects(0)
+                .expect(400);
+        }
         await sessionStore.updateForTenant("haip", sessionId, {
             status: SessionStatus.Completed,
             responseCode: "vp-response-code",
         });
+        await request(app.getHttpServer())
+            .get(`${path}/vp-callback`)
+            .query({ cas: sessionId, response_code: "guessed" })
+            .trustLocalhost()
+            .redirects(0)
+            .expect(400);
         const callbackResponse = await request(app.getHttpServer())
             .get(`${path}/vp-callback`)
             .query({ cas: sessionId, response_code: "vp-response-code" })

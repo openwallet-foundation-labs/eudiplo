@@ -141,6 +141,14 @@ export class InteractiveAuthSessionEntity implements InteractiveAuthSession {
     presentationData?: string;
 
     /**
+     * ID of the verifier session of the current OpenID4VP step. Differs from
+     * `authSession`, which the wallet uses as bearer value, because the
+     * management API lists session IDs.
+     */
+    @Column("varchar", { nullable: true })
+    presentationSessionId?: string | null;
+
+    /**
      * IAE actions configuration as JSON string.
      * Stores the list of actions to execute for this session.
      */
