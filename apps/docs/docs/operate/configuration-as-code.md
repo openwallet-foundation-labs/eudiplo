@@ -225,7 +225,9 @@ stored values, and before every `replace` import.
 bundle no longer contains. The plan blocks deleting a trust list that a
 configuration surviving the import still references, including a configuration
 created through the API or Web Client (`TRUST_LIST_IN_USE`, see
-[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). It needs
+[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)), and
+deleting a key chain that such a configuration names (`KEY_CHAIN_IN_USE`, see
+[Delete a key chain](../trust/keys-and-certificates.md#delete-a-key-chain)). It needs
 its own plan and an explicit confirmation:
 
 ```bash

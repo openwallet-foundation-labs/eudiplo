@@ -11,6 +11,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainResponseDto, CertificateInfoDto } from '@eudiplo/sdk-core';
 import { MatDialog } from '@angular/material/dialog';
+import { keyChainDeleteQuestion } from '../key-chain-delete-question';
 import { KeyChainService } from '../key-chain.service';
 import { Subscription } from 'rxjs';
 import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -45,6 +46,8 @@ import { openErrorSnackBar } from '../../utils/error-snackbar';
 })
 export class KeyManagementShowComponent implements OnInit, OnDestroy {
   keyChain?: KeyChainResponseDto;
+  /** True while a delete request runs, so it is not sent twice. */
+  deleting = false;
   /** Set when the key chain could not be loaded, instead of loading forever. */
   loadError = '';
   private requestedId = '';
@@ -206,20 +209,23 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
   }
 
   async deleteKey(): Promise<void> {
-    const displayName = this.description || this.keyId;
-    if (!confirm(`Delete key chain "${displayName}"? This cannot be undone.`)) {
+    const keyChain = this.keyChain;
+    if (!keyChain || this.deleting) return;
+    if (!confirm(keyChainDeleteQuestion(keyChain.id, this.description))) {
       return;
     }
 
+    this.deleting = true;
     try {
-      if (this.keyChain) {
-        await this.keyChainService.delete(this.keyChain.id);
-      }
+      await this.keyChainService.delete(keyChain.id);
       this.snackBar.open('Key chain deleted successfully', 'Close', { duration: 3000 });
       this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
+      // On a 409 the backend names the configurations that still use the key chain.
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete key chain'));
       console.error('Delete error:', error);
+    } finally {
+      this.deleting = false;
     }
   }
 
