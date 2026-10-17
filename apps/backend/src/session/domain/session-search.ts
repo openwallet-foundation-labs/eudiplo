@@ -37,8 +37,9 @@ export function uuidPrefixRange(prefix: string): [string, string] {
 
 /**
  * Interpret a pasted search term. A credential offer link resolves to the
- * session id or pre-authorized code it carries, an OID4VP request link to its
- * wallet nonce, and any other term is matched against all identifiers.
+ * wallet nonce (`issuer_state`, offer URI) or pre-authorized code it carries,
+ * an OID4VP request link to its wallet nonce, and any other term is matched
+ * against all identifiers.
  */
 export function parseSessionSearch(input: string): SessionSearch {
     const term = input.trim();
@@ -64,7 +65,7 @@ function parseLink(term: string): SessionSearch | undefined {
     const segments = target.pathname.split("/").filter(Boolean);
     const offerIndex = segments.lastIndexOf("credential-offers");
     if (offerIndex >= 0 && segments[offerIndex + 1])
-        return { idPrefix: exactId(segments[offerIndex + 1]) };
+        return { walletNonce: segments[offerIndex + 1] };
     const presentationIndex = segments.lastIndexOf("presentations");
     if (
         presentationIndex >= 0 &&
@@ -85,18 +86,10 @@ function fromOfferObject(value: string): SessionSearch | undefined {
     }
     const grants = (offer as { grants?: Record<string, any> } | null)?.grants;
     const issuerState = grants?.authorization_code?.issuer_state;
-    if (typeof issuerState === "string")
-        return { idPrefix: exactId(issuerState) };
+    if (typeof issuerState === "string") return { walletNonce: issuerState };
     const code = grants?.[PRE_AUTHORIZED_GRANT]?.["pre-authorized_code"];
     if (typeof code === "string") return { authorizationCode: code };
     return undefined;
-}
-
-/** A session id taken from a link must match in full, never as a prefix. */
-function exactId(value: string): string | undefined {
-    return value.length === UUID_TEMPLATE.length && isUuidPrefix(value)
-        ? value.toLowerCase()
-        : undefined;
 }
 
 function parseUrl(value: string): URL | undefined {

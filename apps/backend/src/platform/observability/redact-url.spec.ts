@@ -3,9 +3,9 @@ import type { AddressInfo } from "node:net";
 import { Writable } from "node:stream";
 import type { ConfigService } from "@nestjs/config";
 import { pinoHttp } from "pino-http";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createLoggerOptions } from "./logger.factory.js";
-import { redactUrl } from "./redact-url.js";
+import { redactSpanUrlPath, redactUrl, redactUrlPath } from "./redact-url.js";
 
 const CODE = "DEMO_PREAUTH_CODE";
 
@@ -23,8 +23,77 @@ describe("redactUrl", () => {
         ["/api/session?query=kept&aq=kept", "/api/session?query=kept&aq=kept"],
         ["/api/session", "/api/session"],
         ["/api/session?q=%E0%A4%A", "/api/session?q=[redacted]"],
+        [
+            "/issuers/t1/vci/credential-offers/nonce-1",
+            "/issuers/t1/vci/credential-offers/[redacted]",
+        ],
+        [
+            "/issuers/t1/vci/credential-offers/nonce-1?x=1",
+            "/issuers/t1/vci/credential-offers/[redacted]?x=1",
+        ],
+        ["/presentations/nonce-1/oid4vp", "/presentations/[redacted]/oid4vp"],
+        [
+            "/presentations/nonce-1/oid4vp/request/no-redirect",
+            "/presentations/[redacted]/oid4vp/request/no-redirect",
+        ],
+        [
+            "/presentations/nonce-1/iso-18013-7",
+            "/presentations/[redacted]/iso-18013-7",
+        ],
+        [
+            "/issuers/t1/authorize?client_id=w&issuer_state=s&request_uri=urn:x",
+            "/issuers/t1/authorize?client_id=w&issuer_state=[redacted]&request_uri=[redacted]",
+        ],
+        [
+            "/issuers/t1/authorization-servers/as/vp-callback?cas=c&response_code=r",
+            "/issuers/t1/authorization-servers/as/vp-callback?cas=c&response_code=[redacted]",
+        ],
+        [
+            "/issuers/t1/chained-as/callback?code=c&state=s",
+            "/issuers/t1/chained-as/callback?code=[redacted]&state=s",
+        ],
+        ["/presentations/nonce-1/other", "/presentations/nonce-1/other"],
+        [
+            "/api/presentations/nonce-1/oid4vp",
+            "/api/presentations/nonce-1/oid4vp",
+        ],
     ])("%s → %s", (url, expected) => {
         expect(redactUrl(url)).toBe(expected);
+    });
+
+    it("redacts the auth_session of the web step completion", () => {
+        expect(
+            redactUrl("/issuers/t1/authorize/interactive/complete-web-auth/a1"),
+        ).toBe(
+            "/issuers/t1/authorize/interactive/complete-web-auth/[redacted]",
+        );
+    });
+
+    it("redacts only the path for span attributes", () => {
+        expect(redactUrlPath("/presentations/n1/oid4vp?code=c")).toBe(
+            "/presentations/[redacted]/oid4vp?code=c",
+        );
+        expect(redactUrlPath("/api/session")).toBe("/api/session");
+    });
+
+    it("replaces wallet references in the url.path span attribute", () => {
+        const setAttribute = vi.fn();
+        redactSpanUrlPath(
+            { setAttribute },
+            { url: "/presentations/n1/oid4vp?x=1" },
+        );
+        expect(setAttribute).toHaveBeenCalledExactlyOnceWith(
+            "url.path",
+            "/presentations/[redacted]/oid4vp",
+        );
+
+        setAttribute.mockClear();
+        redactSpanUrlPath({ setAttribute }, { url: "/api/session" });
+        redactSpanUrlPath(
+            { setAttribute },
+            { path: "/presentations/n1/oid4vp" },
+        );
+        expect(setAttribute).not.toHaveBeenCalled();
     });
 
     it("leaves an absent URL absent", () => {
@@ -32,7 +101,7 @@ describe("redactUrl", () => {
     });
 });
 
-describe("HTTP logging of the session search", () => {
+describe("HTTP logging of the session search and wallet references", () => {
     let server: Server | undefined;
 
     afterEach(() => {
@@ -117,5 +186,23 @@ describe("HTTP logging of the session search", () => {
         );
         expect(lines.join("\n")).not.toContain(CODE);
         expect(lines.join("\n")).not.toContain("pre-authorized_code");
+    });
+
+    it("never logs a wallet reference from the path", async () => {
+        const nonce = "WALLET_NONCE_VALUE";
+        const lines = await logsOf([
+            `/issuers/t1/vci/credential-offers/${nonce}`,
+            `/presentations/${nonce}/oid4vp/request`,
+            `/presentations/${nonce}/iso-18013-7`,
+        ]);
+
+        const parsed = lines.map((line) => JSON.parse(line));
+        expect(parsed.map((line) => line.msg)).toContain(
+            "--> GET /presentations/[redacted]/iso-18013-7",
+        );
+        expect(parsed.map((line) => line.req?.url)).toContain(
+            "/issuers/t1/vci/credential-offers/[redacted]",
+        );
+        expect(lines.join("\n")).not.toContain(nonce);
     });
 });

@@ -47,7 +47,7 @@ export class PushAuthorizationRequest {
         private readonly servers: OAuthAuthorizationServerFactory,
         private readonly sessions: Pick<
             SessionStore,
-            "getForTenant" | "updateForTenant"
+            "getIssuanceForWalletReference" | "updateForTenant"
         >,
         private readonly createSession: Pick<CreateSession, "execute">,
         private readonly configuration: BuiltInAuthorizationServerConfiguration,
@@ -121,7 +121,7 @@ export class PushAuthorizationRequest {
         // An issuer_state names the offer this request redeems.
         const offerSession = body.issuer_state
             ? await this.sessions
-                  .getForTenant(tenantId, body.issuer_state)
+                  .getIssuanceForWalletReference(tenantId, body.issuer_state)
                   .catch((error: unknown) => {
                       if (error instanceof SessionNotFound) return undefined;
                       throw error;
@@ -143,10 +143,10 @@ export class PushAuthorizationRequest {
 
         // A PAR request without a known issuer_state session (wallet-initiated
         // flow) gets a dedicated session for the authorization endpoint.
-        const bound = body.issuer_state
+        const bound = offerSession
             ? await this.sessions.updateForTenant(
                   tenantId,
-                  body.issuer_state,
+                  offerSession.id,
                   parValues,
               )
             : false;

@@ -19,6 +19,8 @@ import { AddAccessKeyChainIdToSession1784900000000 } from "../src/database/migra
 import { AddWalletAttestationStatusCheckMode1785000000000 } from "../src/database/migrations/1785000000000-AddWalletAttestationStatusCheckMode.js";
 import { AddCancelReasonToSession1785100000000 } from "../src/database/migrations/1785100000000-AddCancelReasonToSession.js";
 import { AddRelyingPartyContactToRegistrarConfig1785200000000 } from "../src/database/migrations/1785200000000-AddRelyingPartyContactToRegistrarConfig.js";
+import { BackfillIssuanceWalletNonce1785300000000 } from "../src/database/migrations/1785300000000-BackfillIssuanceWalletNonce.js";
+import { SeparatePresentationWalletReferences1785400000000 } from "../src/database/migrations/1785400000000-SeparatePresentationWalletReferences.js";
 import { describeWithContainers } from "./container-runtime.js";
 import {
     addTokensValidAfterContract,
@@ -1462,6 +1464,299 @@ describe("Migration tests", () => {
                     dataSource,
                     driftAfterSynchronize,
                 );
+            });
+        });
+    });
+
+    describe("BackfillIssuanceWalletNonce1785300000000", () => {
+        const migration = new BackfillIssuanceWalletNonce1785300000000();
+        const issuance = "00000000-0000-4000-8000-000000000001";
+        const presentation = "00000000-0000-4000-8000-000000000002";
+        const withNonce = "00000000-0000-4000-8000-000000000003";
+        /** Session of a wallet-initiated authorization request: no offer. */
+        const walletInitiated = "00000000-0000-4000-8000-000000000004";
+
+        async function sessionsBefore(
+            options:
+                | { type: "better-sqlite3"; database: string }
+                | { type: "postgres"; url: string },
+        ): Promise<DataSource> {
+            const [
+                { Session },
+                { SessionLogEntry },
+                { TenantEntity },
+                { ClientEntity },
+            ] = await Promise.all([
+                import("../src/session/entities/session.entity.js"),
+                import("../src/session/entities/session-log-entry.entity.js"),
+                import("../src/auth/tenant/entities/tenant.entity.js"),
+                import("../src/auth/client/entities/client.entity.js"),
+            ]);
+            const dataSource = new DataSource({
+                ...options,
+                entities: [
+                    Session,
+                    SessionLogEntry,
+                    TenantEntity,
+                    ClientEntity,
+                ],
+                synchronize: true,
+                logging: false,
+            });
+            await dataSource.initialize();
+            await dataSource.query(
+                `INSERT INTO "tenant_entity" ("id", "name") VALUES ('t', 't')`,
+            );
+            for (const [id, requestId, walletNonce] of [
+                [issuance, null, null],
+                [presentation, "age-check", null],
+                [withNonce, null, "random-nonce"],
+                [walletInitiated, null, null],
+            ]) {
+                await dataSource.getRepository(Session).insert({
+                    id: id as string,
+                    tenantId: "t",
+                    requestId: requestId ?? undefined,
+                    walletNonce: walletNonce ?? undefined,
+                } as never);
+            }
+            // The offer request is encrypted at rest; any value marks an offer.
+            await dataSource.query(
+                `UPDATE "session" SET "credentialPayload" = 'offer' WHERE "id" IN ('${issuance}', '${withNonce}')`,
+            );
+            return dataSource;
+        }
+
+        async function expectBackfilledAndReversible(dataSource: DataSource) {
+            const nonces = async () =>
+                Object.fromEntries(
+                    (
+                        (await dataSource.query(
+                            `SELECT "id", "walletNonce" FROM "session"`,
+                        )) as { id: string; walletNonce: string | null }[]
+                    ).map((row) => [row.id, row.walletNonce]),
+                );
+            const queryRunner = dataSource.createQueryRunner();
+            await migration.up(queryRunner);
+            await migration.up(queryRunner);
+            // Only offers without a wallet reference get their ID; presentation
+            // and wallet-initiated sessions are never found by it.
+            expect(await nonces()).toEqual({
+                [issuance]: issuance,
+                [presentation]: null,
+                [withNonce]: "random-nonce",
+                [walletInitiated]: null,
+            });
+
+            await migration.down(queryRunner);
+            expect(await nonces()).toEqual({
+                [issuance]: null,
+                [presentation]: null,
+                [withNonce]: "random-nonce",
+                [walletInitiated]: null,
+            });
+            await queryRunner.release();
+        }
+
+        describe("SQLite", () => {
+            let dataSource: DataSource;
+            let tmpDir: string;
+
+            beforeAll(async () => {
+                tmpDir = mkdtempSync(join(tmpdir(), "eudiplo-migration-test-"));
+                dataSource = await sessionsBefore({
+                    type: "better-sqlite3",
+                    database: join(tmpDir, "test.db"),
+                });
+            }, 30_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                if (tmpDir) rmSync(tmpDir, { recursive: true, force: true });
+            });
+
+            test("gives issuance sessions their ID as wallet reference, is idempotent and reversible", async () => {
+                await expectBackfilledAndReversible(dataSource);
+            });
+        });
+
+        describeWithContainers("PostgreSQL", () => {
+            let dataSource: DataSource;
+            let postgresContainer: StartedPostgreSqlContainer;
+
+            beforeAll(async () => {
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                ).start();
+                dataSource = await sessionsBefore({
+                    type: "postgres",
+                    url: postgresContainer.getConnectionUri(),
+                });
+            }, 60_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                await postgresContainer?.stop();
+            });
+
+            test("gives issuance sessions their ID as wallet reference, is idempotent and reversible", async () => {
+                await expectBackfilledAndReversible(dataSource);
+            });
+        });
+    });
+
+    describe("SeparatePresentationWalletReferences1785400000000", () => {
+        const migration =
+            new SeparatePresentationWalletReferences1785400000000();
+        const iso = "00000000-0000-4000-8000-000000000011";
+        const isoWithNonce = "00000000-0000-4000-8000-000000000012";
+        const oid4vp = "00000000-0000-4000-8000-000000000013";
+        const authSession = "00000000-0000-4000-8000-000000000014";
+        const authSessionRow = "00000000-0000-4000-8000-000000000015";
+
+        async function sessionsBefore(
+            options:
+                | { type: "better-sqlite3"; database: string }
+                | { type: "postgres"; url: string },
+        ): Promise<DataSource> {
+            const [
+                { Session },
+                { SessionLogEntry },
+                { TenantEntity },
+                { ClientEntity },
+                { InteractiveAuthSessionEntity },
+            ] = await Promise.all([
+                import("../src/session/entities/session.entity.js"),
+                import("../src/session/entities/session-log-entry.entity.js"),
+                import("../src/auth/tenant/entities/tenant.entity.js"),
+                import("../src/auth/client/entities/client.entity.js"),
+                import(
+                    "../src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.js"
+                ),
+            ]);
+            const dataSource = new DataSource({
+                ...options,
+                entities: [
+                    Session,
+                    SessionLogEntry,
+                    TenantEntity,
+                    ClientEntity,
+                    InteractiveAuthSessionEntity,
+                ],
+                synchronize: true,
+                logging: false,
+            });
+            await dataSource.initialize();
+            const queryRunner = dataSource.createQueryRunner();
+            await queryRunner.dropColumn(
+                "interactive_auth_session",
+                "presentationSessionId",
+            );
+            await queryRunner.release();
+            await dataSource.query(
+                `INSERT INTO "tenant_entity" ("id", "name") VALUES ('t', 't')`,
+            );
+            for (const [id, dcApiProtocol, walletNonce] of [
+                [iso, "iso-18013-7", null],
+                [isoWithNonce, "iso-18013-7", "random-nonce"],
+                [oid4vp, null, null],
+            ]) {
+                await dataSource.getRepository(Session).insert({
+                    id: id as string,
+                    tenantId: "t",
+                    requestId: "age-check",
+                    dcApiProtocol: dcApiProtocol ?? undefined,
+                    walletNonce: walletNonce ?? undefined,
+                } as never);
+            }
+            await dataSource.query(
+                `INSERT INTO "interactive_auth_session" ("id", "authSession", "tenantId", "clientId", "interactionTypesSupported", "status", "currentStepIndex", "expiresAt", "createdAt", "updatedAt") VALUES ('${authSessionRow}', '${authSession}', 't', 'wallet', 'openid4vp_presentation', 'pending', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+            );
+            return dataSource;
+        }
+
+        async function expectBackfilledAndReversible(dataSource: DataSource) {
+            const nonces = async () =>
+                Object.fromEntries(
+                    (
+                        (await dataSource.query(
+                            `SELECT "id", "walletNonce" FROM "session"`,
+                        )) as { id: string; walletNonce: string | null }[]
+                    ).map((row) => [row.id, row.walletNonce]),
+                );
+            const queryRunner = dataSource.createQueryRunner();
+            await migration.up(queryRunner);
+            await migration.up(queryRunner);
+            // Only ISO 18013-7 sessions without a wallet nonce get their ID.
+            expect(await nonces()).toEqual({
+                [iso]: iso,
+                [isoWithNonce]: "random-nonce",
+                [oid4vp]: null,
+            });
+            // The verifier session of an open step has the auth_session as ID.
+            expect(
+                await dataSource.query(
+                    `SELECT "presentationSessionId" FROM "interactive_auth_session"`,
+                ),
+            ).toEqual([{ presentationSessionId: authSession }]);
+
+            await migration.down(queryRunner);
+            expect(await nonces()).toEqual({
+                [iso]: null,
+                [isoWithNonce]: "random-nonce",
+                [oid4vp]: null,
+            });
+            expect(
+                (
+                    await queryRunner.getTable("interactive_auth_session")
+                )?.findColumnByName("presentationSessionId"),
+            ).toBeUndefined();
+            await queryRunner.release();
+        }
+
+        describe("SQLite", () => {
+            let dataSource: DataSource;
+            let tmpDir: string;
+
+            beforeAll(async () => {
+                tmpDir = mkdtempSync(join(tmpdir(), "eudiplo-migration-test-"));
+                dataSource = await sessionsBefore({
+                    type: "better-sqlite3",
+                    database: join(tmpDir, "test.db"),
+                });
+            }, 30_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                if (tmpDir) rmSync(tmpDir, { recursive: true, force: true });
+            });
+
+            test("backfills ISO 18013-7 nonces and step session IDs, is idempotent and reversible", async () => {
+                await expectBackfilledAndReversible(dataSource);
+            });
+        });
+
+        describeWithContainers("PostgreSQL", () => {
+            let dataSource: DataSource;
+            let postgresContainer: StartedPostgreSqlContainer;
+
+            beforeAll(async () => {
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                ).start();
+                dataSource = await sessionsBefore({
+                    type: "postgres",
+                    url: postgresContainer.getConnectionUri(),
+                });
+            }, 60_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                await postgresContainer?.stop();
+            });
+
+            test("backfills ISO 18013-7 nonces and step session IDs, is idempotent and reversible", async () => {
+                await expectBackfilledAndReversible(dataSource);
             });
         });
     });

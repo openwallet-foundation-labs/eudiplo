@@ -49,7 +49,7 @@ describe("ResolveExternalAuthorizationSession", () => {
             externalIssuer: "issuer",
             externalSubject: "subject",
             authorizationServerId: "server",
-            sessionId: "id",
+            walletReference: "id",
         });
     });
     it("preserves the missing-session message and propagates storage failures", async () => {
