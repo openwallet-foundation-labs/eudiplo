@@ -56,6 +56,8 @@ Two more values bind the response to the request:
 
 Without the `response_code`, an attacker could start a request at your site, send its link to a victim, and pick up the victim's verified result in the attacker's own browser session. With it, only the browser that the victim's wallet redirected can claim the result, and a session completes once, so it has exactly one code.
 
+An issuance session has a `walletNonce` as well (since 10.0). It is the last path segment of the `credential_offer_uri` and, in the authorization code flow, the offer's `issuer_state`, which an external authorization server copies into its access tokens. The issuer endpoints and authorization servers do not accept the session ID in its place. Offers created before 10.0 keep their session ID as `walletNonce`.
+
 ISO 18013-7 responses are posted by your own page with the session ID, so these values do not apply there. How to implement the check is described in [Receive results](../presentation/receive-results.md); the specification text is in [OID4VP §13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-session-identifier-separati).
 
 ## Cancelling an offer
@@ -110,7 +112,7 @@ GET /api/session?type=presentation&status=failed&createdFrom=2026-10-02T08:00:00
 `q` takes whatever identifier you have at hand, for example from a log line, a support request or a screenshot of a QR code:
 
 - a session ID or its beginning,
-- the `walletNonce` of a presentation,
+- the `walletNonce` of a presentation or offer (the offer's `issuer_state`),
 - a pre-authorized code,
 - the `reference` set when the offer or request was created,
 - a pasted link: a credential offer link (by reference or by value) finds its session, an OID4VP request link (`openid4vp://?…request_uri=…`) finds the session of its `walletNonce`.

@@ -37,7 +37,7 @@ export interface ChainedAsSessionRepository {
         tenantId: string,
         refreshTokenHash: string,
     ): Promise<ChainedAsSession | null>;
-    /** Session of the tenant's issuance session with this `issuer_state`. */
+    /** Session that authorizes the tenant's issuance session with this ID (stored as `issuerState`). */
     findByIssuerState(
         tenantId: string,
         issuerState: string,

@@ -13,7 +13,6 @@ import { KeyChainService } from "../../../../../crypto/key/key-chain.service.js"
 import { CreateSession } from "../../../../../session/application/create-session.js";
 import { SessionStore } from "../../../../../session/application/session-store.js";
 import { SessionStatus } from "../../../../../session/domain/session-state.js";
-import { assertSessionUsable } from "../../../../../session/domain/session-usability.js";
 import { WalletAttestationService } from "../../../../../trust/wallet-attestation.service.js";
 import { Oid4vpService } from "../../../../../verifier/oid4vp/oid4vp.service.js";
 import type { TrustListRef } from "../../../../../verifier/presentations/entities/presentation-config.entity.js";
@@ -29,6 +28,10 @@ import {
     DPOP_PROOF_REPLAY_REGISTRY,
     type DpopProofReplayRegistry,
 } from "../../ports/dpop-proof-replay-registry.js";
+import {
+    InvalidIssuerState,
+    ResolveIssuerState,
+} from "../application/resolve-issuer-state.js";
 import { verifyClientAttestation } from "../domain/client-attestation.js";
 import {
     hashAuthorizationCode,
@@ -309,15 +312,17 @@ export class AuthorizationServersService {
             throw toOAuthHttpError(error, this.logger);
         });
 
-        let issuerState = request.issuer_state;
-        if (issuerState) {
+        // The offer's session ID correlates the authorization with the offer.
+        let issuerState: string;
+        if (request.issuer_state) {
             try {
-                assertSessionUsable(
-                    await this.sessionStore.getForTenant(tenantId, issuerState),
-                    new Date(),
-                );
-            } catch {
-                throw new BadRequestException("Invalid issuer_state");
+                issuerState = await new ResolveIssuerState(
+                    this.sessionStore,
+                ).execute(tenantId, request.issuer_state);
+            } catch (error) {
+                if (error instanceof InvalidIssuerState)
+                    throw new BadRequestException(error.message);
+                throw error;
             }
         } else {
             issuerState = v4();

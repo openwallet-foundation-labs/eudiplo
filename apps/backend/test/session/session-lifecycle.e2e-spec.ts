@@ -320,8 +320,10 @@ describe("session lifecycle module wiring", () => {
         const createSession = app.get(CreateSession);
         const sessionStore = app.get(SessionStore);
         const id = randomUUID();
+        const walletNonce = randomUUID();
         await createSession.execute({
             id,
+            walletNonce,
             tenantId: "tenant-a",
             authorizationServerId: "external",
             authorization_code: "module-code",
@@ -365,8 +367,9 @@ describe("session lifecycle module wiring", () => {
                     "issuer",
                     "subject",
                     "external",
-                    "session_id",
-                    id,
+                    "issuer_state",
+                    // External tokens carry the offer's wallet reference.
+                    walletNonce,
                 );
             expect(bound.externalSubject).toBeNull();
             expect(

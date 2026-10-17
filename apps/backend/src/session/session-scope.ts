@@ -41,8 +41,9 @@ export function mayChangeSessions(
 /**
  * The session types a client reads through `sessions:read` but may not
  * change (see {@link mayChangeSessions}): their sessions that are still open
- * for a wallet are hidden from it, since the session ID lets a wallet redeem
- * or answer them, and the others come without those values. Empty without
+ * for a wallet are hidden from it, since the session ID of an ISO 18013-7
+ * request or of an offer created before 10.0 lets a wallet answer or redeem
+ * it, and the others come without those values. Empty without
  * `sessions:read`, so other role sets read as before.
  */
 export function readOnlySessionTypes(token: TokenPayload): SessionType[] {

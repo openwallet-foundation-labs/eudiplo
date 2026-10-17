@@ -27,6 +27,7 @@ export const SESSION_REPOSITORY = Symbol("SESSION_REPOSITORY");
 
 /** The offer view is deliberately independent of the persisted Session entity. */
 export interface SessionCredentialOffer {
+    id: string;
     offer: CredentialOfferObject | null;
     status: SessionStatus;
     expiresAt?: Date;
@@ -77,8 +78,17 @@ export interface SessionRepository {
     ): Promise<boolean>;
     /** Internal flow correlation only; never use an untrusted management request ID. */
     findByIdForInternalFlow(id: string): Promise<SessionData | null>;
-    /** The session of a wallet-facing OID4VP nonce; never by session ID. */
+    /** The presentation session of a wallet-facing OID4VP nonce; never by session ID. */
     findForWalletRequest(nonce: string): Promise<SessionData | null>;
+    /**
+     * The issuance session of a wallet reference (`walletNonce`): the value of
+     * `issuer_state`, the `credential_offer_uri` and external token bindings.
+     * Never by session ID.
+     */
+    findIssuanceForWalletReference(
+        tenantId: string,
+        reference: string,
+    ): Promise<SessionData | null>;
     findIso18013Session(id: string): Promise<SessionData | null>;
     /** Session holding this code hash (only the hash of a code is stored). */
     findByAuthorizationCode(
@@ -188,9 +198,10 @@ export interface SessionRepository {
         update: SessionStateUpdate & SessionResultUpdate,
     ): Promise<boolean>;
 
+    /** The offer of the issuance session with this wallet reference. */
     findCredentialOffer(
         tenantId: string,
-        sessionId: string,
+        walletReference: string,
     ): Promise<SessionCredentialOffer | null>;
 
     /**

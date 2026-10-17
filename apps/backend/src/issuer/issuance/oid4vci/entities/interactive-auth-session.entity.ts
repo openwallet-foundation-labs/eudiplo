@@ -81,8 +81,8 @@ export class InteractiveAuthSessionEntity implements InteractiveAuthSession {
     codeChallengeMethod?: string;
 
     /**
-     * Issuer state from credential offer, if provided.
-     * Links this IAE session to a credential offer session.
+     * ID of the credential offer session that the request's `issuer_state`
+     * names, if provided (not the `issuer_state` itself).
      */
     @Column("varchar", { nullable: true })
     issuerState?: string;

@@ -261,9 +261,10 @@ export class Session {
     accessKeyChainId?: string;
 
     /**
-     * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
-     * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
-     * from the frontend-facing session ID (transaction-id) to prevent session fixation.
+     * Cryptographic random nonce with which the wallet names the session instead of its ID.
+     * Presentations use it in request_uri, response_uri and state (OID4VP Section 13.3:
+     * request-id separate from the transaction-id); issuance offers in the credential_offer_uri
+     * and as issuer_state. Issuance sessions created before 10.0 have their ID as walletNonce.
      */
     @Column("varchar", { nullable: true })
     walletNonce?: string;
