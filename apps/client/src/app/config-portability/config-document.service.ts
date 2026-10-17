@@ -55,10 +55,7 @@ export class ConfigDocumentService {
     downloadJsonFile(result.data, `${id}.json`);
     const placeholders = [
       ...new Set(
-        Array.from(
-          JSON.stringify(result.data).matchAll(/\$\{([A-Za-z0-9_]+)\}/g),
-          ([, name]) => name
-        )
+        Array.from(JSON.stringify(result.data).matchAll(/\$\{(\w+)\}/g), ([, name]) => name)
       ),
     ];
     return placeholders.length

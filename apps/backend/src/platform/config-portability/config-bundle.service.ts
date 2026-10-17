@@ -1328,9 +1328,31 @@ export class ConfigBundleService {
         privateKeys = false,
     ): Record<string, unknown> {
         const internal = keyChain.hasInternalCa();
-        let keySource: Record<string, unknown>;
+        const keySource = this.keyChainKeySource(keyChain, privateKeys);
+        return {
+            id: keyChain.id,
+            ...keyChainSettingsSpec(keyChain),
+            usageType: keyChain.usageType,
+            kmsProvider: keyChain.kmsProvider,
+            keySource,
+            crt: [
+                internal
+                    ? keyChain.rootCertificate
+                    : keyChain.activeCertificate,
+            ],
+            activeCertificate: internal
+                ? keyChain.activeCertificate
+                : undefined,
+        };
+    }
+
+    private keyChainKeySource(
+        keyChain: KeyChainEntity,
+        privateKeys: boolean,
+    ): Record<string, unknown> {
+        const internal = keyChain.hasInternalCa();
         if (keyChain.externalKeyId) {
-            keySource = {
+            return {
                 type: "external-reference",
                 provider: keyChain.kmsProvider,
                 externalKeyId: internal
@@ -1346,34 +1368,19 @@ export class ConfigBundleService {
                       }
                     : {}),
             };
-        } else if (privateKeys) {
-            keySource = {
+        }
+        if (privateKeys) {
+            return {
                 type: "private-jwk",
                 jwk: internal ? keyChain.rootJwk : keyChain.activeJwk,
                 ...(internal ? { activeJwk: keyChain.activeJwk } : {}),
             };
-        } else {
-            keySource = {
-                type: "required",
-                publicJwk: this.toPublicJwk(
-                    internal ? keyChain.rootJwk : keyChain.activeJwk,
-                ),
-            };
         }
         return {
-            id: keyChain.id,
-            ...keyChainSettingsSpec(keyChain),
-            usageType: keyChain.usageType,
-            kmsProvider: keyChain.kmsProvider,
-            keySource,
-            crt: [
-                internal
-                    ? keyChain.rootCertificate
-                    : keyChain.activeCertificate,
-            ],
-            activeCertificate: internal
-                ? keyChain.activeCertificate
-                : undefined,
+            type: "required",
+            publicJwk: this.toPublicJwk(
+                internal ? keyChain.rootJwk : keyChain.activeJwk,
+            ),
         };
     }
 
