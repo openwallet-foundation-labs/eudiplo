@@ -1,9 +1,12 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import type { Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { hasRootCredentials, resolvedE2EConfig } from './support/e2e-config';
 import { loginWithClientCredentials } from './support/login';
 import { createTenant } from './support/tenants';
+import { createKeyChain } from './support/key-chains';
+import { createTrustList } from './support/trust-lists';
 
 // "Download configuration" on a detail page saves the resource as a configuration document
 // ($schema and spec), the file format of the config folder, so the file imports again
@@ -56,6 +59,15 @@ test.beforeEach(() => {
   );
 });
 
+/** Plans the downloaded file on the import screen, which takes it as it is. */
+async function expectImportsUnchanged(page: Page, file: string) {
+  await page.goto('/settings/config-portability');
+  await page.locator('#bundleInput').setInputFiles(file);
+  await page.getByRole('button', { name: 'Plan and validate' }).click();
+  await expect(page.getByText('Ready to apply')).toBeVisible();
+  await expect(page.locator('mat-chip').filter({ hasText: 'unchanged' })).toHaveCount(1);
+}
+
 test('downloads a webhook endpoint as a document that imports unchanged', async ({ page }) => {
   const tenant = await createTenant('document-download-e2e', 'Document Download E2E', [
     'tenant:admin',
@@ -92,12 +104,7 @@ test('downloads a webhook endpoint as a document that imports unchanged', async 
   });
   await expect(page.getByText('Configuration downloaded')).toBeVisible();
 
-  // The import screen takes the downloaded file as it is.
-  await page.goto('/settings/config-portability');
-  await page.locator('#bundleInput').setInputFiles(await download.path());
-  await page.getByRole('button', { name: 'Plan and validate' }).click();
-  await expect(page.getByText('Ready to apply')).toBeVisible();
-  await expect(page.locator('mat-chip').filter({ hasText: 'unchanged' })).toHaveCount(1);
+  await expectImportsUnchanged(page, await download.path());
 
   const plan = await fetch(`${api}/api/config-bundles/plan?mode=upsert`, {
     method: 'POST',
@@ -108,4 +115,57 @@ test('downloads a webhook endpoint as a document that imports unchanged', async 
   expect((await plan.json()).items.map((item: { action: string }) => item.action)).toEqual([
     'unchanged',
   ]);
+});
+
+test('downloads a key chain with its private key as a document that imports unchanged', async ({
+  page,
+}) => {
+  const tenant = await createTenant('key-download-e2e', 'Key Download E2E', [
+    'tenant:admin',
+    'issuance:manage',
+  ]);
+  const keyChainId = await createKeyChain(tenant.token, 'attestation', 'Download E2E');
+
+  await loginWithClientCredentials(page, tenant.clientId, tenant.clientSecret);
+  await page.goto(`/keys/${keyChainId}`);
+  const downloading = page.waitForEvent('download');
+  await page
+    .getByRole('button', { name: 'Download configuration (includes the private key)' })
+    .click();
+  const download = await downloading;
+
+  expect(download.suggestedFilename()).toBe(`${keyChainId}.json`);
+  const document = JSON.parse(await readFile(await download.path(), 'utf8')) as ConfigDocument;
+  expect(document.$schema).toMatch(/\/KeyChainConfigFile\.schema\.json$/);
+  expect(document.spec).toMatchObject({ id: keyChainId, keySource: { type: 'private-jwk' } });
+  await expect(page.getByText('Configuration downloaded')).toBeVisible();
+
+  await expectImportsUnchanged(page, await download.path());
+});
+
+test('downloads a trust list from the list as a document that imports unchanged', async ({
+  page,
+}) => {
+  const tenant = await createTenant('trust-download-e2e', 'Trust Download E2E', [
+    'tenant:admin',
+    'issuance:manage',
+  ]);
+  const trustListId = 'members';
+  await createTrustList(tenant.token, trustListId, 'Membership issuers');
+
+  await loginWithClientCredentials(page, tenant.clientId, tenant.clientSecret);
+  await page.goto('/trust-list');
+  const downloading = page.waitForEvent('download');
+  await page
+    .getByRole('button', { name: `Download the configuration of trust list ${trustListId}` })
+    .click();
+  const download = await downloading;
+
+  expect(download.suggestedFilename()).toBe(`${trustListId}.json`);
+  const document = JSON.parse(await readFile(await download.path(), 'utf8')) as ConfigDocument;
+  expect(document.$schema).toMatch(/\/TrustListConfigFile\.schema\.json$/);
+  expect(document.spec).toMatchObject({ id: trustListId, description: 'Membership issuers' });
+  await expect(page.getByText('Configuration downloaded')).toBeVisible();
+
+  await expectImportsUnchanged(page, await download.path());
 });

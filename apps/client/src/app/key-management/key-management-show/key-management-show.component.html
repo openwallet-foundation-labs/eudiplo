@@ -32,12 +32,15 @@
         <button mat-icon-button (click)="viewAsJson()" matTooltip="View as JSON">
           <mat-icon>code</mat-icon>
         </button>
-        @if (canExport) {
+        @if (canDownloadConfig) {
           <button
             mat-icon-button
-            (click)="exportKeyChain()"
-            matTooltip="Export as config JSON (includes the private key)"
-            aria-label="Export as config JSON (includes the private key)"
+            (click)="downloadConfig()"
+            [disabled]="downloadingConfig"
+            [attr.aria-busy]="downloadingConfig"
+            disabledInteractive
+            matTooltip="Download configuration (includes the private key)"
+            aria-label="Download configuration (includes the private key)"
           >
             <mat-icon>download</mat-icon>
           </button>

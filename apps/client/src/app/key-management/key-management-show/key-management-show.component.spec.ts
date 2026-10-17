@@ -1,9 +1,11 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import type { KeyChainResponseDto } from '@eudiplo/sdk-core';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { renderDownloadButton } from '../../config-portability/config-document.testing';
+import { KeyChainService } from '../key-chain.service';
 import { KeyManagementShowComponent } from './key-management-show.component';
 
 describe('KeyManagementShowComponent', () => {
@@ -49,92 +51,104 @@ describe('KeyManagementShowComponent', () => {
   });
 });
 
-describe('KeyManagementShowComponent key export', () => {
+describe('KeyManagementShowComponent configuration download', () => {
   const keyChain = { id: 'key', usageType: 'attestation' } as KeyChainResponseDto;
-  let keyChainService: { downloadConfig: ReturnType<typeof vi.fn> };
-  let snackBar: { open: ReturnType<typeof vi.fn> };
+  let configDocuments: {
+    canDownload: ReturnType<typeof vi.fn>;
+    downloadWithFeedback: ReturnType<typeof vi.fn>;
+  };
   let dialog: { open: ReturnType<typeof vi.fn> };
-  let roles: string[];
 
   function create(): KeyManagementShowComponent {
     const component = new KeyManagementShowComponent(
-      keyChainService as never,
       {} as never,
-      snackBar as never,
+      {} as never,
+      {} as never,
       {} as never,
       dialog as never,
-      { hasRole: (role: string[]) => role.some((r) => roles.includes(r)) } as never,
-      {} as never
+      {} as never,
+      {} as never,
+      configDocuments as never
     );
     component.keyChain = keyChain;
     return component;
   }
 
   beforeEach(() => {
-    keyChainService = { downloadConfig: vi.fn() };
-    snackBar = { open: vi.fn() };
+    configDocuments = {
+      canDownload: vi.fn().mockReturnValue(true),
+      downloadWithFeedback: vi.fn().mockResolvedValue(undefined),
+    };
     dialog = { open: vi.fn() };
-    roles = [];
   });
 
-  it('does not offer the export without the tenant:admin or tenants:manage role', async () => {
-    roles = ['issuance:manage', 'presentation:manage'];
-    const component = create();
+  it('asks the configuration document service whether key chains may be downloaded', () => {
+    configDocuments.canDownload.mockReturnValue(false);
 
-    expect(component.canExport).toBe(false);
-    await component.exportKeyChain();
-
-    expect(keyChainService.downloadConfig).not.toHaveBeenCalled();
-    expect(snackBar.open.mock.lastCall?.[0]).toContain('tenant:admin');
+    expect(create().canDownloadConfig).toBe(false);
+    expect(configDocuments.canDownload).toHaveBeenCalledWith('KeyChain');
   });
 
   it('downloads the configuration document of the key chain', async () => {
-    roles = ['tenant:admin'];
-    keyChainService.downloadConfig.mockResolvedValue(undefined);
+    await create().downloadConfig();
 
-    await create().exportKeyChain();
-
-    expect(keyChainService.downloadConfig).toHaveBeenCalledWith('key');
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Key chain exported');
+    expect(configDocuments.downloadWithFeedback).toHaveBeenCalledWith('KeyChain', 'key');
   });
 
-  it.each(['tenant:admin', 'tenants:manage'])('offers the export with %s', (role) => {
-    roles = [role];
-
-    expect(create().canExport).toBe(true);
-  });
-
-  it('explains a rejected export', async () => {
-    roles = ['tenant:admin'];
-    keyChainService.downloadConfig.mockRejectedValue({
-      statusCode: 403,
-      message: 'Forbidden resource',
-    });
-
-    await create().exportKeyChain();
-
-    expect(snackBar.open.mock.lastCall?.[0]).toContain('tenant:admin');
-  });
-
-  it("shows the backend's reason when the export fails for another reason", async () => {
-    roles = ['tenant:admin'];
-    keyChainService.downloadConfig.mockRejectedValue({
-      statusCode: 404,
-      message: 'Key chain not found',
-    });
-
-    await create().exportKeyChain();
-
-    expect(snackBar.open.mock.lastCall?.[0]).toBe(
-      'Failed to export key chain: Key chain not found'
-    );
-  });
-
-  it('shows the public key chain as JSON without calling the export', () => {
+  it('shows the public key chain as JSON without downloading the document', () => {
     create().viewAsJson();
 
-    expect(keyChainService.downloadConfig).not.toHaveBeenCalled();
+    expect(configDocuments.downloadWithFeedback).not.toHaveBeenCalled();
     expect(dialog.open.mock.lastCall?.[1].data.jsonData).toBe(keyChain);
+  });
+});
+
+describe('KeyManagementShowComponent download button', () => {
+  it('is disabled while the document of the key chain is being downloaded', async () => {
+    const keyChain = {
+      id: 'key',
+      type: 'standalone',
+      usageType: 'attestation',
+      kmsProvider: 'db',
+      rotationPolicy: { enabled: false },
+    } as KeyChainResponseDto;
+
+    const button = await renderDownloadButton(KeyManagementShowComponent, {
+      providers: [
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'key' })) } },
+        { provide: KeyChainService, useValue: { getById: async () => keyChain } },
+      ],
+      loaded: (component) => !!component.keyChain,
+      downloading: ['KeyChain', 'key'],
+      label: 'Download configuration (includes the private key)',
+    });
+
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('stays enabled while another resource is being downloaded', async () => {
+    const keyChain = {
+      id: 'key',
+      type: 'standalone',
+      usageType: 'attestation',
+      kmsProvider: 'db',
+      rotationPolicy: { enabled: false },
+    } as KeyChainResponseDto;
+
+    const button = await renderDownloadButton(KeyManagementShowComponent, {
+      providers: [
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'key' })) } },
+        { provide: KeyChainService, useValue: { getById: async () => keyChain } },
+      ],
+      loaded: (component) => !!component.keyChain,
+      downloading: ['KeyChain', 'other'],
+      label: 'Download configuration (includes the private key)',
+    });
+
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('false');
   });
 });
 
@@ -151,7 +165,8 @@ describe('KeyManagementShowComponent loading', () => {
       {} as never,
       {} as never,
       { hasRole: () => true } as never,
-      { getConfig: vi.fn().mockResolvedValue(null) } as never
+      { getConfig: vi.fn().mockResolvedValue(null) } as never,
+      {} as never
     );
 
     component.ngOnInit();
@@ -170,6 +185,7 @@ describe('KeyManagementShowComponent loading', () => {
 describe('KeyManagementShowComponent type description', () => {
   function describeKey(keyChain: Partial<KeyChainResponseDto>): string {
     const component = new KeyManagementShowComponent(
+      {} as never,
       {} as never,
       {} as never,
       {} as never,
@@ -239,7 +255,8 @@ describe('KeyManagementShowComponent registrar enrollment', () => {
       router as never,
       {} as never,
       { hasRole: (role: string) => roles.includes(role) } as never,
-      registrarService as never
+      registrarService as never,
+      {} as never
     );
     component.ngOnInit();
     await vi.waitFor(() => expect(component.keyChain).toBeDefined());
@@ -361,7 +378,8 @@ describe('KeyManagementShowComponent registrar enrollment', () => {
       router as never,
       {} as never,
       { hasRole: (role: string) => roles.includes(role) } as never,
-      registrarService as never
+      registrarService as never,
+      {} as never
     );
     component.ngOnInit();
     await vi.waitFor(() => expect(component.keyChain?.id).toBe('access-key'));
@@ -433,7 +451,8 @@ describe('KeyManagementShowComponent registrar enrollment', () => {
       router as never,
       {} as never,
       { hasRole: (role: string) => roles.includes(role) } as never,
-      registrarService as never
+      registrarService as never,
+      {} as never
     );
     component.ngOnInit();
     await vi.waitFor(() => expect(component.keyChain).toBeDefined());

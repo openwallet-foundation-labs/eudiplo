@@ -1,8 +1,10 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { PresentationShowComponent } from './presentation-show.component';
+import { renderDownloadButton } from '../../../config-portability/config-document.testing';
+import { PresentationManagementService } from '../presentation-management.service';
 
 describe('PresentationShowComponent', () => {
   let component: PresentationShowComponent;
@@ -49,39 +51,65 @@ describe('PresentationShowComponent loading', () => {
 });
 
 describe('PresentationShowComponent download', () => {
-  function create(download: ReturnType<typeof vi.fn>) {
-    const snackBar = { open: vi.fn() };
-    const configDocuments = { download, canDownload: () => true };
+  it('downloads the configuration document', async () => {
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
     const component = new PresentationShowComponent(
       {} as never,
       {} as never,
-      snackBar as never,
       {} as never,
       {} as never,
-      configDocuments as never
+      {} as never,
+      { downloadWithFeedback } as never
     );
     component.config = { id: 'age-check' } as never;
-    return { component, snackBar };
-  }
-
-  it('downloads the configuration document', async () => {
-    const download = vi.fn().mockResolvedValue('Configuration downloaded');
-    const { component, snackBar } = create(download);
 
     await component.downloadConfig();
 
-    expect(download).toHaveBeenCalledWith('PresentationConfig', 'age-check');
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Configuration downloaded');
+    expect(downloadWithFeedback).toHaveBeenCalledWith('PresentationConfig', 'age-check');
   });
 
-  it("shows the backend's reason when the download fails", async () => {
-    const download = vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
-    const { component, snackBar } = create(download);
+  it('disables the button while the document is being downloaded', async () => {
+    const button = await renderDownloadButton(PresentationShowComponent, {
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'age-check' }) } },
+        },
+        {
+          provide: PresentationManagementService,
+          useValue: {
+            getPresentationById: async () => ({ id: 'age-check', dcql_query: { credentials: [] } }),
+          },
+        },
+      ],
+      loaded: (component) => !!component.config,
+      downloading: ['PresentationConfig', 'age-check'],
+    });
 
-    await component.downloadConfig();
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+  });
 
-    expect(snackBar.open.mock.lastCall?.[0]).toBe(
-      'Failed to download configuration: Forbidden resource'
-    );
+  it('stays enabled while another resource is being downloaded', async () => {
+    const button = await renderDownloadButton(PresentationShowComponent, {
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'age-check' }) } },
+        },
+        {
+          provide: PresentationManagementService,
+          useValue: {
+            getPresentationById: async () => ({ id: 'age-check', dcql_query: { credentials: [] } }),
+          },
+        },
+      ],
+      loaded: (component) => !!component.config,
+      downloading: ['PresentationConfig', 'other'],
+    });
+
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('false');
   });
 });

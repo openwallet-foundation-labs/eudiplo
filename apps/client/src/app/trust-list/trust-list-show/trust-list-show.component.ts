@@ -41,7 +41,7 @@ import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
 import { getApiErrorMessage, hasHttpStatus } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
-import { TrustListService } from '../trust-list.service';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import {
   credentialConfigReferencesTrustList,
   presentationConfigReferencesTrustList,
@@ -108,7 +108,7 @@ export class TrustListShowComponent implements OnInit {
   private readonly presentationService = inject(PresentationManagementService);
   private readonly frontendConfigService = inject(FrontendConfigService);
   private readonly jwtService = inject(JwtService);
-  private readonly trustListService = inject(TrustListService);
+  private readonly configDocuments = inject(ConfigDocumentService);
   private readonly injector = inject(Injector);
 
   @ViewChild('pageHeading', { read: ElementRef })
@@ -353,19 +353,16 @@ export class TrustListShowComponent implements OnInit {
     );
   }
 
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return this.configDocuments.isDownloading('TrustList', this.id);
+  }
+
   /**
-   * Downloads the current configuration as a JSON file.
+   * Downloads the configuration as a document that the config folder and
+   * configuration bundles import.
    */
   async download(): Promise<void> {
-    try {
-      await this.trustListService.downloadConfig(this.id);
-      this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
-    } catch (error) {
-      console.error('Error downloading config:', error);
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('TrustList', this.id);
   }
 }

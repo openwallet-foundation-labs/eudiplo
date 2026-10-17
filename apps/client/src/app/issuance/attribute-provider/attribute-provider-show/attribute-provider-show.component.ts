@@ -107,20 +107,19 @@ export class AttributeProviderShowComponent implements OnInit {
     return this.configDocuments.canDownload('AttributeProvider');
   }
 
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return (
+      !!this.provider && this.configDocuments.isDownloading('AttributeProvider', this.provider.id)
+    );
+  }
+
   /**
    * Downloads the configuration as a document that the config folder and
    * configuration bundles import.
    */
   async downloadConfig(): Promise<void> {
     if (!this.provider) return;
-    try {
-      const message = await this.configDocuments.download('AttributeProvider', this.provider.id);
-      this.snackBar.open(message, 'Close', { duration: 8000 });
-    } catch (error) {
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('AttributeProvider', this.provider.id);
   }
 }

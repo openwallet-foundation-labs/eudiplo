@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { AttributeProviderShowComponent } from './attribute-provider-show.component';
+import { renderDownloadButton } from '../../../config-portability/config-document.testing';
+import { AttributeProviderService } from '../attribute-provider.service';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 describe('AttributeProviderShowComponent', () => {
   it('says why the provider could not be loaded instead of a blank page, and retries', async () => {
@@ -28,38 +31,72 @@ describe('AttributeProviderShowComponent', () => {
 });
 
 describe('AttributeProviderShowComponent download', () => {
-  function create(download: ReturnType<typeof vi.fn>) {
-    const snackBar = { open: vi.fn() };
-    const configDocuments = { download, canDownload: () => true };
+  it('downloads the configuration document', async () => {
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
     const component = new AttributeProviderShowComponent(
       {} as never,
       {} as never,
-      snackBar as never,
       {} as never,
-      configDocuments as never
+      {} as never,
+      { downloadWithFeedback } as never
     );
     component.provider = { id: 'registry' } as never;
-    return { component, snackBar };
-  }
-
-  it('downloads the configuration document', async () => {
-    const download = vi.fn().mockResolvedValue('Configuration downloaded');
-    const { component, snackBar } = create(download);
 
     await component.downloadConfig();
 
-    expect(download).toHaveBeenCalledWith('AttributeProvider', 'registry');
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Configuration downloaded');
+    expect(downloadWithFeedback).toHaveBeenCalledWith('AttributeProvider', 'registry');
   });
 
-  it("shows the backend's reason when the download fails", async () => {
-    const download = vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
-    const { component, snackBar } = create(download);
+  it('disables the button while the document is being downloaded', async () => {
+    const button = await renderDownloadButton(AttributeProviderShowComponent, {
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'registry' }) } },
+        },
+        {
+          provide: AttributeProviderService,
+          useValue: {
+            getById: async () => ({
+              id: 'registry',
+              name: 'Registry',
+              url: 'https://registry.example.com',
+            }),
+          },
+        },
+      ],
+      loaded: (component) => !!component.provider,
+      downloading: ['AttributeProvider', 'registry'],
+    });
 
-    await component.downloadConfig();
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('true');
+  });
 
-    expect(snackBar.open.mock.lastCall?.[0]).toBe(
-      'Failed to download configuration: Forbidden resource'
-    );
+  it('stays enabled while another resource is being downloaded', async () => {
+    const button = await renderDownloadButton(AttributeProviderShowComponent, {
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: 'registry' }) } },
+        },
+        {
+          provide: AttributeProviderService,
+          useValue: {
+            getById: async () => ({
+              id: 'registry',
+              name: 'Registry',
+              url: 'https://registry.example.com',
+            }),
+          },
+        },
+      ],
+      loaded: (component) => !!component.provider,
+      downloading: ['AttributeProvider', 'other'],
+    });
+
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute('aria-disabled')).not.toBe('true');
+    expect(button?.getAttribute('aria-busy')).toBe('false');
   });
 });

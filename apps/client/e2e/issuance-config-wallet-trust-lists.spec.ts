@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { hasRootCredentials, resolvedE2EConfig } from './support/e2e-config';
 import { loginWithClientCredentials } from './support/login';
 import { createTenant, type TestTenant } from './support/tenants';
+import { certificatePem } from './support/key-chains';
+import { createTrustList } from './support/trust-lists';
 
 // Wallet provider trust lists in Issuer Settings: each entry is either a managed
 // trust list of the tenant ({ trustListId }) or an external one ({ url, verifierX509Der }).
@@ -18,10 +18,6 @@ const api = resolvedE2EConfig.apiBaseUrl;
 const trustListId = 'wallet-providers';
 const externalUrl = 'https://trust-list.example.com/wallet-providers';
 const serverExternalUrl = 'https://trust-list.example.com/server-wallet-providers';
-const certificatePem = readFileSync(
-  join(__dirname, 'fixtures', 'key-chain', 'leaf-cert.pem'),
-  'utf8'
-);
 const certificateDer = certificatePem.replaceAll(/-----[^-]+-----|\s/g, '');
 
 let tenant: TestTenant;
@@ -32,36 +28,7 @@ test.beforeAll(async () => {
     'Set AUTH_CLIENT_ID and AUTH_CLIENT_SECRET of the backend to create a tenant.'
   );
   tenant = await createTenant('wallet-trust', 'Wallet Trust Lists', ['issuance:manage']);
-  const headers = { Authorization: `Bearer ${tenant.token}`, 'Content-Type': 'application/json' };
-  // A trust list needs a key chain that signs it.
-  const keyChain = await fetch(`${api}/api/key-chain`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      usageType: 'trustList',
-      type: 'standalone',
-      description: 'Wallet provider trust list signing',
-    }),
-  });
-  expect(keyChain.status, await keyChain.clone().text()).toBe(201);
-  const response = await fetch(`${api}/api/trust-list`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      id: trustListId,
-      description: 'Accepted wallet providers',
-      entities: [
-        {
-          type: 'external',
-          providerType: 'wallet-provider',
-          issuerCertPem: certificatePem,
-          revocationCertPem: certificatePem,
-          info: { name: 'Example Wallet Provider' },
-        },
-      ],
-    }),
-  });
-  expect(response.status, await response.clone().text()).toBe(201);
+  await createTrustList(tenant.token, trustListId, 'Accepted wallet providers');
 });
 
 async function selectOption(page: Page, field: Locator, option: string | RegExp) {

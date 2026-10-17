@@ -105,20 +105,19 @@ export class WebhookEndpointShowComponent implements OnInit {
     return this.configDocuments.canDownload('WebhookEndpoint');
   }
 
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return (
+      !!this.endpoint && this.configDocuments.isDownloading('WebhookEndpoint', this.endpoint.id)
+    );
+  }
+
   /**
    * Downloads the configuration as a document that the config folder and
    * configuration bundles import.
    */
   async downloadConfig(): Promise<void> {
     if (!this.endpoint) return;
-    try {
-      const message = await this.configDocuments.download('WebhookEndpoint', this.endpoint.id);
-      this.snackBar.open(message, 'Close', { duration: 8000 });
-    } catch (error) {
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('WebhookEndpoint', this.endpoint.id);
   }
 }

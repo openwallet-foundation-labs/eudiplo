@@ -351,20 +351,17 @@ export class IssuanceConfigShowComponent implements OnInit {
     return this.configDocuments.canDownload('IssuanceConfig');
   }
 
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return !!this.config && this.configDocuments.isDownloading('IssuanceConfig', 'issuance');
+  }
+
   /**
    * Downloads the configuration as a document that the config folder and
    * configuration bundles import.
    */
   async downloadConfig(): Promise<void> {
     if (!this.config) return;
-    try {
-      const message = await this.configDocuments.download('IssuanceConfig', 'issuance');
-      this.snackBar.open(message, 'Close', { duration: 8000 });
-    } catch (error) {
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('IssuanceConfig', 'issuance');
   }
 }

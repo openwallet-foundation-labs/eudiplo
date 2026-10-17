@@ -14,13 +14,8 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KmsConfigDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
 import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { kmsConfigSchema } from '../../utils/schemas';
-import {
-  KEY_ADMIN_FORBIDDEN_MESSAGE,
-  KEY_ADMIN_ROLES,
-  KeyChainService,
-  isForbidden,
-} from '../key-chain.service';
-import { JwtService } from '../../services/jwt.service';
+import { KEY_ADMIN_FORBIDDEN_MESSAGE, KeyChainService, isForbidden } from '../key-chain.service';
+import { JwtService, TENANT_ADMIN_ROLES } from '../../services/jwt.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
 import { getApiErrorMessage } from '../../utils/error-message';
@@ -93,7 +88,7 @@ export class KeyManagementProvidersComponent implements OnInit {
    * available to tenant administrators.
    */
   get canManageTenantConfig(): boolean {
-    return this.jwtService.hasRole(KEY_ADMIN_ROLES);
+    return this.jwtService.hasRole(TENANT_ADMIN_ROLES);
   }
 
   ngOnInit(): void {

@@ -10,7 +10,7 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { JwtService, type Role } from '../../services/jwt.service';
-import { TrustListService } from '../trust-list.service';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { TrustListShowComponent } from './trust-list-show.component';
 
 /** Answers the trust list requests of the page with this body and status, and no versions. */
@@ -650,7 +650,10 @@ describe('TrustListShowComponent download', () => {
     entityConfig: [],
   };
 
-  async function render(downloadConfig: TrustListService['downloadConfig']) {
+  async function render(
+    downloadWithFeedback: ConfigDocumentService['downloadWithFeedback'],
+    isDownloading: ConfigDocumentService['isDownloading'] = () => false
+  ) {
     serveTrustList(trustList);
     await TestBed.configureTestingModule({
       imports: [TrustListShowComponent],
@@ -663,7 +666,10 @@ describe('TrustListShowComponent download', () => {
         { provide: ApiService, useValue: { getBaseUrl: () => undefined } },
         { provide: FrontendConfigService, useValue: { getConfig: async () => undefined } },
         { provide: CredentialConfigService, useValue: { loadConfigurations: async () => [] } },
-        { provide: TrustListService, useValue: { downloadConfig } },
+        {
+          provide: ConfigDocumentService,
+          useValue: { downloadWithFeedback, isDownloading },
+        },
       ],
     }).compileComponents();
 
@@ -695,39 +701,17 @@ describe('TrustListShowComponent download', () => {
   });
 
   it('downloads the configuration of the list', async () => {
-    const downloadConfig = vi.fn().mockResolvedValue(undefined);
-    const button = await render(downloadConfig);
-    // The component's own MatSnackBarModule provides its instance, not the root injector.
-    const open = vi.spyOn(MatSnackBar.prototype, 'open');
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
+    const button = await render(downloadWithFeedback);
 
     button.click();
 
-    await vi.waitFor(() =>
-      expect(open).toHaveBeenCalledWith('Trust list configuration downloaded', 'Close', {
-        duration: 3000,
-      })
-    );
-    expect(downloadConfig).toHaveBeenCalledWith(trustList.id);
+    expect(downloadWithFeedback).toHaveBeenCalledWith('TrustList', trustList.id);
   });
+  it('disables the download while the document of the list is being downloaded', async () => {
+    const button = await render(vi.fn(), (kind, id) => kind === 'TrustList' && id === trustList.id);
 
-  it('says why the configuration could not be downloaded', async () => {
-    const downloadConfig = vi
-      .fn()
-      .mockRejectedValue({ statusCode: 404, message: 'Trust list membership-issuers not found' });
-    const button = await render(downloadConfig);
-    const open = vi.spyOn(MatSnackBar.prototype, 'open');
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
-    button.click();
-
-    await vi.waitFor(() =>
-      expect(open).toHaveBeenCalledWith(
-        'Failed to download configuration: Trust list membership-issuers not found',
-        'Close',
-        expect.objectContaining({ duration: expect.any(Number) })
-      )
-    );
-    expect(downloadConfig).toHaveBeenCalledWith(trustList.id);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
   });
 });
 

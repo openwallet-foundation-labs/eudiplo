@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import type { TrustList } from '@eudiplo/sdk-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { describeListStates } from '../../common/base-async-list.testing';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { TrustListService } from '../trust-list.service';
 import { TrustListListComponent } from './trust-list-list.component';
 
@@ -14,10 +14,17 @@ describe('TrustListListComponent', () => {
     description: 'Issuers of membership credentials',
   } as TrustList;
 
-  async function render(service: Partial<TrustListService>) {
+  async function render(
+    service: Partial<TrustListService>,
+    configDocuments: Partial<ConfigDocumentService> = { isDownloading: () => false }
+  ) {
     TestBed.configureTestingModule({
       imports: [TrustListListComponent],
-      providers: [provideRouter([]), { provide: TrustListService, useValue: service }],
+      providers: [
+        provideRouter([]),
+        { provide: TrustListService, useValue: service },
+        { provide: ConfigDocumentService, useValue: configDocuments },
+      ],
     });
     const fixture = TestBed.createComponent(TrustListListComponent);
     const loadItems = vi.spyOn(fixture.componentInstance, 'loadItems');
@@ -43,43 +50,30 @@ describe('TrustListListComponent', () => {
   });
 
   it('downloads the configuration of the clicked trust list', async () => {
-    const downloadConfig = vi.fn().mockResolvedValue(undefined);
-    const element = await render({ getAll: async () => [trustList], downloadConfig });
-    // The component's own MatSnackBarModule provides its instance, not the root injector.
-    const open = vi.spyOn(MatSnackBar.prototype, 'open');
+    const downloadWithFeedback = vi.fn().mockResolvedValue(undefined);
+    const element = await render(
+      { getAll: async () => [trustList] },
+      { downloadWithFeedback, isDownloading: () => false }
+    );
 
     element
       .querySelector<HTMLButtonElement>('button[mattooltip="Download configuration"]')
       ?.click();
 
-    await vi.waitFor(() =>
-      expect(open).toHaveBeenCalledWith('Trust list configuration downloaded', 'Close', {
-        duration: 3000,
-      })
-    );
-    expect(downloadConfig).toHaveBeenCalledWith('membership-issuers');
+    expect(downloadWithFeedback).toHaveBeenCalledWith('TrustList', 'membership-issuers');
   });
 
-  it('says why a configuration could not be downloaded', async () => {
-    const downloadConfig = vi
-      .fn()
-      .mockRejectedValue({ statusCode: 404, message: 'Trust list membership-issuers not found' });
-    const element = await render({ getAll: async () => [trustList], downloadConfig });
-    const open = vi.spyOn(MatSnackBar.prototype, 'open');
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
-    element
-      .querySelector<HTMLButtonElement>('button[mattooltip="Download configuration"]')
-      ?.click();
-
-    await vi.waitFor(() =>
-      expect(open).toHaveBeenCalledWith(
-        'Failed to download configuration: Trust list membership-issuers not found',
-        'Close',
-        expect.objectContaining({ duration: expect.any(Number) })
-      )
+  it('disables the download of a list while its document is being downloaded', async () => {
+    const element = await render(
+      { getAll: async () => [trustList] },
+      { isDownloading: (kind, id) => kind === 'TrustList' && id === 'membership-issuers' }
     );
-    expect(downloadConfig).toHaveBeenCalledWith('membership-issuers');
+
+    expect(
+      element
+        .querySelector('button[mattooltip="Download configuration"]')
+        ?.getAttribute('aria-disabled')
+    ).toBe('true');
   });
 
   describeListStates({

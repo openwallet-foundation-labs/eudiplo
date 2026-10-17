@@ -27,6 +27,12 @@ const roleSet: Record<Role, true> = {
 
 export const roles = Object.keys(roleSet) as Role[];
 
+/**
+ * Roles that administer the tenant: its key material, configuration exports
+ * and Config Portability.
+ */
+export const TENANT_ADMIN_ROLES: Role[] = ['tenant:admin', 'tenants:manage'];
+
 /** Roles that only a caller with `tenants:manage` can grant. */
 const reservedRoles: ReadonlySet<Role> = new Set<Role>(['tenants:manage', 'tenant:admin']);
 

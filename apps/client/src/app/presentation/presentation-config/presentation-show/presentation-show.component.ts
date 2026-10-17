@@ -252,20 +252,19 @@ export class PresentationShowComponent implements OnInit {
     return this.configDocuments.canDownload('PresentationConfig');
   }
 
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return (
+      !!this.config && this.configDocuments.isDownloading('PresentationConfig', this.config.id)
+    );
+  }
+
   /**
    * Downloads the configuration as a document that the config folder and
    * configuration bundles import.
    */
   async downloadConfig(): Promise<void> {
     if (!this.config) return;
-    try {
-      const message = await this.configDocuments.download('PresentationConfig', this.config.id);
-      this.snackBar.open(message, 'Close', { duration: 8000 });
-    } catch (error) {
-      openErrorSnackBar(
-        this.snackBar,
-        getApiErrorMessage(error, 'Failed to download configuration')
-      );
-    }
+    await this.configDocuments.downloadWithFeedback('PresentationConfig', this.config.id);
   }
 }

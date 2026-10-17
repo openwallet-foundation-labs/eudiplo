@@ -11,14 +11,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainResponseDto, CertificateInfoDto } from '@eudiplo/sdk-core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  KEY_ADMIN_FORBIDDEN_MESSAGE,
-  KEY_ADMIN_ROLES,
-  KeyChainService,
-  isForbidden,
-} from '../key-chain.service';
+import { KeyChainService } from '../key-chain.service';
 import { Subscription } from 'rxjs';
 import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
+import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
 import { LoadErrorComponent } from '../../common/load-error.component';
@@ -74,7 +70,8 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly dialog: MatDialog,
     private readonly jwtService: JwtService,
-    private readonly registrarService: RegistrarService
+    private readonly registrarService: RegistrarService,
+    private readonly configDocuments: ConfigDocumentService
   ) {}
 
   ngOnInit(): void {
@@ -364,34 +361,24 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Exporting returns private key material, which the backend only allows for
-   * tenant administrators.
+   * The document carries the private keys of keys held in the database, which
+   * the backend only hands to tenant administrators.
    */
-  get canExport(): boolean {
-    return this.jwtService.hasRole(KEY_ADMIN_ROLES);
+  get canDownloadConfig(): boolean {
+    return this.configDocuments.canDownload('KeyChain');
   }
 
-  async exportKeyChain(): Promise<void> {
+  /** True while the configuration document is being downloaded. */
+  get downloadingConfig(): boolean {
+    return !!this.keyChain && this.configDocuments.isDownloading('KeyChain', this.keyChain.id);
+  }
+
+  /**
+   * Downloads the key chain as a document that the config folder and
+   * configuration bundles import.
+   */
+  async downloadConfig(): Promise<void> {
     if (!this.keyChain) return;
-    if (!this.canExport) {
-      this.showExportForbidden();
-      return;
-    }
-
-    try {
-      await this.keyChainService.downloadConfig(this.keyChain.id);
-      this.snackBar.open('Key chain exported', 'Close', { duration: 3000 });
-    } catch (error) {
-      if (isForbidden(error)) {
-        this.showExportForbidden();
-        return;
-      }
-      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to export key chain'));
-      console.error('Export error:', error);
-    }
-  }
-
-  private showExportForbidden(): void {
-    this.snackBar.open(KEY_ADMIN_FORBIDDEN_MESSAGE, 'Close', { duration: 5000 });
+    await this.configDocuments.downloadWithFeedback('KeyChain', this.keyChain.id);
   }
 }
