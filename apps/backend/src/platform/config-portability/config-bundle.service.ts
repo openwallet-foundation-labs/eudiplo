@@ -140,10 +140,11 @@ function placeholder(
     id: string,
     path: string,
 ): string {
+    // Splitting avoids a trailing `_+$` match, which backtracks on long IDs.
     return `${kind}_${id}_${path}`
-        .replaceAll(/[^A-Za-z0-9]+/g, "_")
-        .replace(/^_+/, "")
-        .replace(/_+$/, "")
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .join("_")
         .toUpperCase();
 }
 

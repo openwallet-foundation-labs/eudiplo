@@ -100,6 +100,8 @@ describe('IssuanceConfigShowComponent download', () => {
 
     await component.downloadConfig();
 
-    expect(snackBar.open.mock.lastCall?.[0]).toBe('Failed to download configuration: Forbidden resource');
+    expect(snackBar.open.mock.lastCall?.[0]).toBe(
+      'Failed to download configuration: Forbidden resource'
+    );
   });
 });
