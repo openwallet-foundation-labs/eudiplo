@@ -949,26 +949,110 @@
                         </mat-form-field>
 
                         <!-- Entity ID -->
-                        <mat-form-field>
+                        <mat-form-field subscriptSizing="dynamic">
                           <mat-label>Entity ID (optional)</mat-label>
                           <input
                             (keydown.enter)="onInputEnter($event)"
+                            #entityIdInput
                             matInput
                             formControlName="entityId"
                             placeholder="https://eudiplo.example.com/issuers/my-tenant"
                             type="url"
                           />
                           <mat-icon matSuffix>link</mat-icon>
-                          <mat-hint
-                            >Set to &lt;public URL&gt;/issuers/&lt;tenant ID&gt; to publish the
-                            entity configuration there; leave empty to only evaluate
-                            trust.</mat-hint
-                          >
+                          <mat-hint>
+                            @if (expectedEntityId) {
+                              Set to {{ expectedEntityId }} to publish the entity configuration
+                              there.
+                              @if (expectedEntityIdUsesInstanceUrl) {
+                                The backend did not report its PUBLIC_URL, so this uses the address
+                                you signed in with.
+                              }
+                            } @else {
+                              Set to &lt;public URL&gt;/issuers/&lt;tenant ID&gt; to publish the
+                              entity configuration there.
+                            }
+                            Leave empty to only evaluate trust.
+                          </mat-hint>
                         </mat-form-field>
+
+                        @if (expectedEntityId && entityId !== expectedEntityId) {
+                          <div fxLayout="row" fxLayoutAlign="start center">
+                            <button
+                              mat-stroked-button
+                              type="button"
+                              (click)="useExpectedEntityId()"
+                              [attr.aria-label]="'Use this URL as entity ID: ' + expectedEntityId"
+                            >
+                              <mat-icon>link</mat-icon>
+                              Use this URL
+                            </button>
+                          </div>
+                        }
+
+                        @if (entityIdDiffers) {
+                          <p class="section-hint entity-id-differs">
+                            <mat-icon>warning</mat-icon>
+                            <span
+                              >This entity ID differs from {{ expectedEntityId }}, where EUDIPLO
+                              serves the entity configuration. Wallets and trust anchors fetch it
+                              from &lt;entity ID&gt;/.well-known/openid-federation, so a different
+                              entity ID only works when a reverse proxy maps it there.</span
+                            >
+                          </p>
+                        }
+
+                        @if (federationKeyMissing) {
+                          <div class="federation-key-missing" fxLayout="column" fxLayoutGap="8px">
+                            <p class="section-hint">
+                              <mat-icon>warning</mat-icon>
+                              @if (pinnedFederationKeyChainId) {
+                                <span
+                                  >federation.entityKeyChainId pins the key chain
+                                  {{ pinnedFederationKeyChainId }}, which does not exist or is not
+                                  an OpenID Federation Entity Key, so the entity configuration
+                                  cannot be signed and is not published. Change or remove the pin in
+                                  JSON View, then check again.</span
+                                >
+                              } @else {
+                                <span
+                                  >No key with usage type OpenID Federation Entity Key exists, so
+                                  the entity configuration cannot be signed and is not published.
+                                  <a
+                                    routerLink="/keys/create"
+                                    [queryParams]="{ usage: 'federation' }"
+                                    target="_blank"
+                                    rel="noopener"
+                                    >Create a federation key (opens in a new tab)</a
+                                  >, then check again. A trust engine
+                                  (FEDERATION_ENTITY_PROVIDER=http) needs no key here.</span
+                                >
+                              }
+                            </p>
+                            <div fxLayout="row" fxLayoutAlign="start center">
+                              <button
+                                mat-stroked-button
+                                type="button"
+                                (click)="checkFederationKeyAgain()"
+                                [disabled]="checkingFederationKey"
+                                disabledInteractive
+                              >
+                                <mat-icon>refresh</mat-icon>
+                                Check again
+                              </button>
+                              <span class="section-hint" role="status">{{
+                                federationKeyCheckMessage
+                              }}</span>
+                            </div>
+                          </div>
+                        }
 
                         <p class="section-hint">
                           <mat-icon>info</mat-icon>
-                          Publishing also needs a key with usage type OpenID Federation Entity Key.
+                          @if (hasFederationKey !== true && !federationKeyMissing) {
+                            Publishing also needs a key with usage type OpenID Federation Entity
+                            Key.
+                          }
                           @if (federationEntitySettingNames.length) {
                             Entity configuration settings kept from the configuration:
                             {{ federationEntitySettingNames.join(', ') }}. Use JSON View to see or

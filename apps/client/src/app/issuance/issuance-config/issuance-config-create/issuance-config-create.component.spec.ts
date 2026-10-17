@@ -18,7 +18,15 @@ describe('issuer settings guided setup', () => {
   let service: { getConfig: ReturnType<typeof vi.fn>; saveConfiguration: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let setup: string | null;
+  let keyChains: { getAll: ReturnType<typeof vi.fn> };
+  let tenantId: string | null;
+  let frontendConfig: { getConfig: ReturnType<typeof vi.fn> };
   beforeEach(() => {
+    tenantId = 'acme';
+    keyChains = { getAll: vi.fn().mockResolvedValue([]) };
+    frontendConfig = {
+      getConfig: vi.fn().mockResolvedValue({ publicUrl: 'https://eudiplo.example.com' }),
+    };
     setup = null;
     snackBar = { open: vi.fn() };
     service = {
@@ -33,7 +41,12 @@ describe('issuer settings guided setup', () => {
       {} as any,
       new FormBuilder(),
       {} as any,
-      {} as any
+      {} as any,
+      keyChains as any,
+      frontendConfig as any,
+      { getTenantId: () => tenantId } as any,
+      { getBaseUrl: () => 'http://localhost:3000' } as any,
+      { get: () => ({ destroyed: true }) } as any
     );
   });
 
@@ -281,5 +294,128 @@ describe('issuer settings guided setup', () => {
     component.authorizationServers.at(0).get('type')!.setValue('built-in');
     component.onAuthorizationServerTypeChange(0, 'built-in');
     expect(lifetime().value).toBe(1200);
+  });
+
+  describe('federation entity setup', () => {
+    it('offers the URL the entity configuration is served under and applies it', async () => {
+      await component.loadFederationSetup();
+      expect(component.expectedEntityId).toBe('https://eudiplo.example.com/issuers/acme');
+      expect(component.expectedEntityIdUsesInstanceUrl).toBe(false);
+      component.useExpectedEntityId();
+      expect(component.federation.get('entityId')!.value).toBe(
+        'https://eudiplo.example.com/issuers/acme'
+      );
+      expect(component.federation.get('entityId')!.dirty).toBe(true);
+      expect(component.entityIdDiffers).toBe(false);
+    });
+
+    it('falls back to the instance URL when the backend reports no public URL', async () => {
+      frontendConfig.getConfig.mockResolvedValue({ configImportMode: 'none' });
+      await component.loadFederationSetup();
+      expect(component.expectedEntityId).toBe('http://localhost:3000/issuers/acme');
+      expect(component.expectedEntityIdUsesInstanceUrl).toBe(true);
+    });
+
+    it('warns only about a set entity ID that differs from that URL', async () => {
+      await component.loadFederationSetup();
+      expect(component.entityIdDiffers).toBe(false);
+      component.federation.get('entityId')!.setValue('https://proxy.example.com/acme');
+      expect(component.entityIdDiffers).toBe(true);
+      component.federation.get('entityId')!.setValue(' https://eudiplo.example.com/issuers/acme ');
+      expect(component.entityIdDiffers).toBe(false);
+    });
+
+    it('says the federation key is missing only when an entity ID is set and none exists', async () => {
+      keyChains.getAll.mockResolvedValue([{ id: 'attestation', usageType: 'attestation' }]);
+      await component.loadFederationSetup();
+      expect(component.federationKeyMissing).toBe(false);
+      component.federation.get('entityId')!.setValue('https://eudiplo.example.com/issuers/acme');
+      expect(component.federationKeyMissing).toBe(true);
+
+      keyChains.getAll.mockResolvedValue([{ id: 'fed', usageType: 'federation' }]);
+      await component.loadFederationSetup();
+      expect(component.federationKeyMissing).toBe(false);
+    });
+
+    it('checks the key federation.entityKeyChainId pins', async () => {
+      service.getConfig.mockResolvedValue({
+        ...config,
+        federation: {
+          entityId: 'https://eudiplo.example.com/issuers/acme',
+          trustAnchors: [{ entityId: 'https://ta.example.org' }],
+          entityKeyChainId: 'pinned',
+        },
+      });
+      await component.loadConfigForEdit();
+      keyChains.getAll.mockResolvedValue([{ id: 'other', usageType: 'federation' }]);
+      await component.loadFederationSetup();
+      expect(component.federationKeyMissing).toBe(true);
+
+      keyChains.getAll.mockResolvedValue([{ id: 'pinned', usageType: 'federation' }]);
+      await component.loadFederationSetup();
+      expect(component.federationKeyMissing).toBe(false);
+    });
+
+    it('suggests no entity ID when the frontend configuration could not be loaded', async () => {
+      frontendConfig.getConfig.mockResolvedValue(null);
+      await component.loadFederationSetup();
+      expect(component.expectedEntityId).toBeNull();
+      expect(component.expectedEntityIdUsesInstanceUrl).toBe(false);
+    });
+
+    it('reports a failed check and keeps the last known keys', async () => {
+      await component.loadFederationSetup();
+      component.federation.get('entityId')!.setValue('https://eudiplo.example.com/issuers/acme');
+      expect(component.federationKeyMissing).toBe(true);
+
+      keyChains.getAll.mockRejectedValue({ statusCode: 503, message: 'Service unavailable' });
+      await component.checkFederationKeyAgain();
+      expect(component.federationKeyMissing).toBe(true);
+      expect(snackBar.open).toHaveBeenCalledWith(
+        expect.stringContaining('Service unavailable'),
+        expect.anything(),
+        expect.anything()
+      );
+    });
+
+    it('says when a check still finds no key and confirms a found one', async () => {
+      component.federation.get('entityId')!.setValue('https://eudiplo.example.com/issuers/acme');
+      await component.checkFederationKeyAgain();
+      expect(component.federationKeyCheckMessage).toBe('Still no matching federation key.');
+
+      keyChains.getAll.mockResolvedValue([{ id: 'fed', usageType: 'federation' }]);
+      await component.checkFederationKeyAgain();
+      expect(component.federationKeyCheckMessage).toBe('');
+      expect(component.federationKeyMissing).toBe(false);
+      expect(snackBar.open).toHaveBeenCalledWith('Federation key found', 'Close', {
+        duration: 3000,
+      });
+    });
+
+    it('marks the check as running until the key chains answer, also on failure', async () => {
+      let reject!: (error: unknown) => void;
+      keyChains.getAll.mockReturnValue(new Promise((_, r) => (reject = r)));
+      const done = component.loadFederationSetup();
+      expect(component.checkingFederationKey).toBe(true);
+      reject({ statusCode: 500 });
+      await done;
+      expect(component.checkingFederationKey).toBe(false);
+    });
+
+    it('offers no entity ID without a tenant in the token', async () => {
+      tenantId = null;
+      await component.loadFederationSetup();
+      expect(component.expectedEntityId).toBeNull();
+      component.federation.get('entityId')!.setValue('https://eudiplo.example.com/issuers/acme');
+      expect(component.entityIdDiffers).toBe(false);
+    });
+
+    it('does not claim the key is missing when the key chains could not be read', async () => {
+      keyChains.getAll.mockRejectedValue({ statusCode: 403 });
+      await component.loadFederationSetup();
+      component.federation.get('entityId')!.setValue('https://eudiplo.example.com/issuers/acme');
+      expect(component.hasFederationKey).toBeNull();
+      expect(component.federationKeyMissing).toBe(false);
+    });
   });
 });

@@ -205,8 +205,80 @@
       </mat-card>
     }
 
-    <!-- Active Certificate -->
-    @if (keyChain.activeCertificate) {
+    @if (isFederationKey) {
+      <!-- Public Key: OpenID Federation publishes the JWK, not a certificate -->
+      <mat-card class="federation-public-key">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">public</mat-icon>
+            Public Key
+          </mat-card-title>
+          <mat-card-subtitle
+            >Published in the jwks of your entity configuration. Your trust anchor or intermediate
+            lists it in the subordinate statement about your entity.</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>fingerprint</mat-icon>
+              <span matListItemTitle>Key ID (kid)</span>
+              <span matListItemLine>{{ keyChain.activePublicKey.kid || 'N/A' }}</span>
+            </mat-list-item>
+          </mat-list>
+          <div class="pem-container">
+            <pre class="pem-certificate">{{ activePublicKeyJson }}</pre>
+          </div>
+          @if (keyChain.activeCertificate) {
+            <p class="unused-certificate-note">
+              EUDIPLO also keeps a self-signed certificate for this key. OpenID Federation does not
+              use it.
+            </p>
+          }
+          <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+            <button mat-stroked-button (click)="copyPublicKeyToClipboard(keyChain.activePublicKey)">
+              <mat-icon>content_copy</mat-icon>
+              Copy Public Key (JWK)
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      @if (keyChain.previousPublicKey) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="title-icon">history</mat-icon>
+              Previous Public Key (Grace Period)
+            </mat-card-title>
+            @if (keyChain.previousKeyExpiry) {
+              <mat-card-subtitle>
+                Expires: {{ formatDate(keyChain.previousKeyExpiry) }}
+              </mat-card-subtitle>
+            }
+          </mat-card-header>
+          <mat-card-content>
+            <mat-list class="config-list">
+              <mat-list-item>
+                <mat-icon matListItemIcon>fingerprint</mat-icon>
+                <span matListItemTitle>Key ID (kid)</span>
+                <span matListItemLine>{{ keyChain.previousPublicKey.kid || 'N/A' }}</span>
+              </mat-list-item>
+            </mat-list>
+            <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+              <button
+                mat-stroked-button
+                (click)="copyPublicKeyToClipboard(keyChain.previousPublicKey)"
+              >
+                <mat-icon>content_copy</mat-icon>
+                Copy Public Key (JWK)
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    } @else if (keyChain.activeCertificate) {
+      <!-- Active Certificate -->
       <mat-card>
         <mat-card-header>
           <mat-card-title>
@@ -280,7 +352,7 @@
     }
 
     <!-- Previous Certificate (if in grace period) -->
-    @if (hasPreviousKey() && keyChain.previousCertificate) {
+    @if (!isFederationKey && hasPreviousKey() && keyChain.previousCertificate) {
       <mat-card>
         <mat-card-header>
           <mat-card-title>

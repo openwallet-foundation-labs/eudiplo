@@ -133,6 +133,15 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     return this.keyChain?.usageType || '';
   }
 
+  /** Federation keys are published as a JWK; their certificate is not used. */
+  get isFederationKey(): boolean {
+    return this.usageType === 'federation';
+  }
+
+  get activePublicKeyJson(): string {
+    return JSON.stringify(this.keyChain?.activePublicKey ?? {}, null, 2);
+  }
+
   getTypeLabel(): string {
     if (!this.keyChain) return '';
     if (this.keyChain.type === 'internalChain') {
@@ -153,6 +162,9 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     if (!this.keyChain) return '';
     if (this.keyChain.type === 'internalChain') {
       return 'This key chain has an embedded Root CA that signs the active key certificate.';
+    }
+    if (this.isFederationKey) {
+      return 'This is a standalone key, published as a JWK in the OpenID Federation entity configuration.';
     }
     if (!this.keyChain.activeCertificate) return 'This is a standalone key.';
     return this.isSelfSigned()
