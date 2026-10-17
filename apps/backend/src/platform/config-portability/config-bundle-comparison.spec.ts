@@ -460,7 +460,7 @@ describe("configuration comparisons", () => {
             },
         ]);
     });
-    it("treats registrar defaults set to null like omitted defaults", async () => {
+    it("treats registrar defaults and contact set to null like omitted ones", async () => {
         const document: ConfigDocument = {
             $schema: schemaUrl("RegistrarConfig"),
             kind: "RegistrarConfig",
@@ -472,9 +472,14 @@ describe("configuration comparisons", () => {
                 username: "user",
                 password: "password",
                 registrationCertificateDefaults: null,
+                relyingPartyContact: null,
             },
         };
-        const { registrationCertificateDefaults, ...stored } = document.spec;
+        const {
+            registrationCertificateDefaults,
+            relyingPartyContact,
+            ...stored
+        } = document.spec;
 
         expect(
             await service(stored).compareDocument("tenant", document),

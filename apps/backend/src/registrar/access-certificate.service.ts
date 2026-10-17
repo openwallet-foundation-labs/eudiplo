@@ -18,6 +18,7 @@ import {
     accessCertificateControllerRegister,
 } from "./generated/index.js";
 import { RegistrarAuthService } from "./registrar-auth.service.js";
+import { registrarErrorMessage } from "./registrar-error-message.js";
 import type {
     CreateAccessCertificate,
     CreateAccessKeyChain,
@@ -133,6 +134,8 @@ export class AccessCertificateService {
      * 400 and a failed request is passed on. When EUDIPLO cannot store a
      * certificate issued by this request, it revokes it at the registrar; a
      * found certificate may have been issued earlier and is not revoked.
+     * The 400 carries the registrar's reason, for example a relying party
+     * without contact.
      */
     private async enroll(
         tenantId: string,
@@ -180,7 +183,7 @@ export class AccessCertificateService {
                 );
                 if (issued.error instanceof Error) throw issued.error;
                 throw new BadRequestException(
-                    "Failed to create access certificate",
+                    `Failed to create access certificate: ${registrarErrorMessage(issued.error)}`,
                 );
             }
             this.logger.warn(

@@ -33,6 +33,49 @@ function isRegistrarBaseUrl(value: string): boolean {
     );
 }
 
+/**
+ * Contact values the registrar stores for the relying party and puts in the
+ * subject alternative names of its access certificates. The rules are the
+ * registrar's own, so a value it would reject is refused when saved here.
+ */
+const RelyingPartyContactSchema = z
+    .object({
+        supportUri: z
+            .url({ protocol: /^https$/ })
+            .optional()
+            .describe("https URL where the relying party can be contacted."),
+        email: z
+            .string()
+            .regex(
+                // No `i` flag: JSON Schema patterns cannot carry it.
+                /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+                "Must be an email address",
+            )
+            .optional()
+            .describe("Email address of the relying party."),
+        phone: z
+            .string()
+            .regex(
+                /^[+0-9()\-\s]{5,40}$/,
+                "Must be 5 to 40 digits, spaces, +, -, ( or )",
+            )
+            .optional()
+            .describe("Phone number of the relying party."),
+    })
+    .strict()
+    .refine(
+        (contact) =>
+            contact.supportUri !== undefined ||
+            contact.email !== undefined ||
+            contact.phone !== undefined,
+        "Set at least one of supportUri, email or phone",
+    )
+    .nullable()
+    .optional()
+    .describe(
+        "Contact of the relying party, sent when EUDIPLO registers the relying party at the registrar. The registrar needs at least one contact value to issue access certificates. A relying party that is already registered keeps its contact.",
+    );
+
 const REGISTRAR_BASE_URL_MESSAGE =
     "Must be an http(s) URL without query, fragment or credentials";
 
@@ -69,6 +112,7 @@ export const CreateRegistrarConfigSchema = z
             RegistrationCertificateDefaultsSchema.describe(
                 "Optional default registration certificate values.",
             ),
+        relyingPartyContact: RelyingPartyContactSchema,
     })
     .describe("Payload for creating registrar integration settings.")
     .strict();

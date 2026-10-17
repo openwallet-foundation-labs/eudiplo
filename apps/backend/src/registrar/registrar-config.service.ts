@@ -184,10 +184,10 @@ export class RegistrarConfigService {
     }
 
     /**
-     * Store `dto` as the whole configuration. A `clientSecret` or
-     * `registrationCertificateDefaults` missing from `dto` removes the stored
-     * one, so a stored secret is never sent to the `oidcUrl` of a
-     * replacement.
+     * Store `dto` as the whole configuration. A `clientSecret`,
+     * `registrationCertificateDefaults` or `relyingPartyContact` missing from
+     * `dto` removes the stored one, so a stored secret is never sent to the
+     * `oidcUrl` of a replacement.
      */
     private async store(
         tenantId: string,
@@ -200,6 +200,7 @@ export class RegistrarConfigService {
             clientSecret: dto.clientSecret ?? null,
             registrationCertificateDefaults:
                 dto.registrationCertificateDefaults ?? null,
+            relyingPartyContact: dto.relyingPartyContact ?? null,
         });
 
         this.authService.invalidateToken(tenantId);

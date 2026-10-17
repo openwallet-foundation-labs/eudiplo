@@ -50,6 +50,13 @@ const detached: ConfigResourceOwnership = {
   source: 'folder:/config/tenant',
 };
 
+function validationFailed(errors: unknown[]) {
+  return new HttpErrorResponse({
+    status: 400,
+    error: { statusCode: 400, message: 'Validation failed', errors },
+  });
+}
+
 function serviceMock() {
   return {
     getConfig: vi.fn(),
@@ -359,6 +366,88 @@ describe('RegistrarComponent registration certificate defaults', () => {
   });
 });
 
+describe('RegistrarComponent relying party contact', () => {
+  let registrarService: ReturnType<typeof serviceMock>;
+  let component: RegistrarComponent;
+
+  beforeEach(async () => {
+    registrarService = serviceMock();
+    registrarService.getConfig.mockResolvedValue({
+      ...stored,
+      relyingPartyContact: { email: 'support@verifier.example' },
+    });
+    component = TestBed.runInInjectionContext(
+      () =>
+        new RegistrarComponent(
+          registrarService as unknown as RegistrarService,
+          { open: vi.fn() } as unknown as MatSnackBar,
+          new FormBuilder(),
+          ownershipMock() as unknown as ConfigOwnershipService
+        )
+    );
+    await component.loadData();
+  });
+
+  it('shows the stored contact', () => {
+    expect(component.configForm.get('relyingPartyContact')?.value).toEqual({
+      supportUri: '',
+      email: 'support@verifier.example',
+      phone: '',
+    });
+  });
+
+  it('sends the filled contact fields trimmed', async () => {
+    component.configForm.patchValue({
+      relyingPartyContact: { supportUri: ' https://verifier.example/support ', phone: '' },
+    });
+
+    await component.saveConfig();
+
+    expect(registrarService.updateConfig.mock.calls[0][0].relyingPartyContact).toEqual({
+      supportUri: 'https://verifier.example/support',
+      email: 'support@verifier.example',
+    });
+  });
+
+  it('sends null once every contact field is cleared', async () => {
+    component.configForm.patchValue({ relyingPartyContact: { email: '' } });
+
+    await component.saveConfig();
+
+    expect(registrarService.updateConfig.mock.calls[0][0].relyingPartyContact).toBeNull();
+  });
+
+  it.each([
+    ['supportUri', 'http://verifier.example/support', 'Enter an https URL'],
+    ['email', 'support', 'Enter an email address'],
+    ['phone', 'call me', 'Use 5 to 40 digits'],
+  ])('refuses to save a %s the registrar rejects', async (field, value, message) => {
+    component.configForm.patchValue({ relyingPartyContact: { [field]: value } });
+
+    await component.saveConfig();
+
+    expect(component.hasInvalidInput).toBe(true);
+    expect(component.fieldError(`relyingPartyContact.${field}`)).toContain(message);
+    expect(registrarService.updateConfig).not.toHaveBeenCalled();
+  });
+
+  it('shows a contact field the backend rejects under that field', async () => {
+    registrarService.updateConfig.mockRejectedValue(
+      validationFailed([
+        {
+          path: ['relyingPartyContact', 'email'],
+          message: 'Must be an email address',
+          code: 'invalid_format',
+        },
+      ])
+    );
+
+    await component.saveConfig();
+
+    expect(component.fieldError('relyingPartyContact.email')).toBe('Must be an email address');
+  });
+});
+
 describe('RegistrarComponent load and save errors', () => {
   let registrarService: ReturnType<typeof serviceMock>;
   let snackBar: { open: ReturnType<typeof vi.fn> };
@@ -439,7 +528,7 @@ describe('RegistrarComponent load and save errors', () => {
 
     const [question] = confirm.mock.calls[0] as unknown as [string];
     expect(question).toContain(
-      'Its URLs, account, stored password, client secret and registration certificate defaults are removed.'
+      'Its URLs, account, stored password, client secret, relying party contact and registration certificate defaults are removed.'
     );
     expect(question).toContain('presentation requests are sent without registration certificates');
     expect(question).toContain('This cannot be undone.');
@@ -456,7 +545,9 @@ describe('RegistrarComponent load and save errors', () => {
     await component.deleteConfig();
 
     const [question] = confirm.mock.calls[0] as unknown as [string];
-    expect(question).toContain('stored password and registration certificate defaults');
+    expect(question).toContain(
+      'stored password, relying party contact and registration certificate defaults'
+    );
     expect(question).not.toContain('client secret');
   });
 
@@ -585,13 +676,6 @@ describe('RegistrarComponent load and save errors', () => {
     expect(registrarUrl.valid).toBe(true);
     expect(oidcUrl.valid).toBe(true);
   });
-
-  function validationFailed(errors: unknown[]) {
-    return new HttpErrorResponse({
-      status: 400,
-      error: { statusCode: 400, message: 'Validation failed', errors },
-    });
-  }
 
   it('shows a rejected field under the field until it is edited', async () => {
     await load(stored);

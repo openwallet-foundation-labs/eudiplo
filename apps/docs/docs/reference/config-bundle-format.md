@@ -48,7 +48,7 @@ rejects versions newer than its own.
 | `Client`             | `ClientConfigFile`            | 2               |           |
 | `KmsConfig`          | `KmsConfigFile`               | 2               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
-| `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
+| `RegistrarConfig`    | `RegistrarConfigFile`         | 2               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 4               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
@@ -109,6 +109,12 @@ document is migrated unchanged; 9.x cannot read v2 files.
 key chains, including `KeyChain` documents of a bundle. A bare `kms.json` with
 `algorithms` or `defaultAlgorithm` on a provider is read as v2. A
 v1 document is migrated unchanged; 9.x cannot read v2 files.
+
+**RegistrarConfig v2** came with EUDIPLO 10.0 as well. It adds the optional
+`relyingPartyContact`, sent when EUDIPLO registers the relying party at the
+registrar ([Registrar](../trust/registrar.md#relying-party)). A bare
+`registrar.json` with `relyingPartyContact` is read as v2. A v1 document is
+migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 

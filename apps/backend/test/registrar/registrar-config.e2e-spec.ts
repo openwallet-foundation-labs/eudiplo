@@ -184,6 +184,35 @@ describe("Registrar configuration credentials (e2e)", () => {
         expect((await getConfig()).hasClientSecret).toBe(false);
     });
 
+    test("stores, returns and clears the relying party contact", async () => {
+        const tokenRequests = oidcProvider(idp, realm);
+        const relyingPartyContact = {
+            supportUri: "https://verifier.example/support",
+            email: "support@verifier.example",
+        };
+        await postConfig({ ...config, relyingPartyContact });
+        expect((await getConfig()).relyingPartyContact).toEqual(
+            relyingPartyContact,
+        );
+
+        const before = tokenRequests.length;
+        await patchConfig({ relyingPartyContact: null }).expect(200);
+
+        expect((await getConfig()).relyingPartyContact).toBeNull();
+        // The contact is no credential: changing it does not log in again.
+        expect(tokenRequests).toHaveLength(before);
+    });
+
+    test("rejects a relying party contact without any value", async () => {
+        oidcProvider(idp, realm);
+        await postConfig(config);
+
+        const res = await patchConfig({ relyingPartyContact: {} });
+
+        expect(res.status).toBe(400);
+        expect((await getConfig()).relyingPartyContact).toBeNull();
+    });
+
     test("sends each tenant's registrar token only to its own registrar", async () => {
         const tenants = [
             {
