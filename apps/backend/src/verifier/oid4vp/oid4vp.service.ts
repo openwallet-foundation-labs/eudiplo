@@ -340,30 +340,9 @@ export class Oid4vpService {
                 session.clientId ?? createClientId(cert, this.certService);
             const federation = isFederationClientId(clientId);
 
-            // trust_chain goes into the JWS header (OpenID Federation
-            // Section 4.3). OID4VP 1.0 Section 5.9.3 also allows it as a
-            // request parameter, but @openid4vc/openid4vp 0.7 wallets reject
-            // that parameter with an openid_federation: client_id.
-            let trustChain: string[] | undefined;
-            if (federation) {
-                const entity = await this.federationIdentity.forTenant(
-                    session.tenantId,
-                );
-                if (
-                    !entity ||
-                    entity.entityIdProblem ||
-                    clientId !== federationClientId(entity.entityId)
-                ) {
-                    throw new BadRequestException(
-                        "The OpenID Federation verifier identity of this request is no longer configured",
-                    );
-                }
-                if (entity.includeTrustChain) {
-                    trustChain = await this.federationIdentity.trustChain(
-                        session.tenantId,
-                    );
-                }
-            }
+            const trustChain = federation
+                ? await this.federationTrustChain(session.tenantId, clientId)
+                : undefined;
 
             // Use transaction_data from session (which may have been overridden) or fall back to config
             const transaction_data =
@@ -373,28 +352,8 @@ export class Oid4vpService {
                 )?.map((td) => base64url.encode(JSON.stringify(td))) ||
                 undefined;
 
-            // With openid_federation the wallet ignores client_metadata and
-            // encrypts to a key of the verifier metadata in the trust chain:
-            // the tenant encryption key, which decrypts the response when
-            // the session holds no ephemeral key.
-            let responseEncryptionPublicJwk: JWK;
-            if (federation) {
-                responseEncryptionPublicJwk =
-                    await this.encryptionService.getEncryptionPublicKey(
-                        session.tenantId,
-                    );
-            } else {
-                const { publicJwk, privateJwk } =
-                    await this.encryptionService.generateEphemeralEncryptionKeyPair();
-                responseEncryptionPublicJwk = publicJwk;
-                await this.sessionStore.updateForTenant(
-                    session.tenantId,
-                    session.id,
-                    {
-                        responseEncryptionPrivateJwk: privateJwk,
-                    },
-                );
-            }
+            const responseEncryptionPublicJwk =
+                await this.responseEncryptionKey(session, federation);
 
             // Per OID4VP spec Section 13.3: use walletNonce in wallet-facing URLs
             // to separate the wallet-facing identifier (request-id) from the
@@ -480,6 +439,59 @@ export class Oid4vpService {
             });
             throw error;
         }
+    }
+
+    /**
+     * The trust chain for a request with an `openid_federation` client_id,
+     * when configured. It goes into the JWS header (OpenID Federation
+     * Section 4.3). OID4VP 1.0 Section 5.9.3 also allows it as a request
+     * parameter, but @openid4vc/openid4vp 0.7 wallets reject that parameter
+     * with an openid_federation: client_id.
+     *
+     * @throws BadRequestException when the client_id no longer names the
+     * tenant's federation verifier entity
+     */
+    private async federationTrustChain(
+        tenantId: string,
+        clientId: string,
+    ): Promise<string[] | undefined> {
+        const entity = await this.federationIdentity.forTenant(tenantId);
+        if (
+            !entity ||
+            entity.entityIdProblem ||
+            clientId !== federationClientId(entity.entityId)
+        ) {
+            throw new BadRequestException(
+                "The OpenID Federation verifier identity of this request is no longer configured",
+            );
+        }
+        return entity.includeTrustChain
+            ? this.federationIdentity.trustChain(tenantId)
+            : undefined;
+    }
+
+    /**
+     * The key the wallet encrypts its response to. With openid_federation
+     * the wallet ignores client_metadata and encrypts to a key of the
+     * verifier metadata in the trust chain: the tenant encryption key, which
+     * decrypts the response when the session holds no ephemeral key.
+     * Otherwise each session gets an ephemeral key pair.
+     */
+    private async responseEncryptionKey(
+        session: SessionData,
+        federation: boolean,
+    ): Promise<JWK> {
+        if (federation) {
+            return this.encryptionService.getEncryptionPublicKey(
+                session.tenantId,
+            );
+        }
+        const { publicJwk, privateJwk } =
+            await this.encryptionService.generateEphemeralEncryptionKeyPair();
+        await this.sessionStore.updateForTenant(session.tenantId, session.id, {
+            responseEncryptionPrivateJwk: privateJwk,
+        });
+        return publicJwk;
     }
 
     private normalizeExpectedOrigin(origin: string): string | undefined {
