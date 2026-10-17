@@ -1,7 +1,7 @@
 {
   "name": "eudiplo-workspace",
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
+    "dev": "pnpm -r --parallel --filter \"!@eudiplo/cli\" dev",
     "build": "pnpm -r build",
     "build:docs": "pnpm -r build",
     "dev:client": "pnpm --filter @eudiplo/client dev",
