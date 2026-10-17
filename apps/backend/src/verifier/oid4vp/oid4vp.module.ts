@@ -11,6 +11,7 @@ import { SessionStore } from "../../session/application/session-store.js";
 import { SessionModule } from "../../session/session.module.js";
 import { FederationTrustService } from "../../trust/federation-trust.service.js";
 import { TrustModule } from "../../trust/trust.module.js";
+import { OutboundUrlPolicyService } from "../../webhook/outbound-url-policy.service.js";
 import {
     PRESENTATION_RESULT_PUBLISHER,
     type PresentationResultPublisher,
@@ -46,14 +47,20 @@ import { VerifierMetadataService } from "./verifier-metadata.service.js";
         VerifierMetadataService,
         {
             provide: VERIFIER_FEDERATION_IDENTITY,
-            inject: [IssuanceService, FederationTrustService],
+            inject: [
+                IssuanceService,
+                FederationTrustService,
+                OutboundUrlPolicyService,
+            ],
             useFactory: (
                 issuance: IssuanceService,
                 federation: FederationTrustService,
+                outboundUrlPolicy: OutboundUrlPolicyService,
             ) =>
                 new IssuanceConfigVerifierFederationIdentity(
                     issuance,
                     federation,
+                    () => outboundUrlPolicy.allowHttp(),
                 ),
         },
         {

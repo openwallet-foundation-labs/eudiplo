@@ -351,6 +351,7 @@ export class Oid4vpService {
                 );
                 if (
                     !entity ||
+                    entity.entityIdProblem ||
                     clientId !== federationClientId(entity.entityId)
                 ) {
                     throw new BadRequestException(
@@ -539,6 +540,11 @@ export class Oid4vpService {
             if (!entity) {
                 throw new BadRequestException(
                     "clientIdScheme openid_federation needs federation.entityId, at least one trust anchor and openid_credential_verifier in federation.entityTypes of the issuance configuration",
+                );
+            }
+            if (entity.entityIdProblem) {
+                throw new BadRequestException(
+                    `clientIdScheme openid_federation needs a valid federation.entityId in the issuance configuration: ${entity.entityIdProblem}`,
                 );
             }
             clientId = federationClientId(entity.entityId);

@@ -1,5 +1,6 @@
 import type { FederationTrustService } from "../../../../trust/federation-trust.service.js";
 import {
+    federationEntityIdProblem,
     ownFederationEntity,
     ownTrustChain,
 } from "../../issuance/domain/own-federation-entity.js";
@@ -29,7 +30,11 @@ export class ConfiguredIssuerFederationContext
         if (!config.federation || !this.federation.isEnabled(config.federation))
             return undefined;
         const entity = ownFederationEntity(config.federation);
-        return entity?.entityTypes.includes("openid_credential_issuer")
+        // A stored entity ID saved before EUDIPLO validated it resolves
+        // nowhere, so the credential falls back to x5c. http is checked
+        // when the configuration is saved.
+        return entity?.entityTypes.includes("openid_credential_issuer") &&
+            !federationEntityIdProblem(entity.entityId, { allowHttp: true })
             ? entity.entityId
             : undefined;
     }

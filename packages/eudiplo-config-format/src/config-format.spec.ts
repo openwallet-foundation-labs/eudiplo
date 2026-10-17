@@ -563,6 +563,58 @@ describe("portable schema identity and migrations", () => {
         ));
 });
 
+describe("IssuanceConfig v4 to v5", () => {
+    const v4 = (entityId?: string) => ({
+        $schema: schemaUrl("IssuanceConfig", 4),
+        spec: {
+            authorizationServers: [{ type: "built-in", id: "issuer" }],
+            federation: {
+                ...(entityId === undefined ? {} : { entityId }),
+                trustAnchors: [
+                    {
+                        entityId: "https://ta.example.org",
+                        entityConfigurationUri:
+                            "https://ta.example.org/.well-known/openid-federation",
+                    },
+                ],
+            },
+        },
+    });
+
+    it.each([
+        undefined,
+        "https://issuer.example.org/issuers/tenant",
+        "http://localhost:3000/issuers/root",
+    ])("upgrades the entity id %s without an issue", (entityId) => {
+        const result = migrateDocument(v4(entityId), validateConfigDocument);
+
+        expect(result.migrations).toEqual([
+            "issuance-config-v5-federation-entity",
+        ]);
+        expect(result.issues).toEqual([]);
+        expect(result.document.spec).toEqual(v4(entityId).spec);
+    });
+
+    it.each([
+        "issuer",
+        "https://issuer.example.org/?tenant=a",
+        "https://issuer.example.org#entity",
+    ])("asks for a new entity id instead of %s and keeps the value", (entityId) => {
+        const result = migrateDocument(v4(entityId), () => []);
+
+        expect(result.issues).toEqual([
+            expect.objectContaining({
+                severity: "required-input",
+                code: "FEDERATION_ENTITY_ID_INVALID",
+                path: "/spec/federation/entityId",
+            }),
+        ]);
+        expect(
+            (result.document.spec.federation as { entityId: string }).entityId,
+        ).toBe(entityId);
+    });
+});
+
 describe("PresentationConfig v1 to v2", () => {
     const dcql_query = {
         credentials: [

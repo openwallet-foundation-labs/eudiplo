@@ -24,8 +24,10 @@ import { loadConfigDto } from "../../../shared/utils/config-file-loader.util.js"
 import { FilesService } from "../../../storage/files.service.js";
 import { normalizeTrustListRefs } from "../../../trust/types.js";
 import type { TrustListRef } from "../../../verifier/presentations/entities/presentation-config.entity.js";
+import { OutboundUrlPolicyService } from "../../../webhook/outbound-url-policy.service.js";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service.js";
 import type { IssuanceConfiguration as IssuanceConfig } from "./domain/issuance-configuration.js";
+import { federationEntityIdProblem } from "./domain/own-federation-entity.js";
 import {
     REMOVED_CHAINED_VP_MESSAGE,
     usesRemovedChainedVp,
@@ -63,6 +65,7 @@ export class IssuanceService {
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly tenantActionLogService: AuditLogService,
+        private readonly outboundUrlPolicy: OutboundUrlPolicyService,
     ) {
         this.configImportOrchestrator.register(
             "issuance",
@@ -306,6 +309,16 @@ export class IssuanceService {
         );
         if (federationProblem) {
             throw new BadRequestException(federationProblem);
+        }
+        const entityId = (filteredValue as Partial<IssuanceDto>).federation
+            ?.entityId;
+        const entityIdProblem = entityId
+            ? federationEntityIdProblem(entityId, {
+                  allowHttp: this.outboundUrlPolicy.allowHttp(),
+              })
+            : undefined;
+        if (entityIdProblem) {
+            throw new BadRequestException(entityIdProblem);
         }
 
         const hasIncomingAuthorizationServers =

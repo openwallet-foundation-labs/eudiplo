@@ -197,6 +197,52 @@ describe('issuer settings guided setup', () => {
     });
   });
 
+  describe('federation entity ID', () => {
+    const withAnchor = (entityId?: string) =>
+      service.getConfig.mockResolvedValue({
+        ...config,
+        federation: {
+          mode: 'hybrid',
+          ...(entityId === undefined ? {} : { entityId }),
+          trustAnchors: [
+            {
+              entityId: 'https://trust.example',
+              entityConfigurationUri: 'https://trust.example/config',
+            },
+          ],
+        },
+      });
+
+    it('sends a blank entity ID as not set', async () => {
+      withAnchor();
+      await component.loadConfigForEdit();
+      component.federation.patchValue({ entityId: '' });
+      component.onSubmit();
+      const [payload] = service.saveConfiguration.mock.calls[0];
+      expect(payload.federation).toBeTruthy();
+      expect(payload.federation.entityId).toBeUndefined();
+    });
+
+    it('saves with federation off although a hidden entity ID is invalid', async () => {
+      await component.loadConfigForEdit();
+      component.federation.patchValue({ enabled: true, entityId: 'https://issuer.example/?a' });
+      component.federation.patchValue({ enabled: false });
+      component.onSubmit();
+      expect(service.saveConfiguration).toHaveBeenCalled();
+      expect(service.saveConfiguration.mock.calls[0][0].federation).toBeNull();
+    });
+
+    it('stops at the trust step for an entity ID with a query', async () => {
+      withAnchor();
+      await component.loadConfigForEdit();
+      component.federation.patchValue({ entityId: 'https://issuer.example/?tenant=a' });
+      component.onSubmit();
+      expect(component.federation.get('entityId')?.hasError('pattern')).toBe(true);
+      expect(component.activeStep).toBe(2);
+      expect(service.saveConfiguration).not.toHaveBeenCalled();
+    });
+  });
+
   it('explicitly clears disabled trust settings and resets the PIN limit', async () => {
     service.getConfig.mockResolvedValue({
       ...config,

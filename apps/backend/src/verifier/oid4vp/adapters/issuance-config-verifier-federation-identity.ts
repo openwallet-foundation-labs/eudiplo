@@ -1,5 +1,6 @@
 import { IssuanceConfigurationNotFound } from "../../../issuer/configuration/issuance/domain/issuance-configuration.js";
 import {
+    federationEntityIdProblem,
     ownFederationEntity,
     ownTrustChain,
 } from "../../../issuer/configuration/issuance/domain/own-federation-entity.js";
@@ -27,6 +28,8 @@ export class IssuanceConfigVerifierFederationIdentity
             FederationTrustService,
             "resolveEntity"
         >,
+        /** Whether OUTBOUND_URL_ALLOW_HTTP allows an http entity ID. */
+        private readonly allowHttp: () => boolean,
     ) {}
 
     async forTenant(
@@ -39,6 +42,9 @@ export class IssuanceConfigVerifierFederationIdentity
         return {
             entityId: entity.entityId,
             includeTrustChain: entity.includeTrustChain,
+            entityIdProblem: federationEntityIdProblem(entity.entityId, {
+                allowHttp: this.allowHttp(),
+            }),
         };
     }
 

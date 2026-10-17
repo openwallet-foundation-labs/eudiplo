@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import { IssuanceService } from "./issuance.service.js";
 
 describe("IssuanceService.storeIssuanceConfiguration", () => {
-    const service = (save = vi.fn(async (config) => config)) => ({
+    const service = (
+        save = vi.fn(async (config) => config),
+        allowHttp = false,
+    ) => ({
         save,
         issuance: Object.assign(Object.create(IssuanceService.prototype), {
+            outboundUrlPolicy: { allowHttp: () => allowHttp },
             issuanceConfigRepo: {
                 getForTenant: vi.fn().mockResolvedValue({
                     tenantId: "tenant-1",
@@ -87,6 +91,65 @@ describe("IssuanceService.storeIssuanceConfiguration", () => {
             expect(save).not.toHaveBeenCalled();
         },
     );
+
+    const withEntityId = (entityId: string) =>
+        ({
+            authorizationServers: [{ type: "built-in", id: "issuer-built-in" }],
+            federation: {
+                entityId,
+                trustAnchors: [
+                    {
+                        entityId: "https://ta.example.org",
+                        entityConfigurationUri:
+                            "https://ta.example.org/.well-known/openid-federation",
+                    },
+                ],
+            },
+        }) as any;
+
+    it("rejects an http entity id without OUTBOUND_URL_ALLOW_HTTP", async () => {
+        const { issuance, save } = service();
+
+        const result = issuance.storeIssuanceConfiguration(
+            "tenant-1",
+            withEntityId("http://localhost:3000/issuers/tenant-1"),
+        );
+
+        await expect(result).rejects.toBeInstanceOf(BadRequestException);
+        await expect(result).rejects.toThrow(/OUTBOUND_URL_ALLOW_HTTP/);
+        expect(save).not.toHaveBeenCalled();
+    });
+
+    it("accepts an http entity id with OUTBOUND_URL_ALLOW_HTTP", async () => {
+        const { issuance, save } = service(undefined, true);
+
+        await issuance.storeIssuanceConfiguration(
+            "tenant-1",
+            withEntityId("http://localhost:3000/issuers/tenant-1"),
+        );
+
+        expect(save).toHaveBeenCalledOnce();
+    });
+
+    it("keeps an empty entity id as not set", async () => {
+        const { issuance, save } = service();
+
+        await issuance.storeIssuanceConfiguration("tenant-1", withEntityId(""));
+
+        expect(save).toHaveBeenCalledOnce();
+    });
+
+    it("rejects an entity id that is no URL even with OUTBOUND_URL_ALLOW_HTTP", async () => {
+        const { issuance, save } = service(undefined, true);
+
+        await expect(
+            issuance.storeIssuanceConfiguration(
+                "tenant-1",
+                withEntityId("tenant-1"),
+            ),
+        ).rejects.toThrow(/is not a URL/);
+        expect(save).not.toHaveBeenCalled();
+    });
 
     it("accepts the supported federation options", async () => {
         const { issuance, save } = service();

@@ -5028,7 +5028,7 @@ export type FederationConfig = {
      */
     mode?: 'federation-only' | 'hybrid';
     /**
-     * Entity identifier of this issuer/verifier in the federation.
+     * Entity Identifier of this issuer/verifier in the federation, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment. http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.
      */
     entityId?: string;
     /**

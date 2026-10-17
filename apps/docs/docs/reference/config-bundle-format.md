@@ -49,7 +49,7 @@ rejects versions newer than its own.
 | `KmsConfig`          | `KmsConfigFile`               | 2               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 2               | yes       |
-| `IssuanceConfig`     | `IssuanceConfigFile`          | 4               | yes       |
+| `IssuanceConfig`     | `IssuanceConfigFile`          | 5               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
@@ -80,6 +80,19 @@ read v3 files.
 `walletAttestationStatusCheckMode` (`strict`, `best_effort` or `disabled`) to the
 issuance configuration and its `built-in`, `chained` and `oid4vp` authorization
 servers. A v3 document is migrated unchanged; 9.x cannot read v4 files.
+
+**IssuanceConfig v5** came with EUDIPLO 10.0. It adds the optional `federation`
+fields for the published entity configuration (`entityTypes`,
+`authorityHints`, `entityKeyChainId`, `entityConfigurationLifetimeSeconds`,
+`trustMarks`, `entityMetadata`, `includeTrustChain`) and requires a non-empty
+`federation.entityId` to be an `https` or `http` URL with a host and without
+query, fragment, credentials or whitespace, written as the URL it stands for.
+When the document is applied, the server refuses `http` unless
+`OUTBOUND_URL_ALLOW_HTTP=true` ([OpenID Federation](../trust/federation.md#configure-federation-for-issuance)).
+A v4 document with a valid or empty `entityId` is migrated unchanged. Another
+value stops the migration with the required input
+`FEDERATION_ENTITY_ID_INVALID` at `/spec/federation/entityId`; the value is not
+rewritten, and nothing is written until you set it.
 
 **CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
 `frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root

@@ -253,6 +253,52 @@ describe("config upgrade", () => {
         );
         expect(result.spec).toEqual(spec);
     });
+    it("upgrades a v4 issuance configuration to v5 and blocks an invalid federation entity id", async () => {
+        const { cwd, context, output } = await setup();
+        const source = join(cwd, "issuance.json");
+        const spec = (entityId: string) => ({
+            authorizationServers: [{ type: "built-in", id: "issuer" }],
+            federation: {
+                entityId,
+                trustAnchors: [
+                    {
+                        entityId: "https://ta.example.org",
+                        entityConfigurationUri:
+                            "https://ta.example.org/.well-known/openid-federation",
+                    },
+                ],
+            },
+        });
+
+        await writeFile(
+            source,
+            JSON.stringify({
+                $schema: schemaUrl("IssuanceConfig", 4),
+                spec: spec("issuer"),
+            }),
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(1);
+        expect(output.stderr).toContain(
+            "/spec/federation/entityId: required-input FEDERATION_ENTITY_ID_INVALID",
+        );
+        await expect(access(`${source}.upgraded.json`)).rejects.toThrow();
+
+        const valid = spec("https://eudiplo.example/issuers/tenant");
+        await writeFile(
+            source,
+            JSON.stringify({
+                $schema: schemaUrl("IssuanceConfig", 4),
+                spec: valid,
+            }),
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(`${source}.upgraded.json`, "utf8"),
+        );
+        expect(result.$schema).toBe(schemaUrl("IssuanceConfig", 5));
+        expect(result.spec).toEqual(valid);
+    });
+
     it("upgrades a v1 KMS configuration file to v2 with the spec unchanged", async () => {
         const { cwd, context } = await setup();
         const source = join(cwd, "kms-folder");
