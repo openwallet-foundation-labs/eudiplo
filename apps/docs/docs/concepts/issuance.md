@@ -45,7 +45,7 @@ sequenceDiagram
     E->>BE: notification webhook
 ```
 
-The offer names the credential configurations and, for the authorization code flow, carries the session ID as `issuer_state`. For the built-in, chained and OID4VP-based servers, "authorization server" is EUDIPLO itself; only an external server issues its own tokens.
+The offer names the credential configurations and, for the authorization code flow, carries a random `issuer_state`, which is not the session ID. For the built-in, chained and OID4VP-based servers, "authorization server" is EUDIPLO itself; only an external server issues its own tokens.
 
 ## Authorization servers
 
@@ -53,10 +53,10 @@ How the wallet obtains its access token depends on the authorization server the 
 
 | Type       | User authentication                                       | Token issued by | Token carries the session as          | Wallet attestation |
 | ---------- | --------------------------------------------------------- | --------------- | ------------------------------------- | ------------------ |
-| `built-in` | None (pre-authorized code, or authorization code without login; optional interactive authorization) | EUDIPLO | `sub`                    | ✅                 |
+| `built-in` | None (pre-authorized code, or authorization code without login; optional interactive authorization) | EUDIPLO | Session ID in `sub`      | ✅                 |
 | `external` | Your OAuth 2.0 server                                     | External server | The claim named in `sessionBinding.claim` | ❌             |
-| `chained`  | An upstream OpenID Connect provider, through EUDIPLO      | EUDIPLO         | `issuer_state`                        | ✅                 |
-| `oid4vp`   | Presentation of another credential                        | EUDIPLO         | `issuer_state`                        | ✅                 |
+| `chained`  | An upstream OpenID Connect provider, through EUDIPLO      | EUDIPLO         | Session ID in claim `issuer_state`    | ✅                 |
+| `oid4vp`   | Presentation of another credential                        | EUDIPLO         | Session ID in claim `issuer_state`    | ✅                 |
 
 Codes work once. With the built-in server, the first successful token request marks the session consumed, so neither its authorization code nor the pre-authorized code can be redeemed again (`invalid_grant`); the chained and OID4VP-based servers track their codes in their own authorization sessions. Refresh tokens stay usable afterwards.
 

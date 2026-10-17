@@ -18,6 +18,7 @@ import { Role } from "../../auth/roles/role.enum.js";
 import { Secured } from "../../auth/secure.decorator.js";
 import { Token, TokenPayload } from "../../auth/token.decorator.js";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto.js";
+import { Iso18013OfferResponse } from "../iso18013/dto/iso18013-offer-response.dto.js";
 import { Iso18013Service } from "../iso18013/iso18013.service.js";
 import {
     PresentationRequest,
@@ -26,7 +27,7 @@ import {
 import { Oid4vpService } from "../oid4vp/oid4vp.service.js";
 
 @ApiTags("Verifier")
-@ApiExtraModels(OfferResponse)
+@ApiExtraModels(OfferResponse, Iso18013OfferResponse)
 @Secured([Role.PresentationRequest, Role.Presentations])
 @Controller("verifier/offer")
 export class VerifierOfferController {
@@ -41,11 +42,17 @@ export class VerifierOfferController {
      * @param body
      */
     @ApiResponse({
-        description: "JSON response",
+        description:
+            'JSON response; `Iso18013OfferResponse` for `response_type: "iso-18013-7"`',
         status: 201,
         content: {
             "application/json": {
-                schema: { $ref: "#/components/schemas/OfferResponse" },
+                schema: {
+                    oneOf: [
+                        { $ref: "#/components/schemas/OfferResponse" },
+                        { $ref: "#/components/schemas/Iso18013OfferResponse" },
+                    ],
+                },
             },
             "image/png": { schema: { type: "string", format: "binary" } },
         },

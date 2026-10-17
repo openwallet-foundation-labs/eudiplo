@@ -3,9 +3,9 @@ import { afterEach, describe, expect, test } from "vitest";
 import { ClientEntity } from "../auth/client/entities/client.entity.js";
 import { TenantEntity } from "../auth/tenant/entities/tenant.entity.js";
 import { FederationTrustAnchorEntity } from "../trust/federation-trust-anchor/entities/federation-trust-anchor.entity.js";
-import { AddFederationTrustAnchor1785300000000 } from "./migrations/1785300000000-AddFederationTrustAnchor.js";
+import { AddFederationTrustAnchor1785500000000 } from "./migrations/1785500000000-AddFederationTrustAnchor.js";
 
-describe("AddFederationTrustAnchor1785300000000", () => {
+describe("AddFederationTrustAnchor1785500000000", () => {
     let dataSource: DataSource | undefined;
 
     afterEach(async () => {
@@ -24,7 +24,7 @@ describe("AddFederationTrustAnchor1785300000000", () => {
         // comes from the migration.
         await dataSource.synchronize();
         const queryRunner = dataSource.createQueryRunner();
-        const migration = new AddFederationTrustAnchor1785300000000();
+        const migration = new AddFederationTrustAnchor1785500000000();
         await queryRunner.dropTable("federation_trust_anchor_entity");
         await migration.up(queryRunner);
         await migration.up(queryRunner);

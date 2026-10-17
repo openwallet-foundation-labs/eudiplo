@@ -162,12 +162,24 @@ export class TypeOrmSessionRepository implements SessionRepository {
         return this.findSession({ id });
     }
     findForWalletRequest(walletNonce: string) {
-        // Never by session ID: it is no secret. Issuance offers carry it, the
-        // management API lists it and ISO 18013-7 pages post with it.
-        return this.findSession({ walletNonce });
+        // Never by session ID: the management API lists it. Never an issuance
+        // session (its wallet nonce is the offer's issuer_state) and never an
+        // ISO 18013-7 session, which only its own endpoint answers.
+        return this.findSession({
+            walletNonce,
+            dcApiProtocol: IsNull(),
+            ...typeWhere("presentation"),
+        });
     }
-    findIso18013Session(id: string) {
-        return this.findSession({ id, dcApiProtocol: "iso-18013-7" });
+    findIssuanceForWalletReference(tenantId: string, reference: string) {
+        return this.findSession({
+            tenantId,
+            walletNonce: reference,
+            ...typeWhere("issuance"),
+        });
+    }
+    findIso18013Session(walletNonce: string) {
+        return this.findSession({ walletNonce, dcApiProtocol: "iso-18013-7" });
     }
     findByAuthorizationCode(tenantId: string, codeHash: string) {
         return this.findSession({ tenantId, authorization_code: codeHash });
@@ -183,7 +195,8 @@ export class TypeOrmSessionRepository implements SessionRepository {
         binding: ExternalSessionBinding,
     ): Promise<SessionData | null> {
         const where = {
-            id: binding.sessionId,
+            walletNonce: binding.walletReference,
+            ...typeWhere("issuance"),
             tenantId: binding.tenantId,
             authorizationServerId: binding.authorizationServerId,
             status: SessionStatus.Active,
@@ -594,15 +607,20 @@ export class TypeOrmSessionRepository implements SessionRepository {
 
     async findCredentialOffer(
         tenantId: string,
-        sessionId: string,
+        walletReference: string,
     ): Promise<SessionCredentialOffer | null> {
         const session = await this.sessions.findOne({
-            where: { id: sessionId, tenantId },
+            where: {
+                walletNonce: walletReference,
+                tenantId,
+                ...typeWhere("issuance"),
+            },
             select: { id: true, offer: true, status: true, expiresAt: true },
             loadEagerRelations: false,
         });
         return session
             ? {
+                  id: session.id,
                   offer: session.offer ?? null,
                   status: session.status,
                   ...(session.expiresAt

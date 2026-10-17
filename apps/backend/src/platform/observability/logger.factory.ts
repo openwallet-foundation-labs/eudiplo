@@ -142,9 +142,10 @@ function attachResponseBodyCapture(
 }
 
 /**
- * Identifiers in the path of wallet-facing routes. The OID4VP routes carry the
- * wallet nonce, which is not the session id (OID4VP Section 13.3); the session
- * id is added by the log context once the request resolved its session.
+ * The tenant in the path of tenant-scoped routes. Wallet references in the
+ * path are not reported: they are bearer values (see `redactUrl`); the
+ * session ID is added by the log context once the request resolved its
+ * session.
  */
 function pathIdentifiers(url: string | undefined): Record<string, string> {
     let pathname: string;
@@ -153,14 +154,8 @@ function pathIdentifiers(url: string | undefined): Record<string, string> {
     } catch {
         return {};
     }
-    const walletNonce = /^\/presentations\/([^/]+)\/oid4vp(?:\/|$)/.exec(
-        pathname,
-    )?.[1];
     const tenantId = /^\/issuers\/([^/]+)\//.exec(pathname)?.[1];
-    return {
-        ...(walletNonce ? { walletNonce } : {}),
-        ...(tenantId ? { tenantId } : {}),
-    };
+    return tenantId ? { tenantId } : {};
 }
 
 /**

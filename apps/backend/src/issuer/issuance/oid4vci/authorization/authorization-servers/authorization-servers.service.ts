@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import {
     BadRequestException,
     Inject,
@@ -12,8 +12,10 @@ import { CryptoService } from "../../../../../crypto/crypto.service.js";
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service.js";
 import { CreateSession } from "../../../../../session/application/create-session.js";
 import { SessionStore } from "../../../../../session/application/session-store.js";
-import { SessionStatus } from "../../../../../session/domain/session-state.js";
-import { assertSessionUsable } from "../../../../../session/domain/session-usability.js";
+import {
+    isTerminalStatus,
+    SessionStatus,
+} from "../../../../../session/domain/session-state.js";
 import { WalletAttestationService } from "../../../../../trust/wallet-attestation.service.js";
 import { Oid4vpService } from "../../../../../verifier/oid4vp/oid4vp.service.js";
 import type { TrustListRef } from "../../../../../verifier/presentations/entities/presentation-config.entity.js";
@@ -29,6 +31,10 @@ import {
     DPOP_PROOF_REPLAY_REGISTRY,
     type DpopProofReplayRegistry,
 } from "../../ports/dpop-proof-replay-registry.js";
+import {
+    InvalidIssuerState,
+    ResolveIssuerState,
+} from "../application/resolve-issuer-state.js";
 import { verifyClientAttestation } from "../domain/client-attestation.js";
 import {
     hashAuthorizationCode,
@@ -84,6 +90,17 @@ type ChainedManagedAuthorizationServerConfig =
         type: "chained";
         upstream: unknown;
     };
+
+/** Constant-time comparison of a stored secret with a presented one. */
+function sameSecret(
+    stored: string | null | undefined,
+    presented: string | undefined,
+): boolean {
+    if (!stored || !presented) return false;
+    const digest = (value: string) =>
+        createHash("sha256").update(value).digest();
+    return timingSafeEqual(digest(stored), digest(presented));
+}
 
 @Injectable()
 export class AuthorizationServersService {
@@ -309,15 +326,17 @@ export class AuthorizationServersService {
             throw toOAuthHttpError(error, this.logger);
         });
 
-        let issuerState = request.issuer_state;
-        if (issuerState) {
+        // The offer's session ID correlates the authorization with the offer.
+        let issuerState: string;
+        if (request.issuer_state) {
             try {
-                assertSessionUsable(
-                    await this.sessionStore.getForTenant(tenantId, issuerState),
-                    new Date(),
-                );
-            } catch {
-                throw new BadRequestException("Invalid issuer_state");
+                issuerState = await new ResolveIssuerState(
+                    this.sessionStore,
+                ).execute(tenantId, request.issuer_state);
+            } catch (error) {
+                if (error instanceof InvalidIssuerState)
+                    throw new BadRequestException(error.message);
+                throw error;
             }
         } else {
             issuerState = v4();
@@ -462,33 +481,36 @@ export class AuthorizationServersService {
             );
         }
 
-        if (error) {
-            session.status = ChainedAsSessionStatus.EXPIRED;
-            await this.sessionRepository.save(session);
-            return buildAuthorizationErrorRedirect(
-                session.redirectUri,
-                error,
-                errorDescription,
-                session.walletState,
-            );
-        }
-
+        // `cas` is no secret: it is the verifier session's ID, which the
+        // management API lists. Only the verifier session's own state decides
+        // the outcome, so a caller without the response_code cannot end the
+        // authorization.
         const verifierSession = await this.sessionStore.getForTenant(
             session.tenantId,
             session.id,
         );
-        if (
-            verifierSession.status !== SessionStatus.Completed ||
-            !responseCode ||
-            verifierSession.responseCode !== responseCode
-        ) {
+        const verified =
+            verifierSession.status === SessionStatus.Completed &&
+            sameSecret(verifierSession.responseCode, responseCode);
+        const endedWithoutSuccess =
+            verifierSession.status !== SessionStatus.Completed &&
+            isTerminalStatus(verifierSession.status);
+        if (endedWithoutSuccess) {
             session.status = ChainedAsSessionStatus.EXPIRED;
             await this.sessionRepository.save(session);
             return buildAuthorizationErrorRedirect(
                 session.redirectUri,
-                "invalid_request",
-                "OID4VP verification did not complete successfully",
+                error ?? "invalid_request",
+                error
+                    ? errorDescription
+                    : "OID4VP verification did not complete successfully",
                 session.walletState,
+            );
+        }
+        if (!verified) {
+            // Still open, or completed but called without its response_code.
+            throw new BadRequestException(
+                "OID4VP verification did not complete successfully",
             );
         }
 

@@ -29,6 +29,8 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
     describe("session repository contract", () => {
         let adapter: TypeOrmSessionRepository;
         let sessionId: string;
+        /** Wallet reference of the issuance session `sessionId`. */
+        const walletNonce = "wallet-nonce-a";
         beforeEach(async () => {
             const db = getDataSource();
             await db.getRepository(Session).clear();
@@ -39,9 +41,12 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 .getRepository(TenantEntity)
                 .save({ id: "tenant-b", sessionConfig: null });
             sessionId = randomUUID();
-            await db
-                .getRepository(Session)
-                .save({ id: sessionId, tenantId: "tenant-a", offer });
+            await db.getRepository(Session).save({
+                id: sessionId,
+                tenantId: "tenant-a",
+                offer,
+                walletNonce,
+            });
             adapter = new TypeOrmSessionRepository(db.getRepository(Session));
         });
 
@@ -332,16 +337,22 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             ).resolves.toBe(false);
         });
 
-        it("finds wallet requests only by wallet nonce, and ISO sessions only by protocol", async () => {
+        it("finds wallet requests only by wallet nonce, never an ISO 18013-7 session", async () => {
             const nonceMatch = randomUUID();
             await adapter.create({
                 id: nonceMatch,
                 tenantId: "tenant-b",
+                requestId: "age-check",
                 walletNonce: sessionId,
             });
             expect(await adapter.findForWalletRequest(sessionId)).toMatchObject(
                 { id: nonceMatch },
             );
+            // ISO 18013-7 sessions are answered only at their own endpoint.
+            await adapter.updateForTenant("tenant-b", nonceMatch, {
+                dcApiProtocol: "iso-18013-7",
+            });
+            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
             await adapter.deleteForTenant("tenant-b", nonceMatch);
             // The session ID finds nothing, whatever the session's type.
             expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
@@ -349,21 +360,63 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 requestId: "age-check",
             });
             expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
-                dcApiProtocol: "iso-18013-7",
-            });
-            expect(await adapter.findForWalletRequest(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
-                dcApiProtocol: null,
-            });
             expect(await adapter.findForWalletRequest(randomUUID())).toBeNull();
-            expect(await adapter.findIso18013Session(sessionId)).toBeNull();
-            await adapter.updateForTenant("tenant-a", sessionId, {
+        });
+
+        it("finds ISO 18013-7 sessions only by wallet nonce", async () => {
+            const isoSession = randomUUID();
+            await adapter.create({
+                id: isoSession,
+                tenantId: "tenant-b",
+                requestId: "age-check",
+                walletNonce: "iso-nonce",
+            });
+            // Not an ISO 18013-7 session yet.
+            expect(await adapter.findIso18013Session("iso-nonce")).toBeNull();
+            await adapter.updateForTenant("tenant-b", isoSession, {
                 dcApiProtocol: "iso-18013-7",
             });
-            expect(await adapter.findIso18013Session(sessionId)).toMatchObject({
-                id: sessionId,
+            expect(
+                await adapter.findIso18013Session("iso-nonce"),
+            ).toMatchObject({ id: isoSession });
+            // The management API lists the session ID; it finds nothing.
+            expect(await adapter.findIso18013Session(isoSession)).toBeNull();
+        });
+
+        it("never finds an issuance session for a wallet request", async () => {
+            // An offer's issuer_state is its wallet nonce; OID4VP endpoints
+            // must not reach the issuance session with it.
+            expect(await adapter.findForWalletRequest(walletNonce)).toBeNull();
+        });
+
+        it("finds issuance sessions only by wallet reference, within the tenant", async () => {
+            expect(
+                await adapter.findIssuanceForWalletReference(
+                    "tenant-a",
+                    walletNonce,
+                ),
+            ).toMatchObject({ id: sessionId });
+            expect(
+                await adapter.findIssuanceForWalletReference(
+                    "tenant-a",
+                    sessionId,
+                ),
+            ).toBeNull();
+            expect(
+                await adapter.findIssuanceForWalletReference(
+                    "tenant-b",
+                    walletNonce,
+                ),
+            ).toBeNull();
+            await adapter.updateForTenant("tenant-a", sessionId, {
+                requestId: "age-check",
             });
+            expect(
+                await adapter.findIssuanceForWalletReference(
+                    "tenant-a",
+                    walletNonce,
+                ),
+            ).toBeNull();
         });
 
         it("binds only existing active sessions for the tenant and configured external server", async () => {
@@ -373,7 +426,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             });
             const binding = {
                 tenantId: "tenant-a",
-                sessionId,
+                walletReference: walletNonce,
                 authorizationServerId: "external",
                 externalIssuer: "https://external.example",
                 externalSubject: "new",
@@ -393,7 +446,14 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             expect(
                 await adapter.bindExternalAuthorization({
                     ...binding,
-                    sessionId: randomUUID(),
+                    walletReference: randomUUID(),
+                }),
+            ).toBeNull();
+            // Never by session ID.
+            expect(
+                await adapter.bindExternalAuthorization({
+                    ...binding,
+                    walletReference: sessionId,
                 }),
             ).toBeNull();
             for (const status of [
@@ -702,6 +762,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                     {
                         id: ids.mdlOffer,
                         tenantId: "tenant-a",
+                        walletNonce: "mdl-offer-nonce",
                         createdAt: new Date("2026-10-02T09:00:00Z"),
                         updatedAt: new Date("2026-10-02T09:00:00Z"),
                         status: SessionStatus.Fetched,
@@ -847,7 +908,8 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             });
 
             it("finds the session behind a pasted offer or request link", async () => {
-                const offerUri = `https://issuer.example/issuers/tenant-a/vci/credential-offers/${ids.mdlOffer}`;
+                const offerUri =
+                    "https://issuer.example/issuers/tenant-a/vci/credential-offers/mdl-offer-nonce";
                 expect(
                     await list({
                         q: `openid-credential-offer://?credential_offer_uri=${encodeURIComponent(offerUri)}`,
@@ -1681,9 +1743,13 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
         it("maps encrypted persistence to a plain offer view without eager tenant data", async () => {
             const view = await adapter.findCredentialOffer(
                 "tenant-a",
-                sessionId,
+                walletNonce,
             );
-            expect(view).toEqual({ offer, status: SessionStatus.Active });
+            expect(view).toEqual({
+                id: sessionId,
+                offer,
+                status: SessionStatus.Active,
+            });
             expect(view).not.toBeInstanceOf(Session);
             const expiresAt = new Date("2030-01-01T00:00:00.000Z");
             await adapter.updateForTenant("tenant-a", sessionId, {
@@ -1691,8 +1757,9 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 expiresAt,
             });
             await expect(
-                adapter.findCredentialOffer("tenant-a", sessionId),
+                adapter.findCredentialOffer("tenant-a", walletNonce),
             ).resolves.toEqual({
+                id: sessionId,
                 offer,
                 status: SessionStatus.Fetched,
                 expiresAt,
@@ -1708,14 +1775,24 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
 
         it("cannot read or consume another tenant's offer", async () => {
             await expect(
-                adapter.findCredentialOffer("tenant-b", sessionId),
+                adapter.findCredentialOffer("tenant-b", walletNonce),
             ).resolves.toBeNull();
             await expect(
                 adapter.consumeCredentialOffer("tenant-b", sessionId),
             ).resolves.toBe(false);
             await expect(
+                adapter.findCredentialOffer("tenant-a", walletNonce),
+            ).resolves.toEqual({
+                id: sessionId,
+                offer,
+                status: SessionStatus.Active,
+            });
+        });
+
+        it("never finds an offer by its session ID", async () => {
+            await expect(
                 adapter.findCredentialOffer("tenant-a", sessionId),
-            ).resolves.toEqual({ offer, status: SessionStatus.Active });
+            ).resolves.toBeNull();
         });
 
         it("distinguishes a missing session from a session without an offer", async () => {
@@ -1729,8 +1806,12 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 .getRepository(Session)
                 .update(sessionId, { offer: null });
             await expect(
-                adapter.findCredentialOffer("tenant-a", sessionId),
-            ).resolves.toEqual({ offer: null, status: SessionStatus.Active });
+                adapter.findCredentialOffer("tenant-a", walletNonce),
+            ).resolves.toEqual({
+                id: sessionId,
+                offer: null,
+                status: SessionStatus.Active,
+            });
             await expect(
                 adapter.consumeCredentialOffer("tenant-a", sessionId),
             ).resolves.toBe(false);

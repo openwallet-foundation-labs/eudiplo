@@ -70,8 +70,9 @@ export class Session {
     useDcApi!: boolean;
 
     /**
-     * DC API sub-protocol: "oid4vp" (OpenID4VP via DC API) or "iso-18013-7" (org.iso.mdoc).
-     * Null/undefined means the standard OID4VP flow (useDcApi=false).
+     * "iso-18013-7" for ISO 18013-7 Annex C (org.iso.mdoc via DC API); unset
+     * for OID4VP sessions, with or without DC API. Only unset sessions are
+     * answered at the OID4VP endpoints.
      */
     @Column("varchar", { nullable: true })
     dcApiProtocol?: string;
@@ -261,9 +262,10 @@ export class Session {
     accessKeyChainId?: string;
 
     /**
-     * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
-     * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
-     * from the frontend-facing session ID (transaction-id) to prevent session fixation.
+     * Cryptographic random nonce with which the wallet names the session instead of its ID.
+     * Presentations use it in request_uri, response_uri and state (OID4VP Section 13.3:
+     * request-id separate from the transaction-id); issuance offers in the credential_offer_uri
+     * and as issuer_state. Issuance sessions created before 10.0 have their ID as walletNonce.
      */
     @Column("varchar", { nullable: true })
     walletNonce?: string;

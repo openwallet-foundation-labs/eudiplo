@@ -14,9 +14,14 @@ export class CredentialOfferReferenceController {
         private readonly retrieveCredentialOffer: RetrieveCredentialOffer,
     ) {}
 
-    @Get("credential-offers/:sessionId")
+    @Get("credential-offers/:offerId")
     @ApiOperation({ summary: "Resolve a credential offer by reference" })
-    @ApiParam({ name: "sessionId", required: true })
+    @ApiParam({
+        name: "offerId",
+        required: true,
+        description:
+            "The last path segment of the offer's `credential_offer_uri`; the session ID is not accepted.",
+    })
     @ApiResponse({ status: 200, description: "Credential offer" })
     @ApiResponse({
         status: 404,
@@ -25,12 +30,12 @@ export class CredentialOfferReferenceController {
     })
     async credentialOfferByReference(
         @Param("tenantId") tenantId: string,
-        @Param("sessionId") sessionId: string,
+        @Param("offerId") offerId: string,
     ) {
         try {
             return await this.retrieveCredentialOffer.execute(
                 tenantId,
-                sessionId,
+                offerId,
             );
         } catch (error) {
             if (

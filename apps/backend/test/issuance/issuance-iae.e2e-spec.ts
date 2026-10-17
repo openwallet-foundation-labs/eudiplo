@@ -19,6 +19,7 @@ import {
     encryptVpToken,
     getToken,
     IssuanceTestContext,
+    issuerStateOf,
     preparePresentation,
     readConfig,
     setupIssuanceTestApp,
@@ -148,6 +149,34 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             },
         );
 
+        test("rejects the session ID of an offer as issuer_state", async () => {
+            const offerResponse = await request(app.getHttpServer())
+                .post("/issuer/offer")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    response_type: "uri",
+                    credentialConfigurationIds: ["pid-no-key"],
+                    flow: "authorization_code",
+                })
+                .expect(201);
+            const response = await request(app.getHttpServer())
+                .post(`/issuers/${tenantId}/authorize/interactive`)
+                .send({
+                    response_type: "code",
+                    client_id: "test-wallet",
+                    interaction_types_supported: "redirect_to_web",
+                    issuer_state: offerResponse.body.session,
+                    ...pkce,
+                })
+                .expect(400);
+
+            expect(response.body).toEqual({
+                error: "invalid_request",
+                error_description: "Invalid issuer_state",
+            });
+        });
+
         test("should return error when client_id is missing", async () => {
             const response = await request(app.getHttpServer())
                 .post(`/issuers/${tenantId}/authorize/interactive`)
@@ -276,7 +305,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
                         ?.issuer_state;
             }
 
-            issuerState ??= offerResponse.body.session;
+            issuerState ??= issuerStateOf(offerResponse.body.uri);
 
             if (issuerState) {
                 const response = await request(app.getHttpServer())
@@ -540,7 +569,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
                     response_type: "code",
                     client_id: "test-wallet",
                     interaction_types_supported: "redirect_to_web",
-                    issuer_state: offerResponse.body.session,
+                    issuer_state: issuerStateOf(offerResponse.body.uri),
                     code_challenge: codeChallenge,
                     code_challenge_method: "S256",
                 })
@@ -803,7 +832,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
                     client_id: "test-wallet",
                     interaction_types_supported:
                         "openid4vp_presentation,redirect_to_web",
-                    issuer_state: offerResponse.body.session,
+                    issuer_state: issuerStateOf(offerResponse.body.uri),
                     ...pkce,
                 })
                 .expect(200);
@@ -945,6 +974,40 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             ).expect(400);
             expect(response.body.error).toBe("access_denied");
             expect(response.body.code).toBeUndefined();
+        });
+
+        test("gives the verifier session its own ID, which cannot finish the authorization", async () => {
+            const { authSession, resolved } = await startPresentationStep();
+            const openid4vpResponse = await presentationResponse(resolved);
+            const responseUri = new URL(
+                resolved.authorizationRequestPayload.response_uri as string,
+            );
+            const walletNonce = responseUri.pathname.split("/")[2];
+            const presentation = await app
+                .get(DataSource)
+                .getRepository(Session)
+                .findOneByOrFail({ walletNonce });
+            // The management API lists this ID; the auth_session differs.
+            expect(presentation.id).not.toBe(authSession);
+
+            // The wallet answers at the response_uri first ...
+            await request(app.getHttpServer())
+                .post(responseUri.pathname)
+                .type("form")
+                .send(openid4vpResponse)
+                .expect(200);
+
+            // ... so the listed ID would otherwise collect the only code.
+            const hijack = await submit(presentation.id, {
+                response: "x.y.z",
+            }).expect(400);
+            expect(hijack.body.error).toBe("invalid_request");
+
+            const response = await submit(
+                authSession,
+                openid4vpResponse,
+            ).expect(200);
+            expect(response.body.status).toBe("ok");
         });
 
         test("rejects a presentation made for another auth_session", async () => {

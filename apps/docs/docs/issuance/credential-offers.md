@@ -31,11 +31,11 @@ EUDIPLO answers `201` with:
 ```json
 {
     "session": "a6318799-dff4-4b60-9d1d-58703611bd23",
-    "uri": "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Feudiplo.example.com%2Fissuers%2Fmembership-demo%2Fvci%2Fcredential-offers%2Fa6318799-…"
+    "uri": "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Feudiplo.example.com%2Fissuers%2Fmembership-demo%2Fvci%2Fcredential-offers%2F9b1e04c2-…"
 }
 ```
 
-- `uri` is the offer to render as QR code or deep link. The wallet resolves the offer by reference at `/issuers/{tenant}/vci/credential-offers/{session}`.
+- `uri` is the offer to render as QR code or deep link. The wallet resolves the offer by reference at `/issuers/{tenant}/vci/credential-offers/{offerId}`. `offerId` is the last segment of `credential_offer_uri`, a random value that is also the offer's `issuer_state` in the authorization code flow; it is not `session`, and the session ID is not accepted in its place.
 - `session` identifies the issuance session. Use it to follow the status (`GET /api/session/{session}`: `active`, then `fetched` after the first credential, `completed` or `failed` after the wallet's [notification](notifications.md), or `expired`), to [revoke credentials](revocation.md) and to correlate [attribute provider](attribute-provider.md) requests.
 
 `response_type` is required by the schema, but issuance offers always answer with this JSON; use `uri`. Unknown credential configurations and inline claims that do not match the configuration answer `409`, an unknown or disabled `authorization_server` answers `400`.
@@ -45,7 +45,7 @@ EUDIPLO answers `201` with:
 | `flow` | Use it when | Authorization server |
 | --- | --- | --- |
 | `pre_authorized_code` | Your backend already knows the user. The offer contains a pre-authorized code; anyone who has the offer can redeem it, so protect it with a transaction code if needed. | Must be the built-in server (default if it is the first enabled entry). |
-| `authorization_code` | The user must authenticate or present a credential first. The offer contains `issuer_state` = the session ID. | Set `authorization_server` to the `id` of the entry; without it, the first enabled entry is used. |
+| `authorization_code` | The user must authenticate or present a credential first. The offer contains an `issuer_state`: a random value of the offer, not the session ID. | Set `authorization_server` to the `id` of the entry; without it, the first enabled entry is used. |
 
 ### Transaction code
 

@@ -324,14 +324,18 @@ export class InteractiveAuthorizationService {
             throw error;
         }
 
+        // The issuer_state is the offer's wallet reference; the auth session
+        // keeps the offer's session ID.
+        let offerSessionId: string | undefined;
         if (request.issuer_state) {
-            const offerError = await this.offerRedemptionError(
+            const redemption = await this.redeemableOffer(
                 tenantId,
                 request.issuer_state,
             );
-            if (offerError) {
-                return offerError;
+            if ("error" in redemption) {
+                return redemption.error;
             }
+            offerSessionId = redemption.offer.id;
         }
 
         // Parse supported interaction types
@@ -372,7 +376,7 @@ export class InteractiveAuthorizationService {
             scope: request.scope,
             codeChallenge: request.code_challenge,
             codeChallengeMethod: request.code_challenge_method,
-            issuerState: request.issuer_state,
+            issuerState: offerSessionId,
             state: request.state,
             authorizationDetails: request.authorization_details
                 ? JSON.stringify(request.authorization_details)
@@ -715,7 +719,7 @@ export class InteractiveAuthorizationService {
         const { tenantId } = authSession;
         const presentation = await this.presentationSession(
             tenantId,
-            authSession.authSession,
+            authSession.presentationSessionId,
         );
         if (!presentation) {
             return {
@@ -732,13 +736,13 @@ export class InteractiveAuthorizationService {
                 );
             } catch (error) {
                 this.logger.warn(
-                    `OpenID4VP response of auth_session ${authSession.authSession} was rejected: ${error instanceof Error ? error.message : String(error)}`,
+                    `OpenID4VP response for interactive authorization ${authSession.id} was rejected: ${error instanceof Error ? error.message : String(error)}`,
                 );
             }
         }
         const verified = await this.presentationSession(
             tenantId,
-            authSession.authSession,
+            authSession.presentationSessionId,
         );
         if (verified?.status !== SessionStatus.Completed) {
             return {
@@ -747,9 +751,12 @@ export class InteractiveAuthorizationService {
             };
         }
 
+        // The verified session counts for this step only: a later step that
+        // fails to create its request must not be completed by it.
         await this.authSessionRepository.update(authSession.id, {
             status: "presentation_received",
             presentationData: openid4vpResponse,
+            presentationSessionId: null,
         });
 
         // Verified credentials are forwarded to attribute providers like
@@ -766,13 +773,14 @@ export class InteractiveAuthorizationService {
         return { success: true };
     }
 
-    /** Verifier session of the presentation request of an auth session. */
-    private presentationSession(
+    /** Verifier session of the current presentation request of an auth session. */
+    private async presentationSession(
         tenantId: string,
-        authSession: string,
+        presentationSessionId: string | null | undefined,
     ): Promise<SessionData | undefined> {
+        if (!presentationSessionId) return undefined;
         return this.sessionStore
-            .getForTenant(tenantId, authSession)
+            .getForTenant(tenantId, presentationSessionId)
             .catch((error: unknown) => {
                 if (error instanceof SessionNotFound) return undefined;
                 throw error;
@@ -780,25 +788,30 @@ export class InteractiveAuthorizationService {
     }
 
     /**
-     * Error response when `issuer_state` does not name an authorization code
-     * offer that can still be redeemed. The issued code, its PKCE binding and
-     * the verified credentials are bound to that offer, so a pre-authorized
-     * offer (redeemable with its tx_code only) is rejected as well.
+     * The authorization code offer that `issuer_state` names, or the error
+     * response when it names none that can still be redeemed. The issued
+     * code, its PKCE binding and the verified credentials are bound to that
+     * offer, so a pre-authorized offer (redeemable with its tx_code only) is
+     * rejected as well.
      */
-    private async offerRedemptionError(
+    private async redeemableOffer(
         tenantId: string,
         issuerState: string,
-    ): Promise<InteractiveAuthorizationResponse | undefined> {
+    ): Promise<
+        { offer: SessionData } | { error: InteractiveAuthorizationResponse }
+    > {
         const offer = await this.sessionStore
-            .getForTenant(tenantId, issuerState)
+            .getIssuanceForWalletReference(tenantId, issuerState)
             .catch((error: unknown) => {
                 if (error instanceof SessionNotFound) return undefined;
                 throw error;
             });
         if (!offer || offer.credentialPayload?.flow === "pre_authorized_code") {
             return {
-                error: Oauth2ErrorCodes.InvalidRequest,
-                error_description: "Invalid issuer_state",
+                error: {
+                    error: Oauth2ErrorCodes.InvalidRequest,
+                    error_description: "Invalid issuer_state",
+                },
             };
         }
         try {
@@ -806,13 +819,15 @@ export class InteractiveAuthorizationService {
         } catch (error) {
             if (error instanceof OAuthError) {
                 return {
-                    error: error.code,
-                    error_description: error.description,
+                    error: {
+                        error: error.code,
+                        error_description: error.description,
+                    },
                 };
             }
             throw error;
         }
-        return undefined;
+        return { offer };
     }
 
     /**
@@ -946,10 +961,26 @@ export class InteractiveAuthorizationService {
         label?: string,
     ): Promise<InteractiveAuthorizationResponse> {
         try {
+            // The verifier session gets its own ID: the management API lists
+            // it, and the auth_session lets the wallet finish the
+            // authorization. Each presentation step gets a new one.
+            const presentationSessionId = randomUUID();
+            const bound = await this.authSessionRepository.updateForTenant(
+                tenantId,
+                authSession,
+                { presentationSessionId },
+            );
+            if (!bound) {
+                return {
+                    error: Oauth2ErrorCodes.InvalidRequest,
+                    error_description: "Invalid or expired auth_session",
+                };
+            }
+
             // The verifier session must exist before the request is created,
             // which stores the wallet-facing nonce the request_uri refers to.
             await this.createSession.execute({
-                id: authSession,
+                id: presentationSessionId,
                 tenantId,
                 requestId: presentationConfigId,
             });
@@ -957,7 +988,7 @@ export class InteractiveAuthorizationService {
             // Create the presentation request
             const presentationResult = await this.oid4vpService.createRequest(
                 presentationConfigId,
-                { session: authSession },
+                { session: presentationSessionId },
                 tenantId,
                 false, // useDcApi
                 origin,

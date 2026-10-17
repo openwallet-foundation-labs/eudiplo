@@ -147,6 +147,13 @@ function createHarness(issuanceConfig: Record<string, unknown> = {}) {
             .mockResolvedValue(
                 session({ id: "offer-1", authorization_code: undefined }),
             ),
+        getIssuanceForWalletReference: vi.fn().mockResolvedValue(
+            session({
+                id: "offer-1",
+                walletNonce: "wallet-1",
+                authorization_code: undefined,
+            }),
+        ),
         getByAuthorizationCode: vi.fn().mockResolvedValue(session()),
         getByRefreshToken: vi.fn(),
         getByRequestUri: vi.fn(),
@@ -1533,8 +1540,8 @@ describe("Built-in authorization server PAR endpoint", () => {
         );
     });
 
-    it("binds the request to an existing issuer_state session", async () => {
-        const result = await par({ ...validPar, issuer_state: "offer-1" });
+    it("binds the request to the session of the offer's issuer_state", async () => {
+        const result = await par({ ...validPar, issuer_state: "wallet-1" });
         expect(result).toEqual({
             value: {
                 expires_in: 60,
@@ -1543,6 +1550,10 @@ describe("Built-in authorization server PAR endpoint", () => {
                 ),
             },
         });
+        expect(h.sessions.getIssuanceForWalletReference).toHaveBeenCalledWith(
+            TENANT,
+            "wallet-1",
+        );
         expect(h.sessions.updateForTenant).toHaveBeenCalledWith(
             TENANT,
             "offer-1",
@@ -1570,22 +1581,24 @@ describe("Built-in authorization server PAR endpoint", () => {
     ])(
         "rejects an issuer_state whose offer is %s",
         async (_case, values, description) => {
-            h.sessions.getForTenant.mockResolvedValue(
+            h.sessions.getIssuanceForWalletReference.mockResolvedValue(
                 session({ id: "offer-1", ...values }),
             );
-            expect(await par({ ...validPar, issuer_state: "offer-1" })).toEqual(
-                tokenError("invalid_request", description),
-            );
+            expect(
+                await par({ ...validPar, issuer_state: "wallet-1" }),
+            ).toEqual(tokenError("invalid_request", description));
             expect(h.sessions.updateForTenant).not.toHaveBeenCalled();
             expect(h.createSession.execute).not.toHaveBeenCalled();
         },
     );
 
     it("creates a session when issuer_state is unknown or absent", async () => {
-        h.sessions.getForTenant.mockRejectedValue(new SessionNotFound());
-        h.sessions.updateForTenant.mockResolvedValue(false);
+        h.sessions.getIssuanceForWalletReference.mockRejectedValue(
+            new SessionNotFound(),
+        );
         await par({ ...validPar, issuer_state: "unknown" });
         await par(validPar);
+        expect(h.sessions.updateForTenant).not.toHaveBeenCalled();
         expect(h.createSession.execute).toHaveBeenCalledTimes(2);
         expect(h.createSession.execute).toHaveBeenCalledWith(
             expect.objectContaining({

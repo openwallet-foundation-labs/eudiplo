@@ -44,7 +44,7 @@ export const GLOBAL_PREFIX_EXCLUSIONS: {
     },
     // ISO 18013-7 Annex C Protocol (org-iso-mdoc via DC API)
     {
-        path: "presentations/:sessionId/iso-18013-7",
+        path: "presentations/:walletNonce/iso-18013-7",
         method: RequestMethod.ALL,
     },
     // Public Status & Trust Lists

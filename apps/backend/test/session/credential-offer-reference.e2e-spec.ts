@@ -16,9 +16,10 @@ describe.each([false, true])(
         let app: INestApplication;
         let folder: string;
         let db: DataSource;
+        /** Seeds an issuance session; returns its offer reference (wallet nonce). */
         let seed: (
             hasOffer?: boolean,
-            values?: { expiresAt?: Date; status?: string },
+            values?: { expiresAt?: Date; status?: string; id?: string },
         ) => Promise<string>;
         const offer = {
             credential_issuer: "https://issuer.example/tenant-a",
@@ -54,14 +55,15 @@ describe.each([false, true])(
                 .getRepository(TenantEntity)
                 .save([{ id: "tenant-a" }, { id: "tenant-b" }]);
             seed = async (hasOffer = true, values = {}) => {
-                const id = randomUUID();
+                const walletNonce = randomUUID();
                 await db.getRepository(Session).save({
-                    id,
+                    id: randomUUID(),
+                    walletNonce,
                     tenantId: "tenant-a",
                     offer: hasOffer ? offer : null,
                     ...(values as object),
                 });
-                return id;
+                return walletNonce;
             };
         }, 60_000);
 
@@ -107,6 +109,15 @@ describe.each([false, true])(
                     error: "Not Found",
                 });
             }
+        });
+
+        it("answers 404 for the session ID of an offer", async () => {
+            const id = randomUUID();
+            await seed(true, { id });
+            const response = await request(app.getHttpServer())
+                .get(`/issuers/tenant-a/vci/credential-offers/${id}`)
+                .expect(404);
+            expect(response.body.message).toBe("Credential offer not found");
         });
 
         it("preserves the empty-offer response in both modes", async () => {

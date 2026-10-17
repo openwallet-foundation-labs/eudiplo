@@ -27,7 +27,8 @@ export type CredentialTokenSessionReference =
       }
     | {
           kind: "external";
-          sessionId: string;
+          /** The session's wallet reference, from the binding claim. */
+          walletReference: string;
           authorizationServerId: string;
           bindingClaim: string;
       };
@@ -36,7 +37,8 @@ export type CredentialTokenSessionReference =
  * Correlates an already verified access token with the tenant session it was
  * issued for, without resolving claims or binding external identities:
  * local tokens carry the session id in `sub`, chained tokens in
- * `issuer_state`, and external tokens in the configured binding claim.
+ * `issuer_state`, and external tokens carry the session's wallet reference
+ * (the offer's `issuer_state`) in the configured binding claim.
  */
 export class CorrelateCredentialTokenSession {
     constructor(
@@ -44,7 +46,10 @@ export class CorrelateCredentialTokenSession {
             CredentialAuthorizationSources,
             "tokenIssuers" | "externalServer"
         >,
-        private readonly sessions: Pick<SessionStore, "getForTenant">,
+        private readonly sessions: Pick<
+            SessionStore,
+            "getForTenant" | "getIssuanceForWalletReference"
+        >,
     ) {}
 
     /** @throws CredentialSessionAuthorizationDenied when the token names no session. */
@@ -92,7 +97,7 @@ export class CorrelateCredentialTokenSession {
                 );
             return {
                 kind,
-                sessionId: bindingValue,
+                walletReference: bindingValue,
                 authorizationServerId: server.configuration.id,
                 bindingClaim,
             };
@@ -113,10 +118,16 @@ export class CorrelateCredentialTokenSession {
         token: VerifiedCredentialToken,
     ): Promise<SessionData> {
         const reference = await this.execute(tenantId, token);
-        const session = await this.sessions.getForTenant(
-            tenantId,
-            reference.sessionId,
-        );
+        const session =
+            reference.kind === "external"
+                ? await this.sessions.getIssuanceForWalletReference(
+                      tenantId,
+                      reference.walletReference,
+                  )
+                : await this.sessions.getForTenant(
+                      tenantId,
+                      reference.sessionId,
+                  );
         if (!isBoundTo(reference, token, session))
             throw new CredentialSessionAuthorizationDenied(
                 "The access token is not associated with a valid session",
@@ -141,8 +152,8 @@ export class CorrelateCredentialTokenSession {
                 return false;
             throw error;
         }
-        if (reference.sessionId !== sessionId) return false;
-        if (reference.kind !== "external") return true;
+        if (reference.kind !== "external")
+            return reference.sessionId === sessionId;
         try {
             const session = await this.sessions.getForTenant(
                 tenantId,
@@ -162,9 +173,10 @@ function isBoundTo(
     token: VerifiedCredentialToken,
     session: SessionData,
 ): boolean {
-    if (session.id !== reference.sessionId) return false;
-    if (reference.kind !== "external") return true;
+    if (reference.kind !== "external")
+        return session.id === reference.sessionId;
     return (
+        session.walletNonce === reference.walletReference &&
         session.authorizationServerId === reference.authorizationServerId &&
         session.externalIssuer === token.iss &&
         session.externalSubject === token.sub

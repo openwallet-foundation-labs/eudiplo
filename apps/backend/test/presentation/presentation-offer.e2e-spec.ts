@@ -214,4 +214,76 @@ describe("Presentation - Offer Creation", () => {
 
         expect(sessionRes.body.clientId).toBe(expectedClientId);
     });
+
+    describe("ISO 18013-7 response endpoint", () => {
+        async function isoOffer() {
+            const res = await request(app.getHttpServer())
+                .post("/verifier/offer")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    response_type: ResponseType.ISO_18013_7,
+                    requestId: "pid-de",
+                    expected_origin: "https://shop.example",
+                })
+                .expect(201);
+            const responseUri = new URL(res.body.org_iso_mdoc.response_uri);
+            return {
+                session: res.body.session as string,
+                responseUri,
+                walletNonce: responseUri.pathname.split("/")[2],
+            };
+        }
+
+        async function statusOf(session: string) {
+            const res = await request(app.getHttpServer())
+                .get(`/session/${session}`)
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+            return res.body.status;
+        }
+
+        test("names the session with a wallet nonce in the response_uri", async () => {
+            const { session, responseUri, walletNonce } = await isoOffer();
+
+            expect(responseUri.href).toBe(
+                `${ctx.host}/presentations/${walletNonce}/iso-18013-7`,
+            );
+            expect(walletNonce).not.toBe(session);
+            // The posted response reaches the session through the nonce.
+            const answer = await request(app.getHttpServer())
+                .post(responseUri.pathname)
+                .trustLocalhost()
+                .send({ data: "AAAA" })
+                .expect(400);
+            expect(answer.body.message).toMatch(/Invalid EncryptedResponse/);
+        });
+
+        test("does not accept the session ID the management API lists", async () => {
+            const { session } = await isoOffer();
+
+            await request(app.getHttpServer())
+                .post(`/presentations/${session}/iso-18013-7`)
+                .trustLocalhost()
+                .send({ data: "AAAA" })
+                .expect(404);
+            expect(await statusOf(session)).toBe("active");
+        });
+
+        test("is the only endpoint that answers an ISO 18013-7 wallet nonce", async () => {
+            const { session, walletNonce } = await isoOffer();
+
+            // A wallet error response fails every session it finds and is
+            // answered with 200. (The test app has no exception filter, so
+            // the SessionNotFound is a 500 here and a 404 in production.)
+            const res = await request(app.getHttpServer())
+                .post(`/presentations/${walletNonce}/oid4vp`)
+                .trustLocalhost()
+                .type("form")
+                .send({ error: "access_denied" });
+            expect(res.status).not.toBe(200);
+            expect(await statusOf(session)).toBe("active");
+        });
+    });
 });

@@ -141,12 +141,13 @@ The response carries CBOR structures instead of a request URI (`uri` and `crossD
     "crossDeviceUri": "",
     "org_iso_mdoc": {
         "device_request": "<base64url CBOR DeviceRequest>",
-        "encryption_info": "<base64url CBOR EncryptionInfo>"
+        "encryption_info": "<base64url CBOR EncryptionInfo>",
+        "response_uri": "https://eudiplo.example.com/presentations/<walletNonce>/iso-18013-7"
     }
 }
 ```
 
-The page passes both values to `navigator.credentials.get()` with protocol `org-iso-mdoc` and posts the wallet's encrypted response as `{ "data": "<base64url>" }` to `POST /presentations/{session}/iso-18013-7`. EUDIPLO answers `200` with `{}` or `{ "redirect_uri": "..." }`; a failed verification returns `400` with `error` and `message` ([failure codes](../reference/session-outcome.md#failure-codes)).
+The page passes `device_request` and `encryption_info` to `navigator.credentials.get()` with protocol `org-iso-mdoc` and posts the wallet's encrypted response as `{ "data": "<base64url>" }` to the `response_uri`. It ends with a random `walletNonce`, not the session ID: the endpoint answers the session ID with `404`, so someone who only knows the session ID from the management API or a webhook cannot answer in the holder's place. Since 10.0; in 9.x the page posted to `/presentations/{session}/iso-18013-7`. EUDIPLO answers `200` with `{}` or `{ "redirect_uri": "..." }`; a failed verification returns `400` with `error` and `message` ([failure codes](../reference/session-outcome.md#failure-codes)).
 
 Differences from the OpenID4VP flows:
 
