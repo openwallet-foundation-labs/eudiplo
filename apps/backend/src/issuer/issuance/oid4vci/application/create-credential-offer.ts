@@ -27,6 +27,9 @@ export class CreateCredentialOffer {
         request: SessionOfferRequest,
     ): Promise<{ session: string; uri: string }> {
         const id = this.newId();
+        // The wallet names the session with this reference, never with its ID:
+        // the management API, webhooks and the audit log show the ID to others.
+        const walletNonce = this.newId();
         const selection = await this.authorizationServers.execute(
             tenantId,
             request.authorization_server,
@@ -35,7 +38,7 @@ export class CreateCredentialOffer {
             request.flow === "pre_authorized_code" ? this.newId() : undefined;
         const grants = new BuildCredentialOfferGrants().execute({
             flow: request.flow,
-            issuerState: id,
+            issuerState: walletNonce,
             authorizationCode,
             txCode: request.tx_code,
             txCodeDescription: request.tx_code_description,
@@ -61,6 +64,7 @@ export class CreateCredentialOffer {
                 .offerLifetimeSeconds;
         const session = await this.sessions.execute({
             id,
+            walletNonce,
             tenantId,
             credentialPayload: request,
             credentialConfigurationIds: request.credentialConfigurationIds,

@@ -18,15 +18,18 @@ function fixture(boundSession: Record<string, unknown> = {}) {
             configuration: { id: "external-as", bindingClaim: "binding" },
         }),
     };
+    const session = {
+        id: "session",
+        tenantId: "tenant",
+        walletNonce: "wallet-ref",
+        authorizationServerId: "external-as",
+        externalIssuer: "external",
+        externalSubject: "user",
+        ...boundSession,
+    };
     const sessions = {
-        getForTenant: vi.fn().mockResolvedValue({
-            id: "session",
-            tenantId: "tenant",
-            authorizationServerId: "external-as",
-            externalIssuer: "external",
-            externalSubject: "user",
-            ...boundSession,
-        }),
+        getForTenant: vi.fn().mockResolvedValue(session),
+        getIssuanceForWalletReference: vi.fn().mockResolvedValue(session),
     };
     return {
         sources,
@@ -35,7 +38,8 @@ function fixture(boundSession: Record<string, unknown> = {}) {
     };
 }
 
-const external = { iss: "external", sub: "user", binding: "session" };
+/** External tokens carry the offer's wallet reference, not the session ID. */
+const external = { iss: "external", sub: "user", binding: "wallet-ref" };
 
 describe("CorrelateCredentialTokenSession.execute", () => {
     it("uses the local token subject as session id", async () => {
@@ -79,7 +83,7 @@ describe("CorrelateCredentialTokenSession.execute", () => {
         const f = fixture();
         expect(await f.useCase.execute("tenant", external)).toEqual({
             kind: "external",
-            sessionId: "session",
+            walletReference: "wallet-ref",
             authorizationServerId: "external-as",
             bindingClaim: "binding",
         });
@@ -88,6 +92,7 @@ describe("CorrelateCredentialTokenSession.execute", () => {
             "external",
         );
         expect(f.sessions.getForTenant).not.toHaveBeenCalled();
+        expect(f.sessions.getIssuanceForWalletReference).not.toHaveBeenCalled();
     });
 });
 
@@ -96,7 +101,6 @@ describe("CorrelateCredentialTokenSession.resolveSession", () => {
         [{ iss: "local", sub: "session" }],
         [{ iss: "chained", sub: "x", issuer_state: "session" }],
         [{ iss: "managed", sub: "x", issuer_state: "session" }],
-        [external],
     ])("loads the session of the token %j", async (token) => {
         const f = fixture();
         await expect(
@@ -106,6 +110,31 @@ describe("CorrelateCredentialTokenSession.resolveSession", () => {
             "tenant",
             "session",
         );
+    });
+
+    it("loads the session of an external token by its wallet reference", async () => {
+        const f = fixture();
+        await expect(
+            f.useCase.resolveSession("tenant", external),
+        ).resolves.toMatchObject({ id: "session" });
+        expect(
+            f.sessions.getIssuanceForWalletReference,
+        ).toHaveBeenCalledExactlyOnceWith("tenant", "wallet-ref");
+        expect(f.sessions.getForTenant).not.toHaveBeenCalled();
+    });
+
+    it("never finds the session of an external token by its ID", async () => {
+        const f = fixture();
+        f.sessions.getIssuanceForWalletReference.mockRejectedValue(
+            new SessionNotFound(),
+        );
+        await expect(
+            f.useCase.resolveSession("tenant", {
+                ...external,
+                binding: "session",
+            }),
+        ).rejects.toBeInstanceOf(SessionNotFound);
+        expect(f.sessions.getForTenant).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -175,6 +204,7 @@ describe("CorrelateCredentialTokenSession.belongsToSession", () => {
         [{ iss: "chained", sub: "session", issuer_state: "other" }],
         [{ iss: "chained", sub: "session" }],
         [{ ...external, binding: "other" }],
+        [{ ...external, binding: "session" }],
         [{ iss: "external", sub: "user" }],
     ])("rejects a token of another session %j", async (token) => {
         const f = fixture();

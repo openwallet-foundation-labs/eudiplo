@@ -39,8 +39,10 @@ export class ChainedAsSessionEntity implements ChainedAsSession {
     status!: ChainedAsSessionStatus;
 
     /**
-     * The issuer_state that will be included in the issued token.
-     * This links the token to the credential offer session.
+     * ID of the credential offer session that the request's `issuer_state`
+     * names (not the `issuer_state` itself), or a random value without an
+     * offer. Issued tokens carry it as `issuer_state` claim, which links them
+     * to the session.
      */
     @Column("varchar")
     issuerState!: string;

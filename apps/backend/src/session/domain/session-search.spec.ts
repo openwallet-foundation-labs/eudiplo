@@ -45,14 +45,16 @@ describe("parseSessionSearch", () => {
         });
     });
 
-    it("takes the session id from a credential offer link", () => {
-        const offerUri = `https://issuer.example/issuers/tenant/vci/credential-offers/${SESSION_ID}`;
+    it("takes the wallet nonce from a credential offer link", () => {
+        const offerUri = `https://issuer.example/issuers/tenant/vci/credential-offers/nonce-1`;
         expect(
             parseSessionSearch(
                 `openid-credential-offer://?credential_offer_uri=${encodeURIComponent(offerUri)}`,
             ),
-        ).toEqual({ idPrefix: SESSION_ID });
-        expect(parseSessionSearch(offerUri)).toEqual({ idPrefix: SESSION_ID });
+        ).toEqual({ walletNonce: "nonce-1" });
+        expect(parseSessionSearch(offerUri)).toEqual({
+            walletNonce: "nonce-1",
+        });
     });
 
     it("takes the issuer state or pre-authorized code from an offer by value", () => {
@@ -66,9 +68,9 @@ describe("parseSessionSearch", () => {
             )}`;
         expect(
             parseSessionSearch(
-                byValue({ authorization_code: { issuer_state: SESSION_ID } }),
+                byValue({ authorization_code: { issuer_state: "nonce-1" } }),
             ),
-        ).toEqual({ idPrefix: SESSION_ID });
+        ).toEqual({ walletNonce: "nonce-1" });
         expect(
             parseSessionSearch(
                 byValue({
@@ -89,14 +91,6 @@ describe("parseSessionSearch", () => {
                 ),
             ).toEqual({ walletNonce: NONCE });
         }
-    });
-
-    it("matches nothing for a link with a malformed session id", () => {
-        expect(
-            parseSessionSearch(
-                "https://issuer.example/vci/credential-offers/3f2a",
-            ),
-        ).toEqual({ idPrefix: undefined });
     });
 
     it("treats an unrecognised link or invalid offer as a plain term", () => {

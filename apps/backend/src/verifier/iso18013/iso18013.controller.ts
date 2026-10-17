@@ -16,8 +16,13 @@ import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Iso18013Service } from "./iso18013.service.js";
 
 @ApiTags("ISO 18013-7")
-@Controller("presentations/:sessionId/iso-18013-7")
-@ApiParam({ name: "sessionId", required: true })
+@Controller("presentations/:walletNonce/iso-18013-7")
+@ApiParam({
+    name: "walletNonce",
+    required: true,
+    description:
+        "The `walletNonce` from the offer's `org_iso_mdoc.response_uri`; the session ID is not accepted.",
+})
 export class Iso18013Controller {
     constructor(private readonly iso18013Service: Iso18013Service) {}
 
@@ -28,12 +33,12 @@ export class Iso18013Controller {
     @Post()
     @HttpCode(HttpStatus.OK)
     async handleResponse(
-        @Param("sessionId") sessionId: string,
+        @Param("walletNonce") walletNonce: string,
         @Body() body: { data?: string },
     ): Promise<Record<string, unknown>> {
         if (!body?.data) {
             throw new BadRequestException("Missing data field");
         }
-        return this.iso18013Service.processResponse(sessionId, body.data);
+        return this.iso18013Service.processResponse(walletNonce, body.data);
     }
 }

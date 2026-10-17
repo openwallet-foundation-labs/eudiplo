@@ -72,17 +72,8 @@ import {
     buildReaderAuth,
     parseEncryptedResponse,
 } from "./cbor-request.js";
+import { Iso18013OfferResponse } from "./dto/iso18013-offer-response.dto.js";
 import { hpkeOpen } from "./hpke.js";
-
-export interface Iso18013Offer {
-    session: string;
-    uri: string;
-    crossDeviceUri: string;
-    org_iso_mdoc: {
-        device_request: string; // base64url CBOR DeviceRequest
-        encryption_info: string; // base64url CBOR EncryptionInfo
-    };
-}
 
 @Injectable()
 export class Iso18013Service {
@@ -216,7 +207,7 @@ export class Iso18013Service {
         skewSeconds?: number,
         webhook?: WebhookConfig,
         reference?: string,
-    ): Promise<Iso18013Offer> {
+    ): Promise<Iso18013OfferResponse> {
         const config =
             await this.presentationConfigService.getPresentationConfig(
                 requestId,
@@ -227,6 +218,9 @@ export class Iso18013Service {
             await this.encryptionService.getEncryptionPublicKey(tenantId);
         const nonce = randomBytes(16);
         const sessionId = randomUUID();
+        // The page names the session with this nonce, never with the session
+        // ID that the management API, webhooks and the audit log show.
+        const walletNonce = randomUUID();
 
         // Find the first mso_mdoc credential in the DCQL query
         const mdocCred = config.dcql_query.credentials.find(
@@ -309,6 +303,7 @@ export class Iso18013Service {
             tenantId,
             requestId,
             reference,
+            walletNonce,
             useDcApi: true,
             dcApiProtocol: "iso-18013-7",
             browserOrigin: origin,
@@ -331,6 +326,7 @@ export class Iso18013Service {
             org_iso_mdoc: {
                 device_request: deviceRequestCbor.toString("base64url"),
                 encryption_info: encryptionInfoCbor.toString("base64url"),
+                response_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${walletNonce}/iso-18013-7`,
             },
         };
     }
@@ -396,16 +392,16 @@ export class Iso18013Service {
     /**
      * Process the HPKE-encrypted DeviceResponse returned by the wallet via DC API.
      *
-     * @param sessionId     Session UUID returned by createOffer
+     * @param walletNonce   The session's wallet nonce from the offer's `response_uri`
      * @param encryptedB64  base64url-encoded HPKE output: enc(65B) || ciphertext
      */
     async processResponse(
-        sessionId: string,
+        walletNonce: string,
         encryptedB64: string,
     ): Promise<Record<string, unknown>> {
         let session;
         try {
-            session = await this.sessionStore.getIso18013(sessionId);
+            session = await this.sessionStore.getIso18013(walletNonce);
         } catch {
             throw new NotFoundException("ISO 18013-7 session not found");
         }
@@ -479,7 +475,7 @@ export class Iso18013Service {
             );
         } catch (err: any) {
             const reason = `HPKE decryption failed: ${err?.message ?? err}`;
-            this.logger.warn({ sessionId }, reason);
+            this.logger.warn({ sessionId: session.id }, reason);
             // The exception text stays in the log, out of the stored session.
             const message = "HPKE decryption failed";
             await this.failSession(session, {

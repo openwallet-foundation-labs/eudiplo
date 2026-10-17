@@ -19,6 +19,7 @@ import {
     callbacks,
     getSignJwtCallback,
     IssuanceTestContext,
+    issuerStateOf,
     setupIssuanceTestApp,
 } from "../utils.js";
 
@@ -252,9 +253,48 @@ describe("Issuance - Authorization Code Flow", () => {
                 .type("form")
                 .send(body);
 
+        test("binds an offer to a PAR by its issuer_state, never by its session ID", async () => {
+            const offerSession = async (id: string) =>
+                (
+                    await request(app.getHttpServer())
+                        .get(`/session/${id}`)
+                        .trustLocalhost()
+                        .set("Authorization", `Bearer ${authToken}`)
+                        .expect(200)
+                ).body;
+            const ignored = await createOffer("authorization_code");
+            // An unknown issuer_state starts a wallet-initiated authorization.
+            await authorize(ignored.body.session);
+            const unbound = await offerSession(ignored.body.session);
+            expect(unbound.request_uri ?? null).toBeNull();
+            expect(unbound.authorization_code ?? null).toBeNull();
+
+            const bound = await createOffer("authorization_code");
+            await authorize(issuerStateOf(bound.body.uri));
+            const boundSession = await offerSession(bound.body.session);
+            expect(boundSession.request_uri).toEqual(expect.any(String));
+            expect(boundSession.authorization_code).toEqual(expect.any(String));
+        });
+
+        test("the offer's issuer_state is its offer URI reference, not the session ID", async () => {
+            const offerResponse = await createOffer("authorization_code");
+            const offerUri = new URL(
+                new URL(offerResponse.body.uri).searchParams.get(
+                    "credential_offer_uri",
+                )!,
+            );
+            const offer = await request(app.getHttpServer())
+                .get(offerUri.pathname)
+                .expect(200);
+            const issuerState =
+                offer.body.grants.authorization_code.issuer_state;
+            expect(issuerState).toBe(issuerStateOf(offerResponse.body.uri));
+            expect(issuerState).not.toBe(offerResponse.body.session);
+        });
+
         test("rejects an authorization code redeemed with the pre-authorized_code grant", async () => {
             const offerResponse = await createOffer("authorization_code");
-            const code = await authorize(offerResponse.body.session);
+            const code = await authorize(issuerStateOf(offerResponse.body.uri));
 
             const response = await token({
                 grant_type:
@@ -299,7 +339,7 @@ describe("Issuance - Authorization Code Flow", () => {
 
         test("rejects an authorization code for a pre-authorized offer", async () => {
             const offerResponse = await createOffer("pre_authorized_code");
-            const code = await authorize(offerResponse.body.session);
+            const code = await authorize(issuerStateOf(offerResponse.body.uri));
 
             const response = await token({
                 grant_type: "authorization_code",

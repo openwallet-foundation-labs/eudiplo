@@ -70,7 +70,7 @@ describe("Iso18013Service.createOffer per-request webhook override", () => {
             {} as any, // credentialVerifierFormats
             {} as any, // webhookService
             {} as any, // auditLogService
-            {} as any, // configService
+            { getOrThrow: () => "https://eudiplo.example" } as any,
             {} as any, // certService
             {} as any, // keyChainService
             webhookEndpointRepo as any,
@@ -91,6 +91,22 @@ describe("Iso18013Service.createOffer per-request webhook override", () => {
 
         expect(sessionCreate).toHaveBeenCalledWith(
             expect.objectContaining({ parsedWebhook: OVERRIDE_WEBHOOK }),
+        );
+    });
+
+    it("names the session to the page with a random wallet nonce, not its ID", async () => {
+        const offer = await service.createOffer(
+            "req",
+            "tenant",
+            "https://origin.example",
+        );
+
+        const { id, walletNonce } = sessionCreate.mock.calls[0][0];
+        expect(offer.session).toBe(id);
+        expect(walletNonce).toEqual(expect.any(String));
+        expect(walletNonce).not.toBe(id);
+        expect(offer.org_iso_mdoc.response_uri).toBe(
+            `https://eudiplo.example/presentations/${walletNonce}/iso-18013-7`,
         );
     });
 
@@ -202,7 +218,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         });
 
         const error = await service
-            .processResponse("session", "encrypted")
+            .processResponse("wallet-nonce", "encrypted")
             .catch((error) => error);
 
         expect(error.getStatus()).toBe(400);
@@ -245,7 +261,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         delete mdlQuery.trusted_authorities;
 
         const error = await service
-            .processResponse("session", "encrypted")
+            .processResponse("wallet-nonce", "encrypted")
             .catch((error) => error);
 
         expect(error.getStatus()).toBe(400);
@@ -261,7 +277,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         });
 
         const error = await service
-            .processResponse("session", "encrypted")
+            .processResponse("wallet-nonce", "encrypted")
             .catch((error) => error);
 
         expect(error.getStatus()).toBe(400);
@@ -296,7 +312,7 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         publish.mockRejectedValue(new Error("webhook down"));
 
         const error = await service
-            .processResponse("session", "encrypted")
+            .processResponse("wallet-nonce", "encrypted")
             .catch((error) => error);
 
         expect(error.getStatus()).toBe(400);
@@ -317,9 +333,18 @@ describe("Iso18013Service.processResponse presentation webhook", () => {
         });
 
         await expect(
-            service.processResponse("session", "encrypted"),
+            service.processResponse("wallet-nonce", "encrypted"),
         ).resolves.toEqual({});
 
+        expect(sessionStore.getIso18013).toHaveBeenCalledExactlyOnceWith(
+            "wallet-nonce",
+        );
+        // The session is changed by its ID, never by the wallet nonce.
+        expect(sessionStore.updateIfUnconsumed).toHaveBeenCalledWith(
+            "tenant",
+            "session",
+            expect.objectContaining({ status: "completed" }),
+        );
         expect(publish).toHaveBeenCalledExactlyOnceWith({
             webhook,
             session,

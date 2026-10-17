@@ -46,7 +46,7 @@ export class OpenIdCredentialOfferProtocol implements CredentialOfferProtocol {
                 credentialConfigurationIds: configurationIds,
                 grants,
                 issuerMetadata,
-                credentialOfferUri: `${this.settings.publicUrl}/issuers/${session.tenantId}/vci/credential-offers/${session.id}`,
+                credentialOfferUri: `${this.settings.publicUrl}/issuers/${session.tenantId}/vci/credential-offers/${session.walletNonce}`,
             });
             return {
                 object: offer.credentialOfferObject,
