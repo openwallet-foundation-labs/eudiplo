@@ -1,5 +1,5 @@
 /** Default lifetime (exp - iat) of a published entity configuration. */
-export const DEFAULT_ENTITY_CONFIGURATION_LIFETIME_SECONDS = 86400;
+const DEFAULT_ENTITY_CONFIGURATION_LIFETIME_SECONDS = 86400;
 
 /** Metadata types the entity configuration of a tenant can publish. */
 export const FEDERATION_ENTITY_TYPES = [
@@ -7,7 +7,7 @@ export const FEDERATION_ENTITY_TYPES = [
     "openid_credential_verifier",
 ] as const;
 
-export type FederationEntityTypeName = (typeof FEDERATION_ENTITY_TYPES)[number];
+type FederationEntityTypeName = (typeof FEDERATION_ENTITY_TYPES)[number];
 
 /** The `federation` block of an issuance configuration, as far as it is read here. */
 export type FederationEntityConfig = {

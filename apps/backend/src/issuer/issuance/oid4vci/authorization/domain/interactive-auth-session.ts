@@ -27,6 +27,11 @@ export interface InteractiveAuthSession {
     requestUri?: string;
     parExpiresAt?: Date;
     presentationData?: string;
+    /**
+     * ID of the verifier session of the current OpenID4VP step. Not the
+     * `auth_session`: the management API lists session IDs.
+     */
+    presentationSessionId?: string | null;
     iaeActions?: string;
     currentStepIndex: number;
     completedStepsData?: string;

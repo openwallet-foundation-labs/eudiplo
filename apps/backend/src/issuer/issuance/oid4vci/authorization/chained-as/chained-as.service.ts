@@ -13,7 +13,6 @@ import { v4 } from "uuid";
 import { CryptoService } from "../../../../../crypto/crypto.service.js";
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service.js";
 import { SessionStore } from "../../../../../session/application/session-store.js";
-import { assertSessionUsable } from "../../../../../session/domain/session-usability.js";
 import { FederationTrustService } from "../../../../../trust/federation-trust.service.js";
 import { FederationTrustSource } from "../../../../../trust/types.js";
 import { WalletAttestationService } from "../../../../../trust/wallet-attestation.service.js";
@@ -30,6 +29,10 @@ import {
     DPOP_PROOF_REPLAY_REGISTRY,
     type DpopProofReplayRegistry,
 } from "../../ports/dpop-proof-replay-registry.js";
+import {
+    InvalidIssuerState,
+    ResolveIssuerState,
+} from "../application/resolve-issuer-state.js";
 import { verifyClientAttestation } from "../domain/client-attestation.js";
 import {
     hashAuthorizationCode,
@@ -417,17 +420,17 @@ export class ChainedAsService {
             throw toOAuthHttpError(error, this.logger);
         });
 
-        // Find the session for the issuer_state (if provided)
-        let issuerState = request.issuer_state;
-        if (issuerState) {
-            // The issuer_state must name an offer that can still be redeemed
+        // The offer's session ID correlates the authorization with the offer.
+        let issuerState: string;
+        if (request.issuer_state) {
             try {
-                assertSessionUsable(
-                    await this.sessionStore.getForTenant(tenantId, issuerState),
-                    new Date(),
-                );
-            } catch {
-                throw new BadRequestException("Invalid issuer_state");
+                issuerState = await new ResolveIssuerState(
+                    this.sessionStore,
+                ).execute(tenantId, request.issuer_state);
+            } catch (error) {
+                if (error instanceof InvalidIssuerState)
+                    throw new BadRequestException(error.message);
+                throw error;
             }
         } else {
             // Generate a new issuer_state if not provided
@@ -950,7 +953,7 @@ export class ChainedAsService {
      * Used to retrieve the upstream OIDC provider's claims for webhook calls.
      *
      * @param tenantId Tenant of the issuance session
-     * @param issuerState The issuer_state from the credential offer session
+     * @param issuerState ID of the issuance session (the chained token's `issuer_state` claim)
      * @returns Upstream identity with issuer, subject, and all token claims, or undefined if not found
      */
     async getUpstreamIdentityByIssuerState(

@@ -39,6 +39,7 @@ function fixture(offerLifetimeSeconds?: number | null) {
     const ids = vi
         .fn()
         .mockReturnValueOnce("session")
+        .mockReturnValueOnce("wallet-nonce")
         .mockReturnValueOnce("code");
     return {
         events,
@@ -82,6 +83,7 @@ describe("CreateCredentialOffer", () => {
             expect.objectContaining({
                 tenantId: "tenant",
                 id: "session",
+                walletNonce: "wallet-nonce",
                 // The offer carries the code; the session only its hash.
                 authorization_code: hashAuthorizationCode("code"),
                 authorizationServerId: "selected",
@@ -121,11 +123,12 @@ describe("CreateCredentialOffer", () => {
                 },
             },
         });
-        expect(f.ids).toHaveBeenCalledOnce();
+        expect(f.ids).toHaveBeenCalledTimes(2);
         expect(f.protocol.validateClaims).not.toHaveBeenCalled();
         expect(f.protocol.encode.mock.calls[0][2]).toEqual({
             authorization_code: {
-                issuer_state: "session",
+                // The wallet reference, never the session ID.
+                issuer_state: "wallet-nonce",
                 authorization_server: "https://as.example",
             },
         });

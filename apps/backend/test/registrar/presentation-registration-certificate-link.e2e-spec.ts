@@ -19,7 +19,7 @@ import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto
 import { KeyChainService } from "../../src/crypto/key/key-chain.service.js";
 import { KeyUsageType } from "../../src/crypto/key/types/key-usage-type.js";
 import { TrustListCreateDto } from "../../src/issuer/trust-list/dto/trust-list-create.dto.js";
-import { readConfig, setupIssuanceTestApp } from "../utils.js";
+import { issuerStateOf, readConfig, setupIssuanceTestApp } from "../utils.js";
 
 const idp = "https://auth.registrar.example";
 const realm = "/realms/registrar";
@@ -110,7 +110,7 @@ describe("Registration certificate linked to the request's access certificate (e
                 response_type: "code",
                 client_id: "test-wallet",
                 interaction_types_supported: "openid4vp_presentation",
-                issuer_state: offer.body.session,
+                issuer_state: issuerStateOf(offer.body.uri),
                 code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
                 code_challenge_method: "S256",
             })
