@@ -44,7 +44,7 @@ Backend E2E tests start the assembled Nest application and drive it over HTTP. T
 pnpm --filter @eudiplo/backend test:e2e:local
 ```
 
-The script builds `@eudiplo/config-format` and runs every suite except the OIDF conformance tests, without coverage. Prerequisites:
+The script builds the workspace packages the backend depends on (`@eudiplo/config-format`) and runs every suite except the OIDF conformance tests, without coverage. Prerequisites:
 
 - **Port 3000 must be free.** The suites start the backend there and abort with a clear error when the port is taken. Stop `pnpm dev:backend` or a Compose stack first, and do not run two E2E runs in parallel.
 - **Docker is optional.** The PostgreSQL, HashiCorp Vault and S3 (RustFS) suites start containers with [Testcontainers](https://testcontainers.com/). Without a container runtime they are skipped with a warning. Set `E2E_SKIP_CONTAINERS=true` to skip them on purpose. In CI (`CI` set) a missing runtime fails the run.
@@ -62,6 +62,8 @@ Capability settings such as the public and internal URLs are read once when the 
 pnpm --filter @eudiplo/backend test:e2e:watch   # re-run on change
 pnpm --filter @eudiplo/backend test:e2e         # with coverage, as in CI
 ```
+
+`test:e2e` does not build `@eudiplo/config-format` (CI builds it in a separate step); run `pnpm --filter @eudiplo/config-format build` first.
 
 The CI job also adds the `host.testcontainers.internal` hosts entry and starts `test-rp`; locally neither is required.
 
@@ -81,8 +83,7 @@ Prerequisites:
 Run them:
 
 ```bash
-pnpm --filter @eudiplo/config-format build
-pnpm --filter @eudiplo/backend test:oidf
+pnpm --filter @eudiplo/backend test:oidf   # builds @eudiplo/config-format first
 ```
 
 | File | Purpose |
