@@ -34,7 +34,7 @@ export class HttpFederationEntityProvider implements FederationEntityProvider {
         tenantId,
         entityId,
     }: EntityConfigurationRequest): Promise<string> {
-        const url = `${this.settings.url.replace(/\/+$/, "")}/entities/${encodeURIComponent(tenantId)}/entity-configuration`;
+        const url = `${withoutTrailingSlashes(this.settings.url)}/entities/${encodeURIComponent(tenantId)}/entity-configuration`;
         let response: Response;
         try {
             response = await this.fetch(url, {
@@ -99,4 +99,10 @@ function assertEntityConfigurationOf(jwt: string, entityId: string): void {
             `trust engine answered with an entity configuration for ${String(payload.sub)} instead of ${entityId}`,
         );
     }
+}
+
+function withoutTrailingSlashes(url: string): string {
+    let end = url.length;
+    while (end > 0 && url[end - 1] === "/") end--;
+    return url.slice(0, end);
 }
