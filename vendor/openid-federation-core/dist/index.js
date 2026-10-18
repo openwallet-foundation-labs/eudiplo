@@ -48,9 +48,7 @@ __export(index_exports, {
   essentialOperator: () => essentialOperator,
   federationEntityMetadata: () => federationEntityMetadata,
   fetchEntityConfiguration: () => fetchEntityConfiguration,
-  fetchEntityConfigurationChains: () => fetchEntityConfigurationChains,
   fetchEntityStatement: () => fetchEntityStatement,
-  fetchEntityStatementChain: () => fetchEntityStatementChain,
   fetcher: () => fetcher,
   getUsedJsonWebKey: () => getUsedJsonWebKey,
   hasMediaType: () => hasMediaType,
@@ -71,7 +69,6 @@ __export(index_exports, {
   openidRelyingPartyEntityMetadata: () => openidRelyingPartyEntityMetadata,
   resolveTrustChains: () => resolveTrustChains,
   resolveTrustChainsWithFailures: () => resolveTrustChainsWithFailures,
-  stringifyJwtPart: () => stringifyJwtPart,
   subsetOfOperator: () => subsetOfOperator,
   supersetOfOperator: () => supersetOfOperator,
   swapValidators: () => swapValidators,
@@ -222,17 +219,11 @@ var import_buffer2 = require("buffer");
 function base64ToBase64URL(base64) {
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
-function stringifyJwtPart(value) {
-  return JSON.stringify(value, function(key, serialized) {
-    const original = this[key];
-    return original instanceof Date ? Math.floor(original.getTime() / 1e3) : serialized;
-  });
-}
 
 // src/jsonWeb/createJsonWebToken.ts
 var createJsonWebToken = (header, payload, signature) => {
-  const encodedHeader = base64ToBase64URL(import_buffer2.Buffer.from(stringifyJwtPart(header)).toString("base64"));
-  const encodedPayload = base64ToBase64URL(import_buffer2.Buffer.from(stringifyJwtPart(payload)).toString("base64"));
+  const encodedHeader = base64ToBase64URL(import_buffer2.Buffer.from(JSON.stringify(header)).toString("base64"));
+  const encodedPayload = base64ToBase64URL(import_buffer2.Buffer.from(JSON.stringify(payload)).toString("base64"));
   const encodedSignature = base64ToBase64URL(import_buffer2.Buffer.from(signature).toString("base64"));
   return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
 };
@@ -268,8 +259,8 @@ var createJwtSignableInput = (header, payload) => {
   if (Object.keys(payload).length === 0) {
     throw new Error("Can not create JWT with an empty payload");
   }
-  const encodedHeader = base64ToBase64URL(import_buffer3.Buffer.from(stringifyJwtPart(header)).toString("base64"));
-  const encodedPayload = base64ToBase64URL(import_buffer3.Buffer.from(stringifyJwtPart(payload)).toString("base64"));
+  const encodedHeader = base64ToBase64URL(import_buffer3.Buffer.from(JSON.stringify(header)).toString("base64"));
+  const encodedPayload = base64ToBase64URL(import_buffer3.Buffer.from(JSON.stringify(payload)).toString("base64"));
   const toBeSignedString = `${encodedHeader}.${encodedPayload}`;
   return new Uint8Array(import_buffer3.Buffer.from(toBeSignedString));
 };
@@ -300,7 +291,8 @@ var MetadataMergeStrategy = /* @__PURE__ */ ((MetadataMergeStrategy2) => {
   MetadataMergeStrategy2[MetadataMergeStrategy2["OperatorValuesEqual"] = 0] = "OperatorValuesEqual";
   MetadataMergeStrategy2[MetadataMergeStrategy2["Union"] = 1] = "Union";
   MetadataMergeStrategy2[MetadataMergeStrategy2["Intersection"] = 2] = "Intersection";
-  MetadataMergeStrategy2[MetadataMergeStrategy2["SuperiorFollowsIfTrue"] = 3] = "SuperiorFollowsIfTrue";
+  MetadataMergeStrategy2[MetadataMergeStrategy2["LogicalOr"] = 3] = "LogicalOr";
+  MetadataMergeStrategy2[MetadataMergeStrategy2["IntersectionMayBeEmpty"] = 4] = "IntersectionMayBeEmpty";
   return MetadataMergeStrategy2;
 })(MetadataMergeStrategy || {});
 
@@ -374,7 +366,7 @@ var addOperator = createPolicyOperatorSchema({
     // z.array(z.record(z.string().or(z.number()), z.unknown())),
     import_zod8.z.array(import_zod8.z.number())
   ],
-  canBeCombinedWith: ["default", "subset_of", "superset_of", "essential"],
+  canBeCombinedWith: ["value", "default", "subset_of", "superset_of", "essential"],
   orderOfApplication: 1 /* AfterValue */,
   mergeStrategy: 1 /* Union */
 });
@@ -395,7 +387,7 @@ var oneOfOperator = createPolicyOperatorSchema({
     // z.array(z.record(z.string().or(z.number()), z.unknown())),
     import_zod9.z.array(import_zod9.z.number())
   ],
-  canBeCombinedWith: ["default", "essential"],
+  canBeCombinedWith: ["value", "default", "essential"],
   orderOfApplication: 3 /* AfterDefault */,
   mergeStrategy: 2 /* Intersection */
 });
@@ -419,7 +411,7 @@ var valueOperator = createPolicyOperatorSchema({
     import_zod10.z.array(import_zod10.z.unknown()),
     import_zod10.z.null()
   ],
-  canBeCombinedWith: ["essential"],
+  canBeCombinedWith: ["add", "default", "one_of", "subset_of", "superset_of", "essential"],
   orderOfApplication: 0 /* First */,
   mergeStrategy: 0 /* OperatorValuesEqual */
 });
@@ -442,7 +434,7 @@ var defaultOperator = createPolicyOperatorSchema({
     import_zod11.z.record(import_zod11.z.string().or(import_zod11.z.number()), import_zod11.z.unknown()),
     import_zod11.z.array(import_zod11.z.unknown())
   ],
-  canBeCombinedWith: ["add", "one_of", "subset_of", "superset_of", "essential"],
+  canBeCombinedWith: ["value", "add", "one_of", "subset_of", "superset_of", "essential"],
   orderOfApplication: 2 /* AfterAdd */,
   mergeStrategy: 0 /* OperatorValuesEqual */
 });
@@ -463,9 +455,9 @@ var subsetOfOperator = createPolicyOperatorSchema({
     // z.array(z.record(z.string().or(z.number()), z.unknown())),
     import_zod12.z.array(import_zod12.z.number())
   ],
-  canBeCombinedWith: ["add", "default", "superset_of", "essential"],
+  canBeCombinedWith: ["value", "add", "default", "superset_of", "essential"],
   orderOfApplication: 4 /* AfterOneOf */,
-  mergeStrategy: 2 /* Intersection */
+  mergeStrategy: 4 /* IntersectionMayBeEmpty */
 });
 
 // src/metadata/operator/standard/essential.ts
@@ -483,7 +475,7 @@ var essentialOperator = createPolicyOperatorSchema({
   operatorJsonValues: [import_zod13.z.boolean()],
   canBeCombinedWith: ["add", "default", "one_of", "subset_of", "superset_of", "value"],
   orderOfApplication: 6 /* Last */,
-  mergeStrategy: 3 /* SuperiorFollowsIfTrue */
+  mergeStrategy: 3 /* LogicalOr */
 });
 
 // src/metadata/operator/standard/supersetOf.ts
@@ -502,7 +494,7 @@ var supersetOfOperator = createPolicyOperatorSchema({
     // z.array(z.record(z.string().or(z.number()), z.unknown())),
     import_zod14.z.array(import_zod14.z.number())
   ],
-  canBeCombinedWith: ["add", "default", "subset_of", "essential"],
+  canBeCombinedWith: ["value", "add", "default", "subset_of", "essential"],
   orderOfApplication: 5 /* AfterSubsetOf */,
   mergeStrategy: 1 /* Union */
 });
@@ -519,6 +511,30 @@ var allSupportedPolicies = {
   [valueOperator.key]: valueOperator
 };
 var isExistingPolicyKey = (key) => key in allSupportedPolicies;
+var isSubset = (values, of) => Array.isArray(values) && Array.isArray(of) && values.every((value) => of.includes(value));
+var conditionalCombinationErrors = (policy) => {
+  const errors = [];
+  const has = (key) => policy[key] !== void 0;
+  const { value, add, one_of, subset_of, superset_of, essential } = policy;
+  if (has("value")) {
+    const values = value === null ? [] : value;
+    if (value === null && has("default")) errors.push("'value' null can not be combined with 'default'");
+    if (value === null && essential === true) errors.push("'value' null can not be combined with 'essential' true");
+    if (has("add") && !isSubset(add, values))
+      errors.push("the values of 'add' must be a subset of the values of 'value'");
+    if (has("one_of") && !(Array.isArray(one_of) && value !== null && one_of.includes(value)))
+      errors.push("the value of 'value' must be among the 'one_of' values");
+    if (has("subset_of") && !isSubset(values, subset_of))
+      errors.push("the values of 'value' must be a subset of the values of 'subset_of'");
+    if (has("superset_of") && !isSubset(superset_of, values))
+      errors.push("the values of 'value' must be a superset of the values of 'superset_of'");
+  }
+  if (has("add") && has("subset_of") && !isSubset(add, subset_of))
+    errors.push("the values of 'add' must be a subset of the values of 'subset_of'");
+  if (has("subset_of") && has("superset_of") && !isSubset(superset_of, subset_of))
+    errors.push("the values of 'subset_of' must be a superset of the values of 'superset_of'");
+  return errors;
+};
 var metadataPolicySchema = import_zod15.z.object(
   Object.entries(allSupportedPolicies).reduce(
     // biome-ignore lint/performance/noAccumulatingSpread: In this case we want to use the spread operator
@@ -530,7 +546,9 @@ var metadataPolicySchema = import_zod15.z.object(
   for (const dataKey of dataKeys) {
     if (!isExistingPolicyKey(dataKey)) continue;
     const { operator } = allSupportedPolicies[dataKey];
-    if (dataKeys.some((key) => key !== operator.key && !operator.canBeCombinedWith.includes(key))) {
+    if (dataKeys.some(
+      (key) => key !== operator.key && isExistingPolicyKey(key) && !operator.canBeCombinedWith.includes(key)
+    )) {
       ctx.addIssue({
         code: import_zod15.z.ZodIssueCode.custom,
         message: `policy operator '${operator.key}' can only be combined with one of: [${operator.canBeCombinedWith.join(
@@ -538,6 +556,9 @@ var metadataPolicySchema = import_zod15.z.object(
         )}]. keys: [${Object.keys(data).join(",")}]`
       });
     }
+  }
+  for (const message of conditionalCombinationErrors(data)) {
+    ctx.addIssue({ code: import_zod15.z.ZodIssueCode.custom, message });
   }
   return data;
 });
@@ -652,7 +673,7 @@ var import_zod23 = require("zod");
 
 // src/utils/dateSchema.ts
 var import_zod22 = require("zod");
-var dateSchema = import_zod22.z.union([import_zod22.z.date(), import_zod22.z.number(), import_zod22.z.string().transform((x) => x.includes("T") ? new Date(x) : Number(x))]).transform((d) => d instanceof Date ? d : new Date(d * 1e3));
+var dateSchema = import_zod22.z.number().finite().transform((seconds) => new Date(seconds * 1e3));
 
 // src/utils/url.ts
 var addPaths = (baseUrl, ...paths) => {
@@ -729,42 +750,22 @@ var fetcher = {
 };
 
 // src/trustMark/trustMark.ts
-var withTrustMarkType = (value, ctx) => {
-  const trustMarkType = value.trust_mark_type ?? value.id;
-  if (!trustMarkType) {
-    ctx.addIssue({
-      code: import_zod23.z.ZodIssueCode.custom,
-      message: "trust_mark_type is required",
-      path: ["trust_mark_type"]
-    });
-    return import_zod23.z.NEVER;
-  }
-  return { ...value, trust_mark_type: trustMarkType };
-};
 var trustMarkClaimsSchema = import_zod23.z.object({
   iss: import_zod23.z.string(),
   sub: import_zod23.z.string(),
-  trust_mark_type: import_zod23.z.string().optional(),
-  /**
-   * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-   */
-  id: import_zod23.z.string().optional(),
+  trust_mark_type: import_zod23.z.string(),
   iat: dateSchema,
   exp: dateSchema.optional(),
   logo_uri: import_zod23.z.string().url().optional(),
   ref: import_zod23.z.string().url().optional(),
   delegation: import_zod23.z.string().optional()
-}).passthrough().transform(withTrustMarkType);
+}).passthrough();
 var trustMarkSchema = import_zod23.z.object({
-  trust_mark_type: import_zod23.z.string().optional(),
-  /**
-   * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-   */
-  id: import_zod23.z.string().optional(),
+  trust_mark_type: import_zod23.z.string(),
   trust_mark: jsonWebTokenSchema({
     claimsSchema: trustMarkClaimsSchema
   })
-}).transform(withTrustMarkType).refine((entry) => entry.trust_mark_type === entry.trust_mark.claims.trust_mark_type, {
+}).refine((entry) => entry.trust_mark_type === entry.trust_mark.claims.trust_mark_type, {
   message: "trust_mark_type must be the trust_mark_type of the trust mark JWT",
   path: ["trust_mark_type"]
 });
@@ -942,49 +943,6 @@ var fetchEntityStatement = async ({
   return claims;
 };
 
-// src/entityStatement/fetchEntityStatementChain.ts
-var fetchEntityStatementChain = async ({
-  verifyJwtCallback,
-  entityConfigurations,
-  fetchCallback
-}) => {
-  if (entityConfigurations.length === 0) {
-    throw new OpenIdFederationError(
-      "validation" /* Validation */,
-      "Cannot establish a statement chain for zero entity configurations"
-    );
-  }
-  const reversedConfigurations = [...entityConfigurations].reverse();
-  const promises = [];
-  for (let i = 0; i < reversedConfigurations.length; i++) {
-    const configuration = reversedConfigurations[i];
-    const subjectConfiguration = reversedConfigurations[i + 1];
-    if (!subjectConfiguration) continue;
-    const fetchEndpoint = configuration?.metadata?.federation_entity?.federation_fetch_endpoint;
-    if (!fetchEndpoint) {
-      throw new OpenIdFederationError(
-        "validation" /* Validation */,
-        `No fetch endpoint found for configuration for: '${configuration?.sub}'`
-      );
-    }
-    promises.push(
-      fetchEntityStatement({
-        verifyJwtCallback,
-        endpoint: fetchEndpoint,
-        iss: configuration.iss,
-        sub: subjectConfiguration.sub,
-        issEntityConfiguration: configuration,
-        fetchCallback
-      })
-    );
-  }
-  const trustAnchorEntityConfiguration = entityConfigurations[entityConfigurations.length - 1];
-  if (!trustAnchorEntityConfiguration) {
-    throw new OpenIdFederationError("validation" /* Validation */, "No trust anchor entity configuration found");
-  }
-  return [trustAnchorEntityConfiguration, ...await Promise.all(promises)].reverse();
-};
-
 // src/entityConfiguration/entityConfigurationClaims.ts
 var entityConfigurationClaimsSchema = entityStatementClaimsSchema.refine((data) => data.iss === data.sub, {
   message: "iss and sub must be equal",
@@ -1029,43 +987,6 @@ var fetchEntityConfiguration = async ({
   }
   await verifyJwtSignature({ jwt: entityConfigurationJwt, verifyJwtCallback });
   return claims;
-};
-
-// src/entityConfiguration/fetchEntityConfigurationChains.ts
-var fetchEntityConfigurationChains = async (options) => {
-  if (options.trustAnchorEntityIds.length === 0) {
-    throw new OpenIdFederationError(
-      "validation" /* Validation */,
-      "Cannot establish a configuration chain for zero trust anchors"
-    );
-  }
-  const __fetchEntityConfigurationChains = async (currentEntityId, path = []) => {
-    const configuration = await fetchEntityConfiguration({
-      verifyJwtCallback: options.verifyJwtCallback,
-      fetchCallback: options.fetchCallback,
-      entityId: currentEntityId
-    });
-    const localPath = [...path, configuration];
-    const allPaths = [];
-    if (options.trustAnchorEntityIds.includes(configuration.sub)) {
-      allPaths.push(localPath);
-    }
-    if (configuration.authority_hints) {
-      const promises = [];
-      for (const superior of configuration.authority_hints) {
-        if (localPath.map((v) => v.sub).includes(superior)) continue;
-        promises.push(__fetchEntityConfigurationChains(superior, localPath));
-      }
-      const results = await Promise.allSettled(promises);
-      for (const res of results) {
-        if (res.status === "fulfilled") {
-          allPaths.push(...res.value);
-        }
-      }
-    }
-    return allPaths;
-  };
-  return __fetchEntityConfigurationChains(options.leafEntityId);
 };
 
 // src/entityConfiguration/createEntityConfiguration.ts
@@ -1115,6 +1036,9 @@ var MetadataHelper = class {
   constructor(leafMetadata) {
     this.leafMetadata = leafMetadata;
   }
+  hasEntityType(service) {
+    return this.leafMetadata[service] !== void 0;
+  }
   hasProperty(service, property) {
     return this.leafMetadata[service]?.[property] !== void 0;
   }
@@ -1145,9 +1069,6 @@ var MetadataHelper = class {
       }
     };
     delete this.leafMetadata[service][property];
-    if (Object.keys(serviceBlock).length === 0) {
-      delete this.leafMetadata[service];
-    }
   }
   asMetadata() {
     return this.leafMetadata;
@@ -1188,6 +1109,7 @@ function union(operator1, operator2) {
 function mergeMetadata(leafConfigMetadata, superiorEntityStatement) {
   const mergedLeafMetadata = new MetadataHelper(immutable(leafConfigMetadata));
   for (const [entityType, entityConfigMetadata] of objectToEntries(superiorEntityStatement)) {
+    if (!mergedLeafMetadata.hasEntityType(String(entityType))) continue;
     for (const [key, value] of objectToEntries(entityConfigMetadata ?? {})) {
       mergedLeafMetadata.setPropertyValue(String(entityType), String(key), value);
     }
@@ -1204,7 +1126,7 @@ function combineExistingMetadataPolicyOperators({
   const combinedPolicyRules = { ...existingPolicyRules };
   for (const [policyPropertyKey, policyRuleValue] of objectToEntries(newPolicyRules)) {
     if (!isExistingPolicyKey(policyPropertyKey)) continue;
-    if (!combinedPolicyRules[policyPropertyKey]) {
+    if (combinedPolicyRules[policyPropertyKey] === void 0) {
       combinedPolicyRules[policyPropertyKey] = policyRuleValue;
       continue;
     }
@@ -1246,7 +1168,8 @@ function combineExistingMetadataPolicyOperators({
         }
         combinedPolicyRules[policyPropertyKey] = union(existingPolicyRuleValue, newPolicyRuleValue);
         break;
-      case 2 /* Intersection */: {
+      case 2 /* Intersection */:
+      case 4 /* IntersectionMayBeEmpty */: {
         if (!Array.isArray(existingPolicyRuleValue) || !Array.isArray(newPolicyRuleValue)) {
           throw new PolicyOperatorMergeError("Existing policy rule value is not an array", {
             path: contextPath,
@@ -1255,7 +1178,7 @@ function combineExistingMetadataPolicyOperators({
           });
         }
         const intersection = intersect(existingPolicyRuleValue, newPolicyRuleValue);
-        if (intersection.length === 0) {
+        if (intersection.length === 0 && operator.mergeStrategy === 2 /* Intersection */) {
           throw new PolicyOperatorMergeError("Intersection is empty", {
             path: contextPath,
             operatorA: existingPolicyRules,
@@ -1265,7 +1188,7 @@ function combineExistingMetadataPolicyOperators({
         combinedPolicyRules[policyPropertyKey] = intersection;
         break;
       }
-      case 3 /* SuperiorFollowsIfTrue */:
+      case 3 /* LogicalOr */:
         if (typeof existingPolicyRuleValue !== "boolean" || typeof newPolicyRuleValue !== "boolean") {
           throw new PolicyOperatorMergeError("Existing policy rule value is not a boolean", {
             path: contextPath,
@@ -1273,7 +1196,7 @@ function combineExistingMetadataPolicyOperators({
             operatorB: newPolicyRules
           });
         }
-        combinedPolicyRules[policyPropertyKey] = existingPolicyRuleValue ?? newPolicyRuleValue;
+        combinedPolicyRules[policyPropertyKey] = existingPolicyRuleValue || newPolicyRuleValue;
         break;
       default:
         throw new PolicyOperatorMergeError(`Unknown merge strategy: ${operator.mergeStrategy}`, {
@@ -1341,12 +1264,19 @@ function applyMetadataPolicyToMetadata({
 }) {
   const resolvedLeafMetadata = new MetadataHelper(immutable(leafMetadata));
   for (const [serviceKey, service] of objectToEntries(policyMetadata)) {
+    if (!resolvedLeafMetadata.hasEntityType(serviceKey)) continue;
     for (const [servicePropertyKey, policyValue] of objectToEntries(service)) {
       const policies = objectToEntries(policyValue).filter(([key]) => isExistingPolicyKey(key)).sort(
         ([policyKeyA], [policyKeyB]) => allSupportedPolicies[policyKeyA].orderOfApplication - allSupportedPolicies[policyKeyB].orderOfApplication
       );
       const path = `${serviceKey}.${servicePropertyKey}`;
-      for (const [policyPropertyKey, valueFromPolicy] of policies) {
+      const isScope = servicePropertyKey === "scope";
+      const scope = resolvedLeafMetadata.getPropertyValue(serviceKey, servicePropertyKey);
+      if (isScope && typeof scope === "string") {
+        resolvedLeafMetadata.setPropertyValue(serviceKey, servicePropertyKey, splitScope(scope));
+      }
+      for (const [policyPropertyKey, rawValueFromPolicy] of policies) {
+        const valueFromPolicy = isScope && typeof rawValueFromPolicy === "string" ? splitScope(rawValueFromPolicy) : rawValueFromPolicy;
         switch (policyPropertyKey) {
           case "value":
             if (valueFromPolicy === null) {
@@ -1390,6 +1320,7 @@ function applyMetadataPolicyToMetadata({
             break;
           case "subset_of": {
             const targetValue = resolvedLeafMetadata.getPropertyValue(serviceKey, servicePropertyKey);
+            if (isNullOrUndefined(targetValue)) break;
             if (!Array.isArray(targetValue))
               throw new PolicyValidationError("Cannot apply subset_of policy because the target is not an array", {
                 path,
@@ -1403,15 +1334,12 @@ function applyMetadataPolicyToMetadata({
                 targetValue
               });
             const newValue = targetValue.filter((value) => valueFromPolicy.includes(value));
-            if (newValue.length === 0) {
-              resolvedLeafMetadata.deleteProperty(serviceKey, servicePropertyKey);
-              break;
-            }
             resolvedLeafMetadata.setPropertyValue(serviceKey, servicePropertyKey, newValue);
             break;
           }
           case "superset_of": {
             const targetValue = resolvedLeafMetadata.getPropertyValue(serviceKey, servicePropertyKey);
+            if (isNullOrUndefined(targetValue)) break;
             if (!Array.isArray(targetValue))
               throw new PolicyValidationError("Cannot apply superset_of policy because the target is not an array", {
                 path,
@@ -1424,7 +1352,7 @@ function applyMetadataPolicyToMetadata({
                 policyValue: valueFromPolicy,
                 targetValue
               });
-            if (!targetValue.every((value) => valueFromPolicy.includes(value)))
+            if (!valueFromPolicy.every((value) => targetValue.includes(value)))
               throw new PolicyValidationError("The target does not contain all the values from the policy superset", {
                 path,
                 policyValue: valueFromPolicy,
@@ -1441,15 +1369,13 @@ function applyMetadataPolicyToMetadata({
                 policyValue: valueFromPolicy,
                 targetValue
               });
-            if (Array.isArray(targetValue) && targetValue.length === 0)
-              throw new PolicyValidationError("The target is empty and is essential to have a value", {
-                path,
-                policyValue: valueFromPolicy,
-                targetValue
-              });
             break;
           }
         }
+      }
+      const resolvedScope = resolvedLeafMetadata.getPropertyValue(serviceKey, servicePropertyKey);
+      if (isScope && Array.isArray(resolvedScope)) {
+        resolvedLeafMetadata.setPropertyValue(serviceKey, servicePropertyKey, resolvedScope.join(" "));
       }
     }
   }
@@ -1457,6 +1383,7 @@ function applyMetadataPolicyToMetadata({
     resolvedLeafMetadata: resolvedLeafMetadata.asMetadata()
   };
 }
+var splitScope = (scope) => scope.split(" ").filter((value) => value !== "");
 
 // src/resolveTrustChains/resolveTrustChains.ts
 var ENTITY_STATEMENT_CONTENT_TYPE = "application/entity-statement+jwt";
@@ -1474,10 +1401,7 @@ var resolveTrustChainsWithFailures = async (options) => {
     understoodCriticalClaims = []
   } = options;
   const now = options.currentDate ?? /* @__PURE__ */ new Date();
-  const trustAnchors = [
-    ...options.trustAnchors ?? [],
-    ...(options.trustAnchorEntityIds ?? []).map((id) => ({ entityId: id }))
-  ];
+  const { trustAnchors } = options;
   if (trustAnchors.length === 0) {
     throw fail("Cannot resolve a trust chain for zero trust anchors");
   }
@@ -1526,6 +1450,7 @@ var resolveTrustChainsWithFailures = async (options) => {
         }
         await verifyJwtSignature({ jwt, verifyJwtCallback });
         assertCurrent(claims);
+        assertEntityConfigurationClaims(claims);
         return { jwt, claims };
       })();
       entityConfigurations.set(id, pending);
@@ -1600,6 +1525,7 @@ var resolveTrustChainsWithFailures = async (options) => {
         );
       }
       assertCurrent(claims);
+      assertSubordinateStatementClaims(claims);
       if (claims.constraints?.naming_constraints) {
         throw fail(`'${superior.claims.sub}' sets naming_constraints, which are not supported`);
       }
@@ -1647,8 +1573,8 @@ var resolveTrustChainsWithFailures = async (options) => {
       chain: [...statementClaims, trustAnchorConfiguration.claims],
       jwtChain: [leaf.jwt, ...statements.map((statement) => statement.jwt), trustAnchorConfiguration.jwt],
       rawLeafEntityConfiguration: leaf.claims,
-      // Again after the policies, which could otherwise add a removed entity type back
-      resolvedLeafMetadata: restrictEntityTypes(resolvedLeafMetadata, statementClaims),
+      // The policies do not add entity types, so a removed one stays removed
+      resolvedLeafMetadata,
       trustAnchorEntityConfiguration: trustAnchorConfiguration.claims,
       expiresAt
     };
@@ -1668,6 +1594,39 @@ var resolveTrustChainsWithFailures = async (options) => {
     }
   }
   return { trustChains, failures };
+};
+var assertEntityConfigurationClaims = (claims) => {
+  const present = ["metadata_policy", "metadata_policy_crit", "constraints", "source_endpoint"].filter(
+    (claim) => claims[claim] !== void 0
+  );
+  if (present.length > 0) {
+    throw fail(
+      `entity configuration of '${claims.sub}' contains ${present.join(", ")}, which only subordinate statements may contain`
+    );
+  }
+  if (claims.authority_hints?.length === 0) {
+    throw fail(`entity configuration of '${claims.sub}' has an empty authority_hints array`);
+  }
+};
+var assertSubordinateStatementClaims = (claims) => {
+  const present = ["authority_hints", "trust_marks", "trust_mark_issuers", "trust_mark_owners"].filter(
+    (claim) => claims[claim] !== void 0
+  );
+  if (present.length > 0) {
+    throw fail(
+      `subordinate statement about '${claims.sub}' issued by '${claims.iss}' contains ${present.join(", ")}, which only entity configurations may contain`
+    );
+  }
+  if (claims.metadata_policy_crit?.length === 0) {
+    throw fail(
+      `subordinate statement about '${claims.sub}' issued by '${claims.iss}' has an empty metadata_policy_crit array`
+    );
+  }
+  if (claims.metadata_policy_crit !== void 0) {
+    throw fail(
+      `subordinate statement about '${claims.sub}' issued by '${claims.iss}' requires policy operators that are not supported: ${claims.metadata_policy_crit.join(", ")}`
+    );
+  }
 };
 var restrictEntityTypes = (metadata, statements) => {
   const allowed = statements.map((statement) => statement.constraints?.allowed_entity_types).filter((types) => types !== void 0);
@@ -1709,9 +1668,7 @@ var resolveTrustChains = async (options) => (await resolveTrustChainsWithFailure
   essentialOperator,
   federationEntityMetadata,
   fetchEntityConfiguration,
-  fetchEntityConfigurationChains,
   fetchEntityStatement,
-  fetchEntityStatementChain,
   fetcher,
   getUsedJsonWebKey,
   hasMediaType,
@@ -1732,7 +1689,6 @@ var resolveTrustChains = async (options) => (await resolveTrustChainsWithFailure
   openidRelyingPartyEntityMetadata,
   resolveTrustChains,
   resolveTrustChainsWithFailures,
-  stringifyJwtPart,
   subsetOfOperator,
   supersetOfOperator,
   swapValidators,
