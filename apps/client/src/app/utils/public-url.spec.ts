@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hostedVctUrl, trustListUrl } from './public-url';
+import { entityIdUrl, hostedVctUrl, trustListUrl } from './public-url';
 
 describe('public URLs', () => {
   it('builds the trust list URL like the backend, with an encoded list ID', () => {
@@ -11,6 +11,12 @@ describe('public URLs', () => {
   it('builds the URL of hosted VCT metadata', () => {
     expect(hostedVctUrl('https://eudiplo.example.com', 'acme', 'membership')).toBe(
       'https://eudiplo.example.com/issuers/acme/credentials-metadata/vct/membership'
+    );
+  });
+
+  it('builds the OpenID Federation entity ID of a tenant', () => {
+    expect(entityIdUrl('https://eudiplo.example.com', 'acme')).toBe(
+      'https://eudiplo.example.com/issuers/acme'
     );
   });
 });

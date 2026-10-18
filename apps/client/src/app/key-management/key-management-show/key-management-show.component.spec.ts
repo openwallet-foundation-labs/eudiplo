@@ -50,6 +50,46 @@ describe('KeyManagementShowComponent', () => {
   it('leaves the signing algorithm out for keys on other curves', () => {
     expect(shownWith({ alg: undefined })).not.toContain('Signing Algorithm');
   });
+
+  const certificate = {
+    subject: 'CN=self',
+    issuer: 'CN=self',
+    pem: '-----BEGIN CERTIFICATE-----',
+    notAfter: '2099-01-01T00:00:00Z',
+  };
+
+  it('shows a federation key as its public key and says its certificate is unused', () => {
+    const text = shownWith({
+      usageType: 'federation',
+      activePublicKey: { kty: 'EC', crv: 'P-256', kid: 'fed-kid', x: 'x-coordinate' },
+      activeCertificate: certificate,
+    } as Partial<KeyChainResponseDto>);
+    expect(text).toContain('Public Key');
+    expect(text).toContain('fed-kid');
+    expect(text).toContain('x-coordinate');
+    expect(text).toContain('Copy Public Key (JWK)');
+    expect(text).toContain('OpenID Federation does not use it');
+    expect(text).not.toContain('Active Certificate');
+    expect(text).not.toContain('Copy PEM');
+  });
+
+  it('shows the previous public key of a rotated federation key without its certificate', () => {
+    const text = shownWith({
+      usageType: 'federation',
+      activePublicKey: { kty: 'EC', crv: 'P-256', kid: 'new-kid' },
+      previousPublicKey: { kty: 'EC', crv: 'P-256', kid: 'old-kid' },
+      previousCertificate: certificate,
+    } as Partial<KeyChainResponseDto>);
+    expect(text).toContain('Previous Public Key (Grace Period)');
+    expect(text).toContain('old-kid');
+    expect(text).not.toContain('Previous Certificate');
+  });
+
+  it('keeps the certificate card for other keys', () => {
+    const text = shownWith({ activeCertificate: certificate } as Partial<KeyChainResponseDto>);
+    expect(text).toContain('Active Certificate');
+    expect(text).not.toContain('OpenID Federation does not use it');
+  });
 });
 
 describe('KeyManagementShowComponent configuration download', () => {
@@ -206,6 +246,17 @@ describe('KeyManagementShowComponent type description', () => {
         activeCertificate: { subject: 'CN=Tenant', issuer: 'CN=Tenant' },
       } as Partial<KeyChainResponseDto>)
     ).toBe('This is a self-signed standalone key.');
+  });
+
+  it('describes a federation key by its published JWK, not its self-signed certificate', () => {
+    const description = describeKey({
+      type: 'standalone',
+      usageType: 'federation',
+      activeCertificate: { subject: 'CN=Tenant', issuer: 'CN=Tenant' },
+    } as Partial<KeyChainResponseDto>);
+
+    expect(description).toContain('published as a JWK');
+    expect(description).not.toContain('self-signed');
   });
 
   it('names a standalone key without an active certificate neither way', () => {

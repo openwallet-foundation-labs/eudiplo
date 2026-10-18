@@ -775,3 +775,28 @@ describe('KeyCreateWizardComponent signing algorithm', () => {
     expect(component.showAlgorithm).toBe(false);
   });
 });
+
+describe('KeyCreateWizardComponent usage from the link', () => {
+  function openedWith(usage: string | null): KeyCreateWizardComponent {
+    const component = new KeyCreateWizardComponent(
+      new FormBuilder(),
+      { getProviders: vi.fn().mockResolvedValue({ providers: [], default: 'db' }) } as never,
+      {} as never,
+      { snapshot: { queryParamMap: new Map(usage ? [['usage', usage]] : []) } } as never,
+      { navigate: vi.fn() } as never,
+      { open: vi.fn() } as never,
+      { hasRole: () => false } as never
+    );
+    component.ngOnInit();
+    return component;
+  }
+
+  it('preselects the usage a link names', () => {
+    expect(openedWith('federation').selectedUsage).toBe('federation');
+  });
+
+  it('leaves the usage open for an unknown or missing value', () => {
+    expect(openedWith('bogus').selectedUsage).toBeNull();
+    expect(openedWith(null).selectedUsage).toBeNull();
+  });
+});

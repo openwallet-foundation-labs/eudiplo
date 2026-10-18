@@ -21,3 +21,11 @@ export function hostedVctUrl(
 ): string {
   return `${publicUrl}/issuers/${tenantId}/credentials-metadata/vct/${credentialConfigId}`;
 }
+
+/**
+ * Entity ID of the tenant as an OpenID Federation leaf entity. EUDIPLO serves its
+ * entity configuration under `{entityId}/.well-known/openid-federation`.
+ */
+export function entityIdUrl(publicUrl: string, tenantId: string): string {
+  return `${publicUrl}/issuers/${tenantId}`;
+}

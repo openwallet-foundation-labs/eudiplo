@@ -1,4 +1,11 @@
-import { Component, type OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  type OnInit,
+  ChangeDetectionStrategy,
+  ElementRef,
+  Injector,
+  ViewChild,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   FormArray,
@@ -52,6 +59,12 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
 import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../../utils/error-message';
 import { openErrorSnackBar } from '../../../utils/error-snackbar';
 import { certificateBase64, certificateValidator } from '../../../utils/certificate-validator';
+import { KeyChainService } from '../../../key-management/key-chain.service';
+import { FrontendConfigService } from '../../../services/frontend-config.service';
+import { JwtService } from '../../../services/jwt.service';
+import { ApiService } from '../../../core';
+import { entityIdUrl } from '../../../utils/public-url';
+import { focusAfterRenderIfLost } from '../../../common/focus-if-lost.util';
 import { FederationTrustAnchorSelectComponent } from '../../../federation-trust-anchor/federation-trust-anchor-select/federation-trust-anchor-select.component';
 import {
   entityConfigurationUri,
@@ -414,6 +427,24 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   /** Whether the loaded configuration published an entity configuration (entity ID and trust anchors). */
   federationWasPublished = false;
+
+  /** Entity ID EUDIPLO serves this tenant's entity configuration under; null until known. */
+  expectedEntityId: string | null = null;
+
+  /** True when the backend did not report PUBLIC_URL and expectedEntityId uses the instance URL. */
+  expectedEntityIdUsesInstanceUrl = false;
+
+  /** IDs of the tenant's key chains with usage type federation; null while unknown. */
+  private federationKeyChainIds: string[] | null = null;
+
+  /** True while loadFederationSetup runs. */
+  checkingFederationKey = false;
+
+  /** Result of the last "Check again" that still found no federation key. */
+  federationKeyCheckMessage = '';
+
+  @ViewChild('entityIdInput', { read: ElementRef })
+  private readonly entityIdInput?: ElementRef<HTMLInputElement>;
   /** Trust anchors of the stored configuration, which the backend keeps even when unregistered. */
   private storedTrustAnchorIds = new Set<string>();
   private registrarRegistrationCertificateDefaults: Record<string, unknown> | null = null;
@@ -437,6 +468,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly presentationManagementService: PresentationManagementService,
     private readonly registrarService: RegistrarService,
+    private readonly keyChainService: KeyChainService,
+    private readonly frontendConfigService: FrontendConfigService,
+    private readonly jwtService: JwtService,
+    private readonly apiService: ApiService,
+    private readonly injector: Injector,
     private readonly federationTrustAnchors: FederationTrustAnchorService
   ) {
     this.form = new FormGroup({
@@ -489,7 +525,105 @@ export class IssuanceConfigCreateComponent implements OnInit {
       void this.loadConfigForEdit();
       void this.loadRegistrarDefaults();
       void this.loadTrustLists();
+      void this.loadFederationSetup();
     }, 0);
+  }
+
+  /**
+   * Loads what the federation card checks the entity ID against: the URL the
+   * backend serves the entity configuration under, built from PUBLIC_URL like
+   * the backend does, and whether a federation key exists to sign it.
+   */
+  async loadFederationSetup(): Promise<unknown> {
+    const tenantId = this.jwtService.getTenantId();
+    this.checkingFederationKey = true;
+    let frontendConfig: Awaited<ReturnType<FrontendConfigService['getConfig']>>;
+    let keyChains: Awaited<ReturnType<KeyChainService['getAll']>> | null;
+    let keyChainsError: unknown = null;
+    try {
+      [frontendConfig, keyChains] = await Promise.all([
+        this.frontendConfigService.getConfig(),
+        this.keyChainService.getAll().catch((error: unknown) => {
+          keyChainsError = error ?? new Error('Key chains unavailable');
+          return null;
+        }),
+      ]);
+    } finally {
+      this.checkingFederationKey = false;
+    }
+    // A config without publicUrl means an older backend; no config means the
+    // request failed, and then no URL is suggested at all.
+    const publicUrl = frontendConfig
+      ? (frontendConfig.publicUrl ?? this.apiService.getBaseUrl())
+      : null;
+    this.expectedEntityIdUsesInstanceUrl = !!frontendConfig && !frontendConfig.publicUrl;
+    this.expectedEntityId = tenantId && publicUrl ? entityIdUrl(publicUrl, tenantId) : null;
+    // A failed request keeps what is known; without any list, say nothing
+    // rather than claim the key is missing.
+    if (keyChains) {
+      this.federationKeyChainIds = keyChains
+        .filter((keyChain) => keyChain.usageType === 'federation')
+        .map((keyChain) => keyChain.id);
+    }
+    return keyChainsError;
+  }
+
+  /** Reloads the key chains after the user created a federation key in another tab. */
+  async checkFederationKeyAgain(): Promise<void> {
+    this.federationKeyCheckMessage = '';
+    const error = await this.loadFederationSetup();
+    if (error) {
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Could not check the federation keys')
+      );
+    } else if (this.federationKeyMissing) {
+      this.federationKeyCheckMessage = 'Still no matching federation key.';
+    } else {
+      this.snackBar.open('Federation key found', 'Close', { duration: 3000 });
+      // The warning with the focused button is gone.
+      focusAfterRenderIfLost(this.injector, () => this.entityIdInput?.nativeElement);
+    }
+  }
+
+  /** Key chain ID that federation.entityKeyChainId pins, or null without a pin. */
+  get pinnedFederationKeyChainId(): string | null {
+    const pinned = this.federationEntitySettings['entityKeyChainId'];
+    return typeof pinned === 'string' && pinned ? pinned : null;
+  }
+
+  /**
+   * Whether a federation key exists that can sign the entity configuration: the
+   * one federation.entityKeyChainId pins, or any one without a pin. Null while unknown.
+   */
+  get hasFederationKey(): boolean | null {
+    if (!this.federationKeyChainIds) return null;
+    const pinned = this.pinnedFederationKeyChainId;
+    return pinned
+      ? this.federationKeyChainIds.includes(pinned)
+      : this.federationKeyChainIds.length > 0;
+  }
+
+  /** The entity ID entered in the federation card, trimmed. */
+  get entityId(): string {
+    return `${this.federation.get('entityId')?.value ?? ''}`.trim();
+  }
+
+  /** True when an entity ID is set that differs from the URL the entity configuration is served under. */
+  get entityIdDiffers(): boolean {
+    return !!this.entityId && !!this.expectedEntityId && this.entityId !== this.expectedEntityId;
+  }
+
+  /** True when an entity ID is set but no federation key exists to sign the entity configuration. */
+  get federationKeyMissing(): boolean {
+    return !!this.entityId && this.hasFederationKey === false;
+  }
+
+  useExpectedEntityId(): void {
+    if (!this.expectedEntityId) return;
+    const control = this.federation.get('entityId')!;
+    control.setValue(this.expectedEntityId);
+    control.markAsDirty();
   }
 
   private async loadRegistrarDefaults(): Promise<void> {

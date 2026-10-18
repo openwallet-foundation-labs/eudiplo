@@ -309,6 +309,11 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Links that need one kind of key, such as the issuer settings, preselect its usage.
+    const requestedUsage = this.route.snapshot.queryParamMap.get('usage');
+    if (this.usageOptions.some((option) => option.value === requestedUsage)) {
+      this.usageForm.get('usage')!.setValue(requestedUsage);
+    }
     // Pre-check registrar config so we can show status quickly
     // checkRegistrarConfig handles its own errors.
     if (this.canUseRegistrar) void this.checkRegistrarConfig();
