@@ -84,6 +84,38 @@ Rotating a standalone or imported key chain replaces its certificate with a self
 
 There is no certificate signing request (CSR) export. To use certificates from your own CA, import the key with its certificate, or import the CA key as an external CA chain.
 
+## Delete a key chain
+
+`DELETE /api/key-chain/{id}` answers `204` and, where the KMS provider supports it, also deletes the key in the KMS. It answers `409` while a configuration of the tenant names the key chain, because that configuration could no longer sign or publish the key chain's certificate. These fields count:
+
+- `signingKeyId` of the issuance configuration, and `token.signingKeyId` of each of its authorization servers,
+- `keyChainId` of a credential configuration,
+- `accessKeyChainId` of a presentation configuration,
+- `keyChainId` of a status list,
+- `keyChainId` of a [trust list](trust-lists.md), which the key chain signs, and `issuerKeyChainId` or `revocationKeyChainId` of its internal entities. Deleting the signing key chain would also delete the trust list.
+
+A configuration that leaves the field out uses the tenant's default key chain of the usage type and does not count, so the default key chain itself can be deleted; such configurations then use another key chain of that usage type, or fail until one exists. Trust lists are the exception: a trust list created without `keyChainId` stores the trust list key chain picked at creation, so that key chain counts until the trust list is deleted, also when a bundle rewrites the trust list without `keyChainId`.
+
+The response names the configurations in `message` and lists them in `references`. Configurations the caller's roles cannot read are only counted, without ID and description: the issuance configuration, credential configs and status lists need `issuance:manage`, presentation configs `presentation:manage` or `presentation:request`, and trust lists `issuance:manage` or `presentation:manage`.
+
+```json
+{
+    "statusCode": 409,
+    "timestamp": "2026-10-17T12:00:00.000Z",
+    "path": "/api/key-chain/pid-signing",
+    "code": "KEY_CHAIN_IN_USE",
+    "message": "Key chain \"pid-signing\" is still used by the issuance configuration and 1 credential config (\"pid\"). Remove these references before deleting the key chain.",
+    "references": [
+        { "kind": "IssuanceConfig" },
+        { "kind": "CredentialConfig", "id": "pid", "description": "Personal ID" }
+    ]
+}
+```
+
+Point the configurations to another key chain, or remove the field, then delete the key chain. In the Web Client, deleting a key chain from the key list or its page shows this message. An unknown ID answers `404`. Sessions that are already running are not checked; an OpenID4VP request whose key chain is deleted before the wallet fetches it cannot be used ([Default access key chain](#default-access-key-chain)).
+
+A [configuration bundle](../operate/configuration-as-code.md#plan-and-import) or a [config folder](../operate/configuration-as-code.md#provision-tenants-from-a-folder) imported in `replace` mode deletes a key chain that it created and no longer contains. Its plan is blocked with `KEY_CHAIN_IN_USE` on that key chain while a configuration that survives the import names it by the rules above: a stored configuration the import neither deletes nor rewrites, or a document of the bundle with its new content. A document of the bundle that names the key chain is also blocked with `MISSING_RESOURCE_REFERENCE`. Keep the key chain in the bundle, or remove the references, then plan again.
+
 ## Certificates
 
 Certificates always belong to a key chain. Which one a wallet or verifier has to trust depends on its use:
