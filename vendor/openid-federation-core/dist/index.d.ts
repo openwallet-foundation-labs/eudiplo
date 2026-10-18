@@ -41,8 +41,8 @@ type Constraint = z.input<typeof constraintSchema>;
 declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     iss: z.ZodString;
     sub: z.ZodString;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
+    iat: z.ZodEffects<z.ZodNumber, Date, number>;
+    exp: z.ZodEffects<z.ZodNumber, Date, number>;
     jwks: z.ZodObject<{
         keys: z.ZodArray<z.ZodObject<{
             kty: z.ZodString;
@@ -7724,114 +7724,63 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     }>>;
     crit: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     metadata_policy_crit: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    trust_marks: z.ZodOptional<z.ZodArray<z.ZodEffects<z.ZodEffects<z.ZodObject<{
-        trust_mark_type: z.ZodOptional<z.ZodString>;
-        id: z.ZodOptional<z.ZodString>;
+    trust_marks: z.ZodOptional<z.ZodArray<z.ZodEffects<z.ZodObject<{
+        trust_mark_type: z.ZodString;
         trust_mark: z.ZodEffects<z.ZodString, {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         }, string>;
     }, "strip", z.ZodTypeAny, {
-        trust_mark: {
-            jwt: string;
-            header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
-            signature: Uint8Array<ArrayBuffer>;
-        };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }, {
-        trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }>, {
-        trust_mark: {
-            jwt: string;
-            header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
-            signature: Uint8Array<ArrayBuffer>;
-        };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
         trust_mark_type: string;
-    }, {
-        trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }>, {
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
     }, {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
+    }>, {
+        trust_mark_type: string;
+        trust_mark: {
+            jwt: string;
+            header: Record<string | number, unknown>;
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
+            signature: Uint8Array<ArrayBuffer>;
+        };
+    }, {
+        trust_mark_type: string;
+        trust_mark: string;
     }>, "many">>;
     trust_mark_issuers: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
     trust_mark_owners: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodObject<{
@@ -10481,32 +10430,24 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -10541,8 +10482,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     };
     sub: string;
     iss: string;
-    iat: string | number | Date;
-    exp: string | number | Date;
+    iat: number;
+    exp: number;
     authority_hints?: string[] | undefined;
     metadata?: z.objectInputType<{
         federation_entity: z.ZodOptional<z.ZodObject<z.objectUtil.extendShape<{
@@ -13082,9 +13023,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
     trust_marks?: {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
     }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
@@ -15660,32 +15600,24 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -15720,8 +15652,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     };
     sub: string;
     iss: string;
-    iat: string | number | Date;
-    exp: string | number | Date;
+    iat: number;
+    exp: number;
     authority_hints?: string[] | undefined;
     metadata?: z.objectInputType<{
         federation_entity: z.ZodOptional<z.ZodObject<z.objectUtil.extendShape<{
@@ -18261,9 +18193,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
     trust_marks?: {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
     }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
@@ -20839,32 +20770,24 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -20899,8 +20822,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     };
     sub: string;
     iss: string;
-    iat: string | number | Date;
-    exp: string | number | Date;
+    iat: number;
+    exp: number;
     authority_hints?: string[] | undefined;
     metadata?: z.objectInputType<{
         federation_entity: z.ZodOptional<z.ZodObject<z.objectUtil.extendShape<{
@@ -23440,9 +23363,8 @@ declare const entityConfigurationClaimsSchema: z.ZodEffects<z.ZodEffects<z.ZodOb
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
     trust_marks?: {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
     }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
@@ -23486,10 +23408,10 @@ type EntityConfigurationHeader = z.output<typeof entityConfigurationHeaderSchema
 
 /**
  *
- * Date schema that parses an unix timestamp in seconds since EPOCH to js date object
+ * NumericDate (RFC 7519 Section 2): seconds since the epoch, parsed to a js date object
  *
  */
-declare const dateSchema: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
+declare const dateSchema: z.ZodEffects<z.ZodNumber, Date, number>;
 
 /**
  *
@@ -23691,13 +23613,6 @@ declare const fetcher: {
 };
 
 declare function base64ToBase64URL(base64: string): string;
-/**
- *
- * JSON serialization for JWT parts. `Date` values become NumericDate values (seconds since the epoch, RFC 7519),
- * instead of the ISO strings `JSON.stringify` would produce.
- *
- */
-declare function stringifyJwtPart(value: Record<string, unknown>): string;
 
 type FetchEntityConfigurationOptions = {
     entityId: string;
@@ -26265,32 +26180,24 @@ declare const fetchEntityConfiguration: ({ entityId, verifyJwtCallback, fetchCal
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: zod.objectOutputType<{
+                iss: zod.ZodString;
+                sub: zod.ZodString;
+                trust_mark_type: zod.ZodString;
+                iat: zod.ZodEffects<zod.ZodNumber, Date, number>;
+                exp: zod.ZodOptional<zod.ZodEffects<zod.ZodNumber, Date, number>>;
+                logo_uri: zod.ZodOptional<zod.ZodString>;
+                ref: zod.ZodOptional<zod.ZodString>;
+                delegation: zod.ZodOptional<zod.ZodString>;
+            }, zod.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -26311,21 +26218,6 @@ declare const fetchEntityConfiguration: ({ entityId, verifyJwtCallback, fetchCal
     source_endpoint?: string | undefined;
 }>;
 
-type FetchEntityConfigurationChainOptions = {
-    leafEntityId: string;
-    trustAnchorEntityIds: Array<string>;
-    verifyJwtCallback: VerifyCallback;
-    fetchCallback?: FetchCallback;
-};
-/**
- *
- * Fetch an entity configuration chain until one of the trust anchors is hit (per chain)
- *
- * returns a list of chains (a list of lists of entity configurations)
- *
- */
-declare const fetchEntityConfigurationChains: (options: FetchEntityConfigurationChainOptions) => Promise<Array<Array<EntityConfigurationClaims>>>;
-
 type CreateEntityConfigurationOptions = {
     claims: EntityConfigurationClaimsOptions;
     header: EntityConfigurationHeaderOptions;
@@ -26343,8 +26235,8 @@ declare const createEntityConfiguration: ({ header, signJwtCallback, claims, }: 
 declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     iss: z.ZodString;
     sub: z.ZodString;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
+    iat: z.ZodEffects<z.ZodNumber, Date, number>;
+    exp: z.ZodEffects<z.ZodNumber, Date, number>;
     jwks: z.ZodObject<{
         keys: z.ZodArray<z.ZodObject<{
             kty: z.ZodString;
@@ -34026,114 +33918,63 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     }>>;
     crit: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     metadata_policy_crit: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    trust_marks: z.ZodOptional<z.ZodArray<z.ZodEffects<z.ZodEffects<z.ZodObject<{
-        trust_mark_type: z.ZodOptional<z.ZodString>;
-        id: z.ZodOptional<z.ZodString>;
+    trust_marks: z.ZodOptional<z.ZodArray<z.ZodEffects<z.ZodObject<{
+        trust_mark_type: z.ZodString;
         trust_mark: z.ZodEffects<z.ZodString, {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         }, string>;
     }, "strip", z.ZodTypeAny, {
-        trust_mark: {
-            jwt: string;
-            header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
-            signature: Uint8Array<ArrayBuffer>;
-        };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }, {
-        trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }>, {
-        trust_mark: {
-            jwt: string;
-            header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
-            signature: Uint8Array<ArrayBuffer>;
-        };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
         trust_mark_type: string;
-    }, {
-        trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    }>, {
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
     }, {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
+    }>, {
+        trust_mark_type: string;
+        trust_mark: {
+            jwt: string;
+            header: Record<string | number, unknown>;
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
+            signature: Uint8Array<ArrayBuffer>;
+        };
+    }, {
+        trust_mark_type: string;
+        trust_mark: string;
     }>, "many">>;
     trust_mark_issuers: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
     trust_mark_owners: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodObject<{
@@ -36783,32 +36624,24 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -36843,8 +36676,8 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     };
     sub: string;
     iss: string;
-    iat: string | number | Date;
-    exp: string | number | Date;
+    iat: number;
+    exp: number;
     authority_hints?: string[] | undefined;
     metadata?: z.objectInputType<{
         federation_entity: z.ZodOptional<z.ZodObject<z.objectUtil.extendShape<{
@@ -39384,9 +39217,8 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
     trust_marks?: {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
     }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
@@ -41962,32 +41794,24 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: z.objectOutputType<{
+                iss: z.ZodString;
+                sub: z.ZodString;
+                trust_mark_type: z.ZodString;
+                iat: z.ZodEffects<z.ZodNumber, Date, number>;
+                exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+                logo_uri: z.ZodOptional<z.ZodString>;
+                ref: z.ZodOptional<z.ZodString>;
+                delegation: z.ZodOptional<z.ZodString>;
+            }, z.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -42022,8 +41846,8 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     };
     sub: string;
     iss: string;
-    iat: string | number | Date;
-    exp: string | number | Date;
+    iat: number;
+    exp: number;
     authority_hints?: string[] | undefined;
     metadata?: z.objectInputType<{
         federation_entity: z.ZodOptional<z.ZodObject<z.objectUtil.extendShape<{
@@ -44563,9 +44387,8 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
     trust_marks?: {
+        trust_mark_type: string;
         trust_mark: string;
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
     }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
@@ -44588,6 +44411,7 @@ declare const entityStatementClaimsSchema: z.ZodEffects<z.ZodObject<{
 }>;
 type EntityStatementClaimsOptions = z.input<typeof entityStatementClaimsSchema>;
 type EntityStatementClaims = z.output<typeof entityStatementClaimsSchema>;
+type EntityStatementChain = Array<EntityStatementClaims>;
 
 /**
  *
@@ -47205,32 +47029,24 @@ declare const fetchEntityStatement: ({ sub, verifyJwtCallback, iss, endpoint, is
     } | undefined;
     crit?: string[] | undefined;
     metadata_policy_crit?: string[] | undefined;
-    trust_marks?: ({
+    trust_marks?: {
+        trust_mark_type: string;
         trust_mark: {
             jwt: string;
             header: Record<string | number, unknown>;
-            claims: {
-                sub: string;
-                iss: string;
-                iat: Date;
-                logo_uri?: string | undefined;
-                trust_mark_type?: string | undefined;
-                id?: string | undefined;
-                exp?: Date | undefined;
-                ref?: string | undefined;
-                delegation?: string | undefined;
-            } & {
-                [k: string]: unknown;
-            } & {
-                trust_mark_type: string;
-            };
+            claims: zod.objectOutputType<{
+                iss: zod.ZodString;
+                sub: zod.ZodString;
+                trust_mark_type: zod.ZodString;
+                iat: zod.ZodEffects<zod.ZodNumber, Date, number>;
+                exp: zod.ZodOptional<zod.ZodEffects<zod.ZodNumber, Date, number>>;
+                logo_uri: zod.ZodOptional<zod.ZodString>;
+                ref: zod.ZodOptional<zod.ZodString>;
+                delegation: zod.ZodOptional<zod.ZodString>;
+            }, zod.ZodTypeAny, "passthrough">;
             signature: Uint8Array<ArrayBuffer>;
         };
-        trust_mark_type?: string | undefined;
-        id?: string | undefined;
-    } & {
-        trust_mark_type: string;
-    })[] | undefined;
+    }[] | undefined;
     trust_mark_issuers?: Record<string, string[]> | undefined;
     trust_mark_owners?: Record<string, {
         jwks: {
@@ -47250,14 +47066,6 @@ declare const fetchEntityStatement: ({ sub, verifyJwtCallback, iss, endpoint, is
     }> | undefined;
     source_endpoint?: string | undefined;
 }>;
-
-type FetchEntityStatementChainOptions = {
-    entityConfigurations: Array<EntityConfigurationClaims>;
-    verifyJwtCallback: VerifyCallback;
-    fetchCallback?: FetchCallback;
-};
-type EntityStatementChain = Array<EntityStatementClaims>;
-declare const fetchEntityStatementChain: ({ verifyJwtCallback, entityConfigurations, fetchCallback, }: FetchEntityStatementChainOptions) => Promise<EntityStatementChain>;
 
 declare enum PolicyErrorStage {
     Generic = "generic",
@@ -47287,11 +47095,7 @@ type TrustAnchor = {
 type ResolveTrustChainsOptions = {
     verifyJwtCallback: VerifyCallback;
     entityId: string;
-    /**
-     * @deprecated use `trustAnchors`
-     */
-    trustAnchorEntityIds?: Array<string>;
-    trustAnchors?: Array<TrustAnchor>;
+    trustAnchors: Array<TrustAnchor>;
     /**
      * Used for every request. Pass one that applies your outbound request policy (allowed hosts, timeouts,
      * response size), as entity configurations name the URLs that are fetched.
@@ -47382,7 +47186,8 @@ type TrustChainResolution = {
  *
  * Every entity configuration and subordinate statement is checked for its signature, `iat`, `exp` and `crit`. An
  * entity configuration must be about the requested entity and signed with a key its superior's subordinate statement
- * lists. A subordinate statement must be issued by the superior about the subject. `max_path_length` and
+ * lists. A subordinate statement must be issued by the superior about the subject. Each statement may only contain the
+ * claims Section 3.2 allows for its kind. `max_path_length` and
  * `allowed_entity_types` constraints are applied, then the metadata policies. Chains with `naming_constraints` are
  * rejected, as they are not evaluated. Trust marks are not verified.
  *
@@ -57689,10 +57494,16 @@ declare enum MetadataMergeStrategy {
     Intersection = 2,
     /**
      *
-     * If a Superior has specified essential=true, then a Subordinate MUST NOT change that. If a Superior has specified essential=false, then a Subordinate is allowed to change that to essential=true. If a Superior has not specified essential, then a Subordinate can set essential to true or false. If those conditions are not met, this MUST result in a policy error.
+     * The result of merging the values of two these operators is the logical disjunction (OR) of the operator values.
      *
      */
-    SuperiorFollowsIfTrue = 3
+    LogicalOr = 3,
+    /**
+     *
+     * The result of merging the values of two these operators is the intersection of the operator values. The intersection may be an empty array.
+     *
+     */
+    IntersectionMayBeEmpty = 4
 }
 
 declare enum MetadataOrderOfApplication {
@@ -60458,69 +60269,30 @@ declare class PolicyValidationError extends Error {
  * {@link https://openid.net/specs/openid-federation-1_0.html#section-7.1 | Trust Mark Claims}
  *
  */
-declare const trustMarkClaimsSchema: z.ZodEffects<z.ZodObject<{
+declare const trustMarkClaimsSchema: z.ZodObject<{
     iss: z.ZodString;
     sub: z.ZodString;
-    trust_mark_type: z.ZodOptional<z.ZodString>;
-    /**
-     * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-     */
-    id: z.ZodOptional<z.ZodString>;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>>;
+    trust_mark_type: z.ZodString;
+    iat: z.ZodEffects<z.ZodNumber, Date, number>;
+    exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
     logo_uri: z.ZodOptional<z.ZodString>;
     ref: z.ZodOptional<z.ZodString>;
     delegation: z.ZodOptional<z.ZodString>;
 }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
     iss: z.ZodString;
     sub: z.ZodString;
-    trust_mark_type: z.ZodOptional<z.ZodString>;
-    /**
-     * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-     */
-    id: z.ZodOptional<z.ZodString>;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>>;
+    trust_mark_type: z.ZodString;
+    iat: z.ZodEffects<z.ZodNumber, Date, number>;
+    exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
     logo_uri: z.ZodOptional<z.ZodString>;
     ref: z.ZodOptional<z.ZodString>;
     delegation: z.ZodOptional<z.ZodString>;
 }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
     iss: z.ZodString;
     sub: z.ZodString;
-    trust_mark_type: z.ZodOptional<z.ZodString>;
-    /**
-     * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-     */
-    id: z.ZodOptional<z.ZodString>;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>>;
-    logo_uri: z.ZodOptional<z.ZodString>;
-    ref: z.ZodOptional<z.ZodString>;
-    delegation: z.ZodOptional<z.ZodString>;
-}, z.ZodTypeAny, "passthrough">>, {
-    sub: string;
-    iss: string;
-    iat: Date;
-    logo_uri?: string | undefined;
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-    exp?: Date | undefined;
-    ref?: string | undefined;
-    delegation?: string | undefined;
-} & {
-    [k: string]: unknown;
-} & {
-    trust_mark_type: string;
-}, z.objectInputType<{
-    iss: z.ZodString;
-    sub: z.ZodString;
-    trust_mark_type: z.ZodOptional<z.ZodString>;
-    /**
-     * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-     */
-    id: z.ZodOptional<z.ZodString>;
-    iat: z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>;
-    exp: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodDate, z.ZodNumber, z.ZodEffects<z.ZodString, number | Date, string>]>, Date, string | number | Date>>;
+    trust_mark_type: z.ZodString;
+    iat: z.ZodEffects<z.ZodNumber, Date, number>;
+    exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
     logo_uri: z.ZodOptional<z.ZodString>;
     ref: z.ZodOptional<z.ZodString>;
     delegation: z.ZodOptional<z.ZodString>;
@@ -60532,117 +60304,63 @@ declare const trustMarkClaimsSchema: z.ZodEffects<z.ZodObject<{
  * {@link https://openid.net/specs/openid-federation-1_0.html#section-3.1.1 | trust_marks}
  *
  */
-declare const trustMarkSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
-    trust_mark_type: z.ZodOptional<z.ZodString>;
-    /**
-     * @deprecated replaced by `trust_mark_type` in OpenID Federation 1.0
-     */
-    id: z.ZodOptional<z.ZodString>;
+declare const trustMarkSchema: z.ZodEffects<z.ZodObject<{
+    trust_mark_type: z.ZodString;
     trust_mark: z.ZodEffects<z.ZodString, {
         jwt: string;
         header: Record<string | number, unknown>;
-        claims: {
-            sub: string;
-            iss: string;
-            iat: Date;
-            logo_uri?: string | undefined;
-            trust_mark_type?: string | undefined;
-            id?: string | undefined;
-            exp?: Date | undefined;
-            ref?: string | undefined;
-            delegation?: string | undefined;
-        } & {
-            [k: string]: unknown;
-        } & {
-            trust_mark_type: string;
-        };
+        claims: z.objectOutputType<{
+            iss: z.ZodString;
+            sub: z.ZodString;
+            trust_mark_type: z.ZodString;
+            iat: z.ZodEffects<z.ZodNumber, Date, number>;
+            exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+            logo_uri: z.ZodOptional<z.ZodString>;
+            ref: z.ZodOptional<z.ZodString>;
+            delegation: z.ZodOptional<z.ZodString>;
+        }, z.ZodTypeAny, "passthrough">;
         signature: Uint8Array<ArrayBuffer>;
     }, string>;
 }, "strip", z.ZodTypeAny, {
-    trust_mark: {
-        jwt: string;
-        header: Record<string | number, unknown>;
-        claims: {
-            sub: string;
-            iss: string;
-            iat: Date;
-            logo_uri?: string | undefined;
-            trust_mark_type?: string | undefined;
-            id?: string | undefined;
-            exp?: Date | undefined;
-            ref?: string | undefined;
-            delegation?: string | undefined;
-        } & {
-            [k: string]: unknown;
-        } & {
-            trust_mark_type: string;
-        };
-        signature: Uint8Array<ArrayBuffer>;
-    };
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-}, {
-    trust_mark: string;
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-}>, {
-    trust_mark: {
-        jwt: string;
-        header: Record<string | number, unknown>;
-        claims: {
-            sub: string;
-            iss: string;
-            iat: Date;
-            logo_uri?: string | undefined;
-            trust_mark_type?: string | undefined;
-            id?: string | undefined;
-            exp?: Date | undefined;
-            ref?: string | undefined;
-            delegation?: string | undefined;
-        } & {
-            [k: string]: unknown;
-        } & {
-            trust_mark_type: string;
-        };
-        signature: Uint8Array<ArrayBuffer>;
-    };
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-} & {
     trust_mark_type: string;
-}, {
-    trust_mark: string;
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-}>, {
     trust_mark: {
         jwt: string;
         header: Record<string | number, unknown>;
-        claims: {
-            sub: string;
-            iss: string;
-            iat: Date;
-            logo_uri?: string | undefined;
-            trust_mark_type?: string | undefined;
-            id?: string | undefined;
-            exp?: Date | undefined;
-            ref?: string | undefined;
-            delegation?: string | undefined;
-        } & {
-            [k: string]: unknown;
-        } & {
-            trust_mark_type: string;
-        };
+        claims: z.objectOutputType<{
+            iss: z.ZodString;
+            sub: z.ZodString;
+            trust_mark_type: z.ZodString;
+            iat: z.ZodEffects<z.ZodNumber, Date, number>;
+            exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+            logo_uri: z.ZodOptional<z.ZodString>;
+            ref: z.ZodOptional<z.ZodString>;
+            delegation: z.ZodOptional<z.ZodString>;
+        }, z.ZodTypeAny, "passthrough">;
         signature: Uint8Array<ArrayBuffer>;
     };
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
-} & {
-    trust_mark_type: string;
 }, {
+    trust_mark_type: string;
     trust_mark: string;
-    trust_mark_type?: string | undefined;
-    id?: string | undefined;
+}>, {
+    trust_mark_type: string;
+    trust_mark: {
+        jwt: string;
+        header: Record<string | number, unknown>;
+        claims: z.objectOutputType<{
+            iss: z.ZodString;
+            sub: z.ZodString;
+            trust_mark_type: z.ZodString;
+            iat: z.ZodEffects<z.ZodNumber, Date, number>;
+            exp: z.ZodOptional<z.ZodEffects<z.ZodNumber, Date, number>>;
+            logo_uri: z.ZodOptional<z.ZodString>;
+            ref: z.ZodOptional<z.ZodString>;
+            delegation: z.ZodOptional<z.ZodString>;
+        }, z.ZodTypeAny, "passthrough">;
+        signature: Uint8Array<ArrayBuffer>;
+    };
+}, {
+    trust_mark_type: string;
+    trust_mark: string;
 }>;
 type TrustMark = z.output<typeof trustMarkSchema>;
 
@@ -60741,4 +60459,4 @@ type TrustMarkOwner = z.input<typeof trustMarkOwnerSchema>;
 declare const trustMarkIssuerSchema: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>;
 type TrustMarkIssuer = z.input<typeof trustMarkIssuerSchema>;
 
-export { type Constraint, type CreateEntityConfigurationOptions, type CreateEntityStatementOptions, type EntityConfigurationClaims, type EntityConfigurationClaimsOptions, type EntityConfigurationHeader, type EntityConfigurationHeaderOptions, type EntityStatementChain, type EntityStatementClaims, type EntityStatementClaimsOptions, type EntityStatementHeader, type EntityStatementHeaderOptions, type FederationEntityMetadata, type FetchCallback, type FetchEntityConfigurationChainOptions, type FetchEntityConfigurationOptions, type FetchEntityStatementChainOptions, type FetchEntityStatementOptions, type JsonWebKey, type JsonWebKeySet, type JsonWebKeySetOptions, type Metadata, MetadataMergeStrategy, type MetadataOperator, MetadataOrderOfApplication, type MetadataPolicyOperator, type OauthAuthorizationServerMetadata, type OauthClientMetadata, type OauthResourceMetadata, type OpenIdCredentialIssuerMetadata, type OpenIdCredentialVerifierMetadata, OpenIdFederationError, type OpenIdProviderMetadata, type OpenIdRelyingPartyMetadata, type Optional, PolicyErrorStage, PolicyOperatorMergeError, type PolicyOperatorMergeErrorDetails, PolicyValidationError, type PolicyValidationErrorDetails, type ResolveTrustChainsOptions, type SignCallback, type SupportedPolicyKey, type TrustAnchor, type TrustChain, type TrustChainFailure, type TrustChainResolution, type TrustMark, type TrustMarkIssuer, type TrustMarkOwner, type VerifyCallback, addOperator, addPaths, addSearchParams, allSupportedPolicies, applyMetadataPolicyToMetadata, base64ToBase64URL, combineMetadataPolicies, constraintSchema, createEntityConfiguration, createEntityStatement, createJsonWebToken, createJwtSignableInput, createPolicyOperatorSchema, dateSchema, defaultOperator, entityConfigurationClaimsSchema, entityConfigurationHeaderSchema, entityStatementClaimsSchema, entityStatementHeaderSchema, essentialOperator, federationEntityMetadata, fetchEntityConfiguration, fetchEntityConfigurationChains, fetchEntityStatement, fetchEntityStatementChain, fetcher, getUsedJsonWebKey, hasMediaType, isExistingPolicyKey, isSameEntityId, jsonWebKeySchema, jsonWebKeySetSchema, jsonWebTokenSchema, metadataPolicySchema, metadataSchema, oauthAuthorizationServerEntityMetadata, oauthClientEntityMetadata, oauthResourceEntityMetadata, oneOfOperator, openIdCredentialIssuerEntityMetadata, openIdProviderEntityMetadata, openidCredentialVerifierEntityMetadata, openidRelyingPartyEntityMetadata, resolveTrustChains, resolveTrustChainsWithFailures, stringifyJwtPart, subsetOfOperator, supersetOfOperator, swapValidators, trustMarkClaimsSchema, trustMarkIssuerSchema, trustMarkOwnerSchema, trustMarkSchema, valueOperator };
+export { type Constraint, type CreateEntityConfigurationOptions, type CreateEntityStatementOptions, type EntityConfigurationClaims, type EntityConfigurationClaimsOptions, type EntityConfigurationHeader, type EntityConfigurationHeaderOptions, type EntityStatementChain, type EntityStatementClaims, type EntityStatementClaimsOptions, type EntityStatementHeader, type EntityStatementHeaderOptions, type FederationEntityMetadata, type FetchCallback, type FetchEntityConfigurationOptions, type FetchEntityStatementOptions, type JsonWebKey, type JsonWebKeySet, type JsonWebKeySetOptions, type Metadata, MetadataMergeStrategy, type MetadataOperator, MetadataOrderOfApplication, type MetadataPolicyOperator, type OauthAuthorizationServerMetadata, type OauthClientMetadata, type OauthResourceMetadata, type OpenIdCredentialIssuerMetadata, type OpenIdCredentialVerifierMetadata, OpenIdFederationError, type OpenIdProviderMetadata, type OpenIdRelyingPartyMetadata, type Optional, PolicyErrorStage, PolicyOperatorMergeError, type PolicyOperatorMergeErrorDetails, PolicyValidationError, type PolicyValidationErrorDetails, type ResolveTrustChainsOptions, type SignCallback, type SupportedPolicyKey, type TrustAnchor, type TrustChain, type TrustChainFailure, type TrustChainResolution, type TrustMark, type TrustMarkIssuer, type TrustMarkOwner, type VerifyCallback, addOperator, addPaths, addSearchParams, allSupportedPolicies, applyMetadataPolicyToMetadata, base64ToBase64URL, combineMetadataPolicies, constraintSchema, createEntityConfiguration, createEntityStatement, createJsonWebToken, createJwtSignableInput, createPolicyOperatorSchema, dateSchema, defaultOperator, entityConfigurationClaimsSchema, entityConfigurationHeaderSchema, entityStatementClaimsSchema, entityStatementHeaderSchema, essentialOperator, federationEntityMetadata, fetchEntityConfiguration, fetchEntityStatement, fetcher, getUsedJsonWebKey, hasMediaType, isExistingPolicyKey, isSameEntityId, jsonWebKeySchema, jsonWebKeySetSchema, jsonWebTokenSchema, metadataPolicySchema, metadataSchema, oauthAuthorizationServerEntityMetadata, oauthClientEntityMetadata, oauthResourceEntityMetadata, oneOfOperator, openIdCredentialIssuerEntityMetadata, openIdProviderEntityMetadata, openidCredentialVerifierEntityMetadata, openidRelyingPartyEntityMetadata, resolveTrustChains, resolveTrustChainsWithFailures, subsetOfOperator, supersetOfOperator, swapValidators, trustMarkClaimsSchema, trustMarkIssuerSchema, trustMarkOwnerSchema, trustMarkSchema, valueOperator };
