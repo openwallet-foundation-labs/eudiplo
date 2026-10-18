@@ -179,6 +179,7 @@ describe("configuration comparisons", () => {
                 attributeProviders: none,
                 webhookEndpoints: none,
                 trustLists: none,
+                federationTrustAnchors: none,
                 statusLists: none,
             });
             result.kmsTenantConfigService = { getTenantConfig: () => null };

@@ -203,6 +203,10 @@ export class ConfigBundleService {
     private get webhookEndpoints() {
         return this.repos.webhookEndpoints;
     }
+
+    private get federationTrustAnchors() {
+        return this.repos.federationTrustAnchors;
+    }
     private get trustLists() {
         return this.repos.trustLists;
     }
@@ -325,6 +329,13 @@ export class ConfigBundleService {
             tenantId,
             "WebhookEndpoint",
             await this.webhookEndpoints.find({ where: { tenantId } }),
+        );
+        await this.addEntities(
+            documents,
+            requirements,
+            tenantId,
+            "FederationTrustAnchor",
+            await this.federationTrustAnchors.find({ where: { tenantId } }),
         );
         for (const trustList of await this.trustLists.find({
             where: { tenantId },
@@ -967,6 +978,7 @@ export class ConfigBundleService {
             this.attributeProviders,
             this.webhookEndpoints,
             this.trustLists,
+            this.federationTrustAnchors,
         ];
         const rows = await Promise.all(
             repositories.map((repository) =>
@@ -1379,6 +1391,13 @@ export class ConfigBundleService {
                     description: entity.description,
                     url: entity.url,
                     auth: entity.auth,
+                };
+            case "FederationTrustAnchor":
+                return {
+                    id: entity.id,
+                    entityId: entity.entityId,
+                    description: entity.description ?? undefined,
+                    jwks: entity.jwks,
                 };
             default:
                 throw new Error(
@@ -1894,6 +1913,12 @@ export class ConfigBundleService {
                     id,
                 });
                 break;
+            case "FederationTrustAnchor":
+                entity = await this.federationTrustAnchors.findOneBy({
+                    tenantId,
+                    id,
+                });
+                break;
             case "TrustList": {
                 entity = await this.trustLists.findOneBy({ tenantId, id });
                 return entity ? { ...trustListConfig(entity), id } : undefined;
@@ -1951,6 +1976,13 @@ export class ConfigBundleService {
                 );
             case "TrustList":
                 return (await this.trustLists.countBy({ tenantId, id })) > 0;
+            case "FederationTrustAnchor":
+                return (
+                    (await this.federationTrustAnchors.countBy({
+                        tenantId,
+                        id,
+                    })) > 0
+                );
             case "StatusList":
                 return (await this.statusLists.countBy({ tenantId, id })) > 0;
         }

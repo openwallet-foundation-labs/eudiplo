@@ -150,6 +150,7 @@ function federationTrustSource(
     const federation = config.federation;
     if (!federation?.trustAnchors?.length) return undefined;
     return {
+        tenantId: config.tenantId,
         mode: federation.mode,
         entityId: federation.entityId,
         trustAnchors: federation.trustAnchors,

@@ -171,6 +171,11 @@ type FederationTrustAnchorRef = {
 };
 
 export type FederationTrustSource = {
+    /**
+     * Tenant whose registered federation trust anchors provide the pinned
+     * keys. Without it, no trust anchor is trusted.
+     */
+    tenantId?: string;
     mode?: FederationTrustMode;
     entityId?: string;
     trustAnchors: FederationTrustAnchorRef[];

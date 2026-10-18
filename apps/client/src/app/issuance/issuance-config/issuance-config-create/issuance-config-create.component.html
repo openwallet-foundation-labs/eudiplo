@@ -980,24 +980,19 @@
                               fxLayoutGap="16px"
                               class="trust-anchor-entry"
                             >
-                              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
-                                <mat-form-field fxFlex>
-                                  <mat-label>Trust Anchor {{ i + 1 }} Entity ID</mat-label>
-                                  <input
-                                    (keydown.enter)="onInputEnter($event)"
-                                    matInput
-                                    formControlName="entityId"
-                                    placeholder="https://ta.example.org"
-                                    type="url"
-                                  />
-                                  <mat-icon matSuffix>link</mat-icon>
-                                  <mat-hint>The trust anchor's entity ID</mat-hint>
-                                </mat-form-field>
+                              <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="16px">
+                                <app-federation-trust-anchor-select
+                                  fxFlex
+                                  formControlName="entityId"
+                                  [label]="'Trust Anchor ' + (i + 1)"
+                                  (anchorSelected)="onTrustAnchorSelected(i, $event)"
+                                />
                                 <button
                                   mat-icon-button
                                   type="button"
                                   (click)="removeTrustAnchor(i)"
                                   matTooltip="Remove trust anchor"
+                                  [attr.aria-label]="'Remove trust anchor ' + (i + 1)"
                                 >
                                   <mat-icon>delete</mat-icon>
                                 </button>

@@ -69,6 +69,7 @@ const DEFINITIONS: Omit<ConfigResourceDefinition, "slug" | "currentVersion">[] =
                 "KeyChain",
                 "AttributeProvider",
                 "WebhookEndpoint",
+                "FederationTrustAnchor",
             ],
             legacyFolders: ["issuance"],
             bundlePath: "issuance/config.json",
@@ -90,7 +91,13 @@ const DEFINITIONS: Omit<ConfigResourceDefinition, "slug" | "currentVersion">[] =
         {
             kind: "PresentationConfig",
             importPhase: 100,
-            dependsOn: ["Tenant", "KeyChain", "WebhookEndpoint", "TrustList"],
+            dependsOn: [
+                "Tenant",
+                "KeyChain",
+                "WebhookEndpoint",
+                "TrustList",
+                "FederationTrustAnchor",
+            ],
             legacyFolders: ["presentation"],
             sensitivePaths: [],
         },
@@ -107,6 +114,13 @@ const DEFINITIONS: Omit<ConfigResourceDefinition, "slug" | "currentVersion">[] =
             dependsOn: ["Tenant"],
             legacyFolders: ["webhook-endpoints"],
             sensitivePaths: ["auth.config.value"],
+        },
+        {
+            kind: "FederationTrustAnchor",
+            importPhase: 65,
+            dependsOn: ["Tenant"],
+            legacyFolders: ["federation-trust-anchors"],
+            sensitivePaths: [],
         },
         {
             kind: "TrustList",

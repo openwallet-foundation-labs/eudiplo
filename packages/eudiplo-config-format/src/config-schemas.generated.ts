@@ -1084,6 +1084,143 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
   },
   {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://eudiplo.dev/schemas/v1/FederationTrustAnchorConfigFile.schema.json",
+    "title": "FederationTrustAnchorConfigFile",
+    "type": "object",
+    "properties": {
+      "$schema": {
+        "type": "string",
+        "const": "https://eudiplo.dev/schemas/v1/FederationTrustAnchorConfigFile.schema.json"
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "generation": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Monotonically increasing configuration generation."
+          },
+          "ownership": {
+            "type": "string",
+            "enum": [
+              "unmanaged",
+              "file-managed"
+            ],
+            "description": "Requested ownership recorded when the document is applied."
+          }
+        },
+        "additionalProperties": false
+      },
+      "spec": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/CreateFederationTrustAnchorDto"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "required": [
+      "$schema",
+      "spec"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "CreateFederationTrustAnchorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9._-]+$",
+            "description": "Unique identifier of the trust anchor in the tenant."
+          },
+          "entityId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values."
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional description of the trust anchor."
+          },
+          "jwks": {
+            "type": "object",
+            "properties": {
+              "keys": {
+                "minItems": 1,
+                "maxItems": 20,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kty": {
+                      "type": "string",
+                      "enum": [
+                        "EC",
+                        "RSA",
+                        "OKP"
+                      ],
+                      "description": "Key type of the public federation key."
+                    },
+                    "kid": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "description": "Key ID. Federation statements name their signing key with `kid`."
+                    }
+                  },
+                  "required": [
+                    "kty",
+                    "kid"
+                  ],
+                  "additionalProperties": {},
+                  "description": "Public federation key of the trust anchor as a JWK."
+                },
+                "description": "The trust anchor's federation keys."
+              }
+            },
+            "required": [
+              "keys"
+            ],
+            "additionalProperties": false,
+            "description": "JWK set with the federation keys of the trust anchor, obtained out of band (OpenID Federation 1.0 Section 10.2)."
+          }
+        },
+        "required": [
+          "id",
+          "entityId",
+          "jwks"
+        ],
+        "additionalProperties": false,
+        "title": "CreateFederationTrustAnchorDto"
+      }
+    }
+  },
+  {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://eudiplo.dev/schemas/v1/IssuanceConfigFile.schema.json",
     "title": "IssuanceConfigFile",
     "type": "object",

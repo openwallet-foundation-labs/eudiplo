@@ -21,6 +21,7 @@ import { sessionManagementRoutes } from './session-management/session-management
 import { statusListRoutes } from './status-list-management/status-list.routes';
 import { clientRoutes, tenantRoutes } from './tenants/tenants.routes';
 import { trustListRoutes } from './trust-list/trust-list.routes';
+import { federationTrustAnchorRoutes } from './federation-trust-anchor/federation-trust-anchor.routes';
 import { userRoutes } from './users/users.routes';
 import { schemaRoutes } from './schema/schema.routes';
 
@@ -195,6 +196,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: trustListRoutes,
+  },
+
+  // Federation trust anchors: issuance and presentation configurations trust them by entity ID
+  {
+    path: 'federation-trust-anchor',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
+    children: federationTrustAnchorRoutes,
   },
 
   // Schema routes

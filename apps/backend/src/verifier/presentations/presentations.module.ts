@@ -7,6 +7,7 @@ import { provideKeyChainReferenceSource } from "../../crypto/key/key-chain-refer
 import { provideTrustListReferenceSource } from "../../issuer/trust-list/trust-list-reference-source.provider.js";
 import { TrustListModule } from "../../issuer/trust-list/trustlist.module.js";
 import { RegistrarModule } from "../../registrar/registrar.module.js";
+import { FederationTrustAnchorModule } from "../../trust/federation-trust-anchor/federation-trust-anchor.module.js";
 import { TrustModule } from "../../trust/trust.module.js";
 import { WebhookModule } from "../../webhook/webhook.module.js";
 import { ResolverModule } from "../resolver/resolver.module.js";
@@ -53,6 +54,7 @@ export const verifyPresentationResponseProvider: Provider = {
         AuditLogModule,
         TrustListModule,
         TrustModule,
+        FederationTrustAnchorModule,
         RegistrarModule,
         WebhookModule,
     ],

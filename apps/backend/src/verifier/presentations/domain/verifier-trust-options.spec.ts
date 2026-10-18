@@ -11,11 +11,14 @@ describe("verifierTrustOptions", () => {
     it("lets an openid_federation authority decide when no trust list is configured", () => {
         const options = verifierTrustOptions({
             trustLists: [],
+            tenantId: "tenant",
             authorities: [federation],
             skewSeconds: undefined,
         });
 
+        // The tenant's registered trust anchors provide the pinned keys.
         expect(options.federationTrustSource).toEqual({
+            tenantId: "tenant",
             mode: "federation-only",
             trustAnchors: [
                 {
@@ -36,6 +39,22 @@ describe("verifierTrustOptions", () => {
 
         expect(options.federationTrustSource).toBeUndefined();
         expect(options.trustListSource?.lotes).toEqual([trustList]);
+    });
+
+    it("requires x5c only when a trust list decides", () => {
+        const federationOnly = verifierTrustOptions({
+            trustLists: [],
+            authorities: [federation],
+            skewSeconds: undefined,
+        });
+        const withTrustList = verifierTrustOptions({
+            trustLists: [trustList],
+            authorities: [federation, { type: "etsi_tl", values: [trustList] }],
+            skewSeconds: undefined,
+        });
+
+        expect(federationOnly.policy.requireX5c).toBe(false);
+        expect(withTrustList.policy.requireX5c).toBe(true);
     });
 
     it("configures no federation check without federation trust anchors", () => {

@@ -120,6 +120,7 @@ export class AdminActivityLogsComponent implements OnInit {
       attribute_provider: 'Attribute Provider',
       status_list_config: 'Status List Config',
       webhook_endpoint: 'Webhook Endpoint',
+      federation_trust_anchor: 'Federation Trust Anchor',
       session: 'Session',
     };
 
@@ -156,6 +157,9 @@ export class AdminActivityLogsComponent implements OnInit {
       webhook_endpoint_created: 'Webhook Endpoint Created',
       webhook_endpoint_updated: 'Webhook Endpoint Updated',
       webhook_endpoint_deleted: 'Webhook Endpoint Deleted',
+      federation_trust_anchor_created: 'Federation Trust Anchor Created',
+      federation_trust_anchor_updated: 'Federation Trust Anchor Updated',
+      federation_trust_anchor_deleted: 'Federation Trust Anchor Deleted',
       session_cancelled: 'Session Cancelled',
     };
     return labels[actionType] || actionType;

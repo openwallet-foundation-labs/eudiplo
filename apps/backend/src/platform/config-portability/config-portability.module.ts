@@ -18,6 +18,8 @@ import { TrustListModule } from "../../issuer/trust-list/trustlist.module.js";
 import { RegistrarConfigEntity } from "../../registrar/entities/registrar-config.entity.js";
 import { RegistrarModule } from "../../registrar/registrar.module.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
+import { FederationTrustAnchorEntity } from "../../trust/federation-trust-anchor/entities/federation-trust-anchor.entity.js";
+import { FederationTrustAnchorModule } from "../../trust/federation-trust-anchor/federation-trust-anchor.module.js";
 import { PresentationConfig } from "../../verifier/presentations/entities/presentation-config.entity.js";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module.js";
 import { ConfigBundleService } from "./config-bundle.service.js";
@@ -46,6 +48,7 @@ import { ConfigResourceMetadataEntity } from "./entities/config-resource-metadat
         ConfigurationModule,
         StatusListModule,
         TrustListModule,
+        FederationTrustAnchorModule,
         RegistrarModule,
         PresentationsModule,
         TypeOrmModule.forFeature([
@@ -61,6 +64,7 @@ import { ConfigResourceMetadataEntity } from "./entities/config-resource-metadat
             AttributeProviderEntity,
             WebhookEndpointEntity,
             TrustList,
+            FederationTrustAnchorEntity,
             StatusListEntity,
             FileEntity,
         ]),

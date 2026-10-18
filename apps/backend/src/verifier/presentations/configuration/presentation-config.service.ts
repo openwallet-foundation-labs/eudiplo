@@ -19,8 +19,11 @@ import {
     ImportPhase,
 } from "../../../platform/config-import/config-import-orchestrator.service.js";
 import { loadJsonFile } from "../../../shared/utils/config-file-loader.util.js";
+import { unregisteredTrustAnchorsMessage } from "../../../trust/federation-trust-anchor/domain/federation-trust-anchor-errors.js";
+import { FederationTrustAnchorService } from "../../../trust/federation-trust-anchor/federation-trust-anchor.service.js";
 import {
     type CredentialQueryAuthorities,
+    federationTrustAnchorIds,
     missingTrustedAuthorities,
 } from "../domain/trusted-authority-requirement.js";
 import { PresentationConfigCreateDto } from "../dto/presentation-config-create.dto.js";
@@ -46,6 +49,7 @@ export class PresentationConfigService {
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly auditLogService: AuditLogService,
+        private readonly federationTrustAnchors: FederationTrustAnchorService,
         @Inject(PRESENTATION_SETTINGS)
         private readonly settings: PresentationSettings,
     ) {
@@ -87,7 +91,7 @@ export class PresentationConfigService {
                 deleteExisting: async (tid, data) => {
                     // Reject before deleting, so an invalid file does not
                     // remove the stored config.
-                    this.requireTrustedAuthorities(data);
+                    await this.requireTrustedAuthorities(tid, data);
                     await this.registrationCertificates.validateImported({
                         ...normalizeRegistrationCertFormFields(data),
                         tenantId: tid,
@@ -148,7 +152,7 @@ export class PresentationConfigService {
         actorToken?: TokenPayload,
         requestMeta?: AuditLogRequestMeta,
     ) {
-        this.requireTrustedAuthorities(vprequest);
+        await this.requireTrustedAuthorities(tenantId, vprequest);
         const normalizedRequest =
             normalizeRegistrationCertFormFields(vprequest);
         const merged = {
@@ -205,7 +209,7 @@ export class PresentationConfigService {
             id,
             tenantId,
         } as PresentationConfig;
-        this.requireTrustedAuthorities(merged);
+        await this.requireTrustedAuthorities(tenantId, merged, existing);
 
         // Return quickly; resolve registration-certificate cache asynchronously.
         const cacheRelevantChanged =
@@ -254,15 +258,44 @@ export class PresentationConfigService {
      * `SKIP_TRUST_AUTHORITY` is set.
      * @throws BadRequestException naming the queries without one.
      */
-    private requireTrustedAuthorities(config: {
-        dcql_query?: { credentials: readonly CredentialQueryAuthorities[] };
-    }): void {
+    private async requireTrustedAuthorities(
+        tenantId: string,
+        config: {
+            dcql_query?: {
+                credentials: readonly CredentialQueryAuthorities[];
+            };
+        },
+        /** The stored configuration; its trust anchors are not checked again. */
+        existing?: {
+            dcql_query?: {
+                credentials: readonly CredentialQueryAuthorities[];
+            };
+        },
+    ): Promise<void> {
+        const credentials = config.dcql_query?.credentials ?? [];
         const violation = missingTrustedAuthorities(
-            config.dcql_query?.credentials ?? [],
+            credentials,
             this.settings.skipTrustAuthority,
         );
         if (violation) {
             throw new BadRequestException(violation);
+        }
+        // Only trust anchors this change adds are checked, so a stored
+        // configuration whose trust anchors are not registered yet can still
+        // be changed otherwise; they are not trusted until registered.
+        const stored = new Set(
+            federationTrustAnchorIds(existing?.dcql_query?.credentials ?? []),
+        );
+        const unregistered = await this.federationTrustAnchors.unregistered(
+            tenantId,
+            federationTrustAnchorIds(credentials).filter(
+                (entityId) => !stored.has(entityId),
+            ),
+        );
+        if (unregistered.length > 0) {
+            throw new BadRequestException(
+                unregisteredTrustAnchorsMessage(unregistered),
+            );
         }
     }
 
