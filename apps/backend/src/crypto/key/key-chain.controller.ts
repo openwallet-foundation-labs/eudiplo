@@ -1,5 +1,6 @@
 import {
     Body,
+    ConflictException,
     Controller,
     Delete,
     Get,
@@ -20,10 +21,17 @@ import { Role } from "../../auth/roles/role.enum.js";
 import { Secured } from "../../auth/secure.decorator.js";
 import { requireTenantContext } from "../../auth/tenant-context.util.js";
 import { Token, TokenPayload } from "../../auth/token.decorator.js";
+import {
+    KeyChainInUseError,
+    type KeyChainReferenceKind,
+    keyChainInUseMessage,
+    keyChainReferencesVisibleTo,
+} from "./domain/key-chain-reference.js";
 import { KeyChainCreateDto } from "./dto/key-chain-create.dto.js";
 import { KeyChainExportDto } from "./dto/key-chain-export.dto.js";
 import { KeyChainIdResponseDto } from "./dto/key-chain-id-response.dto.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
+import { KeyChainInUseDto } from "./dto/key-chain-in-use.dto.js";
 import { KeyChainResponseDto } from "./dto/key-chain-response.dto.js";
 import { KeyChainUpdateDto } from "./dto/key-chain-update.dto.js";
 import { KmsConfigDto } from "./dto/kms-config.dto.js";
@@ -33,6 +41,15 @@ import { ProviderHealthResponseDto } from "./dto/provider-health-response.dto.js
 import { KeyChainService } from "./key-chain.service.js";
 import { KmsTenantConfigService } from "./kms/kms-tenant-config.service.js";
 import { KeyUsageType } from "./types/key-usage-type.js";
+
+/** Roles that read each kind of configuration that can name a key chain. */
+const readRoles: Record<KeyChainReferenceKind, Role[]> = {
+    IssuanceConfig: [Role.Issuances],
+    CredentialConfig: [Role.Issuances],
+    PresentationConfig: [Role.Presentations, Role.PresentationRequest],
+    StatusList: [Role.Issuances],
+    TrustList: [Role.Issuances, Role.Presentations],
+};
 
 const TENANT_ADMIN_REQUIRED =
     "The caller lacks the `tenant:admin` or `tenants:manage` role or a tenant context.";
@@ -304,18 +321,51 @@ export class KeyChainController {
     }
 
     /**
-     * Delete a key chain.
+     * Delete a key chain that no configuration of the tenant names.
      */
     @Delete(":id")
-    @ApiOperation({ summary: "Delete a key chain" })
+    @ApiOperation({
+        summary: "Delete a key chain",
+        description:
+            "Refused while the issuance configuration, a credential config, a presentation config, a status list or a trust list of the tenant names the key chain. A configuration that names no key chain and uses the tenant's default one does not count; a trust list stores the key chain that signs it, also one picked by default.",
+    })
     @ApiResponse({ status: 204, description: "Key chain deleted successfully" })
     @ApiResponse({ status: 404, description: "Key chain not found" })
+    @ApiResponse({
+        status: 409,
+        type: KeyChainInUseDto,
+        description:
+            "Configurations of the tenant still name the key chain; the response names those the caller may read and counts the others",
+    })
     @HttpCode(204)
     async delete(
         @Token() token: TokenPayload,
         @Param("id") id: string,
     ): Promise<void> {
-        await this.keyChainService.delete(token.entity!.id, id);
+        try {
+            await this.keyChainService.deleteUnreferenced(token.entity!.id, id);
+        } catch (error) {
+            if (error instanceof KeyChainInUseError) {
+                // Configurations the caller may not read are only counted.
+                const references = keyChainReferencesVisibleTo(
+                    error.references,
+                    (kind) =>
+                        readRoles[kind].some((role) =>
+                            token.roles?.includes(role),
+                        ),
+                );
+                throw new ConflictException({
+                    code: "KEY_CHAIN_IN_USE",
+                    message: keyChainInUseMessage(
+                        id,
+                        references,
+                        (kind) => readRoles[kind],
+                    ),
+                    references,
+                });
+            }
+            throw error;
+        }
     }
 
     /**

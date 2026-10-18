@@ -1,12 +1,21 @@
 import { webcrypto } from "node:crypto";
 import type { ExecutionContext } from "@nestjs/common";
-import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import {
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import * as x509 from "@peculiar/x509";
 import { describe, expect, it, vi } from "vitest";
 import { Role } from "../../auth/roles/role.enum.js";
 import { RolesGuard } from "../../auth/roles/roles.guard.js";
 import type { TokenPayload } from "../../auth/token.decorator.js";
+import { KeyChainReferences } from "./application/key-chain-references.js";
+import {
+    KeyChainInUseError,
+    type KeyChainReference,
+} from "./domain/key-chain-reference.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { KeyChainController } from "./key-chain.controller.js";
 import { KeyChainService } from "./key-chain.service.js";
@@ -531,5 +540,78 @@ describe("KeyChainController authorization", () => {
         expect(service.export).not.toHaveBeenCalled();
         expect(kms.saveTenantConfig).not.toHaveBeenCalled();
         expect(kms.deleteTenantConfig).not.toHaveBeenCalled();
+    });
+});
+
+describe("KeyChainService.deleteUnreferenced", () => {
+    function serviceWith(found: KeyChainReference[], entity?: KeyChainEntity) {
+        const service = Object.create(KeyChainService.prototype) as any;
+        service.keyChainRepository = {
+            findOne: vi.fn().mockResolvedValue(entity ?? keyChain({})),
+            delete: vi.fn().mockResolvedValue(undefined),
+        };
+        const deleteKey = vi.fn();
+        service.kmsRegistry = {
+            resolve: () => ({ capabilities: { canDelete: true }, deleteKey }),
+        };
+        service.logger = { log: vi.fn(), warn: vi.fn() };
+        const references = new KeyChainReferences();
+        const findReferences = vi.fn(async () => found);
+        references.register({
+            kind: "CredentialConfig",
+            findReferences,
+            namesKeyChain: () => false,
+        });
+        service.references = references;
+        return {
+            service: service as KeyChainService,
+            repository: service.keyChainRepository,
+            deleteKey,
+            findReferences,
+        };
+    }
+
+    it("deletes a key chain that no configuration names", async () => {
+        const { service, repository, deleteKey, findReferences } = serviceWith(
+            [],
+        );
+
+        await service.deleteUnreferenced("tenant", "key");
+
+        expect(findReferences).toHaveBeenCalledWith({
+            tenantId: "tenant",
+            id: "key",
+        });
+        expect(deleteKey).toHaveBeenCalled();
+        expect(repository.delete).toHaveBeenCalledWith({
+            tenantId: "tenant",
+            id: "key",
+        });
+    });
+
+    it("keeps a named key chain and its key material", async () => {
+        const found: KeyChainReference[] = [
+            { kind: "CredentialConfig", id: "pid", description: "PID" },
+        ];
+        const { service, repository, deleteKey } = serviceWith(found);
+
+        const error = await service
+            .deleteUnreferenced("tenant", "key")
+            .catch((e: unknown) => e);
+
+        expect(error).toBeInstanceOf(KeyChainInUseError);
+        expect((error as KeyChainInUseError).references).toEqual(found);
+        expect(deleteKey).not.toHaveBeenCalled();
+        expect(repository.delete).not.toHaveBeenCalled();
+    });
+
+    it("answers not found before looking for references", async () => {
+        const { service, repository, findReferences } = serviceWith([]);
+        repository.findOne.mockResolvedValue(null);
+
+        await expect(
+            service.deleteUnreferenced("tenant", "missing"),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(findReferences).not.toHaveBeenCalled();
     });
 });

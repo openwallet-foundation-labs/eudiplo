@@ -17,6 +17,7 @@ import { ConfigOwnershipDirective } from '../../config-portability/config-owners
 import { LoadErrorComponent } from '../../common/load-error.component';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { keyChainDeleteQuestion } from '../key-chain-delete-question';
 
 type KeyUsageType = 'attestation' | 'statusList' | 'access' | 'trustList' | 'federation';
 
@@ -59,6 +60,8 @@ interface KeyDisplayItem {
 export class KeyManagementListComponent implements OnInit {
   displayItems: KeyDisplayItem[] = [];
   isLoading = true;
+  /** Key chains whose delete request runs, so it is not sent twice. */
+  readonly deletingIds = new Set<string>();
   /** Set when the keys could not be loaded, so the page does not claim there are none. */
   loadError = '';
   filteredItems: KeyDisplayItem[] = [];
@@ -204,11 +207,13 @@ export class KeyManagementListComponent implements OnInit {
 
   async deleteItem(item: KeyDisplayItem, event: Event): Promise<void> {
     event.stopPropagation();
+    if (this.deletingIds.has(item.id)) return;
 
-    if (!confirm(`Delete "${this.getDisplayName(item)}"? This cannot be undone.`)) {
+    if (!confirm(keyChainDeleteQuestion(item.id, item.description))) {
       return;
     }
 
+    this.deletingIds.add(item.id);
     try {
       await this.keyChainService.delete(item.id);
       this.snackBar.open('Key chain deleted', 'Dismiss', { duration: 3000 });
@@ -220,6 +225,8 @@ export class KeyManagementListComponent implements OnInit {
         getApiErrorMessage(error, 'Failed to delete key chain'),
         'Dismiss'
       );
+    } finally {
+      this.deletingIds.delete(item.id);
     }
   }
 

@@ -479,6 +479,9 @@ export class ConfigBundleApplyService {
                 this.kmsTenantConfigService.deleteTenantConfig(tenantId);
                 return;
             case "KeyChain":
+                // Unlike DELETE /key-chain/{id}, without the reference check:
+                // the plan blocks deleting a key chain that a surviving
+                // configuration names, as for trust lists below.
                 await this.keyChainService.delete(tenantId, id);
                 return;
             case "RegistrarConfig":

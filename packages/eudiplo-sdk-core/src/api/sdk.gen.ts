@@ -388,6 +388,8 @@ export const keyChainControllerCreate = <ThrowOnError extends boolean = true>(op
 
 /**
  * Delete a key chain
+ *
+ * Refused while the issuance configuration, a credential config, a presentation config, a status list or a trust list of the tenant names the key chain. A configuration that names no key chain and uses the tenant's default one does not count; a trust list stores the key chain that signs it, also one picked by default.
  */
 export const keyChainControllerDelete = <ThrowOnError extends boolean = true>(options: Options<KeyChainControllerDeleteData, ThrowOnError>): RequestResult<KeyChainControllerDeleteResponses, KeyChainControllerDeleteErrors, ThrowOnError> => (options.client ?? client).delete<KeyChainControllerDeleteResponses, KeyChainControllerDeleteErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

@@ -12,12 +12,14 @@ import type { JWK, JWSHeaderParameters, JWTPayload } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
+import { KeyChainReferences } from "./application/key-chain-references.js";
 import {
     CertificateBuilderService,
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
 import { pickDefaultAccessKeyChain } from "./domain/default-access-key-chain.js";
 import { toPublicJwk } from "./domain/public-jwk.js";
+import { KeyChainInUseError } from "./domain/key-chain-reference.js";
 import {
     providerAlgRefusal,
     signingAlgForCurve,
@@ -81,6 +83,7 @@ export class KeyChainService {
         private readonly certBuilder: CertificateBuilderService,
         private readonly signingService: KeyChainSigningService,
         private readonly importService: KeyChainImportService,
+        private readonly references: KeyChainReferences,
     ) {}
 
     /** Return registered KMS providers (delegated to the registry). */
@@ -571,9 +574,37 @@ export class KeyChainService {
         this.logger.log(`Updated key chain ${id}`);
     }
 
+    /**
+     * Delete a key chain, whether configurations name it or not. Configuration
+     * imports use it after their plan checked the references.
+     */
     async delete(tenantId: string, id: string): Promise<void> {
         const keyChain = await this.getManageable(tenantId, id);
+        await this.deleteManageable(keyChain);
+    }
 
+    /**
+     * Delete a key chain that no issuance, credential or presentation
+     * configuration, status list or trust list of its tenant names. A
+     * configuration that names no key chain and uses the tenant's default one
+     * does not count.
+     * @throws NotFoundException when the tenant has no such key chain
+     * @throws KeyChainInUseError naming the configurations that use it
+     */
+    async deleteUnreferenced(tenantId: string, id: string): Promise<void> {
+        const keyChain = await this.getManageable(tenantId, id);
+        // Not atomic: a configuration saved between this lookup and the
+        // delete can still name the key chain. Accepted for administrative
+        // CRUD; that configuration then fails as it did before this check.
+        const references = await this.references.find({ tenantId, id });
+        if (references.length > 0) {
+            throw new KeyChainInUseError(id, references);
+        }
+        await this.deleteManageable(keyChain);
+    }
+
+    private async deleteManageable(keyChain: KeyChainEntity): Promise<void> {
+        const { tenantId, id } = keyChain;
         await this.deleteExternalKeyMaterial(keyChain);
 
         await this.keyChainRepository.delete({ tenantId, id });
