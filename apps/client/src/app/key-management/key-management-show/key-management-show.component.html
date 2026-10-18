@@ -48,8 +48,11 @@
         <button
           mat-icon-button
           (click)="deleteKey()"
+          [disabled]="deleting"
+          disabledInteractive
           color="warn"
           matTooltip="Delete key chain"
+          aria-label="Delete key chain"
           appConfigManaged
           managedKind="KeyChain"
           [managedResourceId]="keyId"

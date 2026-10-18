@@ -1538,6 +1538,45 @@ export type KeyChainUpdateDto = {
     activeCertificate?: string;
 };
 
+export type KeyChainReferenceDto = {
+    /**
+     * Kind of configuration that names the key chain.
+     */
+    kind: 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'StatusList' | 'TrustList';
+    /**
+     * ID of the configuration. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.
+     */
+    id?: string;
+    /**
+     * Description of the configuration; absent for configurations the caller may not read.
+     */
+    description?: string;
+};
+
+export type KeyChainInUseDto = {
+    /**
+     * HTTP status code.
+     */
+    statusCode: number;
+    /**
+     * Time of the response.
+     */
+    timestamp: string;
+    /**
+     * Path of the request.
+     */
+    path: string;
+    /**
+     * Configurations still name the key chain.
+     */
+    code: 'KEY_CHAIN_IN_USE';
+    /**
+     * Names the configurations the caller may read and counts the others.
+     */
+    message: string;
+    references: Array<KeyChainReferenceDto>;
+};
+
 export type TenantEntity = {
     /**
      * Unique tenant identifier
@@ -7150,7 +7189,13 @@ export type KeyChainControllerDeleteErrors = {
      * Key chain not found
      */
     404: unknown;
+    /**
+     * Configurations of the tenant still name the key chain; the response names those the caller may read and counts the others
+     */
+    409: KeyChainInUseDto;
 };
+
+export type KeyChainControllerDeleteError = KeyChainControllerDeleteErrors[keyof KeyChainControllerDeleteErrors];
 
 export type KeyChainControllerDeleteResponses = {
     /**

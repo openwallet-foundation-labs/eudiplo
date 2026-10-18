@@ -174,8 +174,10 @@
               <button
                 mat-icon-button
                 (click)="deleteItem(item, $event)"
+                [disabled]="deletingIds.has(item.id)"
+                disabledInteractive
                 matTooltip="Delete"
-                aria-label="Delete"
+                [attr.aria-label]="'Delete key chain ' + getDisplayName(item)"
                 color="warn"
                 appConfigManaged
                 managedKind="KeyChain"
