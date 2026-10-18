@@ -15,6 +15,7 @@ import { FailPresentationResponse } from "./application/fail-presentation-respon
 import { ParseAuthorizationResponse } from "./application/parse-authorization-response.js";
 import { ProcessVerifiedPresentation } from "./application/process-verified-presentation.js";
 import { Oid4vpService } from "./oid4vp.service.js";
+import { VerifierMetadataService } from "./verifier-metadata.service.js";
 
 describe("OID4VP state mismatch handling", () => {
     it.each([undefined, "https://client.example/complete/{sessionId}"])(
@@ -791,9 +792,81 @@ describe("OID4VP request creation", () => {
                     .fn()
                     .mockResolvedValue("signed.request.object"),
                 sessionStore: { updateForTenant },
+                federationIdentity: {
+                    forTenant: vi.fn().mockResolvedValue({
+                        entityId: "https://verifier.example/issuers/tenant",
+                        includeTrustChain: false,
+                    }),
+                },
             },
         );
     }
+
+    it("uses the tenant's federation entity id for clientIdScheme openid_federation", async () => {
+        const service = createService(vi.fn().mockResolvedValue(undefined));
+
+        const offer = await service.createRequest(
+            "presentation",
+            { clientIdScheme: "openid_federation" },
+            "tenant",
+            false,
+            "https://rp",
+        );
+
+        expect(new URLSearchParams(offer.uri).get("client_id")).toBe(
+            "openid_federation:https://verifier.example/issuers/tenant",
+        );
+    });
+
+    it("refuses clientIdScheme openid_federation for a stored entity id that is no Entity Identifier", async () => {
+        const service = createService(vi.fn().mockResolvedValue(undefined));
+        (
+            service as unknown as {
+                federationIdentity: { forTenant: ReturnType<typeof vi.fn> };
+            }
+        ).federationIdentity.forTenant.mockResolvedValue({
+            entityId: "verifier",
+            includeTrustChain: false,
+            entityIdProblem: "federation.entityId 'verifier' is not a URL",
+        });
+
+        const error = await service
+            .createRequest(
+                "presentation",
+                { clientIdScheme: "openid_federation" },
+                "tenant",
+                false,
+                "https://rp",
+            )
+            .catch((error) => error);
+
+        expect(error.getStatus()).toBe(400);
+        expect(error.message).toContain(
+            "federation.entityId 'verifier' is not a URL",
+        );
+    });
+
+    it("refuses clientIdScheme openid_federation without a federation verifier entity", async () => {
+        const service = createService(vi.fn().mockResolvedValue(undefined));
+        (
+            service as unknown as {
+                federationIdentity: { forTenant: ReturnType<typeof vi.fn> };
+            }
+        ).federationIdentity.forTenant.mockResolvedValue(undefined);
+
+        const error = await service
+            .createRequest(
+                "presentation",
+                { clientIdScheme: "openid_federation" },
+                "tenant",
+                false,
+                "https://rp",
+            )
+            .catch((error) => error);
+
+        expect(error.getStatus()).toBe(400);
+        expect(error.message).toContain("openid_credential_verifier");
+    });
 
     it("returns the offer only after the request object is stored", async () => {
         let storeRequestObject!: () => void;
@@ -908,6 +981,13 @@ describe("OID4VP request object signing key", () => {
         const getOrIssueRegistrationCertificate = vi
             .fn()
             .mockResolvedValue("registration.cert.jwt");
+        const federationIdentity = {
+            forTenant: vi.fn().mockResolvedValue({
+                entityId: "https://verifier.example/issuers/tenant",
+                includeTrustChain: false,
+            }),
+            trustChain: vi.fn().mockResolvedValue(["ec", "statement", "ta"]),
+        };
         const service = Object.assign(
             Object.create(Oid4vpService.prototype) as Oid4vpService,
             {
@@ -945,8 +1025,17 @@ describe("OID4VP request object signing key", () => {
                     generateEphemeralEncryptionKeyPair: vi
                         .fn()
                         .mockResolvedValue({ publicJwk: {}, privateJwk: {} }),
+                    getEncryptionPublicKey: vi.fn().mockResolvedValue({
+                        kid: "tenant-encryption",
+                        use: "enc",
+                    }),
                 },
-                cryptoImplementationService: new CryptoImplementationService(),
+                verifierMetadata: new VerifierMetadataService(
+                    new CryptoImplementationService(),
+                    {} as never,
+                    {} as never,
+                ),
+                federationIdentity,
                 certService: {
                     find,
                     getCertChain,
@@ -960,8 +1049,86 @@ describe("OID4VP request object signing key", () => {
                 },
             },
         );
-        return { service, find, signJWT, getOrIssueRegistrationCertificate };
+        return {
+            service,
+            find,
+            signJWT,
+            getOrIssueRegistrationCertificate,
+            federationIdentity,
+        };
     }
+
+    const federationClientId =
+        "openid_federation:https://verifier.example/issuers/tenant";
+
+    it("signs a federation request without x5c and encrypts to the published tenant key", async () => {
+        const { service, signJWT } = createService({
+            clientId: federationClientId,
+            accessKeyChainId: "access-a",
+        });
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        const [payload, header, , keyId] = signJWT.mock.calls[0];
+        expect(payload.client_id).toBe(federationClientId);
+        expect(payload.aud).toBe("https://self-issued.me/v2");
+        expect(header.x5c).toBeUndefined();
+        expect(header.trust_chain).toBeUndefined();
+        expect(keyId).toBe("access-a");
+        expect(payload.client_metadata.jwks.keys).toEqual([
+            { kid: "tenant-encryption", use: "enc" },
+        ]);
+        const store = (
+            service as unknown as {
+                sessionStore: { updateForTenant: ReturnType<typeof vi.fn> };
+            }
+        ).sessionStore.updateForTenant;
+        expect(store).not.toHaveBeenCalledWith(
+            "tenant",
+            "session",
+            expect.objectContaining({
+                responseEncryptionPrivateJwk: expect.anything(),
+            }),
+        );
+    });
+
+    it("adds the trust chain of the entity when configured", async () => {
+        const { service, signJWT, federationIdentity } = createService({
+            clientId: federationClientId,
+            accessKeyChainId: "access-a",
+        });
+        federationIdentity.forTenant.mockResolvedValue({
+            entityId: "https://verifier.example/issuers/tenant",
+            includeTrustChain: true,
+        });
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        expect(signJWT.mock.calls[0][1].trust_chain).toEqual([
+            "ec",
+            "statement",
+            "ta",
+        ]);
+        // Only in the JWS header: @openid4vc/openid4vp 0.7 wallets reject the
+        // request parameter with an openid_federation: client_id.
+        expect(signJWT.mock.calls[0][0].trust_chain).toBeUndefined();
+    });
+
+    it("refuses a federation request whose entity is no longer configured", async () => {
+        const { service, signJWT, federationIdentity } = createService({
+            clientId: federationClientId,
+            accessKeyChainId: "access-a",
+        });
+        federationIdentity.forTenant.mockResolvedValue({
+            entityId: "https://other.example",
+            includeTrustChain: false,
+        });
+
+        await expect(
+            service.createAuthorizationRequest("session", "https://rp"),
+        ).rejects.toThrow("no longer configured");
+        expect(signJWT).not.toHaveBeenCalled();
+    });
 
     it("signs with the access key chain stored with the client_id, not the current default", async () => {
         const { service, find, signJWT } = createService({

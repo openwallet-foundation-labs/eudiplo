@@ -404,6 +404,16 @@ export class IssuanceConfigCreateComponent implements OnInit {
   public loading = false;
   public availablePresentationConfigIds: string[] = [];
   private readonly federationModes = ['federation-only', 'hybrid'] as const;
+
+  /**
+   * Entity configuration settings of the loaded federation block that this
+   * form does not edit (entityTypes, authorityHints, trust marks, ...). They
+   * are sent back unchanged, so saving the form keeps them.
+   */
+  private federationEntitySettings: Record<string, unknown> = {};
+
+  /** Whether the loaded configuration published an entity configuration (entity ID and trust anchors). */
+  federationWasPublished = false;
   /** Trust anchors of the stored configuration, which the backend keeps even when unregistered. */
   private storedTrustAnchorIds = new Set<string>();
   private registrarRegistrationCertificateDefaults: Record<string, unknown> | null = null;
@@ -446,7 +456,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
       federation: this.fb.group({
         enabled: [false],
         mode: ['hybrid'],
-        entityId: [''],
+        // Copy of the editor pattern in the backend issuance schema; the
+        // backend (federationEntityIdProblem in @eudiplo/config-format)
+        // checks the rest, and whether http is allowed.
+        entityId: ['', Validators.pattern(/^https?:\/\/[^\s?#]+$/)],
         cacheTtlSeconds: [300],
         trustAnchors: this.fb.array([]),
       }),
@@ -458,9 +471,12 @@ export class IssuanceConfigCreateComponent implements OnInit {
         supportUri: [''],
       }),
     } as any);
+    // Hidden federation fields must not block saving.
     const updateFederationValidation = () => {
-      if (this.federationEnabled) this.trustAnchors.enable({ emitEvent: false });
-      else this.trustAnchors.disable({ emitEvent: false });
+      for (const control of [this.trustAnchors, this.federation.get('entityId')!]) {
+        if (this.federationEnabled) control.enable({ emitEvent: false });
+        else control.disable({ emitEvent: false });
+      }
     };
     this.federation.get('enabled')!.valueChanges.subscribe(updateFederationValidation);
     updateFederationValidation();
@@ -718,6 +734,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
     });
 
     this.trustAnchors.clear();
+    this.federationEntitySettings = {};
+    this.federationWasPublished = false;
     this.federation.patchValue({
       enabled: false,
       mode: 'hybrid',
@@ -727,6 +745,22 @@ export class IssuanceConfigCreateComponent implements OnInit {
     // Load Federation config if present
     if (config && (config as any)['federation']) {
       const federation = (config as any)['federation'];
+      // Keys the form edits; everything else is carried over unchanged.
+      const edited = new Set([
+        'role',
+        'mode',
+        'entityId',
+        'enforceSigningPolicy',
+        'cacheTtlSeconds',
+        'trustAnchors',
+      ]);
+      this.federationWasPublished =
+        !!federation.entityId &&
+        Array.isArray(federation.trustAnchors) &&
+        federation.trustAnchors.length > 0;
+      this.federationEntitySettings = Object.fromEntries(
+        Object.entries(federation).filter(([key]) => !edited.has(key))
+      );
       this.trustAnchors.clear();
       if (federation.trustAnchors && Array.isArray(federation.trustAnchors)) {
         for (const [index, anchor] of federation.trustAnchors.entries()) {
@@ -992,8 +1026,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
     // `role` and `enforceSigningPolicy` are not sent: EUDIPLO only acts as a
     // leaf entity and always enforces federation checks.
     return {
+      ...this.federationEntitySettings,
       mode,
-      entityId: (fVal['entityId'] as string) ?? undefined,
+      // An empty entity ID means not set.
+      entityId: (fVal['entityId'] as string | null) || undefined,
       cacheTtlSeconds: (fVal['cacheTtlSeconds'] as number) ?? 300,
       trustAnchors: trustAnchors as {
         entityId: string;
@@ -1227,6 +1263,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   get registrationCertificateMode(): 'import' | 'generate' {
     return this.registrationCertificate.get('mode')?.value ?? 'generate';
+  }
+
+  /** Names of the entity configuration settings carried over unchanged. */
+  get federationEntitySettingNames(): string[] {
+    return Object.keys(this.federationEntitySettings);
   }
 
   get federationEnabled(): boolean {

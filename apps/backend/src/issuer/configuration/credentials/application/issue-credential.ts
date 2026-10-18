@@ -51,6 +51,8 @@ export class IssueCredential {
             session,
             claims,
             federationEntityId,
+            federationTrustChain: () =>
+                this.federation.trustChainForTenant(session.tenantId),
             issuanceSetId: command.issuanceSetId,
         });
     }

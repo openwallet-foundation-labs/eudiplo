@@ -2,19 +2,30 @@ import { HttpModule, HttpService } from "@nestjs/axios";
 import { Module, type Provider } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { CryptoModule } from "../crypto/crypto.module.js";
+import { KeyChainService } from "../crypto/key/key-chain.service.js";
 import { TrustListModule } from "../issuer/trust-list/trustlist.module.js";
 import { outboundFetch } from "../webhook/outbound-fetch.js";
 import { OutboundUrlPolicyModule } from "../webhook/outbound-url-policy.module.js";
 import { OutboundUrlPolicyService } from "../webhook/outbound-url-policy.service.js";
 import {
+    ENTITY_PROVIDER_MAX_BYTES,
+    ENTITY_PROVIDER_TIMEOUT_MS,
+    HttpFederationEntityProvider,
+} from "./adapters/http-federation-entity-provider.js";
+import {
     HttpFederationResolver,
     TRUST_ENGINE_MAX_BYTES,
     TRUST_ENGINE_TIMEOUT_MS,
 } from "./adapters/http-federation-resolver.js";
+import { LocalFederationEntityProvider } from "./adapters/local-federation-entity-provider.js";
 import { LocalFederationResolver } from "./adapters/local-federation-resolver.js";
 import { VerifiedLoteProvider } from "./adapters/verified-lote-provider.js";
 import { CollectTrustedEntities } from "./application/collect-trusted-entities.js";
 import { CacheController } from "./cache.controller.js";
+import {
+    FEDERATION_ENTITY_PROVIDER_SETTINGS,
+    type FederationEntityProviderSettings,
+} from "./federation-entity-provider-settings.js";
 import {
     FEDERATION_RESOLVER_SETTINGS,
     type FederationResolverSettings,
@@ -22,6 +33,10 @@ import {
 import { FederationTrustService } from "./federation-trust.service.js";
 import { FederationTrustAnchorModule } from "./federation-trust-anchor/federation-trust-anchor.module.js";
 import { LoteParserService } from "./lote-parser.service.js";
+import {
+    FEDERATION_ENTITY_PROVIDER,
+    type FederationEntityProvider,
+} from "./ports/federation-entity-provider.js";
 import {
     FEDERATION_RESOLVER,
     type FederationResolver,
@@ -70,6 +85,36 @@ export const federationResolverProvider: Provider = {
                   trustFetch,
                   settings.clockToleranceSeconds,
               ),
+};
+
+/**
+ * The source of the tenant's own entity configuration selected by
+ * `FEDERATION_ENTITY_PROVIDER`: signed locally with the federation key chain,
+ * or fetched from an external trust engine under the outbound URL policy.
+ */
+export const federationEntityProvider: Provider = {
+    provide: FEDERATION_ENTITY_PROVIDER,
+    inject: [
+        FEDERATION_ENTITY_PROVIDER_SETTINGS,
+        KeyChainService,
+        HttpService,
+        OutboundUrlPolicyService,
+    ],
+    useFactory: (
+        settings: FederationEntityProviderSettings,
+        keys: KeyChainService,
+        http: HttpService,
+        policy: OutboundUrlPolicyService,
+    ): FederationEntityProvider =>
+        settings.type === "http"
+            ? new HttpFederationEntityProvider(
+                  settings,
+                  outboundFetch(http, policy, {
+                      timeoutMs: ENTITY_PROVIDER_TIMEOUT_MS,
+                      maxBytes: ENTITY_PROVIDER_MAX_BYTES,
+                  }),
+              )
+            : new LocalFederationEntityProvider(keys),
 };
 
 @Module({
@@ -139,6 +184,26 @@ export const federationResolverProvider: Provider = {
         },
         federationResolverProvider,
         FederationTrustService,
+        {
+            provide: FEDERATION_ENTITY_PROVIDER_SETTINGS,
+            inject: [ConfigService],
+            useFactory: (
+                config: ConfigService,
+            ): FederationEntityProviderSettings =>
+                config.get<string>("FEDERATION_ENTITY_PROVIDER") === "http"
+                    ? {
+                          type: "http",
+                          url: config.getOrThrow<string>(
+                              "FEDERATION_ENTITY_PROVIDER_URL",
+                          ),
+                          token:
+                              config.get<string>(
+                                  "FEDERATION_ENTITY_PROVIDER_TOKEN",
+                              ) || undefined,
+                      }
+                    : { type: "local" },
+        },
+        federationEntityProvider,
     ],
     exports: [
         TrustStoreService,
@@ -146,6 +211,7 @@ export const federationResolverProvider: Provider = {
         StatusListVerifierService,
         WalletAttestationService,
         FederationTrustService,
+        FEDERATION_ENTITY_PROVIDER,
     ],
 })
 export class TrustModule {}

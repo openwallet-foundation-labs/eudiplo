@@ -29,4 +29,29 @@ export const FEDERATION_VALIDATION_SCHEMA = Joi.object({
             "Bearer token EUDIPLO sends to the trust engine for `FEDERATION_RESOLVER=http`.",
         )
         .meta({ group: "federation", order: 30, secret: true }),
+    FEDERATION_ENTITY_PROVIDER: Joi.string()
+        .valid("local", "http")
+        .default("local")
+        .description(
+            "Where the entity configuration of a tenant's own federation entity comes from. `local`: EUDIPLO signs it with the tenant's federation key chain. `http`: EUDIPLO fetches the signed entity configuration from an external trust engine at `FEDERATION_ENTITY_PROVIDER_URL` and serves it unchanged.",
+        )
+        .meta({ group: "federation", order: 40 }),
+    FEDERATION_ENTITY_PROVIDER_URL: Joi.string()
+        .uri({ scheme: ["https"] })
+        .when("FEDERATION_ENTITY_PROVIDER", {
+            is: "http",
+            then: Joi.required(),
+            otherwise: Joi.optional().allow(""),
+        })
+        .description(
+            "HTTPS base URL of the trust engine for `FEDERATION_ENTITY_PROVIDER=http`. EUDIPLO sends `GET {url}/entities/{tenantId}/entity-configuration`; the request is subject to the outbound URL policy and redirects are not followed.",
+        )
+        .meta({ group: "federation", order: 50 }),
+    FEDERATION_ENTITY_PROVIDER_TOKEN: Joi.string()
+        .optional()
+        .allow("")
+        .description(
+            "Bearer token EUDIPLO sends to the trust engine for `FEDERATION_ENTITY_PROVIDER=http`.",
+        )
+        .meta({ group: "federation", order: 60, secret: true }),
 });

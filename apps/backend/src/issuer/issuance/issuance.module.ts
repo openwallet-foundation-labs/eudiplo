@@ -6,6 +6,7 @@ import { MetricService, TraceService } from "nestjs-otel";
 import { v4 } from "uuid";
 import { CryptoModule } from "../../crypto/crypto.module.js";
 import { EncryptionService } from "../../crypto/encryption/encryption.service.js";
+import { KeyChainService } from "../../crypto/key/key-chain.service.js";
 import { RegistrarModule } from "../../registrar/registrar.module.js";
 import { RegistrarService } from "../../registrar/registrar.service.js";
 import { ChangeSessionState } from "../../session/application/change-session-state.js";
@@ -14,10 +15,15 @@ import { ResolveExternalAuthorizationSession } from "../../session/application/r
 import { SessionStore } from "../../session/application/session-store.js";
 import { SessionModule } from "../../session/session.module.js";
 import { FederationTrustService } from "../../trust/federation-trust.service.js";
+import {
+    FEDERATION_ENTITY_PROVIDER,
+    type FederationEntityProvider,
+} from "../../trust/ports/federation-entity-provider.js";
 import { TrustModule } from "../../trust/trust.module.js";
 import { TrustStoreService } from "../../trust/trust-store.service.js";
 import { X509ValidationService } from "../../trust/x509-validation.service.js";
 import { Oid4vpModule } from "../../verifier/oid4vp/oid4vp.module.js";
+import { VerifierMetadataService } from "../../verifier/oid4vp/verifier-metadata.service.js";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module.js";
 import { OutboundUrlPolicyService } from "../../webhook/outbound-url-policy.service.js";
 import { WebhookModule } from "../../webhook/webhook.module.js";
@@ -33,6 +39,13 @@ import {
     type WebhookEndpointRepository,
 } from "../configuration/webhook-endpoint/ports/webhook-endpoint.repository.js";
 import { StatusListModule } from "../status-list/status-list.module.js";
+import { ConfiguredEntityConfigurationSources } from "./federation-entity/adapters/configured-entity-configuration-sources.js";
+import { PublishEntityConfiguration } from "./federation-entity/application/publish-entity-configuration.js";
+import { FederationEntityController } from "./federation-entity/federation-entity.controller.js";
+import {
+    ENTITY_CONFIGURATION_SOURCES,
+    type EntityConfigurationSources,
+} from "./federation-entity/ports/entity-configuration-sources.js";
 import { CredentialOfferController } from "./offer/credential-offer.controller.js";
 import { ConfiguredCredentialAuthorizationSources } from "./oid4vci/adapters/configured-credential-authorization-sources.js";
 import { ConfiguredIssuerMetadataSources } from "./oid4vci/adapters/configured-issuer-metadata-sources.js";
@@ -150,6 +163,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service.js";
         DeferredController,
         Oid4vciMetadataController,
         WellKnownController,
+        FederationEntityController,
     ],
     providers: [
         {
@@ -257,6 +271,41 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service.js";
                     certificates,
                     settings.publicUrl,
                 ),
+        },
+        {
+            provide: ENTITY_CONFIGURATION_SOURCES,
+            inject: [
+                IssuanceService,
+                BuildIssuerMetadata,
+                Oid4vciSdkFactory,
+                KeyChainService,
+                VerifierMetadataService,
+                OutboundUrlPolicyService,
+            ],
+            useFactory: (
+                issuance: IssuanceService,
+                issuerMetadata: BuildIssuerMetadata,
+                sdk: Oid4vciSdkFactory,
+                keyChains: KeyChainService,
+                verifierMetadata: VerifierMetadataService,
+                outboundUrlPolicy: OutboundUrlPolicyService,
+            ) =>
+                new ConfiguredEntityConfigurationSources(
+                    issuance,
+                    issuerMetadata,
+                    sdk,
+                    keyChains,
+                    verifierMetadata,
+                    () => outboundUrlPolicy.allowHttp(),
+                ),
+        },
+        {
+            provide: PublishEntityConfiguration,
+            inject: [ENTITY_CONFIGURATION_SOURCES, FEDERATION_ENTITY_PROVIDER],
+            useFactory: (
+                sources: EntityConfigurationSources,
+                provider: FederationEntityProvider,
+            ) => new PublishEntityConfiguration(sources, provider),
         },
         {
             provide: SelectAuthorizationServer,

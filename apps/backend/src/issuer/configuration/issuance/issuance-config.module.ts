@@ -6,6 +6,7 @@ import { provideKeyChainReferenceSource } from "../../../crypto/key/key-chain-re
 import { RegistrarModule } from "../../../registrar/registrar.module.js";
 import { provideFederationTrustAnchorReferenceSource } from "../../../trust/federation-trust-anchor/adapters/federation-trust-anchor-reference-source.provider.js";
 import { FederationTrustAnchorModule } from "../../../trust/federation-trust-anchor/federation-trust-anchor.module.js";
+import { OutboundUrlPolicyModule } from "../../../webhook/outbound-url-policy.module.js";
 import { provideTrustListReferenceSource } from "../../trust-list/trust-list-reference-source.provider.js";
 import { TrustListModule } from "../../trust-list/trustlist.module.js";
 import { CredentialConfigModule } from "../credentials/credential-config.module.js";
@@ -26,6 +27,7 @@ import { ISSUANCE_CONFIG_REPOSITORY } from "./ports/issuance-config.repository.j
         RegistrarModule,
         TrustListModule,
         FederationTrustAnchorModule,
+        OutboundUrlPolicyModule,
     ],
     controllers: [IssuanceConfigController],
     providers: [

@@ -545,6 +545,19 @@ describe('KeyManagementShowComponent delete', () => {
     expect(router.navigate).toHaveBeenCalled();
   });
 
+  it('says that a federation key may stop the entity from being trusted', async () => {
+    const component = create();
+    component.keyChain = { ...keyChain, usageType: 'federation' } as KeyChainResponseDto;
+    vi.mocked(window.confirm).mockReturnValue(false);
+
+    await component.deleteKey();
+
+    expect(vi.mocked(window.confirm).mock.lastCall?.[0]).toContain(
+      'no longer trusted until your trust anchor lists the public key'
+    );
+    expect(keyChainService.delete).not.toHaveBeenCalled();
+  });
+
   it('shows the configurations the backend names when it refuses the delete', async () => {
     const message =
       'Key chain "signing" is still used by the issuance configuration and 1 credential config ("pid").' +

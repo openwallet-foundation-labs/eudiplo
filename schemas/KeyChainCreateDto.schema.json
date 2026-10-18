@@ -9,6 +9,7 @@
         "attestation",
         "trustList",
         "statusList",
+        "federation",
         "encrypt"
       ],
       "description": "Key usage category for the key chain."

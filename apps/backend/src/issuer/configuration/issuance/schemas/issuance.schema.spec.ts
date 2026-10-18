@@ -139,4 +139,99 @@ describe("IssuanceConfigSchema", () => {
             );
         });
     });
+
+    describe("federation entity fields", () => {
+        const b64 = (value: unknown) =>
+            Buffer.from(JSON.stringify(value)).toString("base64url");
+        const parse = (fields: Record<string, unknown>) =>
+            IssuanceConfigSchema.safeParse({
+                authorizationServers: [{ type: "built-in", id: "issuer" }],
+                federation: {
+                    entityId: "https://issuer.example.org",
+                    trustAnchors: [
+                        {
+                            entityId: "https://ta.example.org",
+                            entityConfigurationUri:
+                                "https://ta.example.org/.well-known/openid-federation",
+                        },
+                    ],
+                    ...fields,
+                },
+            });
+
+        it.each([
+            "https://issuer.example.org/issuers/tenant",
+            "http://localhost:3000/issuers/root",
+            "",
+        ])("accepts the entity id '%s'", (entityId) => {
+            expect(parse({ entityId }).error?.issues).toBeUndefined();
+        });
+
+        it.each([
+            ["issuer", "is not a URL"],
+            ["urn:example:issuer", "https or http URL"],
+            ["HTTPS://issuer.example.org", "must be written as the URL"],
+            ["https://issuer.example.org/?tenant=a", "query or fragment"],
+            ["https://issuer.example.org#entity", "query or fragment"],
+            ["https://user@issuer.example.org", "credentials"],
+            ["https://issuer.example.org/x\nfoo", "whitespace"],
+        ])(
+            "rejects the entity id %j with one issue: %s",
+            (entityId, reason) => {
+                const issues = parse({ entityId }).error?.issues ?? [];
+                expect(issues).toHaveLength(1);
+                expect(issues[0]).toEqual(
+                    expect.objectContaining({
+                        path: ["federation", "entityId"],
+                        message: expect.stringContaining(reason),
+                    }),
+                );
+            },
+        );
+
+        it("accepts the entity configuration settings within their bounds", () => {
+            for (const lifetime of [60, 31536000]) {
+                expect(
+                    parse({
+                        entityTypes: ["openid_credential_verifier"],
+                        authorityHints: ["https://intermediate.example.org"],
+                        entityConfigurationLifetimeSeconds: lifetime,
+                        trustMarks: [
+                            `${b64({ alg: "ES256" })}.${b64({ trust_mark_type: "https://ta.example.org/marks/x" })}.c2ln`,
+                        ],
+                        entityMetadata: {
+                            organization_name: "Example",
+                            homepage_uri: "https://example.org",
+                        },
+                        includeTrustChain: true,
+                    }).success,
+                ).toBe(true);
+            }
+        });
+
+        it.each([
+            ["no entity type", { entityTypes: [] }],
+            ["an unknown entity type", { entityTypes: ["openid_provider"] }],
+            ["an authority hint that is no URL", { authorityHints: ["ta"] }],
+            [
+                "a lifetime below a minute",
+                { entityConfigurationLifetimeSeconds: 59 },
+            ],
+            [
+                "a lifetime above a year",
+                { entityConfigurationLifetimeSeconds: 31536001 },
+            ],
+            [
+                "a trust mark without trust_mark_type",
+                { trustMarks: ["a.e30.c2ln"] },
+            ],
+            ["a trust mark that is no JWT", { trustMarks: ["not-a-jwt"] }],
+            [
+                "unknown federation_entity metadata",
+                { entityMetadata: { federation_fetch_endpoint: "https://x" } },
+            ],
+        ])("rejects %s", (_case, fields) => {
+            expect(parse(fields).success).toBe(false);
+        });
+    });
 });

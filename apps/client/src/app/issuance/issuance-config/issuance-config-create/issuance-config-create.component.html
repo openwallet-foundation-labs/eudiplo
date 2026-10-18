@@ -906,8 +906,8 @@
                         OpenID Federation
                       </mat-card-title>
                       <mat-card-subtitle
-                        >Enable federation-based trust evaluation for credential verification and
-                        issuer authentication</mat-card-subtitle
+                        >Evaluate trust through federation trust anchors and, with an entity ID,
+                        publish this tenant's entity configuration</mat-card-subtitle
                       >
                     </mat-card-header>
                     <mat-card-content fxLayout="column" fxLayoutGap="16px">
@@ -919,6 +919,19 @@
                           >
                         </div>
                       </mat-slide-toggle>
+
+                      @if (!federationEnabled && federationWasPublished) {
+                        <p class="section-hint">
+                          <mat-icon>warning</mat-icon>
+                          Saving with federation off stops publishing the entity configuration and
+                          breaks presentation requests with the OpenID Federation client identifier.
+                          @if (federationEntitySettingNames.length) {
+                            The entity configuration settings ({{
+                              federationEntitySettingNames.join(', ')
+                            }}) are removed as well.
+                          }
+                        </p>
+                      }
 
                       @if (federationEnabled) {
                         <!-- Trust Mode -->
@@ -942,12 +955,34 @@
                             (keydown.enter)="onInputEnter($event)"
                             matInput
                             formControlName="entityId"
-                            placeholder="https://issuer.example.org"
+                            placeholder="https://eudiplo.example.com/issuers/my-tenant"
                             type="url"
                           />
                           <mat-icon matSuffix>link</mat-icon>
-                          <mat-hint>This issuer's unique identifier in the federation</mat-hint>
+                          <mat-hint
+                            >Set to &lt;public URL&gt;/issuers/&lt;tenant ID&gt; to publish the
+                            entity configuration there; leave empty to only evaluate
+                            trust.</mat-hint
+                          >
+                          <mat-error
+                            >Enter an https URL without spaces, query or fragment, for example
+                            https://eudiplo.example.com/issuers/my-tenant (http only if the server
+                            allows it)</mat-error
+                          >
                         </mat-form-field>
+
+                        <p class="section-hint">
+                          <mat-icon>info</mat-icon>
+                          Publishing also needs a key with usage type OpenID Federation Entity Key.
+                          @if (federationEntitySettingNames.length) {
+                            Entity configuration settings kept from the configuration:
+                            {{ federationEntitySettingNames.join(', ') }}. Use JSON View to see or
+                            change them.
+                          } @else {
+                            Entity types, authority hints, trust marks and the other entity
+                            configuration settings are set in JSON View.
+                          }
+                        </p>
 
                         <!-- Cache TTL -->
                         <mat-form-field>

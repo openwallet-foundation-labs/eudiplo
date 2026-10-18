@@ -8,15 +8,17 @@ Configuration files name their format in `$schema`, for example `https://eudiplo
 
 ## Format versions
 
-Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1, `CredentialConfig` v2, `KeyChain` v2, `Client` v2, `KmsConfig` v2, `RegistrarConfig` v2 and `IssuanceConfig` v4 in 10.0:
+Each resource type has its own format version in `CONFIG_FORMATS` (`packages/eudiplo-config-format/src/config-format.ts`); it is independent of the application version. EUDIPLO 9.0 introduced the first bumps; `IssuanceConfig` v3 followed in 9.1, `CredentialConfig` v2, `KeyChain` v2, `Client` v2, `KmsConfig` v2, `RegistrarConfig` v2, `IssuanceConfig` v4 and v5 and `KeyChain` v3 in 10.0:
 
 | Resource | Version | Change |
 | --- | --- | --- |
 | `IssuanceConfig` | v2 | Optional `offerLifetimeSeconds`. A v1 file is a valid v2 file. |
 | `IssuanceConfig` | v3 | Optional `verifierKeyPem` (PEM public key) in `walletProviderTrustLists` entries. A v2 file is a valid v3 file. |
 | `IssuanceConfig` | v4 | Optional `walletAttestationStatusCheckMode` on the issuance configuration and its authorization servers. A v3 file is a valid v4 file. |
+| `IssuanceConfig` | v5 | Optional entity configuration fields in `federation` (`entityTypes`, `authorityHints`, `entityKeyChainId`, `entityConfigurationLifetimeSeconds`, `trustMarks`, `entityMetadata`, `includeTrustChain`). A v4 file is a valid v5 file. |
 | `CredentialConfig` | v2 | `x509` as `frameworkType` of `schemaMeta.trustedAuthorities` entries. A v1 file is a valid v2 file. |
 | `KeyChain` | v2 | Optional `type` (`standalone`, `internalChain`). A v1 file is a valid v2 file; a bare key chain file with `type` is read as v2 (`bareFileVersion`). |
+| `KeyChain` | v3 | Usage type `federation`. A v2 file is a valid v3 file; a bare key chain file with usage type `federation` is read as v3. |
 | `Client` | v2 | The roles `audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1 file is a valid v2 file. |
 | `KmsConfig` | v2 | Optional `algorithms` and `defaultAlgorithm` on providers. A v1 file is a valid v2 file; a bare `kms.json` with either field on a provider is read as v2 (`bareFileVersion`). |
 | `RegistrarConfig` | v2 | Optional `relyingPartyContact`. A v1 file is a valid v2 file; a bare `registrar.json` with the field is read as v2 (`bareFileVersion`). |

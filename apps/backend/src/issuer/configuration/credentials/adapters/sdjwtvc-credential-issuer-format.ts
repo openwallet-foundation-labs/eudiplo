@@ -19,6 +19,7 @@ export class SdjwtvcCredentialIssuerFormat implements CredentialIssuerFormat {
             session: context.session,
             claims: context.claims,
             federationEntityId: context.federationEntityId,
+            federationTrustChain: context.federationTrustChain,
             issuanceSetId: context.issuanceSetId,
         });
     }

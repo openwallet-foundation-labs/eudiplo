@@ -64,6 +64,7 @@
         "attestation",
         "trustList",
         "statusList",
+        "federation",
         "encrypt"
       ],
       "description": "Key usage category for the imported key chain."

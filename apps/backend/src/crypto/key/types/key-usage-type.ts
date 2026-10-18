@@ -10,6 +10,8 @@ export enum KeyUsageType {
     TrustList = "trustList",
     /** Used for status list (credential revocation) signing */
     StatusList = "statusList",
+    /** Used for OpenID Federation entity statement signing (entity configuration) */
+    Federation = "federation",
     /** Used for encryption (JWE) */
     Encrypt = "encrypt",
 }

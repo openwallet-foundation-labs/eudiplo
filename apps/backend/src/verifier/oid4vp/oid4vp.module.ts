@@ -2,17 +2,23 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CryptoModule } from "../../crypto/crypto.module.js";
+import { IssuanceService } from "../../issuer/configuration/issuance/issuance.service.js";
+import { IssuanceConfigModule } from "../../issuer/configuration/issuance/issuance-config.module.js";
 import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.js";
 import { RegistrarModule } from "../../registrar/registrar.module.js";
 import { ChangeSessionState } from "../../session/application/change-session-state.js";
 import { SessionStore } from "../../session/application/session-store.js";
 import { SessionModule } from "../../session/session.module.js";
+import { FederationTrustService } from "../../trust/federation-trust.service.js";
+import { TrustModule } from "../../trust/trust.module.js";
+import { OutboundUrlPolicyService } from "../../webhook/outbound-url-policy.service.js";
 import {
     PRESENTATION_RESULT_PUBLISHER,
     type PresentationResultPublisher,
 } from "../../webhook/ports/presentation-result-publisher.js";
 import { WebhookModule } from "../../webhook/webhook.module.js";
 import { PresentationsModule } from "../presentations/presentations.module.js";
+import { IssuanceConfigVerifierFederationIdentity } from "./adapters/issuance-config-verifier-federation-identity.js";
 import { CompletePresentationResponse } from "./application/complete-presentation-response.js";
 import { FailPresentationResponse } from "./application/fail-presentation-response.js";
 import { ParseAuthorizationResponse } from "./application/parse-authorization-response.js";
@@ -21,6 +27,8 @@ import { RetrievePresentationRequest } from "./application/retrieve-presentation
 import { Oid4vpController } from "./oid4vp.controller.js";
 import { Oid4vpService } from "./oid4vp.service.js";
 import { OID4VP_SETTINGS } from "./oid4vp-settings.js";
+import { VERIFIER_FEDERATION_IDENTITY } from "./ports/verifier-federation-identity.js";
+import { VerifierMetadataService } from "./verifier-metadata.service.js";
 
 @Module({
     imports: [
@@ -30,10 +38,31 @@ import { OID4VP_SETTINGS } from "./oid4vp-settings.js";
         WebhookModule,
         TypeOrmModule.forFeature([WebhookEndpointEntity]),
         PresentationsModule,
+        IssuanceConfigModule,
+        TrustModule,
     ],
     controllers: [Oid4vpController],
     providers: [
         Oid4vpService,
+        VerifierMetadataService,
+        {
+            provide: VERIFIER_FEDERATION_IDENTITY,
+            inject: [
+                IssuanceService,
+                FederationTrustService,
+                OutboundUrlPolicyService,
+            ],
+            useFactory: (
+                issuance: IssuanceService,
+                federation: FederationTrustService,
+                outboundUrlPolicy: OutboundUrlPolicyService,
+            ) =>
+                new IssuanceConfigVerifierFederationIdentity(
+                    issuance,
+                    federation,
+                    () => outboundUrlPolicy.allowHttp(),
+                ),
+        },
         {
             provide: OID4VP_SETTINGS,
             inject: [ConfigService],
@@ -86,6 +115,6 @@ import { OID4VP_SETTINGS } from "./oid4vp-settings.js";
                 new RetrievePresentationRequest(sessions, state),
         },
     ],
-    exports: [Oid4vpService],
+    exports: [Oid4vpService, VerifierMetadataService],
 })
 export class Oid4vpModule {}

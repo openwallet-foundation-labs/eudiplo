@@ -1148,7 +1148,7 @@ describe("startup configuration reconciliation", () => {
         }
     });
 
-    it("imports a bare key chain export with type from a config folder as KeyChain v2", async () => {
+    it("imports a bare key chain export with type from a config folder, upgraded from KeyChain v2", async () => {
         const apply = app.get(ConfigBundleApplyService);
         const dataSource = app.get(DataSource);
         const keyChains = dataSource.getRepository(KeyChainEntity);
@@ -1172,7 +1172,8 @@ describe("startup configuration reconciliation", () => {
             const bundle = app
                 .get(ConfigFolderBundleService)
                 .buildBundle("demo", folder);
-            expect(bundle.documents[0].$schema).toBe(schemaUrl("KeyChain", 2));
+            // Read as v2 (it has `type`), then upgraded to the current format.
+            expect(bundle.documents[0].$schema).toBe(schemaUrl("KeyChain"));
             await apply.apply("demo", bundle, "upsert");
 
             const stored = await keyChains.findOneByOrFail({

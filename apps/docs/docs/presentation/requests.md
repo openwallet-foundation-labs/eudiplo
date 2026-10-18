@@ -47,7 +47,7 @@ The request expires after the configuration's `lifeTime` (default 300 seconds). 
 
 | Status | Cause                                                                                    |
 | ------ | ---------------------------------------------------------------------------------------- |
-| `400`  | The body does not match the schema, or `x509_san_dns` was requested for a certificate without DNS name. |
+| `400`  | The body does not match the schema, `x509_san_dns` was requested for a certificate without DNS name, or `openid_federation` for a tenant without federation verifier entity. |
 | `403`  | The API client is not allowed to use this `requestId`.                                   |
 | `404`  | No usable access key chain: none exists, `accessKeyChainId` points to none, or its certificate is invalid. |
 | `409`  | No presentation configuration with this `requestId` exists.                              |
@@ -56,12 +56,13 @@ The request expires after the configuration's `lifeTime` (default 300 seconds). 
 
 Use `response_type: "uri"` for both. Show `crossDeviceUri` as QR code when the user is on a computer; open `uri` when your page runs on the phone that has the wallet. For a same-device redirect, set `redirectUri`, for example `https://shop.example.com/verified?session={sessionId}`. EUDIPLO replaces `{sessionId}` and appends a one-time `response_code`, which your backend must check before it trusts the result ([Receive Results](receive-results.md#same-device-redirect)).
 
-### Client identifier: `x509_hash` or `x509_san_dns`
+### Client identifier
 
-The wallet identifies EUDIPLO by the `client_id` in the request, derived from the access certificate:
+The wallet identifies EUDIPLO by the `client_id` in the request, set by `clientIdScheme`:
 
 - `x509_hash` (default): `x509_hash:<base64url SHA-256 of the leaf certificate>`. Works with any access certificate, including self-signed ones.
 - `x509_san_dns`: `x509_san_dns:<first DNS name in the leaf certificate's subjectAltName>`. Use it when a wallet only accepts DNS-based client identifiers. Certificates that EUDIPLO generates contain the host name of `PUBLIC_URL`; an imported certificate without DNS name fails with `400`.
+- `openid_federation`: `openid_federation:<entity ID>` of the tenant's [OpenID Federation entity](../trust/federation.md#oid4vp-requests-with-a-federation-client-identifier). The request object carries no certificate (`x5c`); the wallet picks the access key by its `kid` from the federation metadata, and the wallet takes the verifier metadata from the trust chain. Needs `openid_credential_verifier` in `federation.entityTypes` and a valid `federation.entityId` ([rule](../trust/federation.md#configure-federation-for-issuance)) in the issuance configuration, else `400`.
 
 ## Digital Credentials API
 

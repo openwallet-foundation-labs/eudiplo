@@ -36,6 +36,11 @@ export const GLOBAL_PREFIX_EXCLUSIONS: {
         method: RequestMethod.ALL,
     },
     { path: "issuers/:tenantId/chained-as/{*path}", method: RequestMethod.ALL },
+    // OpenID Federation entity configuration
+    {
+        path: "issuers/:tenantId/.well-known/openid-federation",
+        method: RequestMethod.GET,
+    },
     // OID4VP Protocol
     { path: "presentations/:sessionId/oid4vp", method: RequestMethod.ALL },
     {
