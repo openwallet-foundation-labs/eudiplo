@@ -1,3 +1,4 @@
+import { generateKeyPairSync } from 'node:crypto';
 import type { Locator, Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { hasRootCredentials, resolvedE2EConfig } from './support/e2e-config';
@@ -32,6 +33,27 @@ test.beforeAll(async () => {
   const { publicUrl } = (await response.json()) as { publicUrl?: string };
   expect(publicUrl, 'GET /api/frontend-config reports PUBLIC_URL').toBeTruthy();
   entityId = `${publicUrl}/issuers/${tenant.id}`;
+
+  // Issuer Settings only offer registered trust anchors (with pinned keys).
+  const anchor = await fetch(`${api}/api/federation-trust-anchor`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${tenant.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: 'example-ta',
+      entityId: trustAnchor,
+      jwks: {
+        keys: [
+          {
+            ...generateKeyPairSync('ec', { namedCurve: 'P-256' }).publicKey.export({
+              format: 'jwk',
+            }),
+            kid: 'ta-2026',
+          },
+        ],
+      },
+    }),
+  });
+  expect(anchor.status, await anchor.text()).toBe(201);
 });
 
 /** The OpenID Federation section on the Trust tab, opened. */
@@ -87,10 +109,11 @@ test('names the entity ID to use and says the federation key is missing', async 
   await expect(createKey).toHaveAttribute('target', '_blank');
 
   await federation.getByRole('button', { name: 'Add Trust Anchor' }).click();
-  await federation.getByRole('textbox', { name: 'Trust Anchor 1 Entity ID' }).fill(trustAnchor);
-  await federation
-    .getByRole('textbox', { name: 'Entity Configuration URI' })
-    .fill(`${trustAnchor}/.well-known/openid-federation`);
+  await federation.getByRole('combobox', { name: 'Trust Anchor 1' }).click();
+  await page.getByRole('option', { name: /\(https:\/\/ta\.example\.org\)/ }).click();
+  await expect(federation.getByRole('textbox', { name: 'Entity Configuration URI' })).toHaveValue(
+    `${trustAnchor}/.well-known/openid-federation`
+  );
 
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByText('· Review')).toBeVisible();
