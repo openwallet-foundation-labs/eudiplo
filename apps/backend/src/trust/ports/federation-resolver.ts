@@ -1,6 +1,13 @@
-/** An OpenID Federation trust anchor a resolution may end at. */
-interface FederationTrustAnchor {
+import type { PinnedJwks } from "./federation-trust-anchor-keys.js";
+
+/**
+ * An OpenID Federation trust anchor a resolution may end at, with its
+ * federation keys obtained out of band: its entity configuration must be
+ * signed with one of them (OpenID Federation 1.0 Section 10.2).
+ */
+export interface FederationTrustAnchor {
     entityId: string;
+    jwks: PinnedJwks;
 }
 
 export interface FederationResolutionRequest {

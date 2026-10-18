@@ -20,6 +20,7 @@ import {
     type FederationResolverSettings,
 } from "./federation-resolver-settings.js";
 import { FederationTrustService } from "./federation-trust.service.js";
+import { FederationTrustAnchorModule } from "./federation-trust-anchor/federation-trust-anchor.module.js";
 import { LoteParserService } from "./lote-parser.service.js";
 import {
     FEDERATION_RESOLVER,
@@ -75,6 +76,7 @@ export const federationResolverProvider: Provider = {
     imports: [
         CryptoModule,
         TrustListModule,
+        FederationTrustAnchorModule,
         OutboundUrlPolicyModule,
         HttpModule,
     ],

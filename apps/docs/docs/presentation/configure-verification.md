@@ -8,7 +8,7 @@ A presentation configuration is the reusable definition of a verification: which
 
 - A tenant client or user with the `presentation:manage` role.
 - An access key chain with an active certificate. EUDIPLO signs every request with it. See [Keys and Certificates](../trust/keys-and-certificates.md).
-- A [trust list](../trust/trust-lists.md) or an [OpenID Federation](../trust/federation.md) trust anchor for the issuers you accept. Every credential query must reference one.
+- A [trust list](../trust/trust-lists.md) or an [OpenID Federation](../trust/federation.md) trust anchor for the issuers you accept. Every credential query must reference one. A trust anchor must first be [registered with its keys](../trust/federation.md#register-trust-anchors), through the API or the config folder; the Web Client has no screen for it yet.
 - Optional: a webhook endpoint that receives the results (see [below](#send-results-to-your-backend)).
 
 ## In the Web Client

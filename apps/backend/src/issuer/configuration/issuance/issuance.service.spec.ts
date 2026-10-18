@@ -3,9 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import { IssuanceService } from "./issuance.service.js";
 
 describe("IssuanceService.storeIssuanceConfiguration", () => {
-    const service = (save = vi.fn(async (config) => config)) => ({
+    const service = (
+        save = vi.fn(async (config) => config),
+        unregistered = vi.fn().mockResolvedValue([]),
+    ) => ({
         save,
+        unregistered,
         issuance: Object.assign(Object.create(IssuanceService.prototype), {
+            federationTrustAnchors: { unregistered },
             issuanceConfigRepo: {
                 getForTenant: vi.fn().mockResolvedValue({
                     tenantId: "tenant-1",
@@ -108,6 +113,76 @@ describe("IssuanceService.storeIssuanceConfiguration", () => {
 
         expect(save).toHaveBeenCalledOnce();
     });
+
+    it("rejects federation trust anchors the tenant has not registered with pinned keys", async () => {
+        const { issuance, save, unregistered } = service(
+            undefined,
+            vi.fn().mockResolvedValue(["https://ta.example.org"]),
+        );
+
+        const result = issuance.storeIssuanceConfiguration("tenant-1", {
+            authorizationServers: [{ type: "built-in", id: "issuer-built-in" }],
+            federation: {
+                trustAnchors: [
+                    {
+                        entityId: "https://ta.example.org",
+                        entityConfigurationUri:
+                            "https://ta.example.org/.well-known/openid-federation",
+                    },
+                ],
+            },
+        } as any);
+
+        await expect(result).rejects.toBeInstanceOf(BadRequestException);
+        await expect(result).rejects.toThrow(
+            "OpenID Federation trust anchors without pinned keys: https://ta.example.org",
+        );
+        expect(unregistered).toHaveBeenCalledWith("tenant-1", [
+            "https://ta.example.org",
+        ]);
+        expect(save).not.toHaveBeenCalled();
+    });
+
+    it("keeps accepting changes that leave stored, unregistered trust anchors alone", async () => {
+        const { issuance, save, unregistered } = service(
+            undefined,
+            vi.fn().mockResolvedValue([]),
+        );
+        (issuance as any).issuanceConfigRepo.getForTenant.mockResolvedValue({
+            tenantId: "tenant-1",
+            authorizationServers: [{ type: "built-in", id: "built-in" }],
+            federation: {
+                trustAnchors: [{ entityId: "https://ta.example.org" }],
+            },
+        });
+
+        // The Web Client always sends `federation`, also when unchanged.
+        await issuance.storeIssuanceConfiguration("tenant-1", {
+            authorizationServers: [{ type: "built-in", id: "issuer-built-in" }],
+            federation: {
+                trustAnchors: [
+                    { entityId: "https://ta.example.org" },
+                    { entityId: "https://new-ta.example.org" },
+                ],
+            },
+        } as any);
+
+        expect(unregistered).toHaveBeenCalledWith("tenant-1", [
+            "https://new-ta.example.org",
+        ]);
+        expect(save).toHaveBeenCalledOnce();
+    });
+
+    it("does not check the stored trust anchors when federation is cleared", async () => {
+        const { issuance, unregistered } = service();
+
+        await issuance.storeIssuanceConfiguration("tenant-1", {
+            authorizationServers: [{ type: "built-in", id: "issuer-built-in" }],
+            federation: null,
+        } as any);
+
+        expect(unregistered).toHaveBeenCalledWith("tenant-1", []);
+    });
 });
 
 describe("IssuanceService audit log", () => {
@@ -135,6 +210,9 @@ describe("IssuanceService audit log", () => {
                     save: vi.fn(async (config) => config),
                 },
                 tenantActionLogService: { record },
+                federationTrustAnchors: {
+                    unregistered: vi.fn().mockResolvedValue([]),
+                },
             },
         ) as IssuanceService;
 

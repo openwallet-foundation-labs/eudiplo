@@ -125,8 +125,11 @@ export async function serveFederation(options: {
     metadata: Record<string, Record<string, unknown>>;
     /** Whether the trust anchor lists the entity as subordinate. */
     listed?: boolean;
+    /** The trust anchor's federation key; a new one by default. */
+    trustAnchorKey?: FederationKey;
 }) {
-    const trustAnchorKey = await federationKey("trust-anchor");
+    const trustAnchorKey =
+        options.trustAnchorKey ?? (await federationKey("trust-anchor"));
     const entityKey = await federationKey("entity-federation-key");
     await serveEntityConfiguration({
         id: options.trustAnchor,

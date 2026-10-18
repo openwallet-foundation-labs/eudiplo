@@ -15,6 +15,34 @@ export interface CredentialQueryAuthorities {
 }
 
 /**
+ * The trust anchor entity IDs of the `openid_federation` entries of the
+ * credential queries in which federation decides trust, that is without an
+ * `etsi_tl` entry (see {@link verifierTrustOptions}). Each must be
+ * registered with pinned keys.
+ */
+export function federationTrustAnchorIds(
+    credentials: readonly {
+        trusted_authorities?: ReadonlyArray<{
+            type?: string;
+            values?: readonly unknown[];
+        }>;
+    }[],
+): string[] {
+    return credentials.flatMap((credential) =>
+        (credential.trusted_authorities ?? []).some(
+            (authority) => authority.type === "etsi_tl",
+        )
+            ? []
+            : (credential.trusted_authorities ?? [])
+                  .filter((authority) => authority.type === "openid_federation")
+                  .flatMap((authority) => authority.values ?? [])
+                  .filter(
+                      (value): value is string => typeof value === "string",
+                  ),
+    );
+}
+
+/**
  * Why the credential queries violate the requirement, or undefined when each
  * has a `trusted_authorities` entry with at least one value, or `skip` is set.
  */

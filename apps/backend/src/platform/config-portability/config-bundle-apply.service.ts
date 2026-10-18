@@ -31,6 +31,7 @@ import { StatusListService } from "../../issuer/status-list/status-list.service.
 import { TrustListService } from "../../issuer/trust-list/trustlist.service.js";
 import { RegistrarConfigService } from "../../registrar/registrar-config.service.js";
 import { FilesService } from "../../storage/files.service.js";
+import { FederationTrustAnchorService } from "../../trust/federation-trust-anchor/federation-trust-anchor.service.js";
 import { PresentationConfigService } from "../../verifier/presentations/configuration/presentation-config.service.js";
 import { ConfigBundleService } from "./config-bundle.service.js";
 import { ConfigBundleRepositories } from "./config-bundle-repositories.service.js";
@@ -98,6 +99,7 @@ export class ConfigBundleApplyService {
         private readonly attributeProviderService: AttributeProviderService,
         private readonly webhookEndpointService: WebhookEndpointService,
         private readonly trustListService: TrustListService,
+        private readonly federationTrustAnchorService: FederationTrustAnchorService,
         private readonly statusListService: StatusListService,
         @Inject(CLIENTS_PROVIDER)
         private readonly clientsProvider: ClientsProvider,
@@ -508,6 +510,9 @@ export class ConfigBundleApplyService {
                 // configuration this plan deletes later (lower import phase).
                 await this.trustListService.remove(tenantId, id);
                 return;
+            case "FederationTrustAnchor":
+                await this.federationTrustAnchorService.delete(tenantId, id);
+                return;
             case "StatusList":
                 await this.statusListService.deleteList(tenantId, id);
         }
@@ -683,6 +688,30 @@ export class ConfigBundleApplyService {
                     await this.trustListService.create(
                         { ...spec, id: resourceId(document) } as any,
                         tenant,
+                    );
+                }
+                return;
+            }
+            case "FederationTrustAnchor": {
+                const anchor = { ...spec, id: resourceId(document) } as any;
+                if (
+                    await this.repos.federationTrustAnchors.countBy({
+                        tenantId,
+                        id: anchor.id,
+                    })
+                ) {
+                    // Omitted fields keep their stored values, as the plan
+                    // shows.
+                    const { id, ...update } = anchor;
+                    await this.federationTrustAnchorService.update(
+                        tenantId,
+                        id,
+                        update,
+                    );
+                } else {
+                    await this.federationTrustAnchorService.create(
+                        tenantId,
+                        anchor,
                     );
                 }
                 return;

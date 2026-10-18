@@ -1,10 +1,12 @@
 import {
     type FetchCallback,
+    type JsonWebKeySetOptions,
     resolveTrustChainsWithFailures,
     type TrustChain,
     type VerifyCallback,
 } from "@openid-federation/core";
 import { compactVerify, importJWK, type JWK } from "jose";
+import { FEDERATION_ALGORITHMS } from "../domain/federation-statement-signature.js";
 import {
     type FederationResolution,
     FederationResolutionError,
@@ -23,20 +25,6 @@ const FEDERATION_FETCH_TIMEOUT_MS = 5000;
 const FEDERATION_MAX_BYTES = 256 * 1024;
 
 const ENTITY_STATEMENT_CONTENT_TYPE = "application/entity-statement+jwt";
-
-/** Signature algorithms accepted for federation entity statements. */
-const FEDERATION_ALGORITHMS = [
-    "ES256",
-    "ES384",
-    "ES512",
-    "PS256",
-    "PS384",
-    "PS512",
-    "RS256",
-    "RS384",
-    "RS512",
-    "EdDSA",
-];
 
 /** Bounds on how much remote traversal one resolution may trigger. */
 export interface FederationTraversalLimits {
@@ -76,6 +64,7 @@ export class LocalFederationResolver implements FederationResolver {
             entityId: request.entityId,
             trustAnchors: request.trustAnchors.map((anchor) => ({
                 entityId: anchor.entityId,
+                jwks: anchor.jwks as JsonWebKeySetOptions,
             })),
             verifyJwtCallback: this.verify,
             fetchCallback: this.fetch,

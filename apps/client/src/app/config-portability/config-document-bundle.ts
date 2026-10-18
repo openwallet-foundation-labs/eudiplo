@@ -13,6 +13,7 @@ const KIND_BY_SCHEMA_FILE: Record<string, string> = {
   AttributeProviderConfigFile: 'AttributeProvider',
   WebhookEndpointConfigFile: 'WebhookEndpoint',
   TrustListConfigFile: 'TrustList',
+  FederationTrustAnchorConfigFile: 'FederationTrustAnchor',
   StatusListConfigFile: 'StatusList',
 };
 

@@ -55,9 +55,10 @@ export class HttpFederationResolver implements FederationResolver {
                 },
                 body: JSON.stringify({
                     entityId: request.entityId,
-                    trustAnchors: request.trustAnchors.map(
-                        (anchor) => anchor.entityId,
-                    ),
+                    trustAnchors: request.trustAnchors.map((anchor) => ({
+                        entityId: anchor.entityId,
+                        jwks: anchor.jwks,
+                    })),
                     metadataTypes: request.metadataTypes,
                 }),
             });
