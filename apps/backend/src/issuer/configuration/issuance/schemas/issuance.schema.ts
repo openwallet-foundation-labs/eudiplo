@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { trustMarkType } from "../../../../trust/domain/trust-mark.js";
 import { RevocationCheckMode } from "../../../../trust/types.js";
-import { FEDERATION_ENTITY_TYPES } from "../domain/own-federation-entity.js";
+import {
+    FEDERATION_ENTITY_TYPES,
+    federationEntityIdProblem,
+} from "../domain/own-federation-entity.js";
 import { REMOVED_CHAINED_VP_MESSAGE } from "../domain/removed-authorization-servers.js";
 
 const ChainedAsTokenConfigSchema = z
@@ -359,8 +362,32 @@ const FederationConfigSchema = z
             .describe("Federation operation mode."),
         entityId: z
             .string()
+            .superRefine((entityId, ctx) => {
+                // Empty means "not set", as before.
+                const problem =
+                    entityId === ""
+                        ? undefined
+                        : federationEntityIdProblem(entityId, {
+                              allowHttp: true,
+                          });
+                // `continue: false` keeps the pattern below from adding
+                // a second, vaguer issue.
+                if (problem) {
+                    ctx.addIssue({
+                        code: "custom",
+                        message: problem,
+                        continue: false,
+                    });
+                }
+            })
+            // Only for the editor JSON schema, which cannot run the check
+            // above; never fails where the check passed. The Web Client
+            // has a copy (issuance-config-create.component.ts).
+            .regex(/^(https?:\/\/[^\s?#]+)?$/)
             .optional()
-            .describe("Optional local federation entity id."),
+            .describe(
+                "Entity Identifier of the tenant's federation entity, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment (OpenID Federation 1.0 Section 1.2). http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.",
+            ),
         enforceSigningPolicy: z
             .boolean()
             .optional()

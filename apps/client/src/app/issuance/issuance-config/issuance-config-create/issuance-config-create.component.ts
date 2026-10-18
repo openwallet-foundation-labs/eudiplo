@@ -456,7 +456,10 @@ export class IssuanceConfigCreateComponent implements OnInit {
       federation: this.fb.group({
         enabled: [false],
         mode: ['hybrid'],
-        entityId: [''],
+        // Copy of the editor pattern in the backend issuance schema; the
+        // backend (federationEntityIdProblem in @eudiplo/config-format)
+        // checks the rest, and whether http is allowed.
+        entityId: ['', Validators.pattern(/^https?:\/\/[^\s?#]+$/)],
         cacheTtlSeconds: [300],
         trustAnchors: this.fb.array([]),
       }),
@@ -468,9 +471,12 @@ export class IssuanceConfigCreateComponent implements OnInit {
         supportUri: [''],
       }),
     } as any);
+    // Hidden federation fields must not block saving.
     const updateFederationValidation = () => {
-      if (this.federationEnabled) this.trustAnchors.enable({ emitEvent: false });
-      else this.trustAnchors.disable({ emitEvent: false });
+      for (const control of [this.trustAnchors, this.federation.get('entityId')!]) {
+        if (this.federationEnabled) control.enable({ emitEvent: false });
+        else control.disable({ emitEvent: false });
+      }
     };
     this.federation.get('enabled')!.valueChanges.subscribe(updateFederationValidation);
     updateFederationValidation();
@@ -1022,7 +1028,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
     return {
       ...this.federationEntitySettings,
       mode,
-      entityId: (fVal['entityId'] as string) ?? undefined,
+      // An empty entity ID means not set.
+      entityId: (fVal['entityId'] as string | null) || undefined,
       cacheTtlSeconds: (fVal['cacheTtlSeconds'] as number) ?? 300,
       trustAnchors: trustAnchors as {
         entityId: string;

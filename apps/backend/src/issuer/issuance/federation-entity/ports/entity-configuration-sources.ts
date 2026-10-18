@@ -6,11 +6,17 @@ export interface EntityConfigurationSources {
     /**
      * The tenant's own federation entity and a version that changes with its
      * configuration, or `undefined` when the tenant takes no part in a
-     * federation.
+     * federation. `entityIdProblem` says why its entity ID is no valid Entity
+     * Identifier: a value saved before EUDIPLO validated it.
      */
-    ownEntity(
-        tenantId: string,
-    ): Promise<{ entity: OwnFederationEntity; version: string } | undefined>;
+    ownEntity(tenantId: string): Promise<
+        | {
+              entity: OwnFederationEntity;
+              version: string;
+              entityIdProblem?: string;
+          }
+        | undefined
+    >;
     credentialIssuer(tenantId: string): Promise<CredentialIssuerEntityParts>;
     /** `openid_credential_verifier` metadata, `jwks` included. */
     credentialVerifier(tenantId: string): Promise<Record<string, unknown>>;

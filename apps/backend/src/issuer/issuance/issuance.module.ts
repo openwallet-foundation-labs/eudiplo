@@ -280,6 +280,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service.js";
                 Oid4vciSdkFactory,
                 KeyChainService,
                 VerifierMetadataService,
+                OutboundUrlPolicyService,
             ],
             useFactory: (
                 issuance: IssuanceService,
@@ -287,6 +288,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service.js";
                 sdk: Oid4vciSdkFactory,
                 keyChains: KeyChainService,
                 verifierMetadata: VerifierMetadataService,
+                outboundUrlPolicy: OutboundUrlPolicyService,
             ) =>
                 new ConfiguredEntityConfigurationSources(
                     issuance,
@@ -294,6 +296,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service.js";
                     sdk,
                     keyChains,
                     verifierMetadata,
+                    () => outboundUrlPolicy.allowHttp(),
                 ),
         },
         {

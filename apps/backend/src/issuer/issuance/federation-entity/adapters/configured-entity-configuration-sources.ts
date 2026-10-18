@@ -3,7 +3,10 @@ import type { KeyChainService } from "../../../../crypto/key/key-chain.service.j
 import { KeyUsageType } from "../../../../crypto/key/types/key-usage-type.js";
 import type { VerifierMetadataService } from "../../../../verifier/oid4vp/verifier-metadata.service.js";
 import { IssuanceConfigurationNotFound } from "../../../configuration/issuance/domain/issuance-configuration.js";
-import { ownFederationEntity } from "../../../configuration/issuance/domain/own-federation-entity.js";
+import {
+    federationEntityIdProblem,
+    ownFederationEntity,
+} from "../../../configuration/issuance/domain/own-federation-entity.js";
 import type { IssuanceService } from "../../../configuration/issuance/issuance.service.js";
 import type { BuildIssuerMetadata } from "../../oid4vci/application/build-issuer-metadata.js";
 import type { Oid4vciSdkFactory } from "../../oid4vci/oid4vci-sdk.factory.js";
@@ -33,6 +36,8 @@ export class ConfiguredEntityConfigurationSources
             VerifierMetadataService,
             "credentialVerifierMetadata"
         >,
+        /** Whether OUTBOUND_URL_ALLOW_HTTP allows an http entity ID. */
+        private readonly allowHttp: () => boolean,
     ) {}
 
     async ownEntity(tenantId: string) {
@@ -49,6 +54,9 @@ export class ConfiguredEntityConfigurationSources
         if (!config || !entity) return undefined;
         return {
             entity,
+            entityIdProblem: federationEntityIdProblem(entity.entityId, {
+                allowHttp: this.allowHttp(),
+            }),
             // updatedAt has second precision on SQLite, so the federation
             // block itself is part of the version.
             version: createHash("sha256")

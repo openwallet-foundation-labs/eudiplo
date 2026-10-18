@@ -456,7 +456,11 @@ export class Oid4vpService {
         clientId: string,
     ): Promise<string[] | undefined> {
         const entity = await this.federationIdentity.forTenant(tenantId);
-        if (!entity || clientId !== federationClientId(entity.entityId)) {
+        if (
+            !entity ||
+            entity.entityIdProblem ||
+            clientId !== federationClientId(entity.entityId)
+        ) {
             throw new BadRequestException(
                 "The OpenID Federation verifier identity of this request is no longer configured",
             );
@@ -548,6 +552,11 @@ export class Oid4vpService {
             if (!entity) {
                 throw new BadRequestException(
                     "clientIdScheme openid_federation needs federation.entityId, at least one trust anchor and openid_credential_verifier in federation.entityTypes of the issuance configuration",
+                );
+            }
+            if (entity.entityIdProblem) {
+                throw new BadRequestException(
+                    `clientIdScheme openid_federation needs a valid federation.entityId in the issuance configuration: ${entity.entityIdProblem}`,
                 );
             }
             clientId = federationClientId(entity.entityId);

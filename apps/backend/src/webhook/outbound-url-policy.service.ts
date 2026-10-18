@@ -294,7 +294,8 @@ export class OutboundUrlPolicyService {
         }
     }
 
-    private allowHttp(): boolean {
+    /** Whether `OUTBOUND_URL_ALLOW_HTTP` allows `http:` URLs. */
+    allowHttp(): boolean {
         return this.readBoolean("OUTBOUND_URL_ALLOW_HTTP", false);
     }
 

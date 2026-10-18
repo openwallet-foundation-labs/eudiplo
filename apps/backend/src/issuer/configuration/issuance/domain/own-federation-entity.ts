@@ -9,6 +9,8 @@ export const FEDERATION_ENTITY_TYPES = [
 
 type FederationEntityTypeName = (typeof FEDERATION_ENTITY_TYPES)[number];
 
+export { federationEntityIdProblem } from "@eudiplo/config-format/config-format.js";
+
 /** The `federation` block of an issuance configuration, as far as it is read here. */
 export type FederationEntityConfig = {
     entityId?: string | null;

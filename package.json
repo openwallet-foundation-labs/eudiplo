@@ -15,7 +15,7 @@
     "clean": "pnpm -r clean",
     "release:dry": "set -a && source .env && set +a && npx semantic-release --dry-run 2>&1",
     "release:version": "set -a && source .env && set +a && npx semantic-release --dry-run 2>&1 | sed -n 's/.*next release version is \\([0-9]*\\.[0-9]*\\.[0-9]*\\).*/\\1/p' | head -1 || echo 'No release pending'",
-    "gen:api": "pnpm exec tsx scripts/generate-schemas.ts",
+    "gen:api": "pnpm --filter @eudiplo/config-format build && pnpm exec tsx scripts/generate-schemas.ts",
     "gen:sdk": "pnpm --filter @eudiplo/sdk-core generate",
     "gen:all": "pnpm run gen:api && pnpm run gen:sdk",
     "check:env-example": "pnpm exec tsx scripts/check-env-example.ts",

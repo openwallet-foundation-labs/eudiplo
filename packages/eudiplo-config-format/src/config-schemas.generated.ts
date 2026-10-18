@@ -11893,8 +11893,9 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
                     ]
                   },
                   "entityId": {
-                    "description": "Optional local federation entity id.",
-                    "type": "string"
+                    "description": "Entity Identifier of the tenant's federation entity, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment (OpenID Federation 1.0 Section 1.2). http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.",
+                    "type": "string",
+                    "pattern": "^(https?:\\/\\/[^\\s?#]+)?$"
                   },
                   "enforceSigningPolicy": {
                     "description": "Enforce strict signing policy checks.",

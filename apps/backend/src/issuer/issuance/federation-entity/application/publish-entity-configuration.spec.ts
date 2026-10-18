@@ -5,6 +5,7 @@ import { ownFederationEntity } from "../../../configuration/issuance/domain/own-
 import {
     ENTITY_CONFIGURATION_CACHE_MS,
     ENTITY_CONFIGURATION_FAILURE_CACHE_MS,
+    InvalidFederationEntityIdError,
     PublishEntityConfiguration,
 } from "./publish-entity-configuration.js";
 
@@ -67,6 +68,30 @@ describe("PublishEntityConfiguration", () => {
         await expect(f.useCase.execute("tenant")).rejects.toBeInstanceOf(
             NotFoundError,
         );
+        expect(f.provider.getEntityConfiguration).not.toHaveBeenCalled();
+    });
+
+    it("answers not found with the reason for a stored entity id that is no Entity Identifier, for ten seconds", async () => {
+        const f = fixture();
+        const entity = ownFederationEntity({
+            entityId: "issuer",
+            trustAnchors: [{ entityId: "https://ta.example.org" }],
+        })!;
+        f.sources.ownEntity.mockResolvedValue({
+            entity,
+            version: "1",
+            entityIdProblem: "federation.entityId 'issuer' is not a URL",
+        } as never);
+
+        const error = await f.useCase.execute("tenant").catch((e) => e);
+        expect(error).toBeInstanceOf(InvalidFederationEntityIdError);
+        expect(error).toBeInstanceOf(NotFoundError);
+        expect(error.message).toContain("'issuer' is not a URL");
+
+        // The same error is answered again until the failure expires.
+        await expect(f.useCase.execute("tenant")).rejects.toBe(error);
+        f.advance(ENTITY_CONFIGURATION_FAILURE_CACHE_MS + 1);
+        await expect(f.useCase.execute("tenant")).rejects.not.toBe(error);
         expect(f.provider.getEntityConfiguration).not.toHaveBeenCalled();
     });
 

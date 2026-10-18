@@ -11116,8 +11116,8 @@ export const FederationConfigSchema = {
         },
         entityId: {
             type: 'string',
-            description: 'Entity identifier of this issuer/verifier in the federation.',
-            example: 'https://issuer.example.org'
+            description: 'Entity Identifier of this issuer/verifier in the federation, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment. http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.',
+            example: 'https://issuer.example.org/issuers/my-tenant'
         },
         enforceSigningPolicy: {
             type: 'boolean',
