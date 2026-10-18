@@ -4,6 +4,7 @@ import {
   readSimpleDcql,
   simpleDcqlError,
   dcqlReferenceError,
+  trustError,
 } from './simple-dcql';
 
 const credential = {
@@ -151,5 +152,17 @@ describe('visual DCQL round trips', () => {
         credential_sets: [{ options: [['missing']] }],
       })
     ).toContain('missing credential');
+  });
+});
+
+describe('federation authority errors', () => {
+  it('asks for a trust anchor while none is chosen, then for a valid URL', () => {
+    expect(trustError([{ type: 'openid_federation', values: [''] }])).toBe(
+      'Choose a federation trust anchor.'
+    );
+    expect(trustError([{ type: 'openid_federation', values: ['not a url'] }])).toBe(
+      'Choose a registered federation trust anchor, or fix the value in DCQL JSON.'
+    );
+    expect(trustError([{ type: 'openid_federation', values: ['https://ta.example'] }])).toBeNull();
   });
 });

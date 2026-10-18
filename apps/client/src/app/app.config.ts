@@ -19,6 +19,7 @@ import schemas from './utils/schemas.json';
 import transactionDataSchemaObj from '../../../../schemas/TransactionData.schema.json';
 import { ApiService, authInterceptor } from './core';
 import { OidcService } from './core/oidc.service';
+import { federationTrustAnchorJwksSchemaObj } from './federation-trust-anchor/federation-trust-anchor-jwks.schema';
 
 declare let monaco: any;
 
@@ -43,6 +44,12 @@ const transactionDataArraySchema = {
     type: 'array',
     items: transactionDataSchemaObj,
   },
+};
+
+const federationTrustAnchorJwksEditorSchema = {
+  uri: federationTrustAnchorJwksSchemaObj.$id,
+  fileMatch: ['a://b/FederationTrustAnchorJwks*.schema.json'],
+  schema: federationTrustAnchorJwksSchemaObj,
 };
 
 function toEditorFriendlySchema(node: any): any {
@@ -174,7 +181,7 @@ function onMonacoLoad() {
   monaco.languages.json.jsonDefaults.diagnosticsOptions.enableSchemaRequest = true;
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
     validate: true,
-    schemas: [...editorSchemas, transactionDataArraySchema],
+    schemas: [...editorSchemas, transactionDataArraySchema, federationTrustAnchorJwksEditorSchema],
   });
 
   registerBrowserJsonCompletions();

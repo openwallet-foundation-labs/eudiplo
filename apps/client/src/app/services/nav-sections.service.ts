@@ -14,7 +14,7 @@ export type NavSection =
 export const NAV_SECTION_ROUTES: Record<NavSection, string[]> = {
   settings: ['/settings'],
   administration: ['/tenants', '/clients', '/users', '/admin'],
-  crypto: ['/keys', '/trust-list', '/kms'],
+  crypto: ['/keys', '/trust-list', '/federation-trust-anchor', '/kms'],
   integrations: ['/webhook-endpoints'],
   issuance: [
     '/offer/issuance',
