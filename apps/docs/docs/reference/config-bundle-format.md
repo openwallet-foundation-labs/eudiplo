@@ -49,12 +49,13 @@ rejects versions newer than its own.
 | `KmsConfig`          | `KmsConfigFile`               | 2               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 2               | yes       |
-| `IssuanceConfig`     | `IssuanceConfigFile`          | 4               | yes       |
+| `IssuanceConfig`     | `IssuanceConfigFile`          | 5               | yes       |
 | `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
 | `WebhookEndpoint`    | `WebhookEndpointConfigFile`   | 1               |           |
 | `TrustList`          | `TrustListConfigFile`         | 1               |           |
+| `FederationTrustAnchor` | `FederationTrustAnchorConfigFile` | 1         |           |
 | `StatusList`         | `StatusListConfigFile`        | 1               |           |
 
 IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
@@ -80,6 +81,19 @@ read v3 files.
 `walletAttestationStatusCheckMode` (`strict`, `best_effort` or `disabled`) to the
 issuance configuration and its `built-in`, `chained` and `oid4vp` authorization
 servers. A v3 document is migrated unchanged; 9.x cannot read v4 files.
+
+**IssuanceConfig v5** came with EUDIPLO 10.0. It adds the optional `federation`
+fields for the published entity configuration (`entityTypes`,
+`authorityHints`, `entityKeyChainId`, `entityConfigurationLifetimeSeconds`,
+`trustMarks`, `entityMetadata`, `includeTrustChain`) and requires a non-empty
+`federation.entityId` to be an `https` or `http` URL with a host and without
+query, fragment, credentials or whitespace, written as the URL it stands for.
+When the document is applied, the server refuses `http` unless
+`OUTBOUND_URL_ALLOW_HTTP=true` ([OpenID Federation](../trust/federation.md#configure-federation-for-issuance)).
+A v4 document with a valid or empty `entityId` is migrated unchanged. Another
+value stops the migration with the required input
+`FEDERATION_ENTITY_ID_INVALID` at `/spec/federation/entityId`; the value is not
+rewritten, and nothing is written until you set it.
 
 **CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
 `frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
@@ -134,6 +148,7 @@ does not exist yet is created only if its folder contains `info.json`.
     ├── attribute-providers/<id>.json
     ├── webhook-endpoints/<id>.json
     ├── trust-lists/<id>.json
+    ├── federation-trust-anchors/<id>.json
     ├── issuance/
     │   ├── issuance.json       IssuanceConfig
     │   ├── credentials/<id>.json
@@ -234,7 +249,7 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | `unchanged` | Already matches, or a key chain or `!generate` client document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
-| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, `REGISTRATION_CERTIFICATE_REFUSED` for an imported registration certificate that fails its checks, for example because it is expired or does not cover the DCQL query ([Validation and caching](../trust/registration-certificates.md#validation-and-caching)), a missing secret or key, `UNSUPPORTED_KEY_ALGORITHM` for a key chain whose key uses an algorithm its KMS provider does not offer ([Signing algorithms](../operate/kms.md#signing-algorithms)), or `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). One blocked item blocks the whole plan |
+| `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, `REGISTRATION_CERTIFICATE_REFUSED` for an imported registration certificate that fails its checks, for example because it is expired or does not cover the DCQL query ([Validation and caching](../trust/registration-certificates.md#validation-and-caching)), a missing secret or key, `UNSUPPORTED_KEY_ALGORITHM` for a key chain whose key uses an algorithm its KMS provider does not offer ([Signing algorithms](../operate/kms.md#signing-algorithms)), `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)), or `KEY_CHAIN_IN_USE` on a key chain that `replace` would delete while a configuration still names it ([Delete a key chain](../trust/keys-and-certificates.md#delete-a-key-chain)). One blocked item blocks the whole plan |
 
 An `update` item lists its field changes in `changes`: the `path` in the document, the stored value as `before` and the value after the import as `after`. Without `before`, the import adds the field; without `after`, it removes the stored value. Entries with `redacted: true` hide the values: a secret reads `[redacted]`, and a value that changes between an object, a list and a plain value reads `[changed]` on both sides.
 
@@ -292,7 +307,7 @@ resources of that kind, so screens can lock file-managed resources for them:
 | ----------------------------------------------------------------------- | ------------------------------------------------------- |
 | `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage`                |
 | `KeyChain`                                                              | `issuance:manage`, `presentation:manage`, `keys:manage` |
-| `WebhookEndpoint`, `TrustList`                                          | `issuance:manage`, `presentation:manage`                |
+| `WebhookEndpoint`, `TrustList`, `FederationTrustAnchor`                 | `issuance:manage`, `presentation:manage`                |
 | `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                                       |
 | `PresentationConfig`                                                    | `presentation:manage`                                   |
 | `Client`                                                                | `clients:manage`                                        |

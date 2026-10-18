@@ -2,6 +2,11 @@
 export type VerifierFederationEntity = {
     entityId: string;
     includeTrustChain: boolean;
+    /**
+     * Why `entityId` is no valid Entity Identifier: a value saved before
+     * EUDIPLO validated it. Requests must not use it as `client_id`.
+     */
+    entityIdProblem?: string;
 };
 
 /**

@@ -12,7 +12,10 @@ import { ApiOperation, ApiProduces, ApiTags } from "@nestjs/swagger";
 import type { Response } from "express";
 import { NotFoundError } from "../../../shared/domain/not-found-error.js";
 import { FederationEntityUnavailableError } from "../../../trust/ports/federation-entity-provider.js";
-import { PublishEntityConfiguration } from "./application/publish-entity-configuration.js";
+import {
+    InvalidFederationEntityIdError,
+    PublishEntityConfiguration,
+} from "./application/publish-entity-configuration.js";
 
 const ENTITY_STATEMENT_MEDIA_TYPE = "application/entity-statement+jwt";
 
@@ -26,6 +29,7 @@ const ENTITY_STATEMENT_MEDIA_TYPE = "application/entity-statement+jwt";
 @Controller("issuers/:tenantId/.well-known")
 export class FederationEntityController {
     private readonly logger = new Logger(FederationEntityController.name);
+    private readonly logged = new WeakSet<InvalidFederationEntityIdError>();
 
     constructor(
         @Inject(PublishEntityConfiguration)
@@ -50,6 +54,16 @@ export class FederationEntityController {
             return jwt;
         } catch (error) {
             const [status, body] = federationError(error);
+            // The response stays generic; the operator finds the reason
+            // here. The use case answers the same error for ten seconds, so
+            // it is logged once per attempt, not per request.
+            if (
+                error instanceof InvalidFederationEntityIdError &&
+                !this.logged.has(error)
+            ) {
+                this.logged.add(error);
+                this.logger.warn(error.message);
+            }
             if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
                 this.logger.error(
                     `Entity configuration of tenant ${tenantId} failed: ${error instanceof Error ? error.message : String(error)}`,

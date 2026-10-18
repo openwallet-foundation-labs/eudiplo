@@ -186,6 +186,8 @@ describe('ConfigDocumentService', () => {
   it.each([
     ['WebhookEndpoint', 'presentation:manage', true],
     ['TrustList', 'issuance:manage', true],
+    ['FederationTrustAnchor', 'presentation:manage', true],
+    ['FederationTrustAnchor', 'registrar:manage', false],
     ['Tenant', 'presentation:manage', true],
     ['StatusList', 'presentation:manage', false],
     ['AttributeProvider', 'presentation:manage', false],

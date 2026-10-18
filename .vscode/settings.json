@@ -78,6 +78,13 @@
     },
     {
       "fileMatch": [
+        "/assets/config/*/federation-trust-anchors/*.json",
+        "/apps/backend/test/fixtures/*/federation-trust-anchors/*.json"
+      ],
+      "url": "./schemas/FederationTrustAnchorConfigFile.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/webhook-endpoints/*.json",
         "/apps/backend/test/fixtures/*/webhook-endpoints/*.json"
       ],

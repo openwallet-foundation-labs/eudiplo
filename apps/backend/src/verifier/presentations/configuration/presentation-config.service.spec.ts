@@ -17,6 +17,7 @@ function setup(
         skipTrustAuthority?: boolean;
         stored?: unknown[];
         validateImported?: ReturnType<typeof vi.fn>;
+        unregistered?: ReturnType<typeof vi.fn>;
     } = {},
 ) {
     const repository = {
@@ -34,12 +35,17 @@ function setup(
         validateImported:
             options.validateImported ?? vi.fn().mockResolvedValue(undefined),
     };
+    const federationTrustAnchors = {
+        unregistered:
+            options.unregistered ?? vi.fn().mockResolvedValue([] as string[]),
+    };
     const service = new PresentationConfigService(
         repository as any,
         registrationCertificates as any,
         configImportService as any,
         { register: vi.fn() } as any,
         {} as any,
+        federationTrustAnchors as any,
         {
             publicUrl: "https://eudiplo.example",
             skipTrustAuthority: options.skipTrustAuthority ?? false,
@@ -50,6 +56,7 @@ function setup(
         repository,
         configImportService,
         registrationCertificates,
+        federationTrustAnchors,
     };
 }
 
@@ -63,6 +70,38 @@ describe("PresentationConfigService trusted authorities", () => {
         } as any);
 
         expect(repository.save).toHaveBeenCalled();
+    });
+
+    it("rejects a config naming federation trust anchors without pinned keys", async () => {
+        const unregistered = vi
+            .fn()
+            .mockResolvedValue(["https://ta.example.org"]);
+        const { service, repository } = setup({ unregistered });
+
+        await expect(
+            service.storePresentationConfig("tenant", {
+                id: "pid",
+                dcql_query: {
+                    credentials: [
+                        {
+                            ...untrustedPid,
+                            trusted_authorities: [
+                                {
+                                    type: "openid_federation",
+                                    values: ["https://ta.example.org"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            } as any),
+        ).rejects.toThrow(
+            "OpenID Federation trust anchors without pinned keys: https://ta.example.org",
+        );
+        expect(unregistered).toHaveBeenCalledWith("tenant", [
+            "https://ta.example.org",
+        ]);
+        expect(repository.save).not.toHaveBeenCalled();
     });
 
     it("rejects a new config without trusted_authorities", async () => {

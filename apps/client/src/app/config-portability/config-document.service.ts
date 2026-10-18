@@ -30,6 +30,7 @@ const CONFIG_DOCUMENT_ROLES: Record<ConfigResourceKind, Role[]> = {
   AttributeProvider: [...TENANT_ADMIN_ROLES, 'issuance:manage'],
   WebhookEndpoint: [...TENANT_ADMIN_ROLES, 'issuance:manage', 'presentation:manage'],
   TrustList: [...TENANT_ADMIN_ROLES, 'issuance:manage', 'presentation:manage'],
+  FederationTrustAnchor: [...TENANT_ADMIN_ROLES, 'issuance:manage', 'presentation:manage'],
   StatusList: [...TENANT_ADMIN_ROLES, 'issuance:manage'],
 };
 

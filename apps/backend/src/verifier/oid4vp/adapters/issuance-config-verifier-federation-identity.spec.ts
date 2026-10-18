@@ -4,7 +4,7 @@ import { IssuanceConfigVerifierFederationIdentity } from "./issuance-config-veri
 
 const ENTITY_ID = "https://eudiplo.example/issuers/tenant";
 
-function identity(config: Promise<unknown>) {
+function identity(config: Promise<unknown>, allowHttp = false) {
     const trust = {
         resolveEntity: vi.fn().mockResolvedValue({ trustChain: ["ec", "ta"] }),
     };
@@ -13,6 +13,7 @@ function identity(config: Promise<unknown>) {
         identity: new IssuanceConfigVerifierFederationIdentity(
             { getIssuanceConfiguration: vi.fn(() => config) } as never,
             trust as never,
+            () => allowHttp,
         ),
     };
 }
@@ -43,6 +44,37 @@ describe("IssuanceConfigVerifierFederationIdentity", () => {
         ).resolves.toEqual({ entityId: ENTITY_ID, includeTrustChain: true });
     });
 
+    it("names the problem of a stored entity id that is no Entity Identifier", async () => {
+        const config = federation(["openid_credential_verifier"]);
+        config.federation.entityId = "https://eudiplo.example/issuers/t?x=1";
+
+        await expect(
+            identity(Promise.resolve(config)).identity.forTenant("t"),
+        ).resolves.toEqual(
+            expect.objectContaining({
+                entityIdProblem: expect.stringContaining("query or fragment"),
+            }),
+        );
+    });
+
+    it("refuses a stored http entity id unless OUTBOUND_URL_ALLOW_HTTP allows it", async () => {
+        const config = federation(["openid_credential_verifier"]);
+        config.federation.entityId = "http://localhost:3000/issuers/t";
+
+        expect(
+            (await identity(Promise.resolve(config)).identity.forTenant("t"))
+                ?.entityIdProblem,
+        ).toContain("OUTBOUND_URL_ALLOW_HTTP");
+        expect(
+            (
+                await identity(
+                    Promise.resolve(config),
+                    true,
+                ).identity.forTenant("t")
+            )?.entityIdProblem,
+        ).toBeUndefined();
+    });
+
     it("treats a missing issuance configuration as no identity but passes other errors on", async () => {
         await expect(
             identity(
@@ -66,7 +98,7 @@ describe("IssuanceConfigVerifierFederationIdentity", () => {
         ]);
         expect(configured.trust.resolveEntity).toHaveBeenCalledWith(
             ENTITY_ID,
-            expect.objectContaining({ entityId: ENTITY_ID }),
+            expect.objectContaining({ entityId: ENTITY_ID, tenantId: "t" }),
         );
         await expect(
             identity(Promise.resolve({ federation: null })).identity.trustChain(

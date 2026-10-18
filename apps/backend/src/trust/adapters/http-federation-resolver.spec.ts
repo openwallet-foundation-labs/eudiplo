@@ -3,7 +3,16 @@ import { HttpFederationResolver } from "./http-federation-resolver.js";
 
 const request = {
     entityId: "https://issuer.example.org",
-    trustAnchors: [{ entityId: "https://ta.example.org" }],
+    trustAnchors: [
+        {
+            entityId: "https://ta.example.org",
+            jwks: {
+                keys: [
+                    { kty: "EC", kid: "ta-1", crv: "P-256", x: "x", y: "y" },
+                ],
+            },
+        },
+    ],
     metadataTypes: ["openid_credential_issuer"],
 };
 
@@ -54,7 +63,22 @@ describe("HttpFederationResolver", () => {
         );
         expect(JSON.parse(init.body as string)).toEqual({
             entityId: "https://issuer.example.org",
-            trustAnchors: ["https://ta.example.org"],
+            trustAnchors: [
+                {
+                    entityId: "https://ta.example.org",
+                    jwks: {
+                        keys: [
+                            {
+                                kty: "EC",
+                                kid: "ta-1",
+                                crv: "P-256",
+                                x: "x",
+                                y: "y",
+                            },
+                        ],
+                    },
+                },
+            ],
             metadataTypes: ["openid_credential_issuer"],
         });
     });

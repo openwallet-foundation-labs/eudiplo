@@ -1,4 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { exportJWK, generateKeyPair, type JWK, SignJWT } from "jose";
+import {
+    afterEach,
+    beforeAll,
+    beforeEach,
+    describe,
+    expect,
+    it,
+    vi,
+} from "vitest";
 import { FederationTrustService } from "./federation-trust.service.js";
 import {
     type FederationResolution,
@@ -9,7 +18,10 @@ import type { FederationTrustSource } from "./types.js";
 const ENTITY = "https://issuer.example.org";
 const NOW = new Date("2026-10-17T12:00:00Z").getTime();
 
+const TA = "https://ta.example.org";
+
 const source: FederationTrustSource = {
+    tenantId: "tenant",
     mode: "federation-only",
     trustAnchors: [
         {
@@ -25,7 +37,7 @@ function resolution(expiresInMs = 60 * 60 * 1000): FederationResolution {
     return {
         entityId: ENTITY,
         trustAnchor: "https://ta.example.org",
-        trustChain: ["ec", "ss", "ta"],
+        trustChain: ["ec", "ss", taEntityConfiguration],
         metadata: {
             openid_credential_issuer: {
                 jwks: {
@@ -47,6 +59,38 @@ function resolution(expiresInMs = 60 * 60 * 1000): FederationResolution {
     };
 }
 
+/** The trust anchor's pinned public key and its signed entity configuration. */
+let taJwk: JWK;
+let taEntityConfiguration: string;
+
+async function entityConfiguration(sub: string, kid = "ta-1") {
+    const { privateKey, publicKey } = await generateKeyPair("ES256");
+    const jwt = await new SignJWT({ iss: sub, sub })
+        .setProtectedHeader({ alg: "ES256", kid, typ: "entity-statement+jwt" })
+        .sign(privateKey);
+    return { jwt, jwk: { ...(await exportJWK(publicKey)), kid } };
+}
+
+/** Pinned keys per entity ID that the tenant `tenant` registered. */
+function anchorKeys(pinned: Record<string, JWK[]> = { [TA]: [taJwk] }) {
+    return {
+        findPinnedKeys: vi.fn(async (tenantId: string, ids: string[]) =>
+            tenantId === "tenant"
+                ? new Map(
+                      ids
+                          .filter((id) => pinned[id])
+                          .map((id) => [id, { keys: pinned[id] }]),
+                  )
+                : new Map(),
+        ),
+    };
+}
+
+beforeAll(async () => {
+    ({ jwt: taEntityConfiguration, jwk: taJwk } =
+        await entityConfiguration(TA));
+});
+
 describe("FederationTrustService", () => {
     let resolveEntity: ReturnType<typeof vi.fn>;
     let service: FederationTrustService;
@@ -55,14 +99,14 @@ describe("FederationTrustService", () => {
         vi.useFakeTimers();
         vi.setSystemTime(NOW);
         resolveEntity = vi.fn();
-        service = new FederationTrustService({ resolveEntity });
+        service = new FederationTrustService({ resolveEntity }, anchorKeys());
     });
 
     afterEach(() => {
         vi.useRealTimers();
     });
 
-    it("passes the entity, trust anchors and metadata types to the resolver", async () => {
+    it("passes the entity, pinned trust anchors and metadata types to the resolver", async () => {
         resolveEntity.mockResolvedValue(resolution());
 
         await service.resolveEntity(ENTITY, source, [
@@ -71,9 +115,104 @@ describe("FederationTrustService", () => {
 
         expect(resolveEntity).toHaveBeenCalledWith({
             entityId: ENTITY,
-            trustAnchors: [{ entityId: "https://ta.example.org" }],
+            trustAnchors: [{ entityId: TA, jwks: { keys: [taJwk] } }],
             metadataTypes: ["openid_credential_issuer"],
         });
+    });
+
+    it("rejects trust anchors the tenant has not registered with pinned keys", async () => {
+        await expect(
+            service.resolveEntity(ENTITY, { ...source, tenantId: "other" }),
+        ).rejects.toMatchObject({
+            failure: "untrusted",
+            message: expect.stringContaining("registered with pinned keys"),
+        });
+        await expect(
+            service.resolveEntity(ENTITY, { ...source, tenantId: undefined }),
+        ).rejects.toMatchObject({ failure: "untrusted" });
+        expect(resolveEntity).not.toHaveBeenCalled();
+    });
+
+    it("leaves out trust anchors without pinned keys", async () => {
+        resolveEntity.mockResolvedValue(resolution());
+
+        await service.resolveEntity(ENTITY, {
+            ...source,
+            trustAnchors: [
+                ...source.trustAnchors,
+                {
+                    entityId: "https://unpinned.example.org",
+                    entityConfigurationUri:
+                        "https://unpinned.example.org/.well-known/openid-federation",
+                },
+            ],
+        });
+
+        expect(resolveEntity.mock.calls[0][0].trustAnchors).toEqual([
+            { entityId: TA, jwks: { keys: [taJwk] } },
+        ]);
+    });
+
+    it("rejects a chain whose trust anchor entity configuration is not signed with a pinned key", async () => {
+        // For example a trust engine that trusts other keys for the anchor.
+        const forged = await entityConfiguration(TA);
+        resolveEntity.mockResolvedValue({
+            ...resolution(),
+            trustChain: ["ec", "ss", forged.jwt],
+        });
+
+        await expect(
+            service.resolveEntity(ENTITY, source),
+        ).rejects.toMatchObject({
+            failure: "untrusted",
+            message: `entity configuration of trust anchor ${TA} is not signed with a pinned key`,
+        });
+    });
+
+    it("rejects a resolution that ends at a trust anchor that was not requested", async () => {
+        resolveEntity.mockResolvedValue({
+            ...resolution(),
+            trustAnchor: "https://other.example.org",
+        });
+
+        await expect(
+            service.resolveEntity(ENTITY, source),
+        ).rejects.toMatchObject({
+            failure: "untrusted",
+            message: "trust anchor https://other.example.org is not configured",
+        });
+    });
+
+    it("rejects a chain that does not end with the trust anchor's entity configuration", async () => {
+        const other = await entityConfiguration("https://other.example.org");
+        resolveEntity.mockResolvedValue({
+            ...resolution(),
+            trustChain: ["ec", "ss", other.jwt],
+        });
+
+        await expect(
+            service.resolveEntity(ENTITY, source),
+        ).rejects.toMatchObject({
+            failure: "untrusted",
+            message: expect.stringContaining(
+                "is not the entity configuration of trust anchor",
+            ),
+        });
+    });
+
+    it("keeps resolutions for different pinned keys apart", async () => {
+        resolveEntity.mockResolvedValue(resolution());
+        const rotated = { ...taJwk, kid: "ta-2" };
+        const keys = anchorKeys();
+        const shared = new FederationTrustService({ resolveEntity }, keys);
+
+        await shared.resolveEntity(ENTITY, source);
+        keys.findPinnedKeys.mockResolvedValue(
+            new Map([[TA, { keys: [taJwk, rotated] }]]),
+        );
+        await shared.resolveEntity(ENTITY, source);
+
+        expect(resolveEntity).toHaveBeenCalledTimes(2);
     });
 
     it("rejects without trust anchors", async () => {
@@ -234,12 +373,16 @@ describe("FederationTrustService", () => {
 
     it("counts misses, resolutions, hits and stale reuses per entity", async () => {
         const add = vi.fn();
-        const counted = new FederationTrustService({ resolveEntity }, {
-            getCounter: vi.fn((name: string) => ({
-                add: (value: number, labels: object) =>
-                    add(name, value, labels),
-            })),
-        } as never);
+        const counted = new FederationTrustService(
+            { resolveEntity },
+            anchorKeys(),
+            {
+                getCounter: vi.fn((name: string) => ({
+                    add: (value: number, labels: object) =>
+                        add(name, value, labels),
+                })),
+            } as never,
+        );
         resolveEntity.mockResolvedValueOnce(resolution());
         await counted.resolveEntity(ENTITY, source);
         await counted.resolveEntity(ENTITY, source);

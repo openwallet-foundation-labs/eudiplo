@@ -1,0 +1,67 @@
+<div class="anchor-select">
+  <mat-form-field class="anchor-field">
+    <mat-label>{{ label }}</mat-label>
+    <mat-select
+      [formControl]="selection"
+      [errorStateMatcher]="errorStateMatcher"
+      (closed)="markTouched()"
+    >
+      @if (value && unregistered) {
+        <mat-option [value]="value">{{ value }} (not registered)</mat-option>
+      } @else if (value && !loaded) {
+        <mat-option [value]="value">{{ value }}</mat-option>
+      }
+      @for (anchor of anchors; track anchor.id) {
+        <mat-option [value]="anchor.entityId">{{ optionLabel(anchor) }}</mat-option>
+      }
+    </mat-select>
+    <mat-icon matSuffix>account_tree</mat-icon>
+    <mat-hint>A trust anchor registered with its federation keys</mat-hint>
+    <mat-error>Choose a trust anchor</mat-error>
+  </mat-form-field>
+
+  @if (loading) {
+    <p class="anchor-status" role="status">Loading registered trust anchors…</p>
+  } @else if (loadError) {
+    <p class="anchor-status" role="alert">{{ loadError }}</p>
+  } @else if (unregistered) {
+    <p class="anchor-status anchor-warning" role="status">
+      <mat-icon>warning</mat-icon>
+      <span
+        >{{ value }} is not a registered trust anchor. EUDIPLO does not trust it until it is
+        registered with its federation keys, and a configuration that adds it is rejected.</span
+      >
+    </p>
+  } @else if (loaded && !anchors.length) {
+    <p class="anchor-status">No trust anchors are registered yet.</p>
+  }
+
+  @if (!disabled) {
+    <div class="anchor-actions">
+      <a
+        mat-button
+        [routerLink]="['/federation-trust-anchor', 'create']"
+        [queryParams]="registerQueryParams"
+        target="_blank"
+        rel="noopener"
+        (click)="openRegistration()"
+        [attr.aria-label]="'Register trust anchor for ' + label + ' (opens in a new tab)'"
+      >
+        <mat-icon>open_in_new</mat-icon>
+        Register trust anchor
+      </a>
+      <button
+        mat-button
+        type="button"
+        [disabled]="loading"
+        (click)="load(true)"
+        [attr.aria-label]="
+          (loadError ? 'Retry loading trust anchors for ' : 'Reload trust anchors for ') + label
+        "
+      >
+        <mat-icon>refresh</mat-icon>
+        {{ loadError ? 'Retry' : 'Reload' }}
+      </button>
+    </div>
+  }
+</div>

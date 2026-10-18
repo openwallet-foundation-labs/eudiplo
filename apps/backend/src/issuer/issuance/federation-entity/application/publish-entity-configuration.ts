@@ -17,6 +17,20 @@ export class FederationEntityNotConfiguredError extends NotFoundError {
     }
 }
 
+/**
+ * The stored entity ID is no Entity Identifier: a value saved before EUDIPLO
+ * validated it. Publishing it would give an entity configuration no resolver
+ * accepts.
+ */
+export class InvalidFederationEntityIdError extends NotFoundError {
+    constructor(tenantId: string, problem: string) {
+        super(
+            `Tenant ${tenantId} publishes no OpenID Federation entity configuration: ${problem}. Save the issuance configuration with a valid entity ID.`,
+        );
+        this.name = "InvalidFederationEntityIdError";
+    }
+}
+
 /** How long a failure is answered again before the next attempt. */
 export const ENTITY_CONFIGURATION_FAILURE_CACHE_MS = 10_000;
 
@@ -45,12 +59,26 @@ export class PublishEntityConfiguration {
     async execute(tenantId: string): Promise<string> {
         const own = await this.sources.ownEntity(tenantId);
         if (!own) throw new FederationEntityNotConfiguredError(tenantId);
-        const { entity, version } = own;
+        const { entity, version, entityIdProblem } = own;
 
         const cached = this.cache.get(tenantId);
         if (cached?.version === version && cached.expiresAt > this.now()) {
             if ("error" in cached) throw cached.error;
             return cached.jwt;
+        }
+
+        if (entityIdProblem) {
+            // Cached like a failure, so a request flood does not repeat it.
+            const error = new InvalidFederationEntityIdError(
+                tenantId,
+                entityIdProblem,
+            );
+            this.store(tenantId, {
+                error,
+                version,
+                expiresAt: this.now() + ENTITY_CONFIGURATION_FAILURE_CACHE_MS,
+            });
+            throw error;
         }
 
         const key = `${tenantId}\u0000${version}`;

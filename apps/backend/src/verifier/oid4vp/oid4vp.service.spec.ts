@@ -818,6 +818,34 @@ describe("OID4VP request creation", () => {
         );
     });
 
+    it("refuses clientIdScheme openid_federation for a stored entity id that is no Entity Identifier", async () => {
+        const service = createService(vi.fn().mockResolvedValue(undefined));
+        (
+            service as unknown as {
+                federationIdentity: { forTenant: ReturnType<typeof vi.fn> };
+            }
+        ).federationIdentity.forTenant.mockResolvedValue({
+            entityId: "verifier",
+            includeTrustChain: false,
+            entityIdProblem: "federation.entityId 'verifier' is not a URL",
+        });
+
+        const error = await service
+            .createRequest(
+                "presentation",
+                { clientIdScheme: "openid_federation" },
+                "tenant",
+                false,
+                "https://rp",
+            )
+            .catch((error) => error);
+
+        expect(error.getStatus()).toBe(400);
+        expect(error.message).toContain(
+            "federation.entityId 'verifier' is not a URL",
+        );
+    });
+
     it("refuses clientIdScheme openid_federation without a federation verifier entity", async () => {
         const service = createService(vi.fn().mockResolvedValue(undefined));
         (

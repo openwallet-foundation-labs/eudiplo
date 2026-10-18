@@ -55,6 +55,7 @@ export class ConfigResourceRouteService {
             [/\/issuer\/webhook-endpoints\/([^/]+)\/?$/, "WebhookEndpoint"],
             [/\/key-chain\/(?!import\/?$)([^/]+)\/?$/, "KeyChain"],
             [/\/trust-list\/([^/]+)\/?$/, "TrustList"],
+            [/\/federation-trust-anchor\/([^/]+)\/?$/, "FederationTrustAnchor"],
             [/\/status-lists\/([^/]+)\/?$/, "StatusList"],
         ];
         for (const [pattern, kind] of itemRoutes) {
@@ -72,6 +73,7 @@ export class ConfigResourceRouteService {
             [/\/issuer\/webhook-endpoints\/?$/, "WebhookEndpoint", "id"],
             [/\/key-chain(?:\/import)?\/?$/, "KeyChain", "id"],
             [/\/trust-list\/?$/, "TrustList", "id"],
+            [/\/federation-trust-anchor\/?$/, "FederationTrustAnchor", "id"],
             [/\/status-lists\/?$/, "StatusList", "id"],
         ];
         for (const [pattern, kind, idField] of collectionRoutes) {

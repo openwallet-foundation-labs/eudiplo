@@ -159,6 +159,36 @@ describe("IssuanceConfigSchema", () => {
                 },
             });
 
+        it.each([
+            "https://issuer.example.org/issuers/tenant",
+            "http://localhost:3000/issuers/root",
+            "",
+        ])("accepts the entity id '%s'", (entityId) => {
+            expect(parse({ entityId }).error?.issues).toBeUndefined();
+        });
+
+        it.each([
+            ["issuer", "is not a URL"],
+            ["urn:example:issuer", "https or http URL"],
+            ["HTTPS://issuer.example.org", "must be written as the URL"],
+            ["https://issuer.example.org/?tenant=a", "query or fragment"],
+            ["https://issuer.example.org#entity", "query or fragment"],
+            ["https://user@issuer.example.org", "credentials"],
+            ["https://issuer.example.org/x\nfoo", "whitespace"],
+        ])(
+            "rejects the entity id %j with one issue: %s",
+            (entityId, reason) => {
+                const issues = parse({ entityId }).error?.issues ?? [];
+                expect(issues).toHaveLength(1);
+                expect(issues[0]).toEqual(
+                    expect.objectContaining({
+                        path: ["federation", "entityId"],
+                        message: expect.stringContaining(reason),
+                    }),
+                );
+            },
+        );
+
         it("accepts the entity configuration settings within their bounds", () => {
             for (const lifetime of [60, 31536000]) {
                 expect(

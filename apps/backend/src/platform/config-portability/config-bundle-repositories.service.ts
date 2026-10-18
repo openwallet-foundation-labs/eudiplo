@@ -11,6 +11,7 @@ import { WebhookEndpointEntity } from "../../issuer/configuration/webhook-endpoi
 import { StatusListEntity } from "../../issuer/status-list/entities/status-list.entity.js";
 import { TrustList } from "../../issuer/trust-list/entities/trust-list.entity.js";
 import { RegistrarConfigEntity } from "../../registrar/entities/registrar-config.entity.js";
+import { FederationTrustAnchorEntity } from "../../trust/federation-trust-anchor/entities/federation-trust-anchor.entity.js";
 import { PresentationConfig } from "../../verifier/presentations/entities/presentation-config.entity.js";
 
 /**
@@ -40,6 +41,8 @@ export class ConfigBundleRepositories {
         readonly webhookEndpoints: Repository<WebhookEndpointEntity>,
         @InjectRepository(TrustList)
         readonly trustLists: Repository<TrustList>,
+        @InjectRepository(FederationTrustAnchorEntity)
+        readonly federationTrustAnchors: Repository<FederationTrustAnchorEntity>,
         @InjectRepository(StatusListEntity)
         readonly statusLists: Repository<StatusListEntity>,
     ) {}

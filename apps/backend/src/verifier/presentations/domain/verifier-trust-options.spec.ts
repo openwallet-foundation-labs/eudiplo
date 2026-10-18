@@ -11,11 +11,14 @@ describe("verifierTrustOptions", () => {
     it("lets an openid_federation authority decide when no trust list is configured", () => {
         const options = verifierTrustOptions({
             trustLists: [],
+            tenantId: "tenant",
             authorities: [federation],
             skewSeconds: undefined,
         });
 
+        // The tenant's registered trust anchors provide the pinned keys.
         expect(options.federationTrustSource).toEqual({
+            tenantId: "tenant",
             mode: "federation-only",
             trustAnchors: [
                 {

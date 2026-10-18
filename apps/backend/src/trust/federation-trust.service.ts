@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Inject, Injectable, Logger, Optional } from "@nestjs/common";
 import type { JWK } from "jose";
 import { MetricService } from "nestjs-otel";
@@ -5,12 +6,18 @@ import {
     CREDENTIAL_ISSUER_METADATA_TYPE,
     findFederationProtocolKey,
 } from "./domain/federation-protocol-keys.js";
+import { pinnedTrustAnchorMismatch } from "./domain/federation-statement-signature.js";
 import {
     FEDERATION_RESOLVER,
     type FederationResolution,
     FederationResolutionError,
     type FederationResolver,
+    type FederationTrustAnchor,
 } from "./ports/federation-resolver.js";
+import {
+    FEDERATION_TRUST_ANCHOR_KEYS,
+    type FederationTrustAnchorKeys,
+} from "./ports/federation-trust-anchor-keys.js";
 import { FederationTrustMode, FederationTrustSource } from "./types.js";
 
 type FederationTrustEvaluation = {
@@ -66,6 +73,8 @@ export class FederationTrustService {
         string,
         { resolution: FederationResolution; obtainedAt: number }
     >();
+    /** Unpinned trust anchors already warned about, per tenant. */
+    private readonly unpinnedWarnings = new Map<string, true>();
     private readonly inFlight = new Map<
         string,
         Promise<FederationResolution>
@@ -80,11 +89,14 @@ export class FederationTrustService {
         this.cache.clear();
         this.lastResolutions.clear();
         this.inFlight.clear();
+        this.unpinnedWarnings.clear();
     }
 
     constructor(
         @Inject(FEDERATION_RESOLVER)
         private readonly resolver: FederationResolver,
+        @Inject(FEDERATION_TRUST_ANCHOR_KEYS)
+        private readonly anchorKeys: FederationTrustAnchorKeys,
         @Optional() private readonly metricService?: MetricService,
     ) {
         this.trustHitsCounter = this.metricService?.getCounter(
@@ -194,6 +206,42 @@ export class FederationTrustService {
     }
 
     /**
+     * The trust anchors of `source` the tenant registered with pinned keys.
+     * Trust anchors without them are left out: their entity configuration
+     * could only be checked against the keys it publishes itself.
+     *
+     * @throws FederationResolutionError when none is registered
+     */
+    private async pinnedTrustAnchors(
+        source: FederationTrustSource,
+    ): Promise<FederationTrustAnchor[]> {
+        const entityIds = [
+            ...new Set(source.trustAnchors.map((anchor) => anchor.entityId)),
+        ];
+        const pinned = source.tenantId
+            ? await this.anchorKeys.findPinnedKeys(source.tenantId, entityIds)
+            : new Map();
+        const unpinned = entityIds.filter((id) => !pinned.has(id));
+        const warning = JSON.stringify([source.tenantId, unpinned]);
+        if (unpinned.length > 0 && !this.unpinnedWarnings.has(warning)) {
+            setBounded(this.unpinnedWarnings, warning, true);
+            this.logger.warn(
+                `Federation trust anchors without pinned keys are not trusted: ${unpinned.join(", ")}. Register them as federation trust anchors of tenant ${source.tenantId ?? "(none)"}.`,
+            );
+        }
+        const anchors = entityIds
+            .filter((id) => pinned.has(id))
+            .map((id) => ({ entityId: id, jwks: pinned.get(id)! }));
+        if (anchors.length === 0) {
+            throw new FederationResolutionError(
+                `no trust anchor of ${entityIds.join(", ")} is registered with pinned keys`,
+                "untrusted",
+            );
+        }
+        return anchors;
+    }
+
+    /**
      * Resolves and validates the trust chain of `entityId` to one of the
      * trust anchors of `source`.
      *
@@ -210,14 +258,18 @@ export class FederationTrustService {
                 "untrusted",
             );
         }
-        const trustAnchors = source!.trustAnchors.map((anchor) => ({
-            entityId: anchor.entityId,
-        }));
+        const trustAnchors = await this.pinnedTrustAnchors(source!);
         // Entity IDs are compared exactly (OpenID Federation Section 16), so
-        // the cache key uses them unchanged.
+        // the cache key uses them unchanged. Tenants may pin different keys
+        // for the same trust anchor, so the keys are part of the key.
         const key = JSON.stringify([
             entityId,
-            trustAnchors.map((anchor) => anchor.entityId),
+            trustAnchors.map((anchor) => [
+                anchor.entityId,
+                createHash("sha256")
+                    .update(JSON.stringify(anchor.jwks))
+                    .digest("base64url"),
+            ]),
             metadataTypes ?? [],
         ]);
         const labels = { entity: entityId };
@@ -248,6 +300,7 @@ export class FederationTrustService {
                     trustAnchors,
                     metadataTypes,
                 });
+                await assertPinnedTrustAnchor(resolution, trustAnchors);
                 setBounded(this.cache, key, {
                     resolution,
                     obtainedAt: Date.now(),
@@ -306,6 +359,30 @@ export class FederationTrustService {
             this.inFlight.delete(key);
         }
     }
+}
+
+/**
+ * The resolved chain must end at a configured trust anchor whose entity
+ * configuration is signed with a pinned key. The local resolver checks this
+ * already; it is repeated for every resolver, so a trust engine cannot
+ * resolve to a trust anchor with other keys. It does not verify the rest of
+ * an engine's chain or its metadata: the engine is trusted for those.
+ */
+async function assertPinnedTrustAnchor(
+    resolution: FederationResolution,
+    trustAnchors: FederationTrustAnchor[],
+): Promise<void> {
+    const anchor = trustAnchors.find(
+        (candidate) => candidate.entityId === resolution.trustAnchor,
+    );
+    const mismatch = anchor
+        ? await pinnedTrustAnchorMismatch(
+              resolution.trustChain.at(-1),
+              anchor.entityId,
+              anchor.jwks.keys,
+          )
+        : `trust anchor ${resolution.trustAnchor} is not configured`;
+    if (mismatch) throw new FederationResolutionError(mismatch, "untrusted");
 }
 
 function reasonOf(error: unknown): string {

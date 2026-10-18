@@ -36,6 +36,11 @@ export const CONFIG_FORMATS = {
         version: 1,
     },
     TrustList: { slug: "trust-list", file: "TrustListConfigFile", version: 1 },
+    FederationTrustAnchor: {
+        slug: "federation-trust-anchor",
+        file: "FederationTrustAnchorConfigFile",
+        version: 1,
+    },
     StatusList: {
         slug: "status-list",
         file: "StatusListConfigFile",
@@ -140,6 +145,90 @@ export interface ConfigMigration {
     };
 }
 /**
+ * IssuanceConfig v5 adds optional fields to `federation` for the published
+ * entity configuration (entityTypes, authorityHints, entityKeyChainId,
+ * entityConfigurationLifetimeSeconds, trustMarks, entityMetadata,
+ * includeTrustChain) and requires a set `federation.entityId` to be an
+ * Entity Identifier ({@link federationEntityIdProblem}; `http` is accepted
+ * here, the backend decides by OUTBOUND_URL_ALLOW_HTTP). An empty value means
+ * "not set". Another value is reported, not rewritten: only the operator
+ * knows the URL of the entity.
+ */
+const issuanceConfigV4ToV5: ConfigMigration = {
+    id: "issuance-config-v5-federation-entity",
+    kind: "IssuanceConfig",
+    from: 4,
+    to: 5,
+    migrate(spec) {
+        const federation = spec.federation;
+        const problem =
+            object(federation) &&
+            typeof federation.entityId === "string" &&
+            federation.entityId !== ""
+                ? federationEntityIdProblem(federation.entityId, {
+                      allowHttp: true,
+                  })
+                : undefined;
+        if (!problem) return { spec };
+        return {
+            spec,
+            issues: [
+                {
+                    severity: "required-input",
+                    code: "FEDERATION_ENTITY_ID_INVALID",
+                    path: "/spec/federation/entityId",
+                    message: `${problem}: set an https URL with a host and without query or fragment, usually <PUBLIC_URL>/issuers/<tenant>`,
+                },
+            ],
+        };
+    },
+};
+
+/**
+ * Why `entityId` is no OpenID Federation Entity Identifier, or `undefined`
+ * when it is one. OpenID Federation 1.0 Section 1.2: an https URL with a host
+ * and without query or fragment. Credentials, whitespace and control
+ * characters are refused as well, as a URL parser drops or changes them, so
+ * the value would differ from the URL a resolver fetches. `http` passes only
+ * with `allowHttp`, for local setups whose federation peers also allow it.
+ */
+export function federationEntityIdProblem(
+    entityId: string,
+    options: { allowHttp: boolean },
+): string | undefined {
+    const value = `federation.entityId '${JSON.stringify(entityId).slice(1, -1)}'`;
+    // A URL parser drops an empty "?" or "#" and strips whitespace and
+    // control characters, so look at the string itself.
+    if (/[\s\u0000-\u001f\u007f]/.test(entityId)) {
+        return `${value} must not contain whitespace or control characters`;
+    }
+    if (entityId.includes("?") || entityId.includes("#")) {
+        return `${value} must not have a query or fragment`;
+    }
+    let url: URL;
+    try {
+        url = new URL(entityId);
+    } catch {
+        return `${value} is not a URL`;
+    }
+    if (url.protocol !== "https:" && !(options.allowHttp && url.protocol === "http:")) {
+        return options.allowHttp
+            ? `${value} must be an https or http URL`
+            : `${value} must be an https URL (http only with OUTBOUND_URL_ALLOW_HTTP=true)`;
+    }
+    // Entity Identifiers are compared as strings, so a value the parser
+    // rewrites ("HTTPS://", "https:///x", a backslash, an IDN host, a
+    // default port) would name another entity than the URL it fetches.
+    if (url.href !== entityId && url.href !== `${entityId}/`) {
+        return `${value} must be written as the URL it stands for: ${url.href}`;
+    }
+    if (url.username || url.password) {
+        return `${value} must not contain credentials`;
+    }
+    return undefined;
+}
+
+/**
  * PresentationConfig v2 replaces `registration_cert.body.provided_attestations`
  * with the registrar's `provides_attestations` (credential type identifiers).
  * v1 only accepted objects there, which the registrar API does not define and
@@ -206,17 +295,7 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         // a valid v4 spec.
         migrate: (spec) => ({ spec }),
     },
-    {
-        id: "issuance-config-v5-federation-entity",
-        kind: "IssuanceConfig",
-        from: 4,
-        to: 5,
-        // v5 only adds optional fields to `federation` for the published
-        // entity configuration (entityTypes, authorityHints,
-        // entityKeyChainId, entityConfigurationLifetimeSeconds, trustMarks,
-        // entityMetadata, includeTrustChain): a v4 spec is a valid v5 spec.
-        migrate: (spec) => ({ spec }),
-    },
+    issuanceConfigV4ToV5,
     {
         id: "client-v2-read-and-status-roles",
         kind: "Client",

@@ -11,6 +11,7 @@ import { statusListEditorSchemaBundle } from "../issuer/status-list/dto/status-l
 import { trustListEditorSchemaBundle } from "../issuer/trust-list/schemas/trust-list-editor-schema.bundle.js";
 import { registrarEditorSchemaBundle } from "../registrar/schemas/registrar-editor-schema.bundle.js";
 import type { EditorSchemaBundle } from "../shared/common/zod/editor-schema.js";
+import { federationTrustAnchorEditorSchemaBundle } from "../trust/federation-trust-anchor/schemas/federation-trust-anchor-editor-schema.bundle.js";
 import { presentationEditorSchemaBundle } from "../verifier/presentations/schemas/presentation-editor-schema.bundle.js";
 import { webhookEditorSchemaBundle } from "../webhook/webhook-editor-schema.bundle.js";
 
@@ -28,5 +29,6 @@ export const editorSchemaBundles: readonly EditorSchemaBundle[] = [
     credentialEditorSchemaBundle,
     presentationEditorSchemaBundle,
     trustListEditorSchemaBundle,
+    federationTrustAnchorEditorSchemaBundle,
     webhookEditorSchemaBundle,
 ];

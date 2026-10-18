@@ -67,6 +67,16 @@
     },
     {
         "kind": "directory",
+        "subfolder": "federation-trust-anchors",
+        "resourceType": "federation trust anchor",
+        "schemaFile": "FederationTrustAnchorConfigFile.schema.json",
+        "fileMatch": [
+            "/assets/config/*/federation-trust-anchors/*.json",
+            "/apps/backend/test/fixtures/*/federation-trust-anchors/*.json"
+        ]
+    },
+    {
+        "kind": "directory",
         "subfolder": "webhook-endpoints",
         "resourceType": "webhook endpoint",
         "schemaFile": "WebhookEndpointConfigFile.schema.json",

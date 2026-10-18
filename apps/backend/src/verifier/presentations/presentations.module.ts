@@ -3,14 +3,17 @@ import { Module, type Provider } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuditLogModule } from "../../audit-log/audit-log.module.js";
+import { provideKeyChainReferenceSource } from "../../crypto/key/key-chain-reference-source.provider.js";
 import { provideTrustListReferenceSource } from "../../issuer/trust-list/trust-list-reference-source.provider.js";
 import { TrustListModule } from "../../issuer/trust-list/trustlist.module.js";
 import { RegistrarModule } from "../../registrar/registrar.module.js";
+import { FederationTrustAnchorModule } from "../../trust/federation-trust-anchor/federation-trust-anchor.module.js";
 import { TrustModule } from "../../trust/trust.module.js";
 import { WebhookModule } from "../../webhook/webhook.module.js";
 import { ResolverModule } from "../resolver/resolver.module.js";
 import { MdocCredentialVerifierFormat } from "./adapters/mdoc-credential-verifier-format.js";
 import { SdJwtCredentialVerifierFormat } from "./adapters/sd-jwt-credential-verifier-format.js";
+import { TypeOrmPresentationConfigKeyChainReferences } from "./adapters/typeorm-presentation-config-key-chain-references.js";
 import { TypeOrmPresentationConfigTrustListReferences } from "./adapters/typeorm-presentation-config-trust-list-references.js";
 import { CredentialVerifierFormatRegistry } from "./application/credential-verifier-format-registry.js";
 import { VerifyPresentationResponse } from "./application/verify-presentation-response.js";
@@ -51,6 +54,7 @@ export const verifyPresentationResponseProvider: Provider = {
         AuditLogModule,
         TrustListModule,
         TrustModule,
+        FederationTrustAnchorModule,
         RegistrarModule,
         WebhookModule,
     ],
@@ -62,6 +66,10 @@ export const verifyPresentationResponseProvider: Provider = {
         TrustedAuthoritiesService,
         provideTrustListReferenceSource(
             TypeOrmPresentationConfigTrustListReferences,
+            PresentationConfig,
+        ),
+        provideKeyChainReferenceSource(
+            TypeOrmPresentationConfigKeyChainReferences,
             PresentationConfig,
         ),
         {

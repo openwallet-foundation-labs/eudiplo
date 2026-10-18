@@ -22,10 +22,14 @@ import {
 import { RegistrarService } from "../../../registrar/registrar.service.js";
 import { loadConfigDto } from "../../../shared/utils/config-file-loader.util.js";
 import { FilesService } from "../../../storage/files.service.js";
+import { unregisteredTrustAnchorsMessage } from "../../../trust/federation-trust-anchor/domain/federation-trust-anchor-errors.js";
+import { FederationTrustAnchorService } from "../../../trust/federation-trust-anchor/federation-trust-anchor.service.js";
 import { normalizeTrustListRefs } from "../../../trust/types.js";
 import type { TrustListRef } from "../../../verifier/presentations/entities/presentation-config.entity.js";
+import { OutboundUrlPolicyService } from "../../../webhook/outbound-url-policy.service.js";
 import { CredentialConfigService } from "../credentials/credential-config/credential-config.service.js";
 import type { IssuanceConfiguration as IssuanceConfig } from "./domain/issuance-configuration.js";
+import { federationEntityIdProblem } from "./domain/own-federation-entity.js";
 import {
     REMOVED_CHAINED_VP_MESSAGE,
     usesRemovedChainedVp,
@@ -63,6 +67,8 @@ export class IssuanceService {
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly tenantActionLogService: AuditLogService,
+        private readonly federationTrustAnchors: FederationTrustAnchorService,
+        private readonly outboundUrlPolicy: OutboundUrlPolicyService,
     ) {
         this.configImportOrchestrator.register(
             "issuance",
@@ -89,10 +95,23 @@ export class IssuanceService {
                         .then(() => true)
                         .catch(() => false);
                 },
-                deleteExisting: (tid) =>
-                    this.issuanceConfigRepo
-                        .deleteForTenant(tid)
-                        .then(() => undefined),
+                deleteExisting: async (tid, data) => {
+                    // Reject before deleting, so a file naming unregistered
+                    // trust anchors does not remove the stored config.
+                    const unregistered =
+                        await this.federationTrustAnchors.unregistered(
+                            tid,
+                            data.federation?.trustAnchors?.map(
+                                (anchor) => anchor.entityId,
+                            ) ?? [],
+                        );
+                    if (unregistered.length > 0) {
+                        throw new BadRequestException(
+                            unregisteredTrustAnchorsMessage(unregistered),
+                        );
+                    }
+                    await this.issuanceConfigRepo.deleteForTenant(tid);
+                },
                 loadData: (filePath) =>
                     loadConfigDto(filePath, IssuanceConfigSchema),
                 processItem: async (tid, issuanceDto) => {
@@ -306,6 +325,38 @@ export class IssuanceService {
         );
         if (federationProblem) {
             throw new BadRequestException(federationProblem);
+        }
+        const entityId = (filteredValue as Partial<IssuanceDto>).federation
+            ?.entityId;
+        const entityIdProblem = entityId
+            ? federationEntityIdProblem(entityId, {
+                  allowHttp: this.outboundUrlPolicy.allowHttp(),
+              })
+            : undefined;
+        if (entityIdProblem) {
+            throw new BadRequestException(entityIdProblem);
+        }
+        // Only trust anchors this change adds are checked, so a stored
+        // configuration whose trust anchors are not registered yet can still
+        // be changed otherwise; they are not trusted until registered.
+        const stored = new Set(
+            existingConfig.federation?.trustAnchors?.map(
+                (anchor) => anchor.entityId,
+            ) ?? [],
+        );
+        const unregistered = await this.federationTrustAnchors.unregistered(
+            tenantId,
+            (
+                (filteredValue as Partial<IssuanceDto>).federation
+                    ?.trustAnchors ?? []
+            )
+                .map((anchor) => anchor.entityId)
+                .filter((entityId) => !stored.has(entityId)),
+        );
+        if (unregistered.length > 0) {
+            throw new BadRequestException(
+                unregisteredTrustAnchorsMessage(unregistered),
+            );
         }
 
         const hasIncomingAuthorizationServers =

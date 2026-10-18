@@ -8,7 +8,7 @@ const federation = {
     trustAnchors: [{ entityId: "https://ta.example.org" }],
 };
 
-function sources(config: () => Promise<unknown>) {
+function sources(config: () => Promise<unknown>, allowHttp = false) {
     const keyChains = {
         getPublicKeysByUsageTypes: vi
             .fn()
@@ -29,6 +29,7 @@ function sources(config: () => Promise<unknown>) {
             { issuer: vi.fn() } as never,
             keyChains,
             { credentialVerifierMetadata: vi.fn() },
+            () => allowHttp,
         ),
     };
 }
@@ -63,6 +64,34 @@ describe("ConfiguredEntityConfigurationSources", () => {
         expect(first?.entity.entityId).toBe(federation.entityId);
         expect(first?.version).not.toBe(second?.version);
     });
+
+    it.each([
+        ["eudiplo", false, "is not a URL"],
+        [
+            "http://localhost:3000/issuers/tenant",
+            false,
+            "OUTBOUND_URL_ALLOW_HTTP",
+        ],
+        ["http://localhost:3000/issuers/tenant", true, undefined],
+        ["https://eudiplo.example/issuers/tenant", false, undefined],
+    ])(
+        "names the problem of the stored entity id %s (allowHttp %s)",
+        async (entityId, allowHttp, problem) => {
+            const own = await sources(
+                async () => ({
+                    federation: { ...federation, entityId },
+                    updatedAt: new Date(),
+                }),
+                allowHttp,
+            ).sources.ownEntity("tenant");
+
+            expect(own?.entityIdProblem).toEqual(
+                problem === undefined
+                    ? undefined
+                    : expect.stringContaining(problem),
+            );
+        },
+    );
 
     it("has no entity without a configuration, but passes other errors on", async () => {
         await expect(

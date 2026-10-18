@@ -5,6 +5,7 @@ import { BehaviorSubject, Subject, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { renderDownloadButton } from '../../config-portability/config-document.testing';
+import { keyChainDeleteQuestion } from '../key-chain-delete-question';
 import { KeyChainService } from '../key-chain.service';
 import { KeyManagementShowComponent } from './key-management-show.component';
 
@@ -552,38 +553,104 @@ describe('KeyManagementShowComponent registrar enrollment', () => {
 });
 
 describe('KeyManagementShowComponent delete', () => {
-  afterEach(() => vi.restoreAllMocks());
+  const keyChain = {
+    id: 'signing',
+    description: 'PID signing',
+    usageType: 'attestation',
+  } as KeyChainResponseDto;
+  let keyChainService: { delete: ReturnType<typeof vi.fn> };
+  let snackBar: { open: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn> };
 
-  function create(usageType: string): KeyManagementShowComponent {
+  function create(): KeyManagementShowComponent {
     const component = new KeyManagementShowComponent(
+      keyChainService as never,
       {} as never,
-      {} as never,
-      {} as never,
-      {} as never,
+      snackBar as never,
+      router as never,
       {} as never,
       {} as never,
       {} as never,
       {} as never
     );
-    component.keyChain = { id: 'key', usageType } as KeyChainResponseDto;
+    component.keyChain = keyChain;
     return component;
   }
 
-  it('says that the entity configuration stops being published when a federation key is deleted', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-
-    await create('federation').deleteKey();
-
-    expect(confirm.mock.lastCall?.[0]).toContain(
-      'no longer trusted until your trust anchor lists the public key'
-    );
+  beforeEach(() => {
+    keyChainService = { delete: vi.fn().mockResolvedValue(undefined) };
+    snackBar = { open: vi.fn() };
+    router = { navigate: vi.fn() };
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
-  it('keeps the plain question for other keys', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-    await create('attestation').deleteKey();
+  it('asks the shared question, deletes and goes back to the list', async () => {
+    await create().deleteKey();
 
-    expect(confirm.mock.lastCall?.[0]).not.toContain('entity configuration');
+    expect(window.confirm).toHaveBeenCalledWith(keyChainDeleteQuestion('signing', 'PID signing'));
+    expect(keyChainService.delete).toHaveBeenCalledWith('signing');
+    expect(router.navigate).toHaveBeenCalled();
+  });
+
+  it('says that a federation key may stop the entity from being trusted', async () => {
+    const component = create();
+    component.keyChain = { ...keyChain, usageType: 'federation' } as KeyChainResponseDto;
+    vi.mocked(window.confirm).mockReturnValue(false);
+
+    await component.deleteKey();
+
+    expect(vi.mocked(window.confirm).mock.lastCall?.[0]).toContain(
+      'no longer trusted until your trust anchor lists the public key'
+    );
+    expect(keyChainService.delete).not.toHaveBeenCalled();
+  });
+
+  it('shows the configurations the backend names when it refuses the delete', async () => {
+    const message =
+      'Key chain "signing" is still used by the issuance configuration and 1 credential config ("pid").' +
+      ' Remove these references before deleting the key chain.';
+    keyChainService.delete.mockRejectedValue({
+      statusCode: 409,
+      code: 'KEY_CHAIN_IN_USE',
+      message,
+      references: [{ kind: 'IssuanceConfig' }, { kind: 'CredentialConfig', id: 'pid' }],
+    });
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const component = create();
+
+    await component.deleteKey();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      `Failed to delete key chain: ${message}`,
+      'Close',
+      expect.anything()
+    );
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.deleting).toBe(false);
+  });
+
+  it('sends one request when Delete is selected twice', async () => {
+    let finish!: () => void;
+    keyChainService.delete.mockReturnValue(new Promise<void>((done) => (finish = done)));
+    const component = create();
+
+    const first = component.deleteKey();
+    await component.deleteKey();
+    finish();
+    await first;
+
+    expect(keyChainService.delete).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends nothing when the question is declined', async () => {
+    vi.mocked(window.confirm).mockReturnValue(false);
+
+    await create().deleteKey();
+
+    expect(keyChainService.delete).not.toHaveBeenCalled();
   });
 });

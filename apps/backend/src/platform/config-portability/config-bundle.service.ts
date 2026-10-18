@@ -22,6 +22,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { compare as compareSecret } from "bcrypt";
 import { Not, Repository } from "typeorm";
 import {
+    type KeyChainConfigurationChange,
+    KeyChainReferences,
+} from "../../crypto/key/application/key-chain-references.js";
+import {
+    describeKeyChainReferences,
+    isKeyChainReferenceKind,
+    keyChainReferenceId,
+} from "../../crypto/key/domain/key-chain-reference.js";
+import {
     type KeyChainEntity,
     KeyUsage,
 } from "../../crypto/key/entities/key-chain.entity.js";
@@ -164,6 +173,7 @@ export class ConfigBundleService {
         private readonly ownershipService: ConfigOwnershipService,
         private readonly configService: ConfigService,
         private readonly trustListReferences: TrustListReferences,
+        private readonly keyChainReferences: KeyChainReferences,
     ) {}
 
     private get tenants() {
@@ -192,6 +202,10 @@ export class ConfigBundleService {
     }
     private get webhookEndpoints() {
         return this.repos.webhookEndpoints;
+    }
+
+    private get federationTrustAnchors() {
+        return this.repos.federationTrustAnchors;
     }
     private get trustLists() {
         return this.repos.trustLists;
@@ -315,6 +329,13 @@ export class ConfigBundleService {
             tenantId,
             "WebhookEndpoint",
             await this.webhookEndpoints.find({ where: { tenantId } }),
+        );
+        await this.addEntities(
+            documents,
+            requirements,
+            tenantId,
+            "FederationTrustAnchor",
+            await this.federationTrustAnchors.find({ where: { tenantId } }),
         );
         for (const trustList of await this.trustLists.find({
             where: { tenantId },
@@ -745,6 +766,13 @@ export class ConfigBundleService {
                     upgradedDocuments,
                     items,
                 )),
+                // After the trust lists: a trust list whose delete is blocked
+                // stays, so it keeps blocking the delete of its key chains.
+                ...(await this.blockDeletingKeyChainsInUse(
+                    tenantId,
+                    upgradedDocuments,
+                    items,
+                )),
             );
         }
         if (revision !== (await this.configurationRevision(tenantId)))
@@ -778,6 +806,58 @@ export class ConfigBundleService {
     }
 
     /**
+     * The configurations of the kinds `isKind` accepts that the plan writes,
+     * with their new content, or deletes. A skipped document leaves the
+     * stored configuration in place, so it is neither.
+     */
+    private plannedChange<Kind extends string>(
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+        isKind: (kind: string) => kind is Kind,
+        referenceId: (kind: Kind, id: string) => string | undefined,
+    ): {
+        written: Array<{ kind: Kind; id?: string; content: unknown }>;
+        removed: Array<{ kind: Kind; id?: string }>;
+    } {
+        const actions = new Map(
+            items.map((item) => [`${item.kind}/${item.id}`, item.action]),
+        );
+        const change: ReturnType<typeof this.plannedChange<Kind>> = {
+            written: [],
+            removed: [],
+        };
+        for (const document of documents) {
+            const { kind, spec } = document;
+            const id = resourceId(document);
+            if (!isKind(kind) || actions.get(`${kind}/${id}`) === "skip")
+                continue;
+            change.written.push({
+                kind,
+                id: referenceId(kind, id),
+                content: spec,
+            });
+        }
+        for (const item of items) {
+            if (item.action === "delete" && isKind(item.kind))
+                change.removed.push({
+                    kind: item.kind,
+                    id: referenceId(item.kind, item.id),
+                });
+        }
+        return change;
+    }
+
+    /** Marks a planned delete as blocked by `issue`. */
+    private block(
+        item: ConfigImportPlanItem,
+        issue: ConfigMigrationIssue,
+    ): ConfigMigrationIssue {
+        item.issues.push(issue);
+        item.action = "blocked";
+        return issue;
+    }
+
+    /**
      * Blocks deleting a trust list that a configuration surviving the import
      * still references: a stored configuration the plan neither deletes nor
      * rewrites, or a document of the bundle with its new content.
@@ -791,32 +871,12 @@ export class ConfigBundleService {
             (item) => item.action === "delete" && item.kind === "TrustList",
         );
         if (deletedLists.length === 0) return [];
-        const actions = new Map(
-            items.map((item) => [`${item.kind}/${item.id}`, item.action]),
+        const change: ConfigurationChange = this.plannedChange(
+            documents,
+            items,
+            isTrustListReferenceKind,
+            trustListReferenceId,
         );
-        const change: ConfigurationChange = { written: [], removed: [] };
-        for (const document of documents) {
-            const { kind, spec } = document;
-            const id = resourceId(document);
-            // A skipped document leaves the stored configuration in place.
-            if (
-                !isTrustListReferenceKind(kind) ||
-                actions.get(`${kind}/${id}`) === "skip"
-            )
-                continue;
-            change.written.push({
-                kind,
-                id: trustListReferenceId(kind, id),
-                content: spec,
-            });
-        }
-        for (const item of items) {
-            if (item.action === "delete" && isTrustListReferenceKind(item.kind))
-                change.removed.push({
-                    kind: item.kind,
-                    id: trustListReferenceId(item.kind, item.id),
-                });
-        }
         const issues: ConfigMigrationIssue[] = [];
         for (const item of deletedLists) {
             const references = await this.trustListReferences.findAfter(
@@ -824,16 +884,70 @@ export class ConfigBundleService {
                 change,
             );
             if (references.length === 0) continue;
-            const issue: ConfigMigrationIssue = {
-                severity: "error",
-                code: "TRUST_LIST_IN_USE",
-                path: "/metadata/id",
-                message: `Trust list ${JSON.stringify(item.id)} is left out of this import, so replace mode deletes it, but it is still referenced by ${describeTrustListReferences(references)}. Keep the trust list in the bundle or folder, or remove these references.`,
-                resource: { kind: "TrustList", id: item.id },
-            };
-            item.issues.push(issue);
-            item.action = "blocked";
-            issues.push(issue);
+            issues.push(
+                this.block(item, {
+                    severity: "error",
+                    code: "TRUST_LIST_IN_USE",
+                    path: "/metadata/id",
+                    message: `Trust list ${JSON.stringify(item.id)} is left out of this import, so replace mode deletes it, but it is still referenced by ${describeTrustListReferences(references)}. Keep the trust list in the bundle or folder, or remove these references.`,
+                    resource: { kind: "TrustList", id: item.id },
+                }),
+            );
+        }
+        return issues;
+    }
+
+    /**
+     * Blocks deleting a key chain that a configuration surviving the import
+     * still names: a stored configuration the plan neither deletes nor
+     * rewrites, or a document of the bundle with its new content. A
+     * configuration that names no key chain uses the tenant's default one
+     * and does not count.
+     */
+    private async blockDeletingKeyChainsInUse(
+        tenantId: string,
+        documents: ConfigDocument[],
+        items: ConfigImportPlanItem[],
+    ): Promise<ConfigMigrationIssue[]> {
+        const deletedKeyChains = items.filter(
+            (item) => item.action === "delete" && item.kind === "KeyChain",
+        );
+        if (deletedKeyChains.length === 0) return [];
+        const change: KeyChainConfigurationChange = this.plannedChange(
+            documents,
+            items,
+            isKeyChainReferenceKind,
+            keyChainReferenceId,
+        );
+        // A stored trust list rewritten without keyChainId keeps its signing
+        // key chain (and is deleted with it), so its document counts with it.
+        for (const written of change.written) {
+            const spec = written.content as { keyChainId?: unknown } | null;
+            if (written.kind !== "TrustList" || !written.id || spec?.keyChainId)
+                continue;
+            const stored = await this.repos.trustLists.findOne({
+                where: { tenantId, id: written.id },
+                select: { id: true, keyChainId: true },
+            });
+            if (stored?.keyChainId)
+                written.content = { ...spec, keyChainId: stored.keyChainId };
+        }
+        const issues: ConfigMigrationIssue[] = [];
+        for (const item of deletedKeyChains) {
+            const references = await this.keyChainReferences.findAfter(
+                { tenantId, id: item.id },
+                change,
+            );
+            if (references.length === 0) continue;
+            issues.push(
+                this.block(item, {
+                    severity: "error",
+                    code: "KEY_CHAIN_IN_USE",
+                    path: "/spec/id",
+                    message: `Key chain ${JSON.stringify(item.id)} is left out of this import, so replace mode deletes it, but it is still used by ${describeKeyChainReferences(references)}. Keep the key chain in the bundle or folder, or remove these references.`,
+                    resource: { kind: "KeyChain", id: item.id },
+                }),
+            );
         }
         return issues;
     }
@@ -864,6 +978,7 @@ export class ConfigBundleService {
             this.attributeProviders,
             this.webhookEndpoints,
             this.trustLists,
+            this.federationTrustAnchors,
         ];
         const rows = await Promise.all(
             repositories.map((repository) =>
@@ -1276,6 +1391,13 @@ export class ConfigBundleService {
                     description: entity.description,
                     url: entity.url,
                     auth: entity.auth,
+                };
+            case "FederationTrustAnchor":
+                return {
+                    id: entity.id,
+                    entityId: entity.entityId,
+                    description: entity.description ?? undefined,
+                    jwks: entity.jwks,
                 };
             default:
                 throw new Error(
@@ -1791,6 +1913,12 @@ export class ConfigBundleService {
                     id,
                 });
                 break;
+            case "FederationTrustAnchor":
+                entity = await this.federationTrustAnchors.findOneBy({
+                    tenantId,
+                    id,
+                });
+                break;
             case "TrustList": {
                 entity = await this.trustLists.findOneBy({ tenantId, id });
                 return entity ? { ...trustListConfig(entity), id } : undefined;
@@ -1848,6 +1976,13 @@ export class ConfigBundleService {
                 );
             case "TrustList":
                 return (await this.trustLists.countBy({ tenantId, id })) > 0;
+            case "FederationTrustAnchor":
+                return (
+                    (await this.federationTrustAnchors.countBy({
+                        tenantId,
+                        id,
+                    })) > 0
+                );
             case "StatusList":
                 return (await this.statusLists.countBy({ tenantId, id })) > 0;
         }

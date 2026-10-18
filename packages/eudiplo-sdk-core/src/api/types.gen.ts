@@ -413,7 +413,7 @@ export type UpdateTenantDto = {
 export type AuditLogResponseDto = {
     id: string;
     tenantId: string;
-    actionType: 'tenant_created' | 'tenant_updated' | 'tenant_deleted' | 'presentation_config_created' | 'presentation_config_updated' | 'presentation_config_deleted' | 'issuance_config_updated' | 'credential_config_created' | 'credential_config_updated' | 'credential_config_deleted' | 'status_list_config_updated' | 'status_list_config_reset' | 'webhook_endpoint_created' | 'webhook_endpoint_updated' | 'webhook_endpoint_deleted' | 'attribute_provider_created' | 'attribute_provider_updated' | 'attribute_provider_deleted' | 'config_bundle_exported' | 'config_bundle_imported' | 'config_client_secret_generated' | 'config_resource_detached' | 'config_resource_reattached' | 'config_resource_exported' | 'session_cancelled';
+    actionType: 'tenant_created' | 'tenant_updated' | 'tenant_deleted' | 'presentation_config_created' | 'presentation_config_updated' | 'presentation_config_deleted' | 'issuance_config_updated' | 'credential_config_created' | 'credential_config_updated' | 'credential_config_deleted' | 'status_list_config_updated' | 'status_list_config_reset' | 'webhook_endpoint_created' | 'webhook_endpoint_updated' | 'webhook_endpoint_deleted' | 'attribute_provider_created' | 'attribute_provider_updated' | 'attribute_provider_deleted' | 'federation_trust_anchor_created' | 'federation_trust_anchor_updated' | 'federation_trust_anchor_deleted' | 'config_bundle_exported' | 'config_bundle_imported' | 'config_client_secret_generated' | 'config_resource_detached' | 'config_resource_reattached' | 'config_resource_exported' | 'session_cancelled';
     actorType: 'user' | 'client' | 'system';
     actorId?: string;
     actorDisplay?: string;
@@ -1536,6 +1536,45 @@ export type KeyChainUpdateDto = {
      * Active certificate chain in PEM format. Used for external certificate updates.
      */
     activeCertificate?: string;
+};
+
+export type KeyChainReferenceDto = {
+    /**
+     * Kind of configuration that names the key chain.
+     */
+    kind: 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'StatusList' | 'TrustList';
+    /**
+     * ID of the configuration. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.
+     */
+    id?: string;
+    /**
+     * Description of the configuration; absent for configurations the caller may not read.
+     */
+    description?: string;
+};
+
+export type KeyChainInUseDto = {
+    /**
+     * HTTP status code.
+     */
+    statusCode: number;
+    /**
+     * Time of the response.
+     */
+    timestamp: string;
+    /**
+     * Path of the request.
+     */
+    path: string;
+    /**
+     * Configurations still name the key chain.
+     */
+    code: 'KEY_CHAIN_IN_USE';
+    /**
+     * Names the configurations the caller may read and counts the others.
+     */
+    message: string;
+    references: Array<KeyChainReferenceDto>;
 };
 
 export type TenantEntity = {
@@ -3743,6 +3782,95 @@ export type CacheStatsResponseDto = {
     statusListCache: StatusListCacheStatsDto;
 };
 
+export type FederationTrustAnchorResponseDto = {
+    /**
+     * Identifier of the trust anchor
+     */
+    id: string;
+    /**
+     * Tenant identifier
+     */
+    tenantId: string;
+    /**
+     * Entity identifier of the trust anchor
+     */
+    entityId: string;
+    /**
+     * Description of the trust anchor
+     */
+    description?: string | null;
+    /**
+     * Pinned federation keys of the trust anchor as a JWK set (public keys only)
+     */
+    jwks: {
+        [key: string]: unknown;
+    };
+};
+
+export type CreateFederationTrustAnchorDto = {
+    /**
+     * Unique identifier of the trust anchor in the tenant.
+     */
+    id: string;
+    /**
+     * Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values.
+     */
+    entityId: string;
+    /**
+     * Optional description of the trust anchor.
+     */
+    description?: string | null;
+    /**
+     * JWK set with the federation keys of the trust anchor, obtained out of band (OpenID Federation 1.0 Section 10.2).
+     */
+    jwks: {
+        /**
+         * The trust anchor's federation keys.
+         */
+        keys: Array<{
+            /**
+             * Key type of the public federation key.
+             */
+            kty: 'EC' | 'RSA' | 'OKP';
+            /**
+             * Key ID. Federation statements name their signing key with `kid`.
+             */
+            kid: string;
+            [key: string]: unknown;
+        }>;
+    };
+};
+
+export type UpdateFederationTrustAnchorDto = {
+    /**
+     * Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values.
+     */
+    entityId?: string;
+    /**
+     * Optional description of the trust anchor.
+     */
+    description?: string | null;
+    /**
+     * JWK set with the federation keys of the trust anchor, obtained out of band (OpenID Federation 1.0 Section 10.2).
+     */
+    jwks?: {
+        /**
+         * The trust anchor's federation keys.
+         */
+        keys: Array<{
+            /**
+             * Key type of the public federation key.
+             */
+            kty: 'EC' | 'RSA' | 'OKP';
+            /**
+             * Key ID. Federation statements name their signing key with `kid`.
+             */
+            kid: string;
+            [key: string]: unknown;
+        }>;
+    };
+};
+
 export type VerificationProvenanceDto = {
     /**
      * Matched trusted entity ID, or the issuance certificate subject.
@@ -5030,7 +5158,7 @@ export type FederationConfig = {
      */
     mode?: 'federation-only' | 'hybrid';
     /**
-     * Entity identifier of this issuer/verifier in the federation.
+     * Entity Identifier of this issuer/verifier in the federation, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment. http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.
      */
     entityId?: string;
     /**
@@ -6162,7 +6290,7 @@ export type ConfigImportRunEntity = {
 
 export type ConfigResourceMetadataEntity = {
     tenantId: string;
-    kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+    kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'FederationTrustAnchor' | 'StatusList';
     resourceId: string;
     ownership: 'unmanaged' | 'file-managed' | 'detached';
     generation: number;
@@ -6177,7 +6305,7 @@ export type ConfigResourceOwnershipDto = {
     /**
      * Resource kind, as in the config bundle format
      */
-    kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+    kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'FederationTrustAnchor' | 'StatusList';
     /**
      * Resource ID, or the singleton ID such as `issuance`
      */
@@ -7192,7 +7320,13 @@ export type KeyChainControllerDeleteErrors = {
      * Key chain not found
      */
     404: unknown;
+    /**
+     * Configurations of the tenant still name the key chain; the response names those the caller may read and counts the others
+     */
+    409: KeyChainInUseDto;
 };
+
+export type KeyChainControllerDeleteError = KeyChainControllerDeleteErrors[keyof KeyChainControllerDeleteErrors];
 
 export type KeyChainControllerDeleteResponses = {
     /**
@@ -7909,6 +8043,124 @@ export type CacheControllerClearStatusListCacheResponses = {
 };
 
 export type CacheControllerClearStatusListCacheResponse = CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
+
+export type FederationTrustAnchorControllerGetAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/federation-trust-anchor';
+};
+
+export type FederationTrustAnchorControllerGetAllResponses = {
+    /**
+     * List of federation trust anchors
+     */
+    200: Array<FederationTrustAnchorResponseDto>;
+};
+
+export type FederationTrustAnchorControllerGetAllResponse = FederationTrustAnchorControllerGetAllResponses[keyof FederationTrustAnchorControllerGetAllResponses];
+
+export type FederationTrustAnchorControllerCreateData = {
+    body: CreateFederationTrustAnchorDto;
+    path?: never;
+    query?: never;
+    url: '/api/federation-trust-anchor';
+};
+
+export type FederationTrustAnchorControllerCreateErrors = {
+    /**
+     * The ID or entity ID is already registered
+     */
+    409: unknown;
+};
+
+export type FederationTrustAnchorControllerCreateResponses = {
+    /**
+     * Trust anchor registered
+     */
+    201: FederationTrustAnchorResponseDto;
+};
+
+export type FederationTrustAnchorControllerCreateResponse = FederationTrustAnchorControllerCreateResponses[keyof FederationTrustAnchorControllerCreateResponses];
+
+export type FederationTrustAnchorControllerDeleteData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/federation-trust-anchor/{id}';
+};
+
+export type FederationTrustAnchorControllerDeleteErrors = {
+    /**
+     * Trust anchor not found
+     */
+    404: unknown;
+};
+
+export type FederationTrustAnchorControllerDeleteResponses = {
+    /**
+     * Trust anchor deleted
+     */
+    204: void;
+};
+
+export type FederationTrustAnchorControllerDeleteResponse = FederationTrustAnchorControllerDeleteResponses[keyof FederationTrustAnchorControllerDeleteResponses];
+
+export type FederationTrustAnchorControllerGetByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/federation-trust-anchor/{id}';
+};
+
+export type FederationTrustAnchorControllerGetByIdErrors = {
+    /**
+     * Trust anchor not found
+     */
+    404: unknown;
+};
+
+export type FederationTrustAnchorControllerGetByIdResponses = {
+    /**
+     * The federation trust anchor
+     */
+    200: FederationTrustAnchorResponseDto;
+};
+
+export type FederationTrustAnchorControllerGetByIdResponse = FederationTrustAnchorControllerGetByIdResponses[keyof FederationTrustAnchorControllerGetByIdResponses];
+
+export type FederationTrustAnchorControllerUpdateData = {
+    body: UpdateFederationTrustAnchorDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/federation-trust-anchor/{id}';
+};
+
+export type FederationTrustAnchorControllerUpdateErrors = {
+    /**
+     * Trust anchor not found
+     */
+    404: unknown;
+    /**
+     * The entity ID is already registered
+     */
+    409: unknown;
+};
+
+export type FederationTrustAnchorControllerUpdateResponses = {
+    /**
+     * Trust anchor updated
+     */
+    200: FederationTrustAnchorResponseDto;
+};
+
+export type FederationTrustAnchorControllerUpdateResponse = FederationTrustAnchorControllerUpdateResponses[keyof FederationTrustAnchorControllerUpdateResponses];
 
 export type SessionControllerGetAllSessionsData = {
     body?: never;
@@ -9016,7 +9268,7 @@ export type ConfigPortabilityControllerResourcesResponse = ConfigPortabilityCont
 export type ConfigPortabilityControllerResourcesOfKindData = {
     body?: never;
     path: {
-        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'FederationTrustAnchor' | 'StatusList';
     };
     query?: never;
     url: '/api/config-bundles/resources/{kind}';
@@ -9042,7 +9294,7 @@ export type ConfigPortabilityControllerResourcesOfKindResponse = ConfigPortabili
 export type ConfigPortabilityControllerExportDocumentData = {
     body?: never;
     path: {
-        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'StatusList';
+        kind: 'Tenant' | 'Client' | 'KmsConfig' | 'KeyChain' | 'RegistrarConfig' | 'IssuanceConfig' | 'CredentialConfig' | 'PresentationConfig' | 'AttributeProvider' | 'WebhookEndpoint' | 'TrustList' | 'FederationTrustAnchor' | 'StatusList';
         /**
          * Resource ID
          */

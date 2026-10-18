@@ -47,7 +47,10 @@ describe("ConfiguredIssuerFederationContext", () => {
         ]);
         expect(trust.resolveEntity).toHaveBeenCalledWith(
             "https://issuer.example.org/issuers/tenant",
-            expect.objectContaining({ includeTrustChain: true }),
+            expect.objectContaining({
+                includeTrustChain: true,
+                tenantId: "tenant",
+            }),
         );
     });
 
@@ -84,5 +87,13 @@ describe("ConfiguredIssuerFederationContext", () => {
                 "tenant",
             ),
         ).resolves.toBe("https://issuer.example.org/issuers/tenant");
+    });
+
+    it("gives no entity ID for a stored entity id that is no Entity Identifier, so credentials keep x5c", async () => {
+        await expect(
+            context({
+                federation: federation({ entityId: "issuer" }),
+            }).context.entityIdForTenant("tenant"),
+        ).resolves.toBeUndefined();
     });
 });

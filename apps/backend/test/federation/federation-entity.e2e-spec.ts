@@ -99,6 +99,16 @@ describe("OpenID Federation entity", () => {
                 .getPublicKeys("root", keyChain.body.id)
         )[0];
         trustAnchorKey = await federationKey("trust-anchor");
+        // Trust anchors are only trusted with registered (pinned) keys.
+        await request(app.getHttpServer())
+            .post("/federation-trust-anchor")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "ta-entity",
+                entityId: TRUST_ANCHOR,
+                jwks: { keys: [trustAnchorKey.jwk] },
+            })
+            .expect(201);
 
         const configFolder = resolve(__dirname, "../fixtures");
         const issuanceConfig = readConfig<IssuanceDto>(

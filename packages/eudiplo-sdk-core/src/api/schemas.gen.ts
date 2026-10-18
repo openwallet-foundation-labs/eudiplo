@@ -822,6 +822,9 @@ export const AuditLogResponseDtoSchema = {
                 'attribute_provider_created',
                 'attribute_provider_updated',
                 'attribute_provider_deleted',
+                'federation_trust_anchor_created',
+                'federation_trust_anchor_updated',
+                'federation_trust_anchor_deleted',
                 'config_bundle_exported',
                 'config_bundle_imported',
                 'config_client_secret_generated',
@@ -3550,6 +3553,81 @@ export const KeyChainUpdateDtoSchema = {
         }
     },
     additionalProperties: false
+} as const;
+
+export const KeyChainReferenceDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'IssuanceConfig',
+                'CredentialConfig',
+                'PresentationConfig',
+                'StatusList',
+                'TrustList'
+            ],
+            type: 'string',
+            description: 'Kind of configuration that names the key chain.'
+        },
+        id: {
+            type: 'string',
+            description: 'ID of the configuration. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the configuration; absent for configurations the caller may not read.'
+        }
+    },
+    required: [
+        'kind'
+    ]
+} as const;
+
+export const KeyChainInUseDtoSchema = {
+    type: 'object',
+    properties: {
+        statusCode: {
+            type: 'number',
+            description: 'HTTP status code.',
+            example: 409
+        },
+        timestamp: {
+            type: 'string',
+            description: 'Time of the response.',
+            example: '2026-10-17T12:00:00.000Z'
+        },
+        path: {
+            type: 'string',
+            description: 'Path of the request.',
+            example: '/api/key-chain/pid-signing'
+        },
+        code: {
+            enum: [
+                'KEY_CHAIN_IN_USE'
+            ],
+            type: 'string',
+            description: 'Configurations still name the key chain.'
+        },
+        message: {
+            type: 'string',
+            description: 'Names the configurations the caller may read and counts the others.',
+            example: 'Key chain "pid-signing" is still used by the issuance configuration and 1 credential config ("pid"). Remove these references before deleting the key chain.'
+        },
+        references: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/KeyChainReferenceDto'
+            }
+        }
+    },
+    required: [
+        'statusCode',
+        'timestamp',
+        'path',
+        'code',
+        'message',
+        'references'
+    ]
 } as const;
 
 export const TenantEntitySchema = {
@@ -8313,6 +8391,191 @@ export const CacheStatsResponseDtoSchema = {
     ]
 } as const;
 
+export const FederationTrustAnchorResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Identifier of the trust anchor'
+        },
+        tenantId: {
+            type: 'string',
+            description: 'Tenant identifier'
+        },
+        entityId: {
+            type: 'string',
+            description: 'Entity identifier of the trust anchor',
+            example: 'https://ta.example.org'
+        },
+        description: {
+            type: [
+                'string',
+                'null'
+            ],
+            description: 'Description of the trust anchor'
+        },
+        jwks: {
+            type: 'object',
+            description: 'Pinned federation keys of the trust anchor as a JWK set (public keys only)',
+            additionalProperties: true
+        }
+    },
+    required: [
+        'id',
+        'tenantId',
+        'entityId',
+        'jwks'
+    ]
+} as const;
+
+export const CreateFederationTrustAnchorDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 255,
+            pattern: '^[A-Za-z0-9._-]+$',
+            description: 'Unique identifier of the trust anchor in the tenant.'
+        },
+        entityId: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 2048,
+            description: 'Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values.'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    minLength: 1,
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: 'Optional description of the trust anchor.'
+        },
+        jwks: {
+            type: 'object',
+            properties: {
+                keys: {
+                    minItems: 1,
+                    maxItems: 20,
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            kty: {
+                                type: 'string',
+                                enum: [
+                                    'EC',
+                                    'RSA',
+                                    'OKP'
+                                ],
+                                description: 'Key type of the public federation key.'
+                            },
+                            kid: {
+                                type: 'string',
+                                minLength: 1,
+                                maxLength: 256,
+                                description: 'Key ID. Federation statements name their signing key with `kid`.'
+                            }
+                        },
+                        required: [
+                            'kty',
+                            'kid'
+                        ],
+                        additionalProperties: {},
+                        description: 'Public federation key of the trust anchor as a JWK.'
+                    },
+                    description: 'The trust anchor\'s federation keys.'
+                }
+            },
+            required: [
+                'keys'
+            ],
+            additionalProperties: false,
+            description: 'JWK set with the federation keys of the trust anchor, obtained out of band (OpenID Federation 1.0 Section 10.2).'
+        }
+    },
+    required: [
+        'id',
+        'entityId',
+        'jwks'
+    ],
+    additionalProperties: false
+} as const;
+
+export const UpdateFederationTrustAnchorDtoSchema = {
+    type: 'object',
+    properties: {
+        entityId: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 2048,
+            description: 'Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values.'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    minLength: 1,
+                    maxLength: 1000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: 'Optional description of the trust anchor.'
+        },
+        jwks: {
+            type: 'object',
+            properties: {
+                keys: {
+                    minItems: 1,
+                    maxItems: 20,
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            kty: {
+                                type: 'string',
+                                enum: [
+                                    'EC',
+                                    'RSA',
+                                    'OKP'
+                                ],
+                                description: 'Key type of the public federation key.'
+                            },
+                            kid: {
+                                type: 'string',
+                                minLength: 1,
+                                maxLength: 256,
+                                description: 'Key ID. Federation statements name their signing key with `kid`.'
+                            }
+                        },
+                        required: [
+                            'kty',
+                            'kid'
+                        ],
+                        additionalProperties: {},
+                        description: 'Public federation key of the trust anchor as a JWK.'
+                    },
+                    description: 'The trust anchor\'s federation keys.'
+                }
+            },
+            required: [
+                'keys'
+            ],
+            additionalProperties: false,
+            description: 'JWK set with the federation keys of the trust anchor, obtained out of band (OpenID Federation 1.0 Section 10.2).'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const VerificationProvenanceDtoSchema = {
     type: 'object',
     properties: {
@@ -10853,8 +11116,8 @@ export const FederationConfigSchema = {
         },
         entityId: {
             type: 'string',
-            description: 'Entity identifier of this issuer/verifier in the federation.',
-            example: 'https://issuer.example.org'
+            description: 'Entity Identifier of this issuer/verifier in the federation, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment. http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.',
+            example: 'https://issuer.example.org/issuers/my-tenant'
         },
         enforceSigningPolicy: {
             type: 'boolean',
@@ -12952,6 +13215,7 @@ export const ConfigResourceMetadataEntitySchema = {
                 'AttributeProvider',
                 'WebhookEndpoint',
                 'TrustList',
+                'FederationTrustAnchor',
                 'StatusList'
             ],
             type: 'string'
@@ -13016,6 +13280,7 @@ export const ConfigResourceOwnershipDtoSchema = {
                 'AttributeProvider',
                 'WebhookEndpoint',
                 'TrustList',
+                'FederationTrustAnchor',
                 'StatusList'
             ],
             type: 'string',

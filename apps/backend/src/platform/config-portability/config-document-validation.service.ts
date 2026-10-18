@@ -16,6 +16,7 @@ import { StatusListImportSchema } from "../../issuer/status-list/dto/status-list
 import { TrustListCreateSchema } from "../../issuer/trust-list/schemas/trust-list.schema.js";
 import { checkRegistrationCertificate } from "../../registrar/domain/registration-certificate-check.js";
 import { CreateRegistrarConfigSchema } from "../../registrar/schemas/registrar.schema.js";
+import { CreateFederationTrustAnchorSchema } from "../../trust/federation-trust-anchor/schemas/federation-trust-anchor.schema.js";
 import { resolveDcqlTenantUrl } from "../../verifier/presentations/domain/dcql-tenant-url.js";
 import { missingTrustedAuthorities } from "../../verifier/presentations/domain/trusted-authority-requirement.js";
 import { PresentationConfigCreateSchema } from "../../verifier/presentations/schemas/presentation-config.schema.js";
@@ -307,6 +308,8 @@ export class ConfigDocumentValidationService {
                 return CreateWebhookEndpointSchema;
             case "TrustList":
                 return TrustListCreateSchema;
+            case "FederationTrustAnchor":
+                return CreateFederationTrustAnchorSchema;
             case "StatusList":
                 return StatusListImportSchema;
         }
