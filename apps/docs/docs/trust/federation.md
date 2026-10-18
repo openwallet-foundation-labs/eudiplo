@@ -275,7 +275,7 @@ A credential verified through federation needs an `iss` claim and a `kid` header
 Common reasons:
 
 - `<entity> does not chain to a configured trust anchor`: the `authority_hints` do not lead to a configured trust anchor.
-- `no trust anchor of <entity IDs> is registered with pinned keys`: none of the trust anchors is registered for the tenant, for example after its registration was deleted. A warning in the log names trust anchors without keys.
+- `no trust anchor of <entity IDs> is registered with pinned keys`: none of the trust anchors is registered for the tenant, for example a configuration stored before 10.0 that names a trust anchor you have not registered yet. A warning in the log names trust anchors without keys.
 - `... entity configuration of trust anchor '<entity ID>' is not signed with a configured key` (local resolver) or `entity configuration of trust anchor <entity ID> is not signed with a pinned key`: the trust anchor's host serves keys you did not register. Check the registered `jwks`, for example after a key rollover.
 - `no valid trust chain from <entity> to a configured trust anchor: <why>`: a chain was found but failed validation, for example `... has expired`, `... is not signed with a key listed by ...`, `request to '<fetch endpoint>?sub=...' failed with status 404` (the superior does not list the entity) or `... has subject ...` (an entity configuration about another entity).
 - `could not fetch federation statements for <entity>: <why>`: a timeout (5 seconds), a failed request or a URL the outbound URL policy blocks, and no valid earlier resolution.

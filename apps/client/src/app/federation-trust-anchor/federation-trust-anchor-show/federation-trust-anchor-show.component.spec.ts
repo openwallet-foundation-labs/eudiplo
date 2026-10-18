@@ -119,21 +119,54 @@ describe('FederationTrustAnchorShowComponent', () => {
     ).toBeNull();
   });
 
-  it('names the references in the delete question, deletes and returns to the list', async () => {
+  it('refuses up front to delete a trust anchor that known configurations name', async () => {
     const { fixture, service } = render();
     await loaded(fixture);
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const confirm = vi.spyOn(window, 'confirm');
+    const open = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
+
+    await fixture.componentInstance.delete();
+
+    expect(open.mock.calls[0][0]).toBe(
+      'Trust anchor "EU federation" (eu-federation) is still named by the issuance configuration' +
+        ' and 1 presentation configuration. Remove these references before deleting it.'
+    );
+    expect(confirm).not.toHaveBeenCalled();
+    expect(service['delete']).not.toHaveBeenCalled();
+  });
+
+  it('deletes a trust anchor no visible configuration names and returns to the list', async () => {
+    const { fixture, service } = render({
+      roles: ['presentation:manage'],
+      presentations: async () => [],
+    });
+    await loaded(fixture);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     await fixture.componentInstance.delete();
 
-    expect(confirm).toHaveBeenCalledWith(
-      'Delete trust anchor "EU federation" (eu-federation)? It is named by the issuance configuration' +
-        ' and 1 presentation configuration, which then no longer trust this federation.' +
-        ' This cannot be undone.'
-    );
     expect(service['delete']).toHaveBeenCalledWith('eu-federation');
     expect(navigate).toHaveBeenCalledWith(['/federation-trust-anchor']);
+  });
+
+  it('reloads the references when the backend refuses the delete for references', async () => {
+    const service = {
+      getById: vi.fn().mockResolvedValue(anchor),
+      delete: vi.fn().mockRejectedValue({ statusCode: 409, message: 'still named by' }),
+    };
+    const { fixture } = render({
+      service,
+      roles: ['presentation:manage'],
+      presentations: async () => [],
+    });
+    await loaded(fixture);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const load = vi.spyOn(fixture.componentInstance.references, 'load');
+
+    await fixture.componentInstance.delete();
+
+    expect(load).toHaveBeenCalledWith('https://ta.example');
   });
 
   it('asks with the generic consequence when no configuration names the anchor', async () => {
@@ -141,8 +174,8 @@ describe('FederationTrustAnchorShowComponent', () => {
     await loaded(fixture);
 
     expect(fixture.componentInstance.deleteQuestion()).toBe(
-      'Delete trust anchor "EU federation" (eu-federation)? Configurations that name its entity ID' +
-        ' no longer trust this federation. This cannot be undone.'
+      'Delete trust anchor "EU federation" (eu-federation)? If a configuration names its entity ID,' +
+        ' the delete is refused and the configurations are named. This cannot be undone.'
     );
   });
 
@@ -169,7 +202,11 @@ describe('FederationTrustAnchorShowComponent', () => {
       getById: vi.fn().mockResolvedValue(anchor),
       delete: vi.fn().mockRejectedValue({ statusCode: 500, message: 'Database unavailable' }),
     };
-    const { fixture } = render({ service });
+    const { fixture } = render({
+      service,
+      roles: ['presentation:manage'],
+      presentations: async () => [],
+    });
     await loaded(fixture);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const open = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
@@ -195,7 +232,10 @@ describe('FederationTrustAnchorShowComponent', () => {
   });
 
   it('does not delete when the question is declined', async () => {
-    const { fixture, service } = render();
+    const { fixture, service } = render({
+      roles: ['presentation:manage'],
+      presentations: async () => [],
+    });
     await loaded(fixture);
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
