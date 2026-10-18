@@ -3551,6 +3551,81 @@ export const KeyChainUpdateDtoSchema = {
     additionalProperties: false
 } as const;
 
+export const KeyChainReferenceDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'IssuanceConfig',
+                'CredentialConfig',
+                'PresentationConfig',
+                'StatusList',
+                'TrustList'
+            ],
+            type: 'string',
+            description: 'Kind of configuration that names the key chain.'
+        },
+        id: {
+            type: 'string',
+            description: 'ID of the configuration. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the configuration; absent for configurations the caller may not read.'
+        }
+    },
+    required: [
+        'kind'
+    ]
+} as const;
+
+export const KeyChainInUseDtoSchema = {
+    type: 'object',
+    properties: {
+        statusCode: {
+            type: 'number',
+            description: 'HTTP status code.',
+            example: 409
+        },
+        timestamp: {
+            type: 'string',
+            description: 'Time of the response.',
+            example: '2026-10-17T12:00:00.000Z'
+        },
+        path: {
+            type: 'string',
+            description: 'Path of the request.',
+            example: '/api/key-chain/pid-signing'
+        },
+        code: {
+            enum: [
+                'KEY_CHAIN_IN_USE'
+            ],
+            type: 'string',
+            description: 'Configurations still name the key chain.'
+        },
+        message: {
+            type: 'string',
+            description: 'Names the configurations the caller may read and counts the others.',
+            example: 'Key chain "pid-signing" is still used by the issuance configuration and 1 credential config ("pid"). Remove these references before deleting the key chain.'
+        },
+        references: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/KeyChainReferenceDto'
+            }
+        }
+    },
+    required: [
+        'statusCode',
+        'timestamp',
+        'path',
+        'code',
+        'message',
+        'references'
+    ]
+} as const;
+
 export const TenantEntitySchema = {
     type: 'object',
     properties: {

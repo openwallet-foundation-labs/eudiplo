@@ -249,8 +249,9 @@ export function trustError(authorities: TrustedAuthority[] | undefined): string 
   for (const authority of authorities ?? []) {
     if (!authority.values.length) return 'Add a trust reference or remove the empty authority.';
     if (authority.type === 'openid_federation') {
+      if (authority.values.some((id) => !id.trim())) return 'Choose a federation trust anchor.';
       if (authority.values.some((id) => !isUrl(id)))
-        return 'Enter a valid federation authority URL.';
+        return 'Choose a registered federation trust anchor, or fix the value in DCQL JSON.';
     } else {
       for (const ref of authority.values) {
         if (ref.trustListId !== undefined) {

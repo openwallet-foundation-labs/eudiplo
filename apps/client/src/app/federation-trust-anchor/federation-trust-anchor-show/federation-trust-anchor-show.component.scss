@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+mat-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+mat-card-content {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 16px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.entity-id {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.hint {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.jwks {
+  margin-top: 16px;
+
+  pre {
+    background: var(--mat-sys-surface-container);
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+}

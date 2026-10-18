@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.anchor-field {
+  width: 100%;
+}
+
+.anchor-status {
+  margin: 4px 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.anchor-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--mat-sys-error);
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}
+
+.anchor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

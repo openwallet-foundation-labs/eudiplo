@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TenantEntity } from "../../auth/tenant/entities/tenant.entity.js";
 import { OutboundUrlPolicyModule } from "../../webhook/outbound-url-policy.module.js";
+import { KeyChainReferences } from "./application/key-chain-references.js";
 import { CertService } from "./cert/cert.service.js";
 import { CertificateBuilderService } from "./cert/certificate-builder.service.js";
 import { CrlValidationService } from "./cert/crl-validation.service.js";
@@ -42,6 +43,7 @@ export class KeyModule {
                 KeyRotationService,
                 CertService,
                 CrlValidationService,
+                KeyChainReferences,
             ],
             exports: [
                 KeyChainService,
@@ -49,6 +51,7 @@ export class KeyModule {
                 KmsProviderRegistry,
                 CertService,
                 CrlValidationService,
+                KeyChainReferences,
             ],
         };
     }
