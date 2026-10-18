@@ -23,6 +23,7 @@ export interface SdJwtVcIssueOptions {
     session: Session;
     claims: Record<string, any>;
     federationEntityId?: string;
+    federationTrustChain?: () => Promise<string[] | undefined>;
     issuanceSetId?: string;
 }
 
@@ -51,6 +52,7 @@ export class SdjwtvcIssuerService {
             session,
             claims,
             federationEntityId,
+            federationTrustChain,
             issuanceSetId,
         } = options;
 
@@ -127,7 +129,14 @@ export class SdjwtvcIssuerService {
             alg: signAlg,
         };
 
-        if (!useFederation) {
+        if (useFederation) {
+            // A federation verifier looks the key up by kid in the
+            // openid_credential_issuer metadata of the issuer's entity, which
+            // publishes the public keys of all attestation key chains.
+            header.kid = certificate.keyChain.activeJwk.kid;
+            const trustChain = await federationTrustChain?.();
+            if (trustChain?.length) header.trust_chain = trustChain;
+        } else {
             // Include the presented chain for verification, excluding the
             // configured trust anchor certificate.
             header.x5c = this.certService.getCertChain(certificate);

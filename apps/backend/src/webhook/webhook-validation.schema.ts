@@ -7,7 +7,7 @@ export const WEBHOOK_VALIDATION_SCHEMA = Joi.object({
     OUTBOUND_URL_ALLOW_HTTP: Joi.boolean()
         .default(false)
         .description(
-            "Allow HTTP (non-TLS) for outbound calls (webhooks, attribute providers, issuer and schema metadata imports, trust lists, status lists, federation entities and the federation trust engine, the registrar and its OIDC provider, external authorization servers and the upstream provider of a chained authorization server). CRLs may always use HTTP. Enable it for local development against HTTP endpoints.",
+            "Allow HTTP (non-TLS) for outbound calls (webhooks, attribute providers, issuer and schema metadata imports, trust lists, status lists, federation entities and the federation trust engine, the registrar and its OIDC provider, external authorization servers and the upstream provider of a chained authorization server). CRLs may always use HTTP. Also lets the federation entity ID of a tenant (federation.entityId) be an http URL. Enable it for local development against HTTP endpoints.",
         )
         .meta({ group: "webhook", order: 10 }),
     OUTBOUND_URL_ALLOW_PRIVATE_NETWORK: Joi.boolean()

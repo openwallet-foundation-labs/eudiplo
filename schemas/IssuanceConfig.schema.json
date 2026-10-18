@@ -528,8 +528,9 @@
               ]
             },
             "entityId": {
-              "description": "Optional local federation entity id.",
-              "type": "string"
+              "description": "Entity Identifier of the tenant's federation entity, usually {PUBLIC_URL}/issuers/{tenantId}: an https URL with a host and without query or fragment (OpenID Federation 1.0 Section 1.2). http is accepted only when OUTBOUND_URL_ALLOW_HTTP is true.",
+              "type": "string",
+              "pattern": "^(https?:\\/\\/[^\\s?#]+)?$"
             },
             "enforceSigningPolicy": {
               "description": "Enforce strict signing policy checks.",
@@ -564,6 +565,80 @@
                 "additionalProperties": false
               },
               "description": "Federation trust anchors."
+            },
+            "entityTypes": {
+              "description": "Roles the entity configuration publishes metadata for. Defaults to openid_credential_issuer.",
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "openid_credential_issuer",
+                  "openid_credential_verifier"
+                ]
+              }
+            },
+            "authorityHints": {
+              "description": "authority_hints of the entity configuration: the superiors that issue a subordinate statement about this entity. Defaults to the trust anchor entity ids.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "entityKeyChainId": {
+              "description": "Key chain with usage type 'federation' that signs the entity configuration. Without it, a federation key chain of the tenant is used; set it when the tenant has several.",
+              "type": "string",
+              "minLength": 1
+            },
+            "entityConfigurationLifetimeSeconds": {
+              "description": "Lifetime (exp - iat) of the entity configuration in seconds. Defaults to 86400.",
+              "type": "integer",
+              "minimum": 60,
+              "maximum": 31536000
+            },
+            "trustMarks": {
+              "description": "Trust mark JWTs issued to this entity, published in the entity configuration.",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "entityMetadata": {
+              "description": "Informational federation_entity metadata of the entity configuration.",
+              "type": "object",
+              "properties": {
+                "organization_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "contacts": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "logo_uri": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "policy_uri": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "homepage_uri": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "additionalProperties": false
+            },
+            "includeTrustChain": {
+              "description": "Add the trust chain of this entity as trust_chain header to federation SD-JWT VCs and OID4VP request objects.",
+              "type": "boolean"
             }
           },
           "required": [

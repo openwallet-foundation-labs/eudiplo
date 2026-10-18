@@ -6,7 +6,28 @@ describe("FEDERATION_VALIDATION_SCHEMA", () => {
         FEDERATION_VALIDATION_SCHEMA.validate(env);
 
     it("resolves locally by default", () => {
-        expect(validate({}).value).toEqual({ FEDERATION_RESOLVER: "local" });
+        expect(validate({}).value).toEqual({
+            FEDERATION_RESOLVER: "local",
+            FEDERATION_ENTITY_PROVIDER: "local",
+        });
+    });
+
+    it("requires an HTTPS FEDERATION_ENTITY_PROVIDER_URL for the http entity provider", () => {
+        expect(
+            validate({ FEDERATION_ENTITY_PROVIDER: "http" }).error?.message,
+        ).toContain("FEDERATION_ENTITY_PROVIDER_URL");
+        expect(
+            validate({
+                FEDERATION_ENTITY_PROVIDER: "http",
+                FEDERATION_ENTITY_PROVIDER_URL: "http://trust-engine:8080",
+            }).error?.message,
+        ).toContain("FEDERATION_ENTITY_PROVIDER_URL");
+        expect(
+            validate({
+                FEDERATION_ENTITY_PROVIDER: "http",
+                FEDERATION_ENTITY_PROVIDER_URL: "https://trust-engine.example",
+            }).error,
+        ).toBeUndefined();
     });
 
     it("requires FEDERATION_RESOLVER_URL for the http resolver", () => {

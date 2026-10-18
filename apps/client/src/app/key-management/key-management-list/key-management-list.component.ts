@@ -19,7 +19,7 @@ import { getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { keyChainDeleteQuestion } from '../key-chain-delete-question';
 
-type KeyUsageType = 'attestation' | 'statusList' | 'access' | 'trustList';
+type KeyUsageType = 'attestation' | 'statusList' | 'access' | 'trustList' | 'federation';
 
 /**
  * Display item for key chains.
@@ -104,6 +104,12 @@ export class KeyManagementListComponent implements OnInit {
       label: 'Trust List Keys',
       icon: 'shield',
       description: 'Keys for signing trust list entries.',
+    },
+    federation: {
+      label: 'OpenID Federation Entity Keys',
+      icon: 'hub',
+      description:
+        'Keys for signing the entity configuration of the OpenID Federation entity. They never sign credentials or requests.',
     },
   };
 

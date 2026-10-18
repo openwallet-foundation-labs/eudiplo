@@ -358,7 +358,9 @@
                 </mat-form-field>
               }
 
-              @if (!isInternalChain && selectedUsage !== 'access') {
+              @if (
+                !isInternalChain && selectedUsage !== 'access' && selectedUsage !== 'federation'
+              ) {
                 <mat-checkbox formControlName="useExternalCertificate">
                   Use an externally issued certificate and matching private key
                 </mat-checkbox>
@@ -564,6 +566,15 @@
                   <mat-icon>info</mat-icon>
                   <span>
                     <strong>Next step:</strong> Configure your trust list and add trusted root keys.
+                  </span>
+                </div>
+              }
+              @if (selectedUsage === 'federation') {
+                <div class="next-steps-hint">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    <strong>Next step:</strong> Set the federation entity ID and trust anchors in
+                    the issuance configuration, and give your trust anchor this key's public key.
                   </span>
                 </div>
               }

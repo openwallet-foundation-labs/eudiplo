@@ -607,6 +607,21 @@ describe('KeyCreateWizardComponent internal chains', () => {
     );
   });
 
+  it('creates a federation entity key as a standalone key chain', async () => {
+    const component = create();
+    component.usageForm.patchValue({ usage: 'federation' });
+
+    await component.createKey();
+
+    expect(keyChainService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        usageType: 'federation',
+        type: 'standalone',
+        description: 'OpenID Federation Entity Key',
+      })
+    );
+  });
+
   it('creates an internal chain with rotation by default', async () => {
     await create().createKey();
 

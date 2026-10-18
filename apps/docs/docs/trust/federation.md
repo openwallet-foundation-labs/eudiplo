@@ -4,6 +4,8 @@ title: OpenID Federation
 
 EUDIPLO can use [OpenID Federation](https://openid.net/specs/openid-federation-1_0.html) trust anchors to decide whether to trust external authorization servers, the upstream provider of a chained authorization server, and the issuers of presented SD-JWT VCs. It resolves the trust chain from the entity to a configured trust anchor and verifies every statement in it, or delegates this to an external trust engine. Every trust anchor must be [registered with its federation keys](#register-trust-anchors), which you obtain out of band.
 
+A tenant can also take part in a federation itself, as a leaf entity: EUDIPLO then publishes its signed entity configuration, issues SD-JWT VCs that federation verifiers check through its credential issuer metadata, and can identify its OID4VP requests by its entity ID ([Publish your entity configuration](#publish-your-entity-configuration)).
+
 ## How trust is decided
 
 For an entity ID and the configured trust anchors, EUDIPLO:
@@ -24,7 +26,7 @@ Resolution uses [`@openid-federation/core`](https://github.com/openwallet-founda
 - A credential without a `kid` header is rejected, also when the issuer's metadata lists one key.
 - An authorization server's federation metadata must have an `issuer` equal to its entity ID. The metadata EUDIPLO uses for the server is still fetched from its `.well-known` URL; policies of the chain do not change it.
 - Protocol keys must be in `jwks`; `jwks_uri` and `signed_jwks_uri` in the metadata are not used.
-- EUDIPLO does not publish its own entity configuration yet ([#1047](https://github.com/EUDIPLO/eudiplo/issues/1047)).
+- EUDIPLO only acts as a leaf entity: it issues no subordinate statements and offers no fetch, list, resolve or trust mark endpoints. Trust marks you configure are published as given, not checked.
 
 ## Register trust anchors
 
@@ -137,16 +139,86 @@ Set `federation` in the issuance configuration (`POST /api/issuer/config`, or **
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `trustAnchors[].entityId`               | Trust anchor, [registered](#register-trust-anchors) with its keys. Its entity configuration is fetched from `{entityId}/.well-known/openid-federation`. Entity IDs are compared exactly, so `https://ta.example.org/` and `https://ta.example.org` are different trust anchors. |
 | `trustAnchors[].entityConfigurationUri` | Required by the schema but not used.                                                                             |
-| `entityId`                              | Your issuer's entity ID; used as `iss` of SD-JWT VCs with the `federation` trust format (below).                |
+| `entityId`                              | Your entity ID: `iss` of SD-JWT VCs with the `federation` trust format (below), `iss` and `sub` of the [published entity configuration](#publish-your-entity-configuration) and the `openid_federation:` client identifier. Leave it empty to only evaluate trust. Otherwise it must be an `https` URL with a host and without query, fragment, credentials or whitespace (OpenID Federation 1.0 Section 1.2); `POST /api/issuer/config` answers `400` for another value, and a startup import or bundle with one fails. `http` is accepted only with `OUTBOUND_URL_ALLOW_HTTP=true`, for local setups whose federation also allows it. |
 | `cacheTtlSeconds`                       | How long resolutions are cached; default 300, at least 5. See [Caching](#caching).                              |
 | `role`                                  | Only `leaf` (the default) is accepted; EUDIPLO does not act as a trust anchor or intermediate.                  |
 | `enforceSigningPolicy`                  | Only `true` (the default) is accepted; federation checks are always enforced.                                    |
+
+The fields of the published entity configuration are described [below](#publish-your-entity-configuration).
 
 With this configuration, external authorization servers are checked before EUDIPLO fetches their metadata, and a chained authorization server's upstream provider before its discovery document is fetched.
 
 ### SD-JWT VC trust format
 
-A credential configuration can sign SD-JWT VCs for federation instead of X.509: set `sdJwtTrustFormat` to `federation` (**Credential Types → SD-JWT Trust Format**). EUDIPLO then sets `iss` to the federation `entityId` and omits the `x5c` header. It falls back to `x5c` (the default) when no federation `entityId` is configured. The signing key chain is used in both cases. EUDIPLO does not yet set a `kid` header or publish an entity configuration with the signing key ([#1047](https://github.com/EUDIPLO/eudiplo/issues/1047)), so verifiers, EUDIPLO included, cannot verify credentials issued this way yet.
+A credential configuration can sign SD-JWT VCs for federation instead of X.509: set `sdJwtTrustFormat` to `federation` (**Credential Types → SD-JWT Trust Format**). EUDIPLO then sets `iss` to the federation `entityId`, sets the `kid` header to the `kid` of the signing key and omits the `x5c` header. It falls back to `x5c` (the default) when no federation `entityId` or no trust anchor is configured, when a stored `entityId` breaks the rule above, or when `entityTypes` leaves out `openid_credential_issuer`, as verifiers would find the key nowhere else. The signing key chain is used in both cases.
+
+```json
+{ "alg": "ES256", "typ": "dc+sd-jwt", "kid": "<kid of the active key of the signing key chain>" }
+```
+
+A verifier finds that key in the `openid_credential_issuer` metadata of your entity configuration, which lists the public keys of all attestation and status list key chains of the tenant, the previous key of a rotation included. Status list JWTs always carry the `kid` of their signing key, so a verifier checks them against the same metadata. With `includeTrustChain`, the credential also carries your trust chain in the `trust_chain` header (Section 4.3 of OpenID Federation), resolved to your trust anchors like any other chain (and cached the same way); issuance fails when the chain cannot be resolved.
+
+## Publish your entity configuration
+
+A tenant with a federation `entityId` and at least one trust anchor publishes its signed entity configuration at:
+
+```http
+GET /issuers/{tenantId}/.well-known/openid-federation
+```
+
+The answer has the content type `application/entity-statement+jwt`; a tenant without `entityId` or trust anchors answers `404`. A federation fetches the entity configuration from `{entityId}/.well-known/openid-federation`, so set `entityId` to `{PUBLIC_URL}/issuers/{tenantId}`, the same identifier as the credential issuer. Another entity ID only works if your reverse proxy serves this endpoint at `{entityId}/.well-known/openid-federation`; `iss` and `sub` are always the configured `entityId`.
+
+1. **Create a federation key** with usage type `federation` (**Cryptographic Assets → Keys → Create Key → OpenID Federation Entity Key**, or `POST /api/key-chain` with `"usageType": "federation", "type": "standalone"`). It only signs the entity configuration; credentials, status lists and requests are signed by the other key chains.
+2. **Register the entity with your trust anchor** (or an intermediate): it needs the entity ID and the public key of the federation key chain for the subordinate statement it issues about you.
+   Register the trust anchor with its keys in EUDIPLO too ([Register trust anchors](#register-trust-anchors)); without pinned keys it is not trusted, and `includeTrustChain` cannot resolve your chain.
+3. **Configure the entity** in the `federation` block of the issuance configuration. The block describes the tenant's one federation entity, also when it acts only as a verifier:
+
+    ```json
+    {
+        "federation": {
+            "entityId": "https://eudiplo.example.com/issuers/membership-demo",
+            "trustAnchors": [
+                {
+                    "entityId": "https://ta.example.org",
+                    "entityConfigurationUri": "https://ta.example.org/.well-known/openid-federation"
+                }
+            ],
+            "entityTypes": ["openid_credential_issuer", "openid_credential_verifier"],
+            "authorityHints": ["https://ta.example.org"],
+            "entityMetadata": { "organization_name": "Example Membership" },
+            "includeTrustChain": false
+        }
+    }
+    ```
+
+| Field                                | Behavior                                                                                                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entityTypes`                        | Metadata the entity configuration publishes: `openid_credential_issuer` (default) and `openid_credential_verifier`.                                            |
+| `authorityHints`                     | `authority_hints`: HTTPS entity IDs of the superiors that issue a subordinate statement about you. Defaults to the trust anchor entity IDs.                    |
+| `entityKeyChainId`                   | The federation key chain that signs the entity configuration. Without it, a key chain with usage type `federation` is used; set it when the tenant has several. |
+| `entityConfigurationLifetimeSeconds` | `exp - iat` of the entity configuration, 60 to 31536000 seconds; default 86400.                                                                                |
+| `trustMarks`                         | Trust mark JWTs issued to you, published in `trust_marks` with the `trust_mark_type` of each JWT. Saving a trust mark without `trust_mark_type` fails with `400`. |
+| `entityMetadata`                     | `organization_name`, `contacts`, `logo_uri`, `policy_uri` and `homepage_uri` (HTTPS URLs) of the `federation_entity` metadata.                                  |
+| `includeTrustChain`                  | Adds your trust chain as `trust_chain` header to federation SD-JWT VCs and to requests with the `openid_federation` client identifier.                          |
+
+The entity configuration contains `iss` and `sub` (the entity ID), `iat`, `exp`, the active and previous public keys of the federation key chain in `jwks`, `authority_hints`, `trust_marks` and this `metadata`, built from the metadata EUDIPLO serves anyway:
+
+| Metadata type                | Content                                                                                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `federation_entity`          | `entityMetadata`. No federation endpoints, as EUDIPLO provides none.                                                                                                        |
+| `openid_credential_issuer`   | The [credential issuer metadata](../issuance/issuance-configuration.md) and, in `jwks`, the public keys of all attestation and status list key chains (`use: sig`).            |
+| `oauth_authorization_server` | The metadata of the built-in authorization server, when it is advertised and its issuer equals the entity ID. External authorization servers publish their own entity.     |
+| `openid_credential_verifier` | `vp_formats_supported`, `encrypted_response_enc_values_supported` and, in `jwks`, the public keys of all access key chains (`use: sig`) and the tenant encryption key (`use: enc`). |
+
+EUDIPLO signs the entity configuration again at most once a minute, and at once after the `federation` block or the issuance configuration changes; a failure is answered for ten seconds before the next attempt. A key chain created, rotated or deleted in between shows within a minute. Only public key members (`kty`, `crv`, `x`, `y`, `n`, `e`, `kid`, `alg`, `use`) are published. `POST /api/issuer/config` replaces the whole `federation` block, so send the entity fields along with every update.
+
+### Use an external trust engine
+
+With `FEDERATION_ENTITY_PROVIDER=http`, EUDIPLO does not sign the entity configuration itself but sends `GET {FEDERATION_ENTITY_PROVIDER_URL}/entities/{tenantId}/entity-configuration` with `FEDERATION_ENTITY_PROVIDER_TOKEN` as bearer token, and serves the answer unchanged ([environment variables](../reference/environment-variables.md#federation)). Like a locally signed one, the answer is reused for up to a minute, or until the issuance configuration changes. The trust engine answers with `application/entity-statement+jwt` and the signed entity configuration; EUDIPLO only checks that it is an entity statement (`typ: entity-statement+jwt`) whose `iss` and `sub` equal the configured `entityId`. The trust engine then decides the keys and metadata, and the federation key chain and entity settings above other than `entityId` and `trustAnchors` are not used. The request is subject to the outbound URL policy, redirects are not followed, and an error answer, an invalid answer or a failed request (10 seconds, 256 KiB) answers `503`.
+
+### OID4VP requests with a federation client identifier
+
+With `openid_credential_verifier` in `entityTypes`, a presentation request can use `"clientIdScheme": "openid_federation"` ([Create requests](../presentation/requests.md#client-identifier)). The request then has `client_id` `openid_federation:<entityId>`, and its request object is signed with the access key chain as before, with a `kid` header of a key in the `openid_credential_verifier` metadata instead of `x5c`. A wallet takes the verifier metadata from your trust chain and ignores `client_metadata` (OID4VP 1.0 Section 5.9.3), so it encrypts the response to the tenant encryption key published there instead of a key for this request. Unlike `x509_hash` and `x509_san_dns` requests, whose response key exists only for one session, these responses can be decrypted with the long-lived tenant key: a leaked key exposes every captured federation response of the tenant. A response is still bound to its session by the `nonce` and `state` it must carry. Wallets may keep your trust chain until its `exp`, so after replacing the tenant encryption key, responses encrypted to the old key fail for up to `entityConfigurationLifetimeSeconds`. With `includeTrustChain`, the request object carries the trust chain in its `trust_chain` header; it is not sent as request parameter, because wallets built on `@openid4vc/openid4vp` 0.7 reject that parameter together with an `openid_federation:` client identifier. These wallets read the chain only from the parameter, so they ignore the header and resolve your trust chain themselves.
 
 ## Reference trust anchors in DCQL
 
@@ -174,6 +246,9 @@ A credential verified through federation needs an `iss` claim and a `kid` header
 | External authorization server       | `400`: `Authorization server is not trusted by OpenID Federation policy: <reason>`                        |
 | Credential verification             | Failure code `no_trust_chain_to_root` (no valid chain, or no key `kid`), `trust_list_unavailable` (federation unreachable), `signature_invalid` or `verification_error` (no `iss` or `kid`, or an mDOC); the reason is in the server log |
 | Issuance configuration              | `400`: `Only the federation role 'leaf' is supported ...` or `enforceSigningPolicy cannot be disabled ...` |
+| Entity configuration endpoint       | OpenID Federation error responses (Section 8.9): `404` `not_found` when the tenant has no `entityId` or trust anchor, a stored `entityId` that the rule for `entityId` above refuses, for example one saved before 10.0 (the reason is in the server log), no key chain with usage type `federation`, or `entityKeyChainId` names no federation key chain; `503` `temporarily_unavailable` when the trust engine (`FEDERATION_ENTITY_PROVIDER=http`) does not deliver it; `500` `server_error` otherwise, with the reason in the server log |
+| Presentation request                | `400`: `clientIdScheme openid_federation needs federation.entityId, at least one trust anchor and openid_credential_verifier in federation.entityTypes ...`, or `clientIdScheme openid_federation needs a valid federation.entityId ...` with the reason for a stored `entityId` saved before 10.0 |
+| Request object fetched by the wallet | `400`: `The OpenID Federation verifier identity of this request is no longer configured`, when `entityId` or `entityTypes` changed after the request was created |
 | Issuance or presentation configuration | `400`: `OpenID Federation trust anchors without pinned keys: <entity IDs>. ...`; [register](#register-trust-anchors) them first |
 | Trust anchor registration           | `400` for an invalid entity ID or key; `409`: `Federation trust anchor '<id>' already exists` or `Trust anchor <entity ID> is already registered as '<id>'` |
 
@@ -199,6 +274,8 @@ Common reasons:
 | `does not chain to a configured trust anchor`            | Check the trust anchor entity IDs, compared exactly, and the entity's `authority_hints`.                                  |
 | `failed with status 404` from a fetch endpoint           | The superior does not list the entity as its subordinate; register the entity there.                                     |
 | `has no key '<kid>'`                                     | The credential's `kid` must be in the `jwks` of the issuer's `openid_credential_issuer` metadata.                         |
+| Your entity is not trusted by a verifier                 | Fetch `{entityId}/.well-known/openid-federation` and check `iss`, `authority_hints` and the keys; the trust anchor's subordinate statement must list the public key of your federation key chain. |
+| A federation verifier rejects your credential's `kid`    | The `kid` must be in `openid_credential_issuer.jwks` of your entity configuration; it is renewed at most a minute after a key chain is created or rotated. |
 | A changed federation still gives the old decision        | Resolutions are cached (see [Caching](#caching)). Clear the cache with `DELETE /api/cache/trust-list` or `DELETE /api/cache`. |
 
 Cache activity is reported as the OpenTelemetry counters `federation_trust_cache_hits_total`, `federation_trust_cache_misses_total`, `federation_trust_cache_stale_total` and `federation_trust_fetches_total`.

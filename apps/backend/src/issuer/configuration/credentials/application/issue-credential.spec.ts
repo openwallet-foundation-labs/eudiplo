@@ -26,6 +26,7 @@ function fixture(source?: unknown) {
         entityIdForTenant: vi
             .fn()
             .mockResolvedValue("https://federation.example"),
+        trustChainForTenant: vi.fn().mockResolvedValue(["ec", "ta"]),
     };
     const issue = vi.fn().mockResolvedValue("signed");
     const useCase = new IssueCredential(
@@ -66,8 +67,13 @@ describe("IssueCredential", () => {
             session: f.session,
             claims: { name: "resolved" },
             federationEntityId: "https://federation.example",
+            federationTrustChain: expect.any(Function),
             issuanceSetId: "set",
         });
+        await expect(
+            f.issue.mock.calls[0][0].federationTrustChain(),
+        ).resolves.toEqual(["ec", "ta"]);
+        expect(f.federation.trustChainForTenant).toHaveBeenCalledWith("tenant");
     });
 
     // Claim sources are resolved before issuance (CredentialClaimsProvider);

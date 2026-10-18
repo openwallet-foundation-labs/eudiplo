@@ -272,4 +272,45 @@ describe("Issuance - OpenID Federation", () => {
             "has no oauth_authorization_server or openid_provider metadata",
         );
     });
+
+    test.each([
+        ["issuer", "is not a URL"],
+        ["https://issuer.example.org/?tenant=root", "query or fragment"],
+    ])(
+        "refuses to store the federation entity id %s and keeps the stored one",
+        async (entityId, reason) => {
+            const before = await request(app.getHttpServer())
+                .get("/issuer/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+
+            const res = await request(app.getHttpServer())
+                .post("/issuer/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    ...before.body,
+                    federation: {
+                        entityId,
+                        trustAnchors: [
+                            {
+                                entityId: TRUST_ANCHOR,
+                                entityConfigurationUri: `${TRUST_ANCHOR}/.well-known/openid-federation`,
+                            },
+                        ],
+                    },
+                })
+                .expect(400);
+            expect(JSON.stringify(res.body)).toContain(reason);
+            expect(JSON.stringify(res.body)).toContain("entityId");
+
+            const after = await request(app.getHttpServer())
+                .get("/issuer/config")
+                .trustLocalhost()
+                .set("Authorization", `Bearer ${authToken}`)
+                .expect(200);
+            expect(after.body.federation).toEqual(before.body.federation);
+        },
+    );
 });

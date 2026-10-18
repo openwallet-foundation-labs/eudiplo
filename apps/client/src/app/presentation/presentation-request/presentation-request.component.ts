@@ -27,8 +27,10 @@ import { asSentence, getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { JwtService } from '../../services/jwt.service';
 
+type ClientIdScheme = 'x509_hash' | 'x509_san_dns' | 'openid_federation';
+
 type PresentationRequestWithClientIdScheme = PresentationRequest & {
-  clientIdScheme?: 'x509_hash' | 'x509_san_dns';
+  clientIdScheme?: ClientIdScheme;
 };
 
 @Component({
@@ -89,7 +91,7 @@ export class PresentationRequestComponent implements OnInit {
     this.form = new FormGroup({
       requestId: new FormControl('', Validators.required),
       dcapi: new FormControl(false),
-      x509SanDns: new FormControl(false),
+      clientIdScheme: new FormControl<ClientIdScheme>('x509_hash', { nonNullable: true }),
       transaction_data: new FormControl(undefined),
     });
   }
@@ -206,7 +208,10 @@ export class PresentationRequestComponent implements OnInit {
       const offerRequest: PresentationRequestWithClientIdScheme = {
         requestId: formValue.requestId,
         response_type: formValue.dcapi ? 'dc-api' : 'uri',
-        ...(formValue.x509SanDns && { clientIdScheme: 'x509_san_dns' }),
+        ...(formValue.clientIdScheme &&
+          formValue.clientIdScheme !== 'x509_hash' && {
+            clientIdScheme: formValue.clientIdScheme as ClientIdScheme,
+          }),
         ...(transactionData && { transaction_data: transactionData }),
       };
 
@@ -240,7 +245,7 @@ export class PresentationRequestComponent implements OnInit {
     this.form.reset({
       requestId: '',
       dcapi: false,
-      x509SanDns: false,
+      clientIdScheme: 'x509_hash',
       transaction_data: undefined,
     });
     this.readinessError = null;

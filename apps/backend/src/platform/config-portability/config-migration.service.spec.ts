@@ -21,7 +21,7 @@ describe("ConfigMigrationService", () => {
         const result = service.upgrade(input);
 
         expect(result.document.$schema).toBe(
-            "https://eudiplo.dev/schemas/v4/IssuanceConfigFile.schema.json",
+            "https://eudiplo.dev/schemas/v5/IssuanceConfigFile.schema.json",
         );
         expect(result.document.spec.walletProviderTrustLists).toEqual([
             { url: "https://example.com/trust-list" },
@@ -30,6 +30,7 @@ describe("ConfigMigrationService", () => {
             "issuance-config-v2-offer-lifetime",
             "issuance-config-v3-trust-list-verifier-pem",
             "issuance-config-v4-wallet-attestation-status-check-mode",
+            "issuance-config-v5-federation-entity",
         ]);
         expect(result.issues).toEqual([]);
     });
@@ -100,7 +101,7 @@ describe("ConfigMigrationService", () => {
         });
         expect(service.upgrade(withoutType)).toMatchObject({
             issues: [],
-            migrations: ["key-chain-v2-type"],
+            migrations: ["key-chain-v2-type", "key-chain-v3-federation-usage"],
         });
     });
 
