@@ -24,6 +24,7 @@ const CONFIG_RESOURCE_MANAGE_ROLES: Record<
     AttributeProvider: [Role.Issuances],
     WebhookEndpoint: [Role.Issuances, Role.Presentations],
     TrustList: [Role.Issuances, Role.Presentations],
+    FederationTrustAnchor: [Role.Issuances, Role.Presentations],
     StatusList: [Role.Issuances],
 };
 

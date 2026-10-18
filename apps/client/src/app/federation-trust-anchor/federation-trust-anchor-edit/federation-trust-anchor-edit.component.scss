@@ -1,0 +1,32 @@
+.title-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+}
+
+.field-hint {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0 0 8px;
+}
+
+.jwks-error {
+  color: var(--mat-sys-error);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+.entity-id-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: var(--mat-sys-error);
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}

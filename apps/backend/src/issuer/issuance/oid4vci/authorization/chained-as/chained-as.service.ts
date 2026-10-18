@@ -257,6 +257,7 @@ export class ChainedAsService {
             issuanceConfig.federation &&
             issuanceConfig.federation.trustAnchors?.length
                 ? ({
+                      tenantId,
                       mode: issuanceConfig.federation.mode,
                       entityId: issuanceConfig.federation.entityId,
                       trustAnchors: issuanceConfig.federation.trustAnchors,

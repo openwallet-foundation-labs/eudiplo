@@ -57,6 +57,10 @@ legend {
   flex: 1;
   min-width: 0;
 }
+.row-fields > app-federation-trust-anchor-select {
+  flex: 1;
+  min-width: 0;
+}
 .row-fields > h4 {
   flex: 1;
 }

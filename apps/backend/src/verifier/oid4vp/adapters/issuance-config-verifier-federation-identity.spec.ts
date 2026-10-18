@@ -66,7 +66,7 @@ describe("IssuanceConfigVerifierFederationIdentity", () => {
         ]);
         expect(configured.trust.resolveEntity).toHaveBeenCalledWith(
             ENTITY_ID,
-            expect.objectContaining({ entityId: ENTITY_ID }),
+            expect.objectContaining({ entityId: ENTITY_ID, tenantId: "t" }),
         );
         await expect(
             identity(Promise.resolve({ federation: null })).identity.trustChain(

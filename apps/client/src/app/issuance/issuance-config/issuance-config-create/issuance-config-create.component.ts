@@ -52,6 +52,13 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
 import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../../utils/error-message';
 import { openErrorSnackBar } from '../../../utils/error-snackbar';
 import { certificateBase64, certificateValidator } from '../../../utils/certificate-validator';
+import { FederationTrustAnchorSelectComponent } from '../../../federation-trust-anchor/federation-trust-anchor-select/federation-trust-anchor-select.component';
+import {
+  entityConfigurationUri,
+  type FederationTrustAnchor,
+  FederationTrustAnchorService,
+} from '../../../federation-trust-anchor/federation-trust-anchor.service';
+import { issuanceConfigTrustAnchorIds } from '../../../federation-trust-anchor/federation-trust-anchor-reference';
 
 /** A managed list of this tenant, or an external list given by URL and signer certificate. */
 type WalletProviderTrustListMode = 'managed' | 'external';
@@ -88,6 +95,7 @@ type WalletProviderTrustListEntry = Omit<WalletProviderTrustListRefDto, 'verifie
     ImageFieldComponent,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    FederationTrustAnchorSelectComponent,
   ],
   templateUrl: './issuance-config-create.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -325,6 +333,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
     if (step === 2) {
       if (this.federationEnabled && !this.trustAnchors.length)
         error = 'Add a trust anchor or turn off OpenID Federation.';
+      else if (this.federationEnabled && this.newUnregisteredTrustAnchors.length)
+        error = `Register ${this.newUnregisteredTrustAnchors.join(', ')} as a federation trust anchor first, or choose a registered one.`;
       if (
         this.registrationCertificateEnabled &&
         this.registrationCertificateMode === 'import' &&
@@ -404,6 +414,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   /** Whether the loaded configuration published an entity configuration (entity ID and trust anchors). */
   federationWasPublished = false;
+  /** Trust anchors of the stored configuration, which the backend keeps even when unregistered. */
+  private storedTrustAnchorIds = new Set<string>();
   private registrarRegistrationCertificateDefaults: Record<string, unknown> | null = null;
 
   private asRecord(value: unknown): Record<string, unknown> {
@@ -424,7 +436,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
     private readonly dialog: MatDialog,
     private readonly fb: FormBuilder,
     private readonly presentationManagementService: PresentationManagementService,
-    private readonly registrarService: RegistrarService
+    private readonly registrarService: RegistrarService,
+    private readonly federationTrustAnchors: FederationTrustAnchorService
   ) {
     this.form = new FormGroup({
       display: this.fb.array([]),
@@ -552,6 +565,9 @@ export class IssuanceConfigCreateComponent implements OnInit {
     try {
       const config = await this.issuanceConfigService.getConfig();
       if (!config) throw new Error('Issuer settings unavailable');
+      this.storedTrustAnchorIds = new Set(issuanceConfigTrustAnchorIds(config));
+      // The Trust step checks added trust anchors against this list; the pickers share it.
+      this.federationTrustAnchors.registeredAnchors().catch(() => undefined);
       await this.applyConfiguration(config);
       // No identity yet: offer the onboarding flow while retaining the server defaults.
       this.guidedMode =
@@ -1253,6 +1269,32 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   get trustAnchors(): FormArray {
     return this.federation.get('trustAnchors') as FormArray;
+  }
+
+  /**
+   * Entity IDs of trust anchors this edit adds that are not registered. The backend rejects
+   * them; trust anchors of the stored configuration are kept, though not trusted.
+   */
+  get newUnregisteredTrustAnchors(): string[] {
+    const registered = this.federationTrustAnchors.registeredEntityIds();
+    if (!registered) return [];
+    return this.trustAnchors.controls
+      .map((anchor) => `${anchor.get('entityId')?.value ?? ''}`)
+      .filter((id) => id && !registered.has(id) && !this.storedTrustAnchorIds.has(id));
+  }
+
+  /**
+   * Fills in the entity configuration URI of a trust anchor the user picked, unless it holds
+   * a URI other than the one derived from the entity ID it replaces.
+   */
+  onTrustAnchorSelected(
+    index: number,
+    { anchor, previous }: { anchor: FederationTrustAnchor; previous: string }
+  ): void {
+    const uri = this.trustAnchors.at(index).get('entityConfigurationUri');
+    const current = `${uri?.value ?? ''}`.trim();
+    if (!current || (previous && current === entityConfigurationUri(previous)))
+      uri?.setValue(entityConfigurationUri(anchor.entityId));
   }
 
   addTrustAnchor(): void {

@@ -18,8 +18,16 @@ describe('issuer settings guided setup', () => {
   let service: { getConfig: ReturnType<typeof vi.fn>; saveConfiguration: ReturnType<typeof vi.fn> };
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let setup: string | null;
+  let trustAnchors: {
+    registeredEntityIds: ReturnType<typeof vi.fn>;
+    registeredAnchors: ReturnType<typeof vi.fn>;
+  };
   beforeEach(() => {
     setup = null;
+    trustAnchors = {
+      registeredEntityIds: vi.fn().mockReturnValue(undefined),
+      registeredAnchors: vi.fn().mockResolvedValue([]),
+    };
     snackBar = { open: vi.fn() };
     service = {
       getConfig: vi.fn().mockResolvedValue(config),
@@ -33,7 +41,8 @@ describe('issuer settings guided setup', () => {
       {} as any,
       new FormBuilder(),
       {} as any,
-      {} as any
+      {} as any,
+      trustAnchors as any
     );
   });
 
@@ -281,5 +290,90 @@ describe('issuer settings guided setup', () => {
     component.authorizationServers.at(0).get('type')!.setValue('built-in');
     component.onAuthorizationServerTypeChange(0, 'built-in');
     expect(lifetime().value).toBe(1200);
+  });
+
+  describe('federation trust anchors', () => {
+    const stored = {
+      ...config,
+      federation: {
+        mode: 'hybrid',
+        cacheTtlSeconds: 300,
+        trustAnchors: [
+          {
+            entityId: 'https://stored.example',
+            entityConfigurationUri: 'https://stored.example/.well-known/openid-federation',
+          },
+        ],
+      },
+    };
+
+    function addAnchor(entityId: string) {
+      component.addTrustAnchor();
+      const anchor = component.trustAnchors.at(component.trustAnchors.length - 1);
+      anchor.patchValue({
+        entityId,
+        entityConfigurationUri: `${entityId}/.well-known/openid-federation`,
+      });
+    }
+
+    it('refuses a trust anchor this edit adds that is not registered', async () => {
+      service.getConfig.mockResolvedValue(stored);
+      trustAnchors.registeredEntityIds.mockReturnValue(new Set(['https://ta.example']));
+      await component.loadConfigForEdit();
+      addAnchor('https://unknown.example');
+
+      expect((component as any).validateStep(2)).toBe(false);
+      expect(component.stepError).toBe(
+        'Register https://unknown.example as a federation trust anchor first, or choose a registered one.'
+      );
+    });
+
+    it('does not save settings that add an unregistered trust anchor', async () => {
+      service.getConfig.mockResolvedValue(stored);
+      trustAnchors.registeredEntityIds.mockReturnValue(new Set(['https://ta.example']));
+      await component.loadConfigForEdit();
+      expect(trustAnchors.registeredAnchors).toHaveBeenCalled();
+      addAnchor('https://unknown.example');
+
+      component.submitSettings();
+
+      expect(service.saveConfiguration).not.toHaveBeenCalled();
+      expect(component.stepError).toContain('Register https://unknown.example');
+    });
+
+    it('keeps an unregistered trust anchor of the stored configuration and accepts registered ones', async () => {
+      service.getConfig.mockResolvedValue(stored);
+      trustAnchors.registeredEntityIds.mockReturnValue(new Set(['https://ta.example']));
+      await component.loadConfigForEdit();
+      addAnchor('https://ta.example');
+
+      expect(component.newUnregisteredTrustAnchors).toEqual([]);
+      expect((component as any).validateStep(2)).toBe(true);
+    });
+
+    it('leaves the check to the backend while the registered trust anchors are not loaded', async () => {
+      await component.loadConfigForEdit();
+      component.federation.get('enabled')!.setValue(true);
+      addAnchor('https://unknown.example');
+
+      expect((component as any).validateStep(2)).toBe(true);
+    });
+
+    it('derives the entity configuration URI of a picked trust anchor, keeping one entered by hand', () => {
+      component.addTrustAnchor();
+      const uri = component.trustAnchors.at(0).get('entityConfigurationUri')!;
+      const anchor = { id: 'ta', tenantId: 't', entityId: 'https://ta.example/', jwks: {} };
+      const other = { ...anchor, entityId: 'https://other.example' };
+
+      component.onTrustAnchorSelected(0, { anchor, previous: '' });
+      expect(uri.value).toBe('https://ta.example/.well-known/openid-federation');
+
+      component.onTrustAnchorSelected(0, { anchor: other, previous: 'https://ta.example/' });
+      expect(uri.value).toBe('https://other.example/.well-known/openid-federation');
+
+      uri.setValue('https://mirror.example/.well-known/openid-federation');
+      component.onTrustAnchorSelected(0, { anchor, previous: 'https://other.example' });
+      expect(uri.value).toBe('https://mirror.example/.well-known/openid-federation');
+    });
   });
 });

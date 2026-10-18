@@ -45,7 +45,11 @@ export class IssuanceConfigVerifierFederationIdentity
     async trustChain(tenantId: string): Promise<string[]> {
         const config = await this.issuance.getIssuanceConfiguration(tenantId);
         return ownTrustChain(config.federation, (entityId, source) =>
-            this.federation.resolveEntity(entityId, source as never),
+            // Pinned trust anchor keys are registered per tenant.
+            this.federation.resolveEntity(entityId, {
+                ...source,
+                tenantId,
+            } as never),
         );
     }
 

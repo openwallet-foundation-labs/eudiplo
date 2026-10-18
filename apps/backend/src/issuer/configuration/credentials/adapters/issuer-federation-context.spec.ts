@@ -47,7 +47,10 @@ describe("ConfiguredIssuerFederationContext", () => {
         ]);
         expect(trust.resolveEntity).toHaveBeenCalledWith(
             "https://issuer.example.org/issuers/tenant",
-            expect.objectContaining({ includeTrustChain: true }),
+            expect.objectContaining({
+                includeTrustChain: true,
+                tenantId: "tenant",
+            }),
         );
     });
 

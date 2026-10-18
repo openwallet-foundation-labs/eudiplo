@@ -55,6 +55,7 @@ rejects versions newer than its own.
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
 | `WebhookEndpoint`    | `WebhookEndpointConfigFile`   | 1               |           |
 | `TrustList`          | `TrustListConfigFile`         | 1               |           |
+| `FederationTrustAnchor` | `FederationTrustAnchorConfigFile` | 1         |           |
 | `StatusList`         | `StatusListConfigFile`        | 1               |           |
 
 IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
@@ -134,6 +135,7 @@ does not exist yet is created only if its folder contains `info.json`.
     ├── attribute-providers/<id>.json
     ├── webhook-endpoints/<id>.json
     ├── trust-lists/<id>.json
+    ├── federation-trust-anchors/<id>.json
     ├── issuance/
     │   ├── issuance.json       IssuanceConfig
     │   ├── credentials/<id>.json
@@ -292,7 +294,7 @@ resources of that kind, so screens can lock file-managed resources for them:
 | ----------------------------------------------------------------------- | ------------------------------------------------------- |
 | `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage`                |
 | `KeyChain`                                                              | `issuance:manage`, `presentation:manage`, `keys:manage` |
-| `WebhookEndpoint`, `TrustList`                                          | `issuance:manage`, `presentation:manage`                |
+| `WebhookEndpoint`, `TrustList`, `FederationTrustAnchor`                 | `issuance:manage`, `presentation:manage`                |
 | `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                                       |
 | `PresentationConfig`                                                    | `presentation:manage`                                   |
 | `Client`                                                                | `clients:manage`                                        |

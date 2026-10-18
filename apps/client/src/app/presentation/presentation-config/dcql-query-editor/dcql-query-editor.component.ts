@@ -24,6 +24,7 @@ import {
   trustSummary,
 } from './simple-dcql';
 import { asSentence, getApiErrorMessage } from '../../../utils/error-message';
+import { FederationTrustAnchorSelectComponent } from '../../../federation-trust-anchor/federation-trust-anchor-select/federation-trust-anchor-select.component';
 
 @Component({
   selector: 'app-dcql-query-editor',
@@ -37,6 +38,7 @@ import { asSentence, getApiErrorMessage } from '../../../utils/error-message';
     MatInputModule,
     MatSelectModule,
     EditorComponent,
+    FederationTrustAnchorSelectComponent,
   ],
   templateUrl: './dcql-query-editor.component.html',
   styleUrl: './dcql-query-editor.component.scss',

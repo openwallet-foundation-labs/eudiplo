@@ -36,6 +36,11 @@ export const CONFIG_FORMATS = {
         version: 1,
     },
     TrustList: { slug: "trust-list", file: "TrustListConfigFile", version: 1 },
+    FederationTrustAnchor: {
+        slug: "federation-trust-anchor",
+        file: "FederationTrustAnchorConfigFile",
+        version: 1,
+    },
     StatusList: {
         slug: "status-list",
         file: "StatusListConfigFile",

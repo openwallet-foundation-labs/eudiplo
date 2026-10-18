@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { missingTrustedAuthorities } from "./trusted-authority-requirement.js";
+import {
+    federationTrustAnchorIds,
+    missingTrustedAuthorities,
+} from "./trusted-authority-requirement.js";
 
 const trustList = {
     type: "etsi_tl" as const,
@@ -57,5 +60,33 @@ describe("missingTrustedAuthorities", () => {
         expect(
             missingTrustedAuthorities([{ id: "pid" }], true),
         ).toBeUndefined();
+    });
+});
+
+describe("federationTrustAnchorIds", () => {
+    it("returns the openid_federation values of queries that federation decides", () => {
+        expect(
+            federationTrustAnchorIds([
+                {
+                    trusted_authorities: [
+                        {
+                            type: "openid_federation",
+                            values: ["https://ta.example.org", 42],
+                        },
+                    ],
+                },
+                {
+                    // The trust list decides; federation keys are never used.
+                    trusted_authorities: [
+                        { type: "etsi_tl", values: [{ trustListId: "pid" }] },
+                        {
+                            type: "openid_federation",
+                            values: ["https://ignored.example.org"],
+                        },
+                    ],
+                },
+                {},
+            ]),
+        ).toEqual(["https://ta.example.org"]);
     });
 });
