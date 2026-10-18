@@ -1143,19 +1143,22 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
           "id": {
             "type": "string",
             "minLength": 1,
+            "maxLength": 255,
             "pattern": "^[A-Za-z0-9._-]+$",
             "description": "Unique identifier of the trust anchor in the tenant."
           },
           "entityId": {
             "type": "string",
             "minLength": 1,
+            "maxLength": 2048,
             "description": "Entity identifier of the trust anchor, exactly as configured in `federation.trustAnchors` and DCQL `openid_federation` values."
           },
           "description": {
             "anyOf": [
               {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "maxLength": 1000
               },
               {
                 "type": "null"
@@ -1168,6 +1171,7 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
             "properties": {
               "keys": {
                 "minItems": 1,
+                "maxItems": 20,
                 "type": "array",
                 "items": {
                   "type": "object",
@@ -1184,6 +1188,7 @@ export const CONFIG_SCHEMAS: Record<string, any>[] = [
                     "kid": {
                       "type": "string",
                       "minLength": 1,
+                      "maxLength": 256,
                       "description": "Key ID. Federation statements name their signing key with `kid`."
                     }
                   },
