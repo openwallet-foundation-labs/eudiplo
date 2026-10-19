@@ -8,6 +8,7 @@ import {
 } from "../ports/federation-trust-anchor-keys.js";
 import { RepositoryFederationTrustAnchorKeys } from "./adapters/repository-federation-trust-anchor-keys.js";
 import { TypeOrmFederationTrustAnchorRepository } from "./adapters/typeorm-federation-trust-anchor.repository.js";
+import { FederationTrustAnchorReferences } from "./application/federation-trust-anchor-references.js";
 import { FederationTrustAnchorEntity } from "./entities/federation-trust-anchor.entity.js";
 import { FederationTrustAnchorController } from "./federation-trust-anchor.controller.js";
 import { FederationTrustAnchorService } from "./federation-trust-anchor.service.js";
@@ -24,6 +25,7 @@ import {
     controllers: [FederationTrustAnchorController],
     providers: [
         FederationTrustAnchorService,
+        FederationTrustAnchorReferences,
         {
             provide: FEDERATION_TRUST_ANCHOR_REPOSITORY,
             inject: [getRepositoryToken(FederationTrustAnchorEntity)],
@@ -41,6 +43,7 @@ import {
     ],
     exports: [
         FederationTrustAnchorService,
+        FederationTrustAnchorReferences,
         FEDERATION_TRUST_ANCHOR_REPOSITORY,
         FEDERATION_TRUST_ANCHOR_KEYS,
     ],

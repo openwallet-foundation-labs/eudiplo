@@ -52,7 +52,27 @@ A trust anchor is trusted only when the tenant has registered it with its federa
 
 In the Web Client, open **Cryptographic Assets → Federation Trust Anchors** (with `issuance:manage` or `presentation:manage`). **Register a trust anchor** asks for the ID, the entity ID and an optional description, and takes the keys as a JWK set in a JSON editor that checks them against the schema above. A trust anchor's page lists the pinned keys and which configurations name its entity ID; edit or delete it there. Where issuer settings and presentation configurations name a trust anchor, they offer the registered ones to choose from, flag an entity ID that is not registered and link to **Register trust anchor**, which opens in a new tab with the entity ID filled in.
 
-`GET`, `PATCH` and `DELETE /api/federation-trust-anchor/{id}` read, change and remove a registration. For a key rollover, add the new key before the trust anchor signs with it and remove the old one afterwards. A change that adds an entity ID the tenant has not registered to an issuance configuration's `federation`, or to a presentation configuration's `openid_federation` entry (in a query without an `etsi_tl` entry, where federation decides), is rejected with `400`; so is a new configuration or an import naming one. A stored configuration naming an unregistered trust anchor still loads and can be changed otherwise; nothing is trusted through that trust anchor until it is registered. Deleting a registration that a configuration still names is not refused; resolutions to that trust anchor then fail.
+`GET`, `PATCH` and `DELETE /api/federation-trust-anchor/{id}` read, change and remove a registration. For a key rollover, add the new key before the trust anchor signs with it and remove the old one afterwards. A change that adds an entity ID the tenant has not registered to an issuance configuration's `federation`, or to a presentation configuration's `openid_federation` entry (in a query without an `etsi_tl` entry, where federation decides), is rejected with `400`; so is a new configuration or an import naming one. A stored configuration naming an unregistered trust anchor still loads and can be changed otherwise; nothing is trusted through that trust anchor until it is registered. A configuration import ([config bundle or folder](../reference/config-bundle-format.md)) checks this in its plan, against the trust anchors of the tenant and of the import: a new or changed document is `blocked` with `MISSING_RESOURCE_REFERENCE`, so the import applies nothing, when it names an entity ID neither registers: a presentation config for every such entity ID, the issuance configuration only for one its stored version does not already name. A bundle can bring the trust anchor and the configurations naming it together.
+
+### Delete a trust anchor
+
+`DELETE /api/federation-trust-anchor/{id}`, and a `PATCH` that changes `entityId`, answer `409` while an issuance or presentation configuration of the tenant still names the entity ID: in the issuance configuration's `federation.trustAnchors`, or in an `openid_federation` entry of a query without an `etsi_tl` entry. The response names the configurations in `message` and lists them in `references`. Configurations the caller's roles cannot read are only counted, without ID and description: the issuance configuration needs `issuance:manage`, presentation configs `presentation:manage` or `presentation:request`. Changing `description` or `jwks` is not refused.
+
+```json
+{
+    "statusCode": 409,
+    "timestamp": "2026-10-17T12:00:00.000Z",
+    "path": "/api/federation-trust-anchor/example-federation",
+    "code": "FEDERATION_TRUST_ANCHOR_IN_USE",
+    "message": "Federation trust anchor \"example-federation\" (https://ta.example.org) is still named by 1 presentation config (\"pid\") and the issuance configuration (federation.trustAnchors). Remove these references before deleting it.",
+    "references": [
+        { "kind": "PresentationConfig", "id": "pid", "description": "PID check" },
+        { "kind": "IssuanceConfig" }
+    ]
+}
+```
+
+Remove the entity ID from these configurations first. To move to a new entity ID, register it as another trust anchor, switch the configurations to it, then delete the old registration. A configuration import that would give a trust anchor another entity ID, in any mode, or delete it, in `replace` mode, while a configuration surviving the import still names the old entity ID is `blocked` with `FEDERATION_TRUST_ANCHOR_IN_USE`; configurations the same import deletes or rewrites without the entity ID do not count.
 
 ## Where federation is checked
 
@@ -250,12 +270,12 @@ A credential verified through federation needs an `iss` claim and a `kid` header
 | Presentation request                | `400`: `clientIdScheme openid_federation needs federation.entityId, at least one trust anchor and openid_credential_verifier in federation.entityTypes ...`, or `clientIdScheme openid_federation needs a valid federation.entityId ...` with the reason for a stored `entityId` saved before 10.0 |
 | Request object fetched by the wallet | `400`: `The OpenID Federation verifier identity of this request is no longer configured`, when `entityId` or `entityTypes` changed after the request was created |
 | Issuance or presentation configuration | `400`: `OpenID Federation trust anchors without pinned keys: <entity IDs>. ...`; [register](#register-trust-anchors) them first |
-| Trust anchor registration           | `400` for an invalid entity ID or key; `409`: `Federation trust anchor '<id>' already exists` or `Trust anchor <entity ID> is already registered as '<id>'` |
+| Trust anchor registration           | `400` for an invalid entity ID or key; `409`: `Federation trust anchor '<id>' already exists`, `Trust anchor <entity ID> is already registered as '<id>'`, or `FEDERATION_TRUST_ANCHOR_IN_USE` ([Delete a trust anchor](#delete-a-trust-anchor)) |
 
 Common reasons:
 
 - `<entity> does not chain to a configured trust anchor`: the `authority_hints` do not lead to a configured trust anchor.
-- `no trust anchor of <entity IDs> is registered with pinned keys`: none of the trust anchors is registered for the tenant, for example after its registration was deleted. A warning in the log names trust anchors without keys.
+- `no trust anchor of <entity IDs> is registered with pinned keys`: none of the trust anchors is registered for the tenant, for example a configuration stored before 10.0 that names a trust anchor you have not registered yet. A warning in the log names trust anchors without keys.
 - `... entity configuration of trust anchor '<entity ID>' is not signed with a configured key` (local resolver) or `entity configuration of trust anchor <entity ID> is not signed with a pinned key`: the trust anchor's host serves keys you did not register. Check the registered `jwks`, for example after a key rollover.
 - `no valid trust chain from <entity> to a configured trust anchor: <why>`: a chain was found but failed validation, for example `... has expired`, `... is not signed with a key listed by ...`, `request to '<fetch endpoint>?sub=...' failed with status 404` (the superior does not list the entity) or `... has subject ...` (an entity configuration about another entity).
 - `could not fetch federation statements for <entity>: <why>`: a timeout (5 seconds), a failed request or a URL the outbound URL policy blocks, and no valid earlier resolution.

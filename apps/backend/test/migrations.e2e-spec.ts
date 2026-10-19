@@ -21,6 +21,7 @@ import { AddCancelReasonToSession1785100000000 } from "../src/database/migration
 import { AddRelyingPartyContactToRegistrarConfig1785200000000 } from "../src/database/migrations/1785200000000-AddRelyingPartyContactToRegistrarConfig.js";
 import { BackfillIssuanceWalletNonce1785300000000 } from "../src/database/migrations/1785300000000-BackfillIssuanceWalletNonce.js";
 import { SeparatePresentationWalletReferences1785400000000 } from "../src/database/migrations/1785400000000-SeparatePresentationWalletReferences.js";
+import { AddFederationTrustAnchor1785500000000 } from "../src/database/migrations/1785500000000-AddFederationTrustAnchor.js";
 import { describeWithContainers } from "./container-runtime.js";
 import {
     addTokensValidAfterContract,
@@ -1757,6 +1758,149 @@ describe("Migration tests", () => {
 
             test("backfills ISO 18013-7 nonces and step session IDs, is idempotent and reversible", async () => {
                 await expectBackfilledAndReversible(dataSource);
+            });
+        });
+    });
+
+    describe("AddFederationTrustAnchor1785500000000", () => {
+        const migration = new AddFederationTrustAnchor1785500000000();
+        const table = "federation_trust_anchor_entity";
+
+        /** Schema from the entities, then the new table dropped again. */
+        async function schemaBefore(
+            options:
+                | { type: "better-sqlite3"; database: string }
+                | { type: "postgres"; url: string },
+        ): Promise<{
+            dataSource: DataSource;
+            driftAfterSynchronize: string[];
+        }> {
+            const [
+                { TenantEntity },
+                { ClientEntity },
+                { FederationTrustAnchorEntity },
+            ] = await Promise.all([
+                import("../src/auth/tenant/entities/tenant.entity.js"),
+                import("../src/auth/client/entities/client.entity.js"),
+                import(
+                    "../src/trust/federation-trust-anchor/entities/federation-trust-anchor.entity.js"
+                ),
+            ]);
+            const dataSource = new DataSource({
+                ...options,
+                entities: [
+                    TenantEntity,
+                    ClientEntity,
+                    FederationTrustAnchorEntity,
+                ],
+                synchronize: true,
+                logging: false,
+            });
+            await dataSource.initialize();
+            const driftAfterSynchronize = await drift(dataSource);
+
+            const queryRunner = dataSource.createQueryRunner();
+            await migration.down(queryRunner);
+            await queryRunner.release();
+            await dataSource.query(
+                `INSERT INTO "tenant_entity" ("id", "name") VALUES ('t', 't'), ('u', 'u')`,
+            );
+            return { dataSource, driftAfterSynchronize };
+        }
+
+        const drift = async (dataSource: DataSource) =>
+            (await dataSource.driver.createSchemaBuilder().log()).upQueries
+                .map((query) => query.query)
+                .sort();
+
+        async function expectCreatedAndReversible(
+            dataSource: DataSource,
+            driftAfterSynchronize: string[],
+        ) {
+            const queryRunner = dataSource.createQueryRunner();
+            expect(await queryRunner.hasTable(table)).toBe(false);
+
+            await migration.up(queryRunner);
+            await migration.up(queryRunner);
+
+            // The table matches the entity, on PostgreSQL and SQLite.
+            expect(await drift(dataSource)).toEqual(driftAfterSynchronize);
+            const insert = (tenantId: string, id: string) =>
+                dataSource.query(
+                    `INSERT INTO "${table}" ("id", "tenantId", "entityId", "jwks") VALUES ('${id}', '${tenantId}', 'https://ta.example', '{"keys":[]}')`,
+                );
+            await insert("t", "a");
+            // An entity ID once per tenant; another tenant may register it.
+            await expect(insert("t", "b")).rejects.toThrow();
+            await insert("u", "a");
+            // Deleting a tenant deletes its trust anchors.
+            await dataSource.query(
+                `DELETE FROM "tenant_entity" WHERE "id" = 'u'`,
+            );
+            await expect(
+                dataSource.query(
+                    `SELECT "tenantId", "id", "description" FROM "${table}"`,
+                ),
+            ).resolves.toEqual([{ tenantId: "t", id: "a", description: null }]);
+
+            await migration.down(queryRunner);
+            expect(await queryRunner.hasTable(table)).toBe(false);
+            await queryRunner.release();
+        }
+
+        describe("SQLite", () => {
+            let dataSource: DataSource;
+            let driftAfterSynchronize: string[];
+            let tmpDir: string;
+
+            beforeAll(async () => {
+                tmpDir = mkdtempSync(join(tmpdir(), "eudiplo-migration-test-"));
+                ({ dataSource, driftAfterSynchronize } = await schemaBefore({
+                    type: "better-sqlite3",
+                    database: join(tmpDir, "test.db"),
+                }));
+                // SQLite enforces ON DELETE CASCADE only with foreign keys on.
+                await dataSource.query("PRAGMA foreign_keys = ON");
+            }, 30_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                if (tmpDir) rmSync(tmpDir, { recursive: true, force: true });
+            });
+
+            test("creates the table idempotently and reversibly", async () => {
+                await expectCreatedAndReversible(
+                    dataSource,
+                    driftAfterSynchronize,
+                );
+            });
+        });
+
+        describeWithContainers("PostgreSQL", () => {
+            let dataSource: DataSource;
+            let driftAfterSynchronize: string[];
+            let postgresContainer: StartedPostgreSqlContainer;
+
+            beforeAll(async () => {
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                ).start();
+                ({ dataSource, driftAfterSynchronize } = await schemaBefore({
+                    type: "postgres",
+                    url: postgresContainer.getConnectionUri(),
+                }));
+            }, 60_000);
+
+            afterAll(async () => {
+                await dataSource?.destroy();
+                await postgresContainer?.stop();
+            });
+
+            test("creates the table idempotently and reversibly", async () => {
+                await expectCreatedAndReversible(
+                    dataSource,
+                    driftAfterSynchronize,
+                );
             });
         });
     });

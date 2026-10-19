@@ -6,11 +6,16 @@ import {
     resolveAuditActor,
 } from "../../audit-log/audit-log-context.util.js";
 import type { TokenPayload } from "../../auth/token.decorator.js";
+import { FederationTrustAnchorReferences } from "./application/federation-trust-anchor-references.js";
 import type { FederationTrustAnchorData } from "./domain/federation-trust-anchor-data.js";
 import {
     FederationTrustAnchorConflict,
     FederationTrustAnchorNotFound,
 } from "./domain/federation-trust-anchor-errors.js";
+import {
+    type FederationTrustAnchorChange,
+    FederationTrustAnchorInUseError,
+} from "./domain/federation-trust-anchor-reference.js";
 import {
     FEDERATION_TRUST_ANCHOR_REPOSITORY,
     type FederationTrustAnchorRepository,
@@ -20,9 +25,23 @@ import type {
     UpdateFederationTrustAnchor,
 } from "./schemas/federation-trust-anchor.schema.js";
 
+/** Options of a change to a trust anchor. */
+export interface FederationTrustAnchorChangeOptions {
+    /**
+     * Refuse the change while a configuration of the tenant names the
+     * anchor's entity ID (default). A configuration import turns it off: its
+     * plan checks the configurations that survive the import, and checking
+     * here would refuse an anchor whose referencing configuration the import
+     * rewrites or deletes in a later step.
+     */
+    checkReferences?: boolean;
+}
+
 /**
  * Manages a tenant's OpenID Federation trust anchors and their pinned
  * federation keys. Each entity ID is registered at most once per tenant.
+ * An anchor whose entity ID a configuration names is neither deleted nor
+ * given another entity ID.
  */
 @Injectable()
 export class FederationTrustAnchorService {
@@ -30,6 +49,7 @@ export class FederationTrustAnchorService {
         @Inject(FEDERATION_TRUST_ANCHOR_REPOSITORY)
         private readonly repo: FederationTrustAnchorRepository,
         private readonly auditLog: AuditLogService,
+        private readonly references: FederationTrustAnchorReferences,
     ) {}
 
     getAll(tenantId: string) {
@@ -95,10 +115,14 @@ export class FederationTrustAnchorService {
         dto: UpdateFederationTrustAnchor,
         actorToken?: TokenPayload,
         requestMeta?: AuditLogRequestMeta,
+        { checkReferences = true }: FederationTrustAnchorChangeOptions = {},
     ) {
         const existing = await this.getById(tenantId, id);
-        if (dto.entityId !== undefined) {
+        if (dto.entityId !== undefined && dto.entityId !== existing.entityId) {
             await this.assertEntityIdFree(tenantId, dto.entityId, id);
+            if (checkReferences) {
+                await this.assertUnreferenced(existing, "change-entity-id");
+            }
         }
         const saved = await this.repo.save({
             ...existing,
@@ -128,8 +152,12 @@ export class FederationTrustAnchorService {
         id: string,
         actorToken?: TokenPayload,
         requestMeta?: AuditLogRequestMeta,
+        { checkReferences = true }: FederationTrustAnchorChangeOptions = {},
     ) {
         const existing = await this.getById(tenantId, id);
+        if (checkReferences) {
+            await this.assertUnreferenced(existing, "delete");
+        }
         await this.repo.deleteForTenant(tenantId, id);
         if (actorToken) {
             await this.auditLog.record({
@@ -139,6 +167,29 @@ export class FederationTrustAnchorService {
                 before: forLog(existing),
                 requestMeta,
             });
+        }
+    }
+
+    /**
+     * Not atomic: a configuration saved between this lookup and the change
+     * can still name the entity ID. Accepted for administrative CRUD; that
+     * configuration's trust anchor is then not trusted until registered.
+     */
+    private async assertUnreferenced(
+        anchor: FederationTrustAnchorData,
+        change: FederationTrustAnchorChange,
+    ) {
+        const references = await this.references.find(
+            anchor.tenantId,
+            anchor.entityId,
+        );
+        if (references.length > 0) {
+            throw new FederationTrustAnchorInUseError(
+                anchor.id,
+                anchor.entityId,
+                change,
+                references,
+            );
         }
     }
 

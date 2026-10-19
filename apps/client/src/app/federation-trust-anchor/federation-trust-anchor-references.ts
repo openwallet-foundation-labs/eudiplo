@@ -18,8 +18,8 @@ export interface References<T> {
 
 /**
  * The configurations that name a trust anchor's entity ID, as far as the caller's roles can
- * read them. Provided per page, which shows them or names them before a change that would make
- * them stop trusting the federation.
+ * read them. Provided per page, which shows them or names them before a delete or entity ID
+ * change that the backend refuses while they name it.
  */
 @Injectable()
 export class FederationTrustAnchorReferences {

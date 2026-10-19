@@ -30,7 +30,7 @@ import { LoadErrorComponent } from '../../common/load-error.component';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
 import { EditorComponent } from '../../utils/editor/editor.component';
-import { getApiErrorMessage } from '../../utils/error-message';
+import { getApiErrorMessage, hasHttpStatus } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { fieldErrorMessage, showIssuesAtFields } from '../../utils/form-errors';
 import { schemaFormValidator } from '../../utils/schema-form-validator';
@@ -168,6 +168,11 @@ export class FederationTrustAnchorEditComponent implements OnInit {
       this.snackBar.open('Check the highlighted fields', 'Close', { duration: 3000 });
       return;
     }
+    // The backend refuses an entity ID change while configurations name the stored one.
+    if (this.entityIdChangeBlocked) {
+      openErrorSnackBar(this.snackBar, this.entityIdChangeWarning);
+      return;
+    }
     const value = this.form.getRawValue();
     // The form is valid, so the editor holds a parsed JWK set, maybe with its schema reference.
     const jwks = { ...(value.jwks as JwksValue) };
@@ -202,6 +207,9 @@ export class FederationTrustAnchorEditComponent implements OnInit {
           (path) => (path.startsWith('jwks.') ? 'jwks' : path)
         )
       );
+      // The backend found configurations naming the stored entity ID; show its current state.
+      if (hasHttpStatus(error, 409) && this.storedEntityId)
+        void this.references.load(this.storedEntityId);
     } finally {
       this.saving = false;
     }
@@ -229,15 +237,27 @@ export class FederationTrustAnchorEditComponent implements OnInit {
   }
 
   /**
-   * Shown while the entity ID differs from the stored one that configurations name: they match
-   * trust anchors by entity ID, so they stop trusting this federation.
+   * Shown while the entity ID differs from the stored one: the backend refuses the change while
+   * a configuration names the stored entity ID, so the warning says how to move.
    */
   get entityIdChangeWarning(): string {
-    const entityId = this.form.controls.entityId.value.trim();
-    if (!this.storedEntityId || !entityId || entityId === this.storedEntityId) return '';
+    if (!this.entityIdChanged) return '';
     const uses = this.references.describe();
-    const named = uses ? `${this.storedEntityId} is named by ${uses}.` : '';
-    return `${named} Configurations that name ${this.storedEntityId} no longer trust this federation until you change them to the new entity ID.`.trim();
+    const refused = uses
+      ? `${this.storedEntityId} is named by ${uses}, so the change is refused.`
+      : `If a configuration names ${this.storedEntityId}, the change is refused.`;
+    return `${refused} To move, register the new entity ID as another trust anchor and switch the configurations to it.`;
+  }
+
+  /** True while the entity ID differs from the stored one. */
+  private get entityIdChanged(): boolean {
+    const entityId = this.form.controls.entityId.value.trim();
+    return !!this.storedEntityId && !!entityId && entityId !== this.storedEntityId;
+  }
+
+  /** True when the entity ID changed and this page sees configurations naming the stored one. */
+  get entityIdChangeBlocked(): boolean {
+    return this.entityIdChanged && !!this.references.describe();
   }
 
   /** The backend's issue with the keys; the editor shows the local validation messages. */

@@ -206,21 +206,36 @@ test('refuses configurations that add an unregistered trust anchor', async () =>
   expect((await presentation.json()).message).toContain(unregistered);
 });
 
-test('flags a stored trust anchor whose registration was deleted', async ({ page }) => {
+test('refuses to delete a trust anchor that configurations name', async ({ page }) => {
   await loginWithClientCredentials(page, tenant.clientId, tenant.clientSecret);
   await page.goto(`/federation-trust-anchor/${anchorId}`);
-  page.once('dialog', (dialog) => dialog.accept());
+  // The page sees the configurations, so it refuses without asking.
+  const dialogs: string[] = [];
+  page.on('dialog', (dialog) => {
+    dialogs.push(dialog.message());
+    void dialog.dismiss();
+  });
   await page.getByRole('button', { name: 'Delete trust anchor' }).click();
-  await expect(page).toHaveURL(/\/federation-trust-anchor$/);
 
-  await page.goto('/issuance-config/edit');
-  await page.getByRole('tab', { name: 'Trust' }).click();
-  const section = await federationSection(page);
-  await expect(section.getByRole('status')).toContainText(
-    `${entityId} is not a registered trust anchor`
-  );
-  await expect(section.getByRole('link', { name: /Register trust anchor/ })).toHaveAttribute(
-    'href',
-    `/federation-trust-anchor/create?entityId=${entityId.replaceAll('/', '%2F')}`
-  );
+  await expect(page.getByText(/is still named by/)).toBeVisible();
+  expect(dialogs).toEqual([]);
+  await expect(page).toHaveURL(new RegExp(`/federation-trust-anchor/${anchorId}$`));
+  expect((await apiRequest('GET', `/federation-trust-anchor/${anchorId}`)).status).toBe(200);
+});
+
+test('refuses to change an entity ID that configurations name', async ({ page }) => {
+  await loginWithClientCredentials(page, tenant.clientId, tenant.clientSecret);
+  await page.goto(`/federation-trust-anchor/${anchorId}/edit`);
+  const entityIdField = page.getByLabel('Entity ID');
+  await expect(entityIdField).toHaveValue(entityId);
+  await entityIdField.fill('https://other-ta.example.org');
+  await expect(
+    page.getByRole('status').filter({ hasText: 'so the change is refused' })
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: 'Save Changes' }).click();
+
+  await expect(page).toHaveURL(new RegExp(`/federation-trust-anchor/${anchorId}/edit$`));
+  const stored = await (await apiRequest('GET', `/federation-trust-anchor/${anchorId}`)).json();
+  expect(stored.entityId).toBe(entityId);
 });

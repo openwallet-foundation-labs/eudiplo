@@ -40,7 +40,11 @@ const anchor = {
 };
 
 describe('FederationTrustAnchorEditComponent', () => {
-  function render(params: { id?: string; entityId?: string }, service: Record<string, unknown>) {
+  function render(
+    params: { id?: string; entityId?: string },
+    service: Record<string, unknown>,
+    issuanceEntityIds = ['https://ta.example']
+  ) {
     TestBed.configureTestingModule({
       imports: [FederationTrustAnchorEditComponent],
       providers: [
@@ -55,7 +59,7 @@ describe('FederationTrustAnchorEditComponent', () => {
           provide: IssuanceConfigService,
           useValue: {
             getConfig: async () => ({
-              federation: { trustAnchors: [{ entityId: 'https://ta.example' }] },
+              federation: { trustAnchors: issuanceEntityIds.map((entityId) => ({ entityId })) },
             }),
           },
         },
@@ -158,7 +162,7 @@ describe('FederationTrustAnchorEditComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/federation-trust-anchor', 'eu-federation']);
   });
 
-  it('warns that configurations naming the stored entity ID stop trusting it', async () => {
+  it('warns that the change is refused while configurations name the stored entity ID', async () => {
     const { component } = render(
       { id: 'eu-federation' },
       { getById: vi.fn().mockResolvedValue(anchor) }
@@ -169,10 +173,43 @@ describe('FederationTrustAnchorEditComponent', () => {
     component.form.controls.entityId.setValue('https://new-ta.example');
     await vi.waitFor(() =>
       expect(component.entityIdChangeWarning).toBe(
-        'https://ta.example is named by the issuance configuration. Configurations that name' +
-          ' https://ta.example no longer trust this federation until you change them to the new' +
-          ' entity ID.'
+        'https://ta.example is named by the issuance configuration, so the change is refused. To' +
+          ' move, register the new entity ID as another trust anchor and switch the configurations' +
+          ' to it.'
       )
+    );
+  });
+
+  it('refuses up front to change an entity ID that known configurations name', async () => {
+    const update = vi.fn();
+    const { component, snackBar } = render(
+      { id: 'eu-federation' },
+      { getById: vi.fn().mockResolvedValue(anchor), update }
+    );
+    await vi.waitFor(() => expect(component.loading).toBe(false));
+    component.form.controls.entityId.setValue('https://new-ta.example');
+    await vi.waitFor(() => expect(component.entityIdChangeBlocked).toBe(true));
+
+    await component.onSubmit();
+
+    expect(snackBar.open.mock.calls[0][0]).toContain('so the change is refused');
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('warns generally when no visible configuration names the stored entity ID', async () => {
+    const { component } = render(
+      { id: 'eu-federation' },
+      { getById: vi.fn().mockResolvedValue(anchor) },
+      []
+    );
+    await vi.waitFor(() => expect(component.loading).toBe(false));
+
+    component.form.controls.entityId.setValue('https://new-ta.example');
+
+    expect(component.entityIdChangeBlocked).toBe(false);
+    expect(component.entityIdChangeWarning).toBe(
+      'If a configuration names https://ta.example, the change is refused. To move, register the' +
+        ' new entity ID as another trust anchor and switch the configurations to it.'
     );
   });
 

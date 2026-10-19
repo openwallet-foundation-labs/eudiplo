@@ -514,7 +514,15 @@ export class ConfigBundleApplyService {
                 await this.trustListService.remove(tenantId, id);
                 return;
             case "FederationTrustAnchor":
-                await this.federationTrustAnchorService.delete(tenantId, id);
+                // Without the reference check, as for trust lists: the plan
+                // blocks deleting an anchor a surviving configuration names.
+                await this.federationTrustAnchorService.delete(
+                    tenantId,
+                    id,
+                    undefined,
+                    undefined,
+                    { checkReferences: false },
+                );
                 return;
             case "StatusList":
                 await this.statusListService.deleteList(tenantId, id);
@@ -705,11 +713,18 @@ export class ConfigBundleApplyService {
                 ) {
                     // Omitted fields keep their stored values, as the plan
                     // shows.
+                    // The plan checks an entity ID change against the
+                    // configurations that survive the import; checking here
+                    // would refuse one whose configuration a later step
+                    // (higher import phase) rewrites.
                     const { id, ...update } = anchor;
                     await this.federationTrustAnchorService.update(
                         tenantId,
                         id,
                         update,
+                        undefined,
+                        undefined,
+                        { checkReferences: false },
                     );
                 } else {
                     await this.federationTrustAnchorService.create(

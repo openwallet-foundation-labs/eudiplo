@@ -20,7 +20,7 @@ import { LoadErrorComponent } from '../../common/load-error.component';
 import { ConfigDocumentService } from '../../config-portability/config-document.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
-import { getApiErrorMessage } from '../../utils/error-message';
+import { getApiErrorMessage, hasHttpStatus } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import {
   type FederationTrustAnchor,
@@ -100,24 +100,46 @@ export class FederationTrustAnchorShowComponent implements OnInit {
     }
   }
 
+  /** The trust anchor as messages name it: its description and ID, or its ID alone. */
+  private anchorName(): string {
+    const description = this.anchor?.description;
+    return description ? `"${description}" (${this.id})` : `"${this.id}"`;
+  }
+
   /**
-   * Asks before deleting. The backend deletes a trust anchor that configurations still name;
-   * they then stop trusting its federation, so the question names the references it knows of.
+   * Why the backend would refuse the delete, when this page already sees configurations that
+   * name the trust anchor's entity ID; undefined otherwise.
+   */
+  deleteBlockedReason(): string | undefined {
+    const uses = this.references.describe();
+    if (!uses) return undefined;
+    return (
+      `Trust anchor ${this.anchorName()} is still named by ${uses}.` +
+      ' Remove these references before deleting it.'
+    );
+  }
+
+  /**
+   * Asks before deleting a trust anchor that this page sees no references to. References it
+   * cannot see, not readable with the caller's roles, make the backend refuse the delete and
+   * name them.
    */
   deleteQuestion(): string {
-    const name = this.anchor?.description
-      ? `"${this.anchor.description}" (${this.id})`
-      : `"${this.id}"`;
-    const uses = this.references.describe();
-    const consequence = uses
-      ? ` It is named by ${uses}, which then no longer trust this federation.`
-      : ' Configurations that name its entity ID no longer trust this federation.';
-    return `Delete trust anchor ${name}?${consequence} This cannot be undone.`;
+    return (
+      `Delete trust anchor ${this.anchorName()}? If a configuration names its entity ID, the` +
+      ' delete is refused and the configurations are named. This cannot be undone.'
+    );
   }
 
   async delete(): Promise<void> {
-    // The question names the references, so it waits until they are known.
-    if (this.deleting || this.references.loading || !confirm(this.deleteQuestion())) return;
+    // Whether the delete is blocked depends on the references, so it waits until they are known.
+    if (this.deleting || this.references.loading) return;
+    const blocked = this.deleteBlockedReason();
+    if (blocked) {
+      openErrorSnackBar(this.snackBar, blocked);
+      return;
+    }
+    if (!confirm(this.deleteQuestion())) return;
     this.deleting = true;
     try {
       await this.service.delete(this.id);
@@ -126,6 +148,8 @@ export class FederationTrustAnchorShowComponent implements OnInit {
     } catch (error) {
       this.deleting = false;
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error deleting trust anchor'));
+      // The backend found references this page did not show; show its current state.
+      if (hasHttpStatus(error, 409) && this.anchor) void this.references.load(this.anchor.entityId);
     }
   }
 

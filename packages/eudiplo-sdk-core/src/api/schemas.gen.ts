@@ -8576,6 +8576,78 @@ export const UpdateFederationTrustAnchorDtoSchema = {
     additionalProperties: false
 } as const;
 
+export const FederationTrustAnchorReferenceDtoSchema = {
+    type: 'object',
+    properties: {
+        kind: {
+            enum: [
+                'PresentationConfig',
+                'IssuanceConfig'
+            ],
+            type: 'string',
+            description: 'Kind of configuration that names the trust anchor.'
+        },
+        id: {
+            type: 'string',
+            description: 'ID of the presentation config. Absent for the issuance configuration, of which a tenant has one, and for configurations the caller may not read.'
+        },
+        description: {
+            type: 'string',
+            description: 'Description of the configuration; absent for configurations the caller may not read.'
+        }
+    },
+    required: [
+        'kind'
+    ]
+} as const;
+
+export const FederationTrustAnchorInUseDtoSchema = {
+    type: 'object',
+    properties: {
+        statusCode: {
+            type: 'number',
+            description: 'HTTP status code.',
+            example: 409
+        },
+        timestamp: {
+            type: 'string',
+            description: 'Time of the response.',
+            example: '2026-10-17T12:00:00.000Z'
+        },
+        path: {
+            type: 'string',
+            description: 'Path of the request.',
+            example: '/api/federation-trust-anchor/eu-federation'
+        },
+        code: {
+            enum: [
+                'FEDERATION_TRUST_ANCHOR_IN_USE'
+            ],
+            type: 'string',
+            description: 'Configurations still name the trust anchor\'s entity ID.'
+        },
+        message: {
+            type: 'string',
+            description: 'Names the configurations the caller may read and counts the others.',
+            example: 'Federation trust anchor "eu-federation" (https://federation.example.eu) is still named by 1 presentation config ("pid") and the issuance configuration (federation.trustAnchors). Remove these references before deleting it.'
+        },
+        references: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/FederationTrustAnchorReferenceDto'
+            }
+        }
+    },
+    required: [
+        'statusCode',
+        'timestamp',
+        'path',
+        'code',
+        'message',
+        'references'
+    ]
+} as const;
+
 export const VerificationProvenanceDtoSchema = {
     type: 'object',
     properties: {
