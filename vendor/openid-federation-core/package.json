@@ -23,7 +23,7 @@
   "author": "Animo Solutions",
   "dependencies": {
     "buffer": "^6.0.3",
-    "zod": "^3.23.8"
+    "zod": "^4.6.7"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -147,7 +147,7 @@
         "typescript": "^6.0.0",
         "undici": "^8.11.2",
         "unplugin-swc": "^2.0.0",
-        "vitest": "5.0.3"
+        "vitest": "5.0.4"
     },
     "packageManager": "pnpm@10.13.1"
 }
