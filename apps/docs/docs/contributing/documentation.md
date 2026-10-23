@@ -24,6 +24,8 @@ pnpm --filter @eudiplo/docs start              # live reload on http://127.0.0.1
 
 The search widget reads `ALGOLIA_APP_ID`, `ALGOLIA_SEARCH_API_KEY`, `ALGOLIA_INDEX_NAME` and `DOCSEARCH_AGENT_ID`; local builds work without them.
 
+The build also writes `llms.txt` (an index of all pages) and `llms-full.txt` (every page in one file) for coding assistants, following [llmstxt.org](https://llmstxt.org). `docusaurus-plugin-llms` reads the Markdown sources, so content rendered by components such as `SchemaReference` is not included; link to the published page for those tables.
+
 ## Where content goes
 
 The sidebar order is Start, Cookbooks, Issuance, Presentation, Trust, Operate, Reference, Concepts, Contributing, Upgrade.

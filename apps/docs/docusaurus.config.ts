@@ -14,6 +14,8 @@ const config: Config = {
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    // Rspack, SWC and Lightning CSS from @docusaurus/faster.
+    faster: true,
   },
 
   url: 'https://docs.eudiplo.dev',
@@ -65,6 +67,31 @@ const config: Config = {
   },
 
   plugins: [
+    [
+      // Publishes /llms.txt (page index) and /llms-full.txt (all pages in one
+      // file) so coding assistants can read the docs, see https://llmstxt.org.
+      'docusaurus-plugin-llms',
+      {
+        // Docs are served at `/`, not `/docs`. Without this the `slug: /`
+        // intro page is listed as /docs.
+        docsDir: [{path: 'docs', routeBasePath: '/'}],
+        ignoreFiles: ['_generated/**'],
+        includeOrder: [
+          'intro.md',
+          'cookbooks/**',
+          'issuance/**',
+          'presentation/**',
+          'trust/**',
+          'operate/**',
+          'reference/**',
+          'concepts/**',
+          'contributing/**',
+          'upgrade/**',
+        ],
+        excludeImports: true,
+        removeDuplicateHeadings: true,
+      },
+    ],
     [
       '@docusaurus/plugin-client-redirects',
       {
@@ -259,6 +286,7 @@ const config: Config = {
             {label: 'Cookbooks', to: '/cookbooks'},
             {label: 'Concepts', to: '/concepts'},
             {label: 'Contributing', to: '/contributing'},
+            {label: 'llms.txt', href: 'pathname:///llms.txt'},
           ],
         },
         {
