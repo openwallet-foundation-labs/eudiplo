@@ -52,3 +52,7 @@ Exact facts: the [management API](reference/api.md), [environment variables](ref
 
 </div>
 </div>
+
+## Use the docs with a coding assistant
+
+Point your assistant at [`llms.txt`](pathname:///llms.txt), an index of all pages, or at [`llms-full.txt`](pathname:///llms-full.txt), every page in one file. Both follow [llmstxt.org](https://llmstxt.org). `llms-full.txt` contains the Markdown source of each page, so generated content (environment variables, configuration fields, roles and the CLI command reference) is only on the published pages.
